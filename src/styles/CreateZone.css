@@ -1,0 +1,123 @@
+.create-zone-container {
+  padding: 30px;
+  background: #f5f6fa;
+  min-height: 1500px;
+}
+
+.create-zone-card {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding-bottom: 100px;
+}
+
+.create-zone-title {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 30px;
+}
+
+.form-group {
+  margin-bottom: 25px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.form-group input {
+  width: 350px;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.location-search {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.coordinate-count {
+  margin-top: 20px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.save-btn {
+  margin-top: 20px;
+  background: #ff6b35;
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 30px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.save-btn:hover {
+  background: #e85d2f;
+}
+.map-tools {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  z-index: 999;
+}
+
+.map-tools button {
+  width: 55px;
+  height: 55px;
+
+  background: #032456;
+  color: white;
+
+  border: none;
+
+  font-size: 22px;
+  cursor: pointer;
+}
+.instructions-section {
+  margin: 30px 0;
+}
+
+.instructions-section h3 {
+  font-size: 28px;
+  margin-bottom: 20px;
+}
+
+.instructions-section p {
+  margin-bottom: 20px;
+  color: #555;
+}
+
+.instruction-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.tool-icon {
+  width: 50px;
+  height: 50px;
+  background: #032456;
+  color: white;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  font-size: 22px;
+}
