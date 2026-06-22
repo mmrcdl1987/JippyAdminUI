@@ -9,25 +9,68 @@ function ZoneManagement({ setActivePage }) {
     loadZones();
   }, []);
 
-  const loadZones = async () => {
-    try {
-      const response = await API.get(
-        "/driver/getZones"
-      );
+//   const loadZones = async () => {
+//     try {
+//      const response = await API.get(
+//   "/api/driver/getZones"
+// );
 
-      console.log("Zones:", response.data);
+//       console.log("Zones:", response.data);
 
-      if (Array.isArray(response.data)) {
-        setZones(response.data);
-      }
-    } catch (error) {
-      console.error(
-        "Error loading zones:",
-        error
-      );
-    }
-  };
+//       if (Array.isArray(response.data)) {
+//         setZones(response.data);
+//       }
+//     } catch (error) {
+//       console.error(
+//         "Error loading zones:",
+//         error
+//       );
+//     }
+//   };
 
+
+const loadZones = async () => {
+  try {
+
+    const response = await API.get(
+      "/api/driver/getZones"
+    );
+
+    console.log(
+      "FULL RESPONSE =>",
+      response
+    );
+
+    console.log(
+      "RESPONSE DATA =>",
+      response.data
+    );
+
+    console.log(
+      "IS ARRAY =>",
+      Array.isArray(response.data)
+    );
+
+    console.log(
+      "LENGTH =>",
+      response.data?.length
+    );
+
+    console.log(
+      "FIRST RECORD =>",
+      response.data?.[0]
+    );
+
+    setZones(response.data || []);
+
+  } catch (error) {
+
+    console.error(
+      "Error loading zones:",
+      error
+    );
+  }
+};
   const handleStatusToggle = async (
     zone
   ) => {
@@ -35,12 +78,12 @@ function ZoneManagement({ setActivePage }) {
       const updatedStatus =
         !zone.status;
 
-      await API.put(
-        `/driver/updateZoneStatus/${zone.zoneId}`,
-        {
-          status: updatedStatus,
-        }
-      );
+     await API.put(
+  `/api/driver/updateZoneStatus/${zone.zoneId}`,
+  {
+    status: updatedStatus,
+  }
+);
 
       setZones((prevZones) =>
         prevZones.map((z) =>

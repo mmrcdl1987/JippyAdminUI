@@ -387,11 +387,10 @@ const loadZoneById = async (id) => {
 
   try {
 
-    const response =
-      await API.get(
-        `/driver/getZoneById/${id}`
-      );
-
+   const response =
+  await API.get(
+    `/api/driver/getZoneById/${id}`
+  );
     const zone = response.data;
 
     setZoneId(zone.zoneId);
@@ -484,11 +483,8 @@ if (allPolygons.length === 0) {
 
 const payload = {
   zoneName,
-  createdBy: Number(createdBy),
-
-  boundary: allPolygons.map(
-    (polygon) => [polygon]
-  )
+  boundary: allPolygons.map((polygon) => [polygon]),
+ 
 };
 
 console.log(
@@ -504,21 +500,20 @@ console.log(
 
     if (isEdit) {
 
-      response = await API.put(
-        `/driver/updateZone/${zoneId}`,
-        payload
-      );
+    response = await API.put(
+  `/api/driver/updateZone/${zoneId}`,
+  payload
+);
 
       console.log(response.data);
 
       alert("Zone Updated Successfully");
 
     } else {
-
-      response = await API.post(
-        "/driver/createZones",
-        payload
-      );
+response = await API.post(
+  "/api/driver/createZones",
+  payload
+);
 
       console.log(response.data);
 

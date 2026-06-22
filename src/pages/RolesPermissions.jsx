@@ -6,14 +6,7 @@ from "../utils/permissionUtils";
 import "../styles/RolesPermissions.css";
 
 function RolesPermissions() {
-  if (!hasPermission("ROLE_READ")) {
-  return (
-    <div className="access-denied">
-      <h2>Access Denied</h2>
-      <p>You don't have permission to access this page.</p>
-    </div>
-  );
-}
+ 
 const [activeTab, setActiveTab] =
   useState("roles");
   const [showPermissionCrudModal,
@@ -62,10 +55,21 @@ useEffect(() => {
   loadRoles();
   loadAllPermissions();
 }, []);
+  if (!hasPermission("ROLE_READ")) {
+    return (
+      <div className="access-denied">
+        <h2>Access Denied</h2>
+        <p>You don't have permission to access this page.</p>
+      </div>
+    );
+  }
 
  const loadRoles = async () => {
   try {
-    const response = await FM_API.get("/fm/roles");
+    // Load Roles
+const response = await FM_API.get(
+  "/api/fm/roles"
+);
 
     console.log("Roles Response:", response.data);
 
@@ -95,10 +99,10 @@ useEffect(() => {
       roleId
     );
 
-    const response =
-      await FM_API.get(
-        `/fm/roles/${roleId}/permissions`
-      );
+   // Load Permissions by Role
+const response = await FM_API.get(
+  `/api/fm/roles/${roleId}/permissions`
+);
 
     console.log(
       "Permissions:",
@@ -123,7 +127,7 @@ const loadAllPermissions = async () => {
 
     const response =
       await FM_API.get(
-        "/fm/permissions"
+        "/api/fm/permissions"
       );
 
     console.log(
@@ -172,10 +176,10 @@ console.log(
   "Request Payload:",
   payload
 );
-    await FM_API.put(
-      `/fm/roles/${selectedRole.roleId}/permissions`,
-      payload
-    );
+   await FM_API.put(
+  `/api/fm/roles/${selectedRole.roleId}/permissions`,
+  payload
+);
 
     alert(
       "Permissions Updated Successfully"
@@ -235,7 +239,7 @@ const createRole = async () => {
   try {
 
     await FM_API.post(
-      "/fm/roles",
+      "/api/fm/roles",
       {
         roleName
       }
@@ -269,12 +273,12 @@ const updateRole = async () => {
 
   try {
 
-    await FM_API.put(
-      `/fm/roles/${selectedRole.roleId}`,
-      {
-        roleName
-      }
-    );
+  await FM_API.put(
+  `/api/fm/roles/${selectedRole.roleId}`,
+  {
+    roleName
+  }
+);
 
     alert(
       "Role Updated Successfully"
@@ -304,7 +308,7 @@ const createPermission = async () => {
   try {
 
     await FM_API.post(
-      "/fm/permissions",
+      "/api/fm/permissions",
       {
         permissionName
       }
@@ -345,9 +349,9 @@ const deletePermission = async (
 
   try {
 
-    await FM_API.delete(
-      `/fm/permissions/${permissionId}`
-    );
+  await FM_API.delete(
+  `/api/fm/permissions/${permissionId}`
+);
 
     alert(
       "Permission Deleted"
@@ -371,11 +375,11 @@ const updatePermission = async () => {
   try {
 
     await FM_API.put(
-      `/fm/permissions/${selectedPermission.permissionId}`,
-      {
-        permissionName
-      }
-    );
+  `/api/fm/permissions/${selectedPermission.permissionId}`,
+  {
+    permissionName
+  }
+);
 
     alert(
       "Permission Updated"

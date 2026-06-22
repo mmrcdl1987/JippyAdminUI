@@ -3,12 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { menuData } from "../data/menuData";
 import "../styles/Sidebar.css";
 import { hasPermission } from "../utils/permissionUtils";
+import {
+  getRole
+} from "../utils/authUtils";
 
 function Sidebar({ setActivePage }) {
   const navigate = useNavigate();
 
-  const role =
-    localStorage.getItem("role");
+const role = getRole();
 
   const [openMenus, setOpenMenus] =
     useState({});
@@ -34,6 +36,10 @@ function Sidebar({ setActivePage }) {
       case "Admin Users":
         setActivePage("adminUsers");
         break;
+       case "Users / Customers":
+  console.log("Users Customers Clicked");
+  setActivePage("usersCustomers");
+  break;
 
       case "Driver Tracking":
         setActivePage("driverTracking");

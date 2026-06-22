@@ -5,7 +5,8 @@ import CreateZone from "./CreateZone";
 import AdminUsers from "./AdminUsers";
 import RolesPermissions from "./RolesPermissions";
 import { hasPermission } from "../utils/permissionUtils";
-
+import UsersCustomers from "./UsersCustomers.jsx";
+import CreateUser from "./CreateUser";
 import "../styles/Dashboard.css";
 
 import {
@@ -135,7 +136,21 @@ function Dashboard() {
             <AdminUsers />
           )
         }
-
+  {/* Users / Customers */}
+{
+  activePage === "usersCustomers" && (
+    <UsersCustomers
+      setActivePage={setActivePage}
+    />
+  )
+}
+{
+  activePage === "createUser" && (
+    <CreateUser
+      setActivePage={setActivePage}
+    />
+  )
+}
         {/* Access Denied */}
         {
           activePage === "zones" &&

@@ -1,0 +1,195 @@
+.users-container {
+  padding: 25px;
+}
+
+.page-title h2 {
+  font-size: 34px;
+  margin-bottom: 20px;
+  color: #222;
+}
+
+.users-overview-card,
+.users-list-card {
+  background: #fff;
+  border-radius: 18px;
+  padding: 25px;
+  margin-bottom: 25px;
+  box-shadow: 0 2px 15px rgba(0,0,0,0.06);
+}
+
+.users-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.users-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.users-count {
+  background: #ffe8de;
+  color: #ff6b35;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-weight: 600;
+}
+
+.filters {
+  display: flex;
+  gap: 15px;
+}
+
+.filters select {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 30px;
+  background: #f5f5f5;
+}
+
+.bulk-import-card {
+  margin-top: 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.bulk-import-card p {
+  color: #777;
+  margin: 10px 0;
+}
+
+.bulk-import-card input {
+  margin-top: 10px;
+}
+
+.bulk-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.download-btn,
+.import-btn,
+.create-btn {
+  border: none;
+  background: #ff6b35;
+  color: white;
+  padding: 14px 24px;
+  border-radius: 30px;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.import-btn {
+  background: #ff7a45;
+}
+
+.list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.list-header p {
+  color: #777;
+}
+
+.list-actions {
+  display: flex;
+  gap: 15px;
+}
+
+.column-btn {
+  padding: 12px 20px;
+  border-radius: 30px;
+  background: white;
+  border: 1px solid #ddd;
+  cursor: pointer;
+}
+
+.table-controls {
+  margin: 25px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.table-controls select {
+  margin: 0 10px;
+  padding: 6px;
+}
+
+.right-controls {
+  display: flex;
+  gap: 15px;
+}
+
+.right-controls input {
+  width: 250px;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 30px;
+}
+
+.export-btn {
+  border: none;
+  padding: 12px 20px;
+  border-radius: 30px;
+  background: #f5f5f5;
+  cursor: pointer;
+}
+
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.users-table th {
+  background: #fafafa;
+  padding: 15px;
+  text-align: left;
+}
+
+.users-table td {
+  padding: 15px;
+  border-top: 1px solid #eee;
+}
+
+.active-status {
+  background: #e8fff0;
+  color: green;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+}
+.user-info-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.users-table th {
+  background: #f5f5f5;
+  font-weight: 600;
+  padding: 16px;
+  text-align: left;
+}
+
+.users-table td {
+  padding: 16px;
+  border-bottom: 1px solid #eee;
+}

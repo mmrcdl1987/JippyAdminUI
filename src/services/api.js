@@ -1,31 +1,66 @@
 import axios from "axios";
 
-// Existing service (8086)
+// Through Gateway (8084)
 const API = axios.create({
-  baseURL: "http://localhost:8086/api",
+  baseURL: "http://localhost:8084",
 });
 
-// Food & Mart service (8080)
+// Food & Mart through Gateway
 export const FM_API = axios.create({
-  baseURL: "http://localhost:8080/api",
+  baseURL: "http://localhost:8084",
 });
 
-// Attach JWT token automatically
+// Common interceptor
+const addToken = (config) => {
+
+  const token = localStorage.getItem("token");
+
+  console.log("================================");
+  console.log("TOKEN FROM LOCAL STORAGE:", token);
+  console.log("REQUEST URL:", config.url);
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+    console.log("AUTH HEADER ADDED");
+  } else {
+    console.log("NO TOKEN FOUND");
+  }
+
+  console.log("================================");
+
+  return config;
+};
+
+API.interceptors.request.use(
+  addToken,
+  (error) => Promise.reject(error)
+);
+
 FM_API.interceptors.request.use(
-  (config) => {
+  addToken,
+  (error) => Promise.reject(error)
+);
 
-    const token =
-      localStorage.getItem("token");
+API.interceptors.response.use(
+  (response) => response,
+  (error) => {
 
-    if (token) {
+    console.log("API ERROR:", error);
 
-      config.headers.Authorization =
-        `Bearer ${token}`;
+    if (
+      error.response &&
+      error.response.status === 401
+    ) {
+
+      console.log("401 UNAUTHORIZED");
+
+      localStorage.clear();
+
+      window.location.href = "/login";
     }
 
-    return config;
-  },
-  (error) => Promise.reject(error)
+    return Promise.reject(error);
+  }
 );
 
 export default API;

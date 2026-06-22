@@ -13,75 +13,103 @@ function Login() {
 
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    try {
-      setLoading(true);
+  try {
 
-      const response = await axios.post(
-        "http://localhost:8080/api/fm/auth/login",
-        {
-          username: email,
-          password: password,
-        }
-      );
+    setLoading(true);
 
-      const userData = response.data;
-
-      console.log("Login Response :", userData);
-
-      // Store user data
-      localStorage.setItem(
-        "userData",
-        JSON.stringify(userData)
-      );
-
-      localStorage.setItem(
-        "token",
-        userData.token
-      );
-
-      localStorage.setItem(
-        "username",
-        userData.username
-      );
-
-      localStorage.setItem(
-        "role",
-        userData.role
-      );
-
-      localStorage.setItem(
-        "permissions",
-        JSON.stringify(userData.permissions)
-      );
-console.log("Stored Role:", localStorage.getItem("role"));
-console.log(
-  "Stored Permissions:",
-  localStorage.getItem("permissions")
-);
-      if (rememberMe) {
-        localStorage.setItem(
-          "rememberedUser",
-          email
-        );
+    const response = await axios.post(
+      "http://localhost:8084/api/fm/auth/login",
+      {
+        username: email,
+        password: password,
       }
+    );
 
-      alert("Login Successful");
+    const userData = response.data;
 
-      navigate("/dashboard");
-    } catch (error) {
-      console.error("Login Error :", error);
+    console.log("Login Response :", userData);
 
-      alert(
-        error?.response?.data ||
-          "Invalid Username or Password"
+    // Clear old session
+    localStorage.clear();
+
+    // Complete response
+    localStorage.setItem(
+      "userData",
+      JSON.stringify(userData)
+    );
+
+    // JWT Token
+    localStorage.setItem(
+      "token",
+      userData.token || ""
+    );
+
+    // Username
+    localStorage.setItem(
+      "username",
+      userData.username || ""
+    );
+
+    // Role
+    localStorage.setItem(
+      "role",
+      userData.role || ""
+    );
+
+    // Permissions
+    localStorage.setItem(
+      "permissions",
+      JSON.stringify(
+        userData.permissions || []
+      )
+    );
+
+    console.log(
+      "Stored Token:",
+      localStorage.getItem("token")
+    );
+
+    console.log(
+      "Stored Role:",
+      localStorage.getItem("role")
+    );
+
+    console.log(
+      "Stored Permissions:",
+      localStorage.getItem("permissions")
+    );
+
+    if (rememberMe) {
+      localStorage.setItem(
+        "rememberedUser",
+        email
       );
-    } finally {
-      setLoading(false);
     }
-  };
+
+    navigate("/dashboard");
+
+  } catch (error) {
+
+    console.error(
+      "Login Error:",
+      error
+    );
+
+    alert(
+      error?.response?.data?.message ||
+      error?.response?.data ||
+      "Invalid Username or Password"
+    );
+
+  } finally {
+
+    setLoading(false);
+
+  }
+};
 
   return (
     <div className="login-container">

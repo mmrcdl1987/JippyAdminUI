@@ -9,6 +9,12 @@ function AdminUsers() {
     return <h2>Access Denied</h2>;
   }
 
+  const [employeeName, setEmployeeName] = useState("");
+const [email, setEmail] = useState("");
+const [mobileNumber, setMobileNumber] = useState("");
+const [username, setUsername] = useState("");
+const [password, setPassword] = useState("");
+
   const [roles, setRoles] = useState([]);
   const [users, setUsers] = useState([]);
   const [search, setSearch] = useState("");
@@ -34,7 +40,7 @@ function AdminUsers() {
     try {
 
       const response =
-        await FM_API.get("/fm/users/all");
+        await FM_API.get("/api/fm/users/all");
 
       setUsers(response.data);
 
@@ -51,7 +57,7 @@ function AdminUsers() {
     try {
 
       const response =
-        await FM_API.get("/fm/roles");
+        await FM_API.get("/api/fm/roles");
 
       setRoles(response.data);
 
@@ -71,10 +77,9 @@ function AdminUsers() {
       setSelectedUser(user);
 
       const response =
-        await FM_API.get(
-          `/fm/users/${user.usersId}/roles`
-        );
-
+       await FM_API.get(
+  `/api/fm/users/${user.usersId}/roles`
+);
       setSelectedRoleIds(
         response.data
       );
@@ -105,7 +110,7 @@ function AdminUsers() {
     try {
 
       await FM_API.post(
-        "/fm/users/assignRole",
+  "/api/fm/users/assignRole",
         {
           userId:
             selectedUser.usersId,
@@ -135,6 +140,32 @@ function AdminUsers() {
       );
     }
   };
+  const saveEmployee = async () => {
+
+  try {
+
+    await FM_API.post(
+  "/api/fm/users/createEmployee",
+      {
+        employeeName,
+        email,
+        mobileNumber,
+        username,
+        password
+      }
+    );
+
+    alert("Employee Created Successfully");
+
+    loadUsers();
+
+  } catch (error) {
+
+    console.error(error);
+
+    alert("Failed To Create Employee");
+  }
+};
 
   const filteredUsers =
     Array.isArray(users)
@@ -311,23 +342,84 @@ function AdminUsers() {
           "ADMIN_USER_CREATE"
         ) && (
 
-          <div className="create-form">
+         <div className="create-admin-card">
 
-            <input
-              type="text"
-              placeholder="Username"
-            />
+  <h3>Create Employee Admin</h3>
 
-            <input
-              type="text"
-              placeholder="User Type"
-            />
+  <div className="form-grid">
 
-            <button>
-              Save User
-            </button>
+    <div className="form-group">
+      <label>Employee Name</label>
+      <input
+        type="text"
+        placeholder="Enter employee name"
+        value={employeeName}
+        onChange={(e) =>
+          setEmployeeName(e.target.value)
+        }
+      />
+    </div>
 
-          </div>
+    <div className="form-group">
+      <label>Email</label>
+      <input
+        type="email"
+        placeholder="Enter email"
+        value={email}
+        onChange={(e) =>
+          setEmail(e.target.value)
+        }
+      />
+    </div>
+
+    <div className="form-group">
+      <label>Mobile Number</label>
+      <input
+        type="text"
+        placeholder="Enter mobile number"
+        value={mobileNumber}
+        onChange={(e) =>
+          setMobileNumber(e.target.value)
+        }
+      />
+    </div>
+
+    <div className="form-group">
+      <label>Username</label>
+      <input
+        type="text"
+        placeholder="Enter username"
+        value={username}
+        onChange={(e) =>
+          setUsername(e.target.value)
+        }
+      />
+    </div>
+
+    <div className="form-group">
+      <label>Password</label>
+      <input
+        type="password"
+        placeholder="Enter password"
+        value={password}
+        onChange={(e) =>
+          setPassword(e.target.value)
+        }
+      />
+    </div>
+
+  </div>
+
+  <div className="button-container">
+    <button
+      className="save-btn"
+      onClick={saveEmployee}
+    >
+      Create Employee
+    </button>
+  </div>
+
+</div>
 
         )
       }
