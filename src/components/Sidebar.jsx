@@ -25,6 +25,17 @@ const role = getRole();
   const handleMenuClick = (menuName) => {
     switch (menuName) {
 
+      case "Advertisement Outlets":
+  setActivePage("advertisementOutlets");
+  break;
+  case "Banner Designer":
+  setActivePage("bannerDesigner");
+  break;
+
+case "Gift Cards":
+  setActivePage("giftCards");
+  break;
+
       case "Zone Management":
         setActivePage("zones");
         break;
@@ -134,21 +145,15 @@ const role = getRole();
                     className="menu-item"
                     onClick={() => {
 
-                      if (
-                        item.children
-                      ) {
+                    if (item.children) {
 
-                        toggleMenu(
-                          item.name
-                        );
+  toggleMenu(item.name);
 
-                      } else {
+} else if (item.pageKey) {
 
-                        handleMenuClick(
-                          item.name
-                        );
+  setActivePage(item.pageKey);
 
-                      }
+}
                     }}
                   >
                     <span>
@@ -193,11 +198,11 @@ const role = getRole();
                                 child.name
                               }
                               className="submenu-item"
-                              onClick={() =>
-                                handleMenuClick(
-                                  child.name
-                                )
-                              }
+                              onClick={() => {
+  if (child.pageKey) {
+    setActivePage(child.pageKey);
+  }
+}}
                             >
                               • {child.name}
                             </div>

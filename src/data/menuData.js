@@ -28,9 +28,10 @@ export const menuData = [
         name: "Zone Management",
         children: [
           {
-            name: "Zone Management",
-            permission: "ZONE_READ",
-          },
+  name: "Zone Management",
+  pageKey: "zones",
+  permission: "ZONE_READ",
+},
         ],
       },
     ],
@@ -43,14 +44,16 @@ export const menuData = [
       {
         name: "Access Control",
         children: [
-          {
-            name: "Roles",
-            permission: "ROLE_READ",
-          },
-          {
-            name: "Admin Users",
-            permission: "ADMIN_USER_READ",
-          },
+        {
+  name: "Roles",
+  pageKey: "roles",
+  permission: "ROLE_READ",
+},
+        {
+  name: "Admin Users",
+  pageKey: "adminUsers",
+  permission: "ADMIN_USER_READ",
+},
         ],
       },
     ],
@@ -60,10 +63,11 @@ export const menuData = [
     title: "CUSTOMER & VENDOR MANAGEMENT",
     permission: "CUSTOMER_READ",
     items: [
-      {
-        name: "Users / Customers",
-        permission: "CUSTOMER_READ",
-      },
+   {
+  name: "Users / Customers",
+  pageKey: "usersCustomers",
+  permission: "CUSTOMER_READ",
+},
       {
         name: "Owners / Vendors",
         children: [
@@ -163,6 +167,37 @@ export const menuData = [
       },
     ],
   },
+  {
+  title: "PROMOTIONS & OFFERS",
+  permission: "PROMOTION_READ",
+  items: [
+    {
+      name: "Promotions",
+      children: [
+       {
+  name: "Advertisement Outlets",
+  pageKey: "advertisementOutlets",
+  permission: "PROMOTION_READ",
+},
+{
+  name: "Banner Designer",
+  pageKey: "bannerDesigner",
+  permission: "PROMOTION_READ",
+},
+{
+  name: "Plan Campaign",
+  pageKey: "planCampaign",
+  permission: "PROMOTION_READ",
+},
+      ],
+    },
+    {
+  name: "Gift Cards",
+  pageKey: "giftCards",
+  permission: "PROMOTION_READ",
+},
+  ],
+},
 
   {
     title: "BUSINESS SETUP",
