@@ -1,0 +1,115 @@
+/* ==========================================
+   Campaign Footer
+========================================== */
+
+.campaign-footer{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:40px;
+    padding-top:25px;
+    border-top:1px solid #e5e7eb;
+    background:#fff;
+}
+
+/* ==========================================
+   Left Section
+========================================== */
+
+.footer-left{
+    display:flex;
+    align-items:center;
+}
+
+.step-text{
+    font-size:15px;
+    font-weight:600;
+    color:#64748b;
+}
+
+/* ==========================================
+   Right Section
+========================================== */
+
+.footer-right{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+/* ==========================================
+   Save Draft Button
+========================================== */
+
+.btn-outline{
+    background:#fff;
+    color:#2563eb;
+    border:1px solid #2563eb;
+    border-radius:8px;
+    padding:12px 24px;
+    cursor:pointer;
+    font-size:14px;
+    font-weight:600;
+    transition:.25s;
+}
+
+.btn-outline:hover{
+    background:#2563eb;
+    color:#fff;
+}
+
+/* ==========================================
+   Publish Button
+========================================== */
+
+.btn-success{
+    background:#16a34a;
+    color:#fff;
+    border:none;
+    border-radius:8px;
+    padding:12px 26px;
+    cursor:pointer;
+    font-size:14px;
+    font-weight:600;
+    transition:.25s;
+}
+
+.btn-success:hover{
+    background:#15803d;
+}
+
+/* ==========================================
+   Disabled Button
+========================================== */
+
+.footer-right button:disabled{
+    opacity:.5;
+    cursor:not-allowed;
+}
+
+/* ==========================================
+   Responsive
+========================================== */
+
+@media (max-width:768px){
+
+    .campaign-footer{
+        flex-direction:column;
+        align-items:stretch;
+        gap:20px;
+    }
+
+    .footer-left{
+        justify-content:center;
+    }
+
+    .footer-right{
+        flex-direction:column;
+        width:100%;
+    }
+
+    .footer-right button{
+        width:100%;
+    }
+
+}

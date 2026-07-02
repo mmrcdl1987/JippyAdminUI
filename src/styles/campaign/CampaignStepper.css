@@ -1,0 +1,58 @@
+.campaign-stepper{
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    margin:40px 0;
+}
+
+.step-item{
+
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    width:220px;
+}
+
+.step-circle{
+
+    width:48px;
+    height:48px;
+    border-radius:50%;
+    background:#d1d5db;
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:bold;
+    font-size:18px;
+}
+
+.step-item.active .step-circle{
+
+    background:#2563eb;
+}
+
+.step-item.completed .step-circle{
+
+    background:#16a34a;
+}
+
+.step-title{
+
+    margin-top:12px;
+    font-weight:600;
+}
+
+.step-line{
+
+    flex:1;
+    height:3px;
+    background:#d1d5db;
+    margin:0 20px 25px;
+}
+
+.step-line.completed{
+
+    background:#16a34a;
+}

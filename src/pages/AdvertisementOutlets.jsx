@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import API from "../services/api";
 import "../styles/AdvertisementOutlets.css";
 
 function AdvertisementOutlets() {
@@ -36,17 +36,12 @@ const [selectedOutlet, setSelectedOutlet] = useState("");
 const token =
   localStorage.getItem("token");
 
-const response = await axios.get(
-  "api/fm/location/fetchStates",
-  {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  }
-);
+const response = await API.get("/api/fm/location/fetchStates");
+console.log("States API Response:", response.data);
+setStates(response.data);
 
-      setStates(response.data);
-
+console.log("States API Response:", response.data);
+     setStates(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
 
       console.error(error);
@@ -68,14 +63,11 @@ setAreas([]);
     const token =
       localStorage.getItem("token");
 
-    const response = await axios.get(
-      `api/fm/location/fetchCityInState?stateId=${stateId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+   const response = await API.get(
+  `/api/fm/location/fetchCityInState?stateId=${stateId}`
+);
+
+setCities(response.data);
 
     console.log(response.data);
 
@@ -97,14 +89,11 @@ setAreas([]);
     const token =
       localStorage.getItem("token");
 
-    const response = await axios.get(
-      `api/fm/location/fetchAreaInCity?cityId=${cityId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    const response = await API.get(
+  `/api/fm/location/fetchAreaInCity?cityId=${cityId}`
+);
+
+setAreas(response.data);
 
     console.log(response.data);
 
@@ -120,14 +109,9 @@ const fetchOutlets = async () => {
     const token =
       localStorage.getItem("token");
 
-    const response = await axios.get(
-      "fm/api/outlets",
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    const response = await API.get("/fm/api/outlets");
+
+setOutlets(response.data.data);
 
     console.log("Outlets API", response.data);
 
@@ -216,14 +200,12 @@ const fetchOutlets = async () => {
                 Select State
               </option>
 
-              {states.map((state) => (
-                <option
-                  key={state.stateId}
-                  value={state.stateId}
-                >
-                  {state.stateName}
-                </option>
-              ))}
+              {Array.isArray(states) &&
+  states.map((state) => (
+    <option key={state.stateId} value={state.stateId}>
+      {state.stateName}
+    </option>
+))}
             </select>
           </div>
 

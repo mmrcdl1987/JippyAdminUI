@@ -1,0 +1,605 @@
+.merchant-page {
+  padding: 30px;
+  background: #f7f8fc;
+  min-height: 100vh;
+}
+
+/* Header */
+
+.merchant-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 35px;
+}
+
+.merchant-header h2 {
+  font-size: 36px;
+  font-weight: 700;
+  color: #222;
+}
+
+.breadcrumb {
+  color: #888;
+  font-size: 15px;
+}
+
+/* Toolbar */
+
+.merchant-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.merchant-title {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.shop-icon {
+  font-size: 40px;
+}
+
+.merchant-title h2 {
+  margin: 0;
+  font-size: 36px;
+  font-weight: 700;
+}
+
+.count-badge {
+  margin-left: 12px;
+  background: #ffe7de;
+  color: #ff6433;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 18px;
+}
+
+/* Filters */
+
+.merchant-filters {
+  display: flex;
+  gap: 15px;
+}
+
+.merchant-filters select {
+  width: 180px;
+  height: 48px;
+  border: none;
+  border-radius: 25px;
+  background: #f1f2f6;
+  padding: 0 18px;
+  font-size: 15px;
+  cursor: pointer;
+  outline: none;
+}
+
+/* Statistics */
+
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.card {
+  border-radius: 16px;
+  padding: 28px;
+  min-height: 140px;
+  box-shadow: 0 3px 10px rgba(0,0,0,.08);
+}
+
+.card h1 {
+  margin: 0;
+  font-size: 48px;
+  font-weight: bold;
+}
+
+.card p {
+  margin-top: 15px;
+  font-size: 20px;
+}
+
+/* Card Colors */
+
+.total {
+  background: #d9ecff;
+}
+
+.active {
+  background: #fff0cf;
+}
+
+.inactive {
+  background: #dff8df;
+}
+
+.new {
+  background: #ffe0e8;
+}
+
+/* Responsive */
+
+@media (max-width:1200px) {
+
+  .merchant-toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  .merchant-filters {
+    flex-wrap: wrap;
+  }
+
+  .stats-row {
+    grid-template-columns: repeat(2,1fr);
+  }
+}
+
+.bulk-import-card{
+    margin-top:35px;
+    background:#fff;
+    border-radius:20px;
+    padding:25px;
+    display:grid;
+    grid-template-columns:1.2fr .5fr 2fr;
+    gap:30px;
+    align-items:center;
+    box-shadow:0 3px 15px rgba(0,0,0,.08);
+}
+
+.bulk-left h2{
+    margin:0;
+    font-size:34px;
+    font-weight:700;
+}
+
+.bulk-left p{
+    margin-top:15px;
+    color:#777;
+    font-size:18px;
+}
+
+.bulk-middle{
+    display:flex;
+    justify-content:center;
+}
+
+.download-btn{
+    padding:14px 28px;
+    border:2px solid #ff6b35;
+    background:#fff;
+    color:#ff6b35;
+    border-radius:35px;
+    cursor:pointer;
+    font-size:16px;
+    font-weight:600;
+}
+
+.bulk-right{
+    display:flex;
+    flex-direction:column;
+}
+
+.bulk-right label{
+    font-size:18px;
+    font-weight:600;
+    margin-bottom:10px;
+}
+
+.bulk-file{
+    width:100%;
+    padding:12px;
+    border:1px solid #ddd;
+    border-radius:8px;
+}
+
+.bulk-right small{
+    margin-top:12px;
+    color:#777;
+    line-height:22px;
+}
+
+.bulk-update-btn{
+    margin-top:20px;
+    align-self:flex-end;
+    background:#ff6b35;
+    color:#fff;
+    border:none;
+    border-radius:10px;
+    padding:15px 35px;
+    cursor:pointer;
+    font-size:18px;
+    font-weight:600;
+}
+
+@media(max-width:1100px){
+
+.bulk-import-card{
+
+grid-template-columns:1fr;
+
+}
+
+.bulk-middle{
+
+justify-content:flex-start;
+
+}
+
+.bulk-update-btn{
+
+align-self:flex-start;
+
+}
+
+}
+/* ==========================================
+   Merchant List
+========================================== */
+
+.merchant-list-card{
+    margin-top:35px;
+    background:#fff;
+    border-radius:20px;
+    padding:30px;
+    box-shadow:0 3px 15px rgba(0,0,0,.08);
+}
+
+.merchant-list-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:30px;
+}
+
+.merchant-list-header h2{
+    margin:0;
+    font-size:34px;
+    font-weight:700;
+}
+
+.merchant-list-header p{
+    margin-top:8px;
+    color:#777;
+    font-size:18px;
+}
+
+.merchant-actions{
+    display:flex;
+    gap:15px;
+}
+
+.columns-btn{
+    padding:12px 28px;
+    border:1px solid #ccc;
+    background:#fff;
+    border-radius:30px;
+    cursor:pointer;
+    font-size:16px;
+}
+
+.create-btn{
+    background:#ff6b35;
+    color:#fff;
+    border:none;
+    border-radius:30px;
+    padding:14px 30px;
+    font-size:16px;
+    cursor:pointer;
+    font-weight:600;
+}
+
+.merchant-toolbar2{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+.entries{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    font-size:18px;
+}
+
+.entries select{
+    padding:10px 20px;
+    border:none;
+    background:#f2f3f8;
+    border-radius:25px;
+}
+
+.search-export{
+    display:flex;
+    gap:15px;
+}
+
+.search-box{
+    width:280px;
+    padding:12px 18px;
+    border:none;
+    border-radius:25px;
+    background:#f2f3f8;
+    outline:none;
+}
+
+.export-btn{
+    padding:12px 25px;
+    border:none;
+    background:#eef3ff;
+    border-radius:25px;
+    cursor:pointer;
+    font-size:16px;
+}
+
+.merchant-table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+.merchant-table th{
+    background:#f5f5f5;
+    color:#333;               
+    font-size:18px;
+    font-weight:600;
+    padding:18px;
+    text-align:left;
+    border:1px solid #e5e5e5;
+}
+
+.merchant-table td{
+    padding:18px;
+    border:1px solid #ececec;
+}
+
+.merchant-info{
+    display:flex;
+    align-items:center;
+    gap:15px;
+}
+
+.merchant-info img{
+    width:70px;
+    height:70px;
+    border-radius:10px;
+    object-fit:cover;
+}
+
+.zone-badge{
+    background:#ff6b35;
+    color:#fff;
+    padding:8px 15px;
+    border-radius:8px;
+    display:inline-block;
+}
+
+@media(max-width:1000px){
+
+.merchant-list-header,
+.merchant-toolbar2{
+    flex-direction:column;
+    align-items:flex-start;
+    gap:20px;
+}
+
+.search-export{
+    width:100%;
+    flex-direction:column;
+}
+
+.search-box{
+    width:100%;
+}
+
+}
+.global-status-card{
+    margin-top:35px;
+    background:#fff;
+    border-radius:20px;
+    padding:25px 30px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    box-shadow:0 3px 15px rgba(0,0,0,.08);
+}
+
+.status-left h3{
+    margin:0;
+    font-size:28px;
+    font-weight:700;
+}
+
+.status-left p{
+    margin-top:8px;
+    color:#777;
+    font-size:16px;
+}
+
+.status-right{
+    display:flex;
+    align-items:center;
+    gap:20px;
+}
+
+.status-open{
+    color:#00a651;
+    font-weight:600;
+    font-size:18px;
+}
+
+.apply-btn{
+    background:#ff6b35;
+    color:#fff;
+    border:none;
+    padding:14px 25px;
+    border-radius:10px;
+    cursor:pointer;
+    font-size:16px;
+    font-weight:600;
+}
+@media(max-width:1000px){
+
+    .merchant-list-header,
+    .merchant-toolbar2,
+    .global-status-card{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:20px;
+    }
+
+    .search-export{
+        width:100%;
+        flex-direction:column;
+    }
+
+    .search-box{
+        width:100%;
+    }
+
+    .merchant-actions{
+        width:100%;
+        justify-content:flex-start;
+    }
+}
+.expand-btn {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: green;
+  color: white;
+  cursor: pointer;
+  margin-right: 8px;
+}
+
+.expanded-row td {
+  background: #fafafa;
+}
+
+.merchant-details {
+  padding: 20px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.action-icons {
+  display: flex;
+  gap: 12px;
+  font-size: 20px;
+}
+.expand-btn{
+    width:28px;
+    height:28px;
+    border:none;
+    border-radius:50%;
+    background:#16b516;
+    color:#fff;
+    cursor:pointer;
+    font-size:18px;
+    margin-right:10px;
+}
+
+.expand-btn:hover{
+    background:#0d980d;
+}
+
+.expanded-row td{
+    padding:0!important;
+}
+
+.merchant-details-table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+.merchant-details-table td{
+    padding:18px;
+    border-bottom:1px solid #ececec;
+}
+
+.merchant-details-table td:first-child{
+    width:260px;
+    font-weight:600;
+}
+
+.merchant-details-table td:last-child{
+    text-align:right;
+}
+
+.plan-badge{
+    background:#ff6b35;
+    color:#fff;
+    padding:8px 18px;
+    border-radius:6px;
+}
+
+.expired-badge{
+    background:#ef5350;
+    color:#fff;
+    padding:8px 18px;
+    border-radius:6px;
+}
+
+.action-icons{
+    display:flex;
+    justify-content:flex-end;
+    gap:18px;
+    font-size:22px;
+}
+
+.action-icons svg:nth-child(1){color:#0b8d72;}
+.action-icons svg:nth-child(2){color:#ff6b35;}
+.action-icons svg:nth-child(3){color:#795548;}
+.action-icons svg:nth-child(4){color:#7b1fa2;}
+.action-icons svg:nth-child(5){color:#1e88e5;}
+.action-icons svg:nth-child(6){color:#1976d2;}
+.action-icons svg:nth-child(7){color:#f44336;}
+
+.switch{
+    position:relative;
+    display:inline-block;
+    width:48px;
+    height:24px;
+}
+
+.switch input{
+    display:none;
+}
+
+.slider{
+    position:absolute;
+    inset:0;
+    background:#ccc;
+    border-radius:24px;
+}
+
+.slider:before{
+    content:"";
+    position:absolute;
+    width:18px;
+    height:18px;
+    left:3px;
+    bottom:3px;
+    background:#fff;
+    border-radius:50%;
+    transition:.3s;
+}
+
+.switch input:checked + .slider{
+    background:#0c9800;
+}
+
+.switch input:checked + .slider:before{
+    transform:translateX(24px);
+}

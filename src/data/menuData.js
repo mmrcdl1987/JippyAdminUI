@@ -88,37 +88,38 @@ export const menuData = [
     ],
   },
 
-  {
-    title: "RESTAURANT & DRIVER MANAGEMENT",
-    permission: "RESTAURANT_READ",
-    items: [
-      {
-        name: "Restaurants",
-        permission: "RESTAURANT_READ",
-      },
-      {
-        name: "Marts",
-        permission: "RESTAURANT_READ",
-      },
-      {
-        name: "Drivers",
-        children: [
-          {
-            name: "All Drivers",
-            permission: "DRIVER_READ",
-          },
-          {
-            name: "Approved Drivers",
-            permission: "DRIVER_READ",
-          },
-          {
-            name: "Approval Pending Drivers",
-            permission: "DRIVER_READ",
-          },
-        ],
-      },
-    ],
-  },
+{
+  title: "MERCHANT & DRIVER MANAGEMENT",
+  permission: "RESTAURANT_READ",
+  items: [
+    {
+      name: "Merchants",
+      pageKey: "outlets",   // Opens Outlets.jsx
+      permission: "RESTAURANT_READ",
+    },
+    {
+      name: "Marts",
+      permission: "RESTAURANT_READ",
+    },
+    {
+      name: "Drivers",
+      children: [
+        {
+          name: "All Drivers",
+          permission: "DRIVER_READ",
+        },
+        {
+          name: "Approved Drivers",
+          permission: "DRIVER_READ",
+        },
+        {
+          name: "Approval Pending Drivers",
+          permission: "DRIVER_READ",
+        },
+      ],
+    },
+  ],
+},
 
   {
     title: "MENU & FOOD MANAGEMENT",
@@ -197,6 +198,22 @@ export const menuData = [
   permission: "PROMOTION_READ",
 },
   ],
+},
+{
+  title: "PRICE MANAGEMENT",
+  permission: "PROMOTION_READ",
+  items: [
+    {
+      name: "Price Updates",
+      children: [
+        {
+          name: "Product Price Update",
+          pageKey: "productPriceUpdate",
+          permission: "PROMOTION_READ",
+        }
+      ]
+    }
+  ]
 },
 
   {

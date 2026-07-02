@@ -1,0 +1,234 @@
+/* ===========================
+   Product Price Update
+=========================== */
+
+.price-update-page {
+  padding: 24px;
+  background: #f5f7fb;
+  min-height: 100vh;
+  font-family: "Segoe UI", sans-serif;
+}
+
+/* ===========================
+   Header
+=========================== */
+
+.page-header {
+  margin-bottom: 20px;
+}
+
+.page-header h2 {
+  margin: 0;
+  font-size: 28px;
+  color: #1f2937;
+  font-weight: 700;
+}
+
+.page-header p {
+  margin-top: 6px;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+/* ===========================
+   Filter Card
+=========================== */
+
+.filter-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  margin-bottom: 24px;
+}
+
+.filter-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.filter-grid label {
+  display: block;
+  font-size: 14px;
+  color: #374151;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.filter-grid select {
+  width: 100%;
+  height: 42px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 0 12px;
+  font-size: 14px;
+  background: white;
+  transition: 0.2s;
+}
+
+.filter-grid select:focus {
+  outline: none;
+  border-color: #2563eb;
+}
+
+/* ===========================
+   Search
+=========================== */
+
+.search-box {
+  margin-top: 20px;
+}
+
+.search-box input {
+  width: 350px;
+  height: 42px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 0 14px;
+  font-size: 14px;
+  transition: 0.2s;
+}
+
+.search-box input:focus {
+  outline: none;
+  border-color: #2563eb;
+}
+
+/* ===========================
+   Table
+=========================== */
+
+.table-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+.table-card table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table-card thead {
+  background: #2563eb;
+}
+
+.table-card thead th {
+  color: white;
+  font-size: 14px;
+  padding: 16px;
+  text-align: left;
+}
+
+.table-card tbody td {
+  padding: 16px;
+  border-bottom: 1px solid #ececec;
+  font-size: 14px;
+}
+
+.table-card tbody tr:hover {
+  background: #f9fafb;
+}
+
+.table-card input[type="number"] {
+  width: 100px;
+  height: 36px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 0 10px;
+}
+
+.table-card input[type="number"]:focus {
+  outline: none;
+  border-color: #2563eb;
+}
+
+.table-card input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.difference {
+  color: #16a34a;
+  font-weight: 600;
+}
+
+/* ===========================
+   Footer Buttons
+=========================== */
+
+.footer-buttons {
+  margin-top: 25px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+}
+
+.cancel-btn,
+.preview-btn {
+  padding: 10px 26px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+  transition: 0.25s;
+}
+
+.cancel-btn {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.cancel-btn:hover {
+  background: #d1d5db;
+}
+
+.preview-btn {
+  background: #2563eb;
+  color: white;
+}
+
+.preview-btn:hover {
+  background: #1d4ed8;
+}
+
+/* ===========================
+   Responsive
+=========================== */
+
+@media (max-width: 992px) {
+  .filter-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .search-box input {
+    width: 100%;
+  }
+
+  .table-card {
+    overflow-x: auto;
+  }
+}
+
+@media (max-width: 576px) {
+  .price-update-page {
+    padding: 15px;
+  }
+
+  .filter-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .footer-buttons {
+    flex-direction: column;
+  }
+
+  .cancel-btn,
+  .preview-btn {
+    width: 100%;
+  }
+}

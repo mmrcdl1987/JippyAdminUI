@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+// import axios from "axios";
+import { FM_API } from "../services/api";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import "../styles/Login.css";
 
@@ -20,13 +21,20 @@ const handleSubmit = async (e) => {
 
     setLoading(true);
 
-    const response = await axios.post(
-      "http://localhost:8084/api/fm/auth/login",
-      {
-        username: email,
-        password: password,
-      }
-    );
+    // const response = await axios.post(
+    //   "/api/fm/auth/webLogin",
+    //   {
+    //     username: email,
+    //     password: password,
+    //   }
+    // );
+ const response = await FM_API.post(
+  "/api/fm/auth/webLogin",
+  {
+    username: email,
+    password: password,
+  }
+);
 
     const userData = response.data;
 

@@ -254,7 +254,7 @@ console.log("Page Config:", pageConfig);
 
             <div className="cards-grid">
 
-              <div className="card green">
+              <div className="dashboard-card green">
                 <div>
                   <h3>₹830389</h3>
                   <p>Total Earnings</p>
@@ -262,7 +262,7 @@ console.log("Page Config:", pageConfig);
                 <FaMoneyBillWave size={40} />
               </div>
 
-              <div className="card blue">
+              <div className="dashboard-card blue">
                 <div>
                   <h3>522</h3>
                   <p>Total Restaurants</p>
@@ -270,7 +270,7 @@ console.log("Page Config:", pageConfig);
                 <FaStore size={40} />
               </div>
 
-              <div className="card cream">
+              <div className="dashboard-card cream">
                 <div>
                   <h3>5545</h3>
                   <p>Total Orders</p>
@@ -278,7 +278,7 @@ console.log("Page Config:", pageConfig);
                 <FaClipboardList size={40} />
               </div>
 
-              <div className="card lightgreen">
+              <div className="dashboard-card lightgreen">
                 <div>
                   <h3>23969</h3>
                   <p>Total Foods</p>
@@ -286,7 +286,7 @@ console.log("Page Config:", pageConfig);
                 <FaUtensils size={40} />
               </div>
 
-              <div className="card pink">
+              <div className="dashboard-card pink">
                 <div>
                   <h3>₹164904</h3>
                   <p>Admin Commission</p>
@@ -294,7 +294,7 @@ console.log("Page Config:", pageConfig);
                 <FaMoneyBillWave size={40} />
               </div>
 
-              <div className="card purple">
+              <div className="dashboard-card purple">
                 <div>
                   <h3>40245</h3>
                   <p>Total Clients</p>
@@ -302,7 +302,7 @@ console.log("Page Config:", pageConfig);
                 <FaUsers size={40} />
               </div>
 
-              <div className="card lavender">
+              <div className="dashboard-card lavender">
                 <div>
                   <h3>519</h3>
                   <p>Total Drivers</p>

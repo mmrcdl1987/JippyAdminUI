@@ -1,25 +1,91 @@
-import React from "react";
+import React, { useState } from "react";
+
 import "../styles/PlanCampaign.css";
 
-import CampaignHeader from "../components/campaign/CampaignHeader";
-import CampaignDetails from "../components/campaign/CampaignDetails";
+import CampaignStepper from "../components/campaign/CampaignStepper";
+import CampaignLocation from "../components/campaign/CampaignLocation";
+import CampaignConfiguration from "../components/campaign/CampaignConfiguration";
+import CampaignPreview from "../components/campaign/CampaignPreview";
+import CampaignFooter from "../components/campaign/CampaignFooter";
 
-// import LocationSelection from "../components/campaign/LocationSelection";
-// import TimeSlotManager from "../components/campaign/TimeSlotManager";
-// import CalendarSection from "../components/campaign/CalendarSection";
-// import CampaignType from "../components/campaign/CampaignType";
-// import PreviewSection from "../components/campaign/PreviewSection";
-// import ActionButtons from "../components/campaign/ActionButtons";
+function PlanCampaign() {
 
-const PlanCampaign = () => {
+  const [currentStep, setCurrentStep] = useState(1);
+
+  const nextStep = () => {
+
+    if (currentStep < 3) {
+
+      setCurrentStep(currentStep + 1);
+
+    }
+
+  };
+
+  const previousStep = () => {
+
+    if (currentStep > 1) {
+
+      setCurrentStep(currentStep - 1);
+
+    }
+
+  };
+
+  const renderStep = () => {
+
+    switch (currentStep) {
+
+      case 1:
+        return <CampaignLocation />;
+
+      case 2:
+        return <CampaignConfiguration />;
+
+      case 3:
+        return <CampaignPreview />;
+
+      default:
+        return <CampaignLocation />;
+
+    }
+
+  };
+
   return (
-    <div className="campaign-page">
-      <CampaignHeader />
-      <CampaignDetails />
 
-      {/* Coming Soon */}
+    <div className="campaign-container">
+
+      <div className="campaign-header">
+
+        <div>
+
+          <h1>Campaign Scheduler</h1>
+
+          <p>
+            Create and manage outlet campaigns.
+          </p>
+
+        </div>
+
+      </div>
+
+      <CampaignStepper
+        currentStep={currentStep}
+      />
+
+      {renderStep()}
+
+      <CampaignFooter
+        currentStep={currentStep}
+        nextStep={nextStep}
+        previousStep={previousStep}
+      />
+
     </div>
+
   );
-};
+
+}
 
 export default PlanCampaign;

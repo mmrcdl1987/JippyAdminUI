@@ -25,6 +25,11 @@ function BannerDesignerEdit({ setActivePage }) {
       bestRestaurantBannerUrl: "",
       dealsBannerUrl: "",
     });
+    const [bannerFiles, setBannerFiles] = useState({
+  mainBanner: null,
+  bestRestaurantBanner: null,
+  dealsBanner: null,
+});
 
   useEffect(() => {
     loadBanner();
@@ -86,6 +91,25 @@ function BannerDesignerEdit({ setActivePage }) {
     });
 
   };
+const handleBannerChange = async (type, event) => {
+  const file = event.target.files[0];
+
+  if (!file) return;
+
+  // Upload to backend
+  const response = await uploadBanner(file);
+
+  const url = response.data.bannerUrl;
+
+  setForm((prev) => ({
+    ...prev,
+    [type === "mainBanner"
+      ? "mainBannerUrl"
+      : type === "bestRestaurantBanner"
+      ? "bestRestaurantBannerUrl"
+      : "dealsBannerUrl"]: url,
+  }));
+};
 
   const updateBanner = async () => {
 
@@ -185,36 +209,60 @@ function BannerDesignerEdit({ setActivePage }) {
   <div className="divider"></div>
 
   <h3>Banner URL Details</h3>
+ 
 
-  <div className="form-group">
-    <label>Main Banner URL</label>
-    <input
-      type="text"
-      name="mainBannerUrl"
-      value={form.mainBannerUrl}
-      onChange={handleChange}
-    />
-  </div>
+<div className="form-group">
+  <label>Main Banner</label>
 
-  <div className="form-group">
-    <label>Best Restaurant Banner URL</label>
-    <input
-      type="text"
-      name="bestRestaurantBannerUrl"
-      value={form.bestRestaurantBannerUrl}
-      onChange={handleChange}
-    />
-  </div>
+  <input
+    type="file"
+    accept="image/*"
+    onChange={(e) => handleBannerChange("mainBanner", e)}
+  />
 
-  <div className="form-group">
-    <label>Deals Banner URL</label>
-    <input
-      type="text"
-      name="dealsBannerUrl"
-      value={form.dealsBannerUrl}
-      onChange={handleChange}
-    />
-  </div>
+  <input
+    type="text"
+    value={form.mainBannerUrl}
+    readOnly
+    placeholder="Banner URL will appear after upload"
+  />
+</div>
+<div className="form-group">
+  <label>Best Restaurant Banner</label>
+
+  <input
+    type="file"
+    accept="image/*"
+    onChange={(e) =>
+      handleBannerChange("bestRestaurantBanner", e)
+    }
+  />
+
+  <input
+    type="text"
+    value={form.bestRestaurantBannerUrl}
+    readOnly
+    placeholder="Banner URL will appear after upload"
+  />
+</div>
+<div className="form-group">
+  <label>Deals Banner</label>
+
+  <input
+    type="file"
+    accept="image/*"
+    onChange={(e) =>
+      handleBannerChange("dealsBanner", e)
+    }
+  />
+
+  <input
+    type="text"
+    value={form.dealsBannerUrl}
+    readOnly
+    placeholder="Banner URL will appear after upload"
+  />
+</div>
 
   <div className="form-actions">
 

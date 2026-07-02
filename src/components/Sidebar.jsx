@@ -6,6 +6,13 @@ import { hasPermission } from "../utils/permissionUtils";
 import {
   getRole
 } from "../utils/authUtils";
+import {
+  FiHome,
+  FiChevronRight,
+  FiChevronDown,
+  FiSearch,
+  FiLogOut
+} from "react-icons/fi";
 
 function Sidebar({ setActivePage }) {
   const navigate = useNavigate();
@@ -96,22 +103,21 @@ case "Gift Cards":
       <div className="user-info">
         <strong>{role}</strong>
       </div>
-
-      <div className="search-box">
-        <input
-          type="text"
-          placeholder="Search Menu"
-        />
-      </div>
+<div className="search-box">
+  <FiSearch className="search-icon" />
+  <input
+    type="text"
+    placeholder="Search Menu"
+  />
+</div>
 
       <div
-        className="menu active"
-        onClick={() =>
-          setActivePage("dashboard")
-        }
-      >
-        Dashboard
-      </div>
+  className="menu active"
+  onClick={() => setActivePage("dashboard")}
+>
+  <FiHome className="menu-icon" />
+  <span>Dashboard</span>
+</div>
 
       {menuData
         .filter((section) =>
@@ -161,13 +167,13 @@ case "Gift Cards":
                     </span>
 
                     {item.children && (
-                      <span>
-                        {openMenus[
-                          item.name
-                        ]
-                          ? "▼"
-                          : "▶"}
-                      </span>
+                    <span className="arrow">
+  {openMenus[item.name] ? (
+    <FiChevronDown />
+  ) : (
+    <FiChevronRight />
+  )}
+</span>
                     )}
                   </div>
 
@@ -220,11 +226,12 @@ case "Gift Cards":
         ))}
 
       <div
-        className="logout-btn"
-        onClick={handleLogout}
-      >
-        Logout
-      </div>
+  className="logout-btn"
+  onClick={handleLogout}
+>
+  <FiLogOut className="logout-icon" />
+  <span>Logout</span>
+</div>
 
     </div>
   );
