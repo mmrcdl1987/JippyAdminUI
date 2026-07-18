@@ -13,6 +13,28 @@ import Merchants from "../pages/Merchants/Merchants";
 import EditMerchant from "../pages/Merchants/EditMerchant";
 import ViewMerchant from "../pages/Merchants/ViewMerchant";
 
+
+import AllDrivers from "../pages/AllDrivers";
+import AllMerchants from "../pages/AllMerchants";
+import MerchantsBulkUpload from "../pages/MerchantsBulkUpload";
+import Categories from "../pages/Categories";
+import CreateCategory from "../pages/CreateCategory";
+import EditCategory from "../pages/EditCategory";
+import MasterProducts from "../pages/MasterProducts";
+import CompareFile from "../pages/CompareFile";
+import EditMasterProduct from "../pages/EditMasterProduct";
+import CreateMasterProduct from "../pages/CreateMasterProduct";
+import Outlets from "../pages/Outlets";
+import CreateOutlet from "../pages/CreateOutlet";
+
+import DeliveryCharge from "../pages/DeliveryCharge";
+import Incentives from "../pages/Incentives";
+import OrderSettings from "../pages/OrderSettings";
+import WalletSettings from "../pages/WalletSettings";
+import SubscriptionPlanSettings from "../pages/SubscriptionPlanSettings";
+
+
+
 export const pageRegistry = {
   zones: {
     component: ZoneManagement,
@@ -80,4 +102,91 @@ productPriceUpdate: {
   component: ProductPriceUpdate,
   permission: "PROMOTION_READ",
 },
+
+
+
+allMerchants: {
+  component: AllMerchants,
+  permission: "VENDOR_READ",
+},
+merchantsBulkUpload: {
+  component: MerchantsBulkUpload,
+  permission: "VENDOR_READ",
+},
+
+allDrivers: {
+  component: AllDrivers,
+  permission: "DRIVER_READ",
+},
+categories:{
+    component: Categories,
+    permission:"CATEGORY_READ",
+},
+
+createCategory: {
+  component: CreateCategory,
+  permission: "CATEGORY_CREATE",
+},
+
+editCategory: {
+  component: EditCategory,
+  permission: "CATEGORY_UPDATE",
+},
+masterProducts: {
+  component: MasterProducts,
+     permission:"RESTAURANT_READ",
+},
+
+compareFile: {
+  component: CompareFile,
+  permission: "RESTAURANT_READ",
+},
+
+editMasterProduct: {
+  component: EditMasterProduct,
+  permission: "MASTER_PRODUCTS_UPDATE",
+},
+createMasterProduct: {
+  component: CreateMasterProduct,
+  permission: "MASTER_PRODUCTS_CREATE",
+},
+
+outlets: {
+  component: Outlets,
+  permission: "RESTAURANT_READ",
+},
+
+
+createOutlet: {
+  component: CreateOutlet,
+  permission: "RESTAURANT_READ",
+},
+
+deliveryCharge: {
+    component: DeliveryCharge,
+    permission: "SETTINGS_READ",
+},
+
+incentives: {
+  component: Incentives,
+  permission: "SETTINGS_READ",
+},
+
+orderSettings: {
+  component: OrderSettings,
+  permission: "SETTINGS_READ",
+},
+
+walletSettings: {
+  component: WalletSettings,
+  permission: "SETTINGS_READ",
+},
+
+subscriptionPlanSettings: {
+  component: SubscriptionPlanSettings,
+  permission: "SETTINGS_READ",
+},
+
 };
+
+

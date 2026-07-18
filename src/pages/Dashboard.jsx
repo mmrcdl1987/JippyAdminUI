@@ -208,7 +208,13 @@
 import { useState } from "react";
 import Sidebar from "../components/Sidebar";
 import { hasPermission } from "../utils/permissionUtils";
-import { pageRegistry } from "../config/pageRegistry";
+import AllMerchants from "./AllMerchants";
+import AllDrivers from "./AllDrivers";
+import { pageRegistry} from "../config/pageRegistry";
+import EditMasterProduct from "./EditMasterProduct";
+import AddToOutletProducts from "../pages/AddToOutletProducts";
+
+
 import "../styles/Dashboard.css";
 
 import {
@@ -223,6 +229,11 @@ import {
 function Dashboard() {
   const [activePage, setActivePage] =
     useState("dashboard");
+
+    const [refreshCategories, setRefreshCategories] = useState(0);
+    const [selectedProduct, setSelectedProduct] = useState(null);
+ 
+
 
   const pageConfig =
     pageRegistry[activePage];
@@ -321,9 +332,39 @@ console.log("Page Config:", pageConfig);
             pageConfig.permission
           ) && (
             <CurrentPage
+  setActivePage={setActivePage}
+  refreshCategories={refreshCategories}
+  setRefreshCategories={setRefreshCategories}
+  selectedProduct={selectedProduct}
+  setSelectedProduct={setSelectedProduct}
+/>
+          )}
+
+        {/* Create Zone */}
+        {
+          activePage === "createZone" &&
+          hasPermission("ZONE_CREATE") && (
+            <CreateZone
               setActivePage={setActivePage}
             />
-          )}
+          )
+        }
+
+        {/* Roles & Permissions */}
+        {
+          activePage === "roles" &&
+          hasPermission("ROLE_READ") && (
+            <RolesPermissions />
+          )
+        }
+
+        {/* Admin Users */}
+        {
+          activePage === "adminUsers" &&
+          hasPermission("ADMIN_USER_READ") && (
+            <AdminUsers />
+          )
+        }
 
         {/* Access Denied */}
         {activePage !== "dashboard" &&
@@ -334,8 +375,38 @@ console.log("Page Config:", pageConfig);
             <h2>
               Access Denied
             </h2>
-          )}
+          )
+        }
 
+        {
+          activePage === "roles" &&
+          !hasPermission("ROLE_READ") && (
+            <h2>
+              Access Denied
+            </h2>
+          )
+        }
+
+        {
+          activePage === "adminUsers" &&
+          !hasPermission("ADMIN_USER_READ") && (
+            <h2>
+              Access Denied
+            </h2>
+          )
+        }
+
+{
+activePage === "addToOutletProducts" && (
+<AddToOutletProducts
+setActivePage={setActivePage}
+/>
+)
+}
+        
+
+
+      
       </div>
 
     </div>

@@ -1,0 +1,343 @@
+.cat-page{
+    padding:30px;
+    background:#f6f8fc;
+    min-height:100vh;
+}
+
+.cat-title{
+    font-size:32px;
+    font-weight:700;
+    color:#222;
+    margin-bottom:24px;
+}
+
+/* ================= Filter ================= */
+
+.cat-filter-card{
+    background:#fff;
+    border-radius:12px;
+    padding:22px 24px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    border:1px solid #ececec;
+    margin-bottom:24px;
+}
+
+.cat-filter-heading{
+    margin:0;
+    font-size:20px;
+    font-weight:600;
+}
+
+.cat-filter-subtitle{
+    margin-top:6px;
+    color:#777;
+    font-size:14px;
+}
+
+.cat-filter-right{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.cat-filter-select{
+    width:150px;
+    height:40px;
+    border:1px solid #ddd;
+    border-radius:8px;
+    padding:0 10px;
+    outline:none;
+}
+
+/* ================= Card ================= */
+
+.cat-card{
+    background:#fff;
+    border-radius:12px;
+    padding:22px;
+    border:1px solid #ececec;
+}
+
+.cat-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+}
+
+.cat-header h3{
+    margin:0;
+    font-size:24px;
+}
+
+.cat-header p{
+    margin-top:6px;
+    color:#777;
+}
+
+.cat-create-btn{
+    border:none;
+    background:#ff6b00;
+    color:#fff;
+    padding:12px 22px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:600;
+}
+
+.cat-create-btn:hover{
+    background:#e45d00;
+}
+
+/* ================= Toolbar ================= */
+
+.cat-toolbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:18px;
+}
+
+.cat-entries{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.cat-entries select{
+    width:70px;
+    height:38px;
+    border:1px solid #ddd;
+    border-radius:6px;
+}
+
+.cat-search{
+    position:relative;
+    width:260px;
+}
+
+.cat-search input{
+    width:100%;
+    height:40px;
+    border:1px solid #ddd;
+    border-radius:8px;
+    padding:0 42px 0 14px;
+    outline:none;
+}
+
+.cat-search input:focus{
+    border-color:#5b3df5;
+}
+
+.cat-search-icon{
+    position:absolute;
+    right:14px;
+    top:50%;
+    transform:translateY(-50%);
+    color:#888;
+}
+
+/* ================= Table ================= */
+
+.cat-table-wrapper{
+    width:100%;
+    overflow-x:auto;
+    border:1px solid #ececec;
+    border-radius:10px;
+}
+
+.cat-table{
+    width:fit-content;
+    min-width:100%;
+    border-collapse:collapse;
+}
+
+.cat-table thead{
+    background:#5b3df5;
+}
+
+.cat-table th{
+    padding:10px 6px;
+    color:#fff;
+    font-size:14px;
+    font-weight:600;
+    text-align:left;
+    white-space:nowrap;
+}
+
+.cat-table td{
+     padding:8px 6px;
+    border-bottom:1px solid #f2f2f2;
+    vertical-align:middle;
+    white-space:nowrap;
+}
+
+.cat-table tbody tr:hover{
+    background:#fafafa;
+}
+
+/* Column Widths */
+
+/* ID */
+.cat-table th:nth-child(1),
+.cat-table td:nth-child(1){
+    width:50px;
+}
+
+/* Category Name */
+.cat-table th:nth-child(2),
+.cat-table td:nth-child(2){
+    width:140px;
+}
+
+/* Type */
+.cat-table th:nth-child(3),
+.cat-table td:nth-child(3){
+    width:70px;
+    text-align:center;
+}
+
+/* Image */
+.cat-table th:nth-child(4),
+.cat-table td:nth-child(4){
+    width:70px;
+    text-align:center;
+}
+
+/* Actions */
+.cat-table th:nth-child(5),
+.cat-table td:nth-child(5){
+    width:80px;
+    text-align:center;
+}
+
+.cat-id{
+    font-weight:500;
+}
+
+.cat-name{
+    font-weight:500;
+    padding-right:4px;
+}
+
+.cat-image-cell{
+    text-align:center;
+}
+
+.cat-image{
+    width:55px;
+    height:55px;
+    object-fit:cover;
+    border-radius:8px;
+    border:1px solid #ddd;
+}
+
+.cat-type{
+    display:inline-block;
+    padding:4px 10px;
+    border-radius:20px;
+    background:#eef2ff;
+    color:#5b3df5;
+    font-size:12px;
+    font-weight:600;
+}
+
+.cat-actions{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:6px;
+}
+
+.cat-edit-btn,
+.cat-delete-btn{
+    width:30px;
+    height:30px;
+    border:none;
+    border-radius:6px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.cat-edit-btn{
+    background:#e8f1ff;
+    color:#2563eb;
+}
+
+.cat-delete-btn{
+    background:#ffeaea;
+    color:#ef4444;
+}
+
+.cat-edit-btn:hover{
+    background:#d6e8ff;
+}
+
+.cat-delete-btn:hover{
+    background:#ffd8d8;
+}
+
+.cat-empty{
+    text-align:center;
+    padding:30px;
+    color:#777;
+}
+
+/* ================= Responsive ================= */
+
+@media(max-width:992px){
+
+    .cat-filter-card,
+    .cat-header,
+    .cat-toolbar{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:16px;
+    }
+
+    .cat-search{
+        width:100%;
+    }
+
+    .cat-create-btn{
+        width:100%;
+    }
+}
+
+@media(max-width:768px){
+
+    .cat-page{
+        padding:18px;
+    }
+
+    .cat-title{
+        font-size:28px;
+    }
+
+    .cat-filter-card,
+    .cat-card{
+        padding:18px;
+    }
+
+    .cat-table th,
+    .cat-table td{
+        font-size:13px;
+        padding:10px 8px;
+    }
+
+    .cat-image{
+        width:42px;
+        height:42px;
+    }
+
+    .cat-edit-btn,
+    .cat-delete-btn{
+        width:28px;
+        height:28px;
+    }
+}

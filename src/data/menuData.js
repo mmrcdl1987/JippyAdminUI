@@ -88,6 +88,7 @@ export const menuData = [
     ],
   },
 
+
 {
   title: "MERCHANT & DRIVER MANAGEMENT",
   permission: "RESTAURANT_READ",
@@ -120,6 +121,40 @@ export const menuData = [
     },
   ],
 },
+
+  {
+    title: "RESTAURANT & DRIVER MANAGEMENT",
+    permission: "RESTAURANT_READ",
+    items: [
+      {
+        name: "Restaurants",
+        permission: "RESTAURANT_READ",
+      },
+      {
+        name: "Marts",
+        permission: "RESTAURANT_READ",
+      },
+      {
+        name: "Drivers",
+        children: [
+          {
+            name: "All Drivers",
+            pageKey: "allDrivers",
+              permission: "DRIVER_READ",
+},
+          {
+            name: "Approved Drivers",
+            permission: "DRIVER_READ",
+          },
+          {
+            name: "Approval Pending Drivers",
+            permission: "DRIVER_READ",
+          },
+        ],
+      },
+    ],
+  },
+
 
   {
     title: "MENU & FOOD MANAGEMENT",
@@ -313,31 +348,138 @@ export const menuData = [
   },
 
   {
-    title: "SETTINGS & CONFIGURATIONS",
-    permission: "SETTINGS_READ",
-    items: [
-      {
-        name: "Settings",
-        children: [
-          {
-            name: "Global Settings",
-            permission: "SETTINGS_READ",
-          },
-          {
-            name: "Currency Settings",
-            permission: "SETTINGS_READ",
-          },
-          {
-            name: "Tax Settings",
-            permission: "SETTINGS_READ",
-          },
-          {
-            name: "Languages",
-            permission: "SETTINGS_READ",
-          },
-        ],
-      },
-    ],
-  },
+  title: "SETTINGS & CONFIGURATIONS",
+  permission: "SETTINGS_READ",
+  items: [
+    {
+      name: "Settings",
+      children: [
+        {
+          name: "Global Settings",
+          pageKey: "globalSettings",
+          permission: "SETTINGS_READ",
+        },
+        {
+          name: "Currencies Settings",
+          pageKey: "currenciesSettings",
+          permission: "SETTINGS_READ",
+        },
+        {
+          name: "Payment Methods",
+          pageKey: "paymentMethods",
+          permission: "SETTINGS_READ",
+        },
+        {
+          name: "Business Model Settings",
+          pageKey: "businessModelSettings",
+          permission: "SETTINGS_READ",
+        },
+        {
+          name: "Radius Configuration",
+          pageKey: "radiusConfiguration",
+          permission: "SETTINGS_READ",
+        },
+        {
+          name: "DINE IN Feature Settings",
+          pageKey: "dineInFeatureSettings",
+          permission: "SETTINGS_READ",
+        },
+        {
+          name: "Tax Settings",
+          pageKey: "taxSettings",
+          permission: "SETTINGS_READ",
+        },
+        {
+          name: "Delivery Charge",
+          pageKey: "deliveryCharge",
+          permission: "SETTINGS_READ",
+        },
+
+        // NEW SETTINGS
+        {
+          name: "Incentives",
+          pageKey: "incentives",
+          permission: "SETTINGS_READ",
+        },
+        // {
+        //   name: "Delivery Charges",
+        //   pageKey: "deliveryCharges",
+        //   permission: "SETTINGS_READ",
+        // },
+        {
+          name: "Wallet Settings",
+          pageKey: "walletSettings",
+          permission: "SETTINGS_READ",
+        },
+        {
+          name: "Order Settings",
+          pageKey: "orderSettings",
+          permission: "SETTINGS_READ",
+        },
+        {
+          name: "Subscription Plan Settings",
+          pageKey: "subscriptionPlanSettings",
+          permission: "SETTINGS_READ",
+        },
+
+        {
+          name: "Mart Settings",
+          pageKey: "martSettings",
+          permission: "SETTINGS_READ",
+        },
+        {
+          name: "Surge Rules",
+          pageKey: "surgeRules",
+          permission: "SETTINGS_READ",
+        },
+        {
+          name: "Coins Settings",
+          pageKey: "coinsSettings",
+          permission: "SETTINGS_READ",
+        },
+        {
+          name: "App Settings",
+          pageKey: "appSettings",
+          permission: "SETTINGS_READ",
+        },
+        {
+          name: "Document Verification",
+          pageKey: "documentVerification",
+          permission: "SETTINGS_READ",
+        },
+        {
+          name: "Languages",
+          pageKey: "languages",
+          permission: "SETTINGS_READ",
+        },
+        {
+          name: "Special Offer",
+          pageKey: "specialOffer",
+          permission: "SETTINGS_READ",
+        },
+        {
+          name: "Terms and Conditions",
+          pageKey: "termsAndConditions",
+          permission: "SETTINGS_READ",
+        },
+        {
+          name: "Privacy Policy",
+          pageKey: "privacyPolicy",
+          permission: "SETTINGS_READ",
+        },
+        {
+          name: "Landing Page Template",
+          pageKey: "landingPageTemplate",
+          permission: "SETTINGS_READ",
+        },
+        {
+          name: "Footer Template",
+          pageKey: "footerTemplate",
+          permission: "SETTINGS_READ",
+        },
+      ],
+    },
+  ],
+},
 
 ];
