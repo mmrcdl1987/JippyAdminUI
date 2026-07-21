@@ -1,0 +1,256 @@
+.driver-table-container{
+    margin-top:30px;
+    background:#fff;
+    border:1px solid #ececec;
+    border-radius:16px;
+    overflow-x:auto;
+    box-shadow:0 2px 10px rgba(0,0,0,.05);
+}
+
+.driver-table-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:24px;
+    border-bottom:1px solid #ececec;
+}
+
+.driver-table-header h3{
+    margin:0;
+    font-size:28px;
+    font-weight:600;
+}
+
+.driver-table-header p{
+    margin-top:6px;
+    color:#777;
+    font-size:14px;
+}
+
+.create-driver-btn{
+    background:#ff6b00;
+    color:#fff;
+    border:none;
+    border-radius:30px;
+    padding:12px 24px;
+    font-size:15px;
+    font-weight:600;
+    cursor:pointer;
+    transition:.3s;
+}
+
+.create-driver-btn:hover{
+    background:#e55f00;
+}
+
+.driver-toolbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:20px 24px;
+}
+
+.driver-entries-section{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.driver-entries-section select{
+    width:70px;
+    height:38px;
+    border:1px solid #ddd;
+    border-radius:20px;
+    outline:none;
+    padding:0 10px;
+}
+
+.driver-toolbar-right{
+    display:flex;
+    align-items:center;
+    gap:15px;
+}
+
+.driver-search-wrapper{
+    position:relative;
+}
+
+.driver-search-box{
+    width:240px;
+    height:42px;
+    border:1px solid #ddd;
+    border-radius:24px;
+    outline:none;
+    padding:0 42px 0 18px;
+    font-size:14px;
+}
+
+.driver-search-icon{
+    position:absolute;
+    right:15px;
+    top:50%;
+    transform:translateY(-50%);
+    color:#777;
+    font-size:18px;
+}
+
+.driver-export-wrapper{
+    position:relative;
+}
+
+.driver-export-btn{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    width:130px;
+    height:42px;
+    border:none;
+    border-radius:24px;
+    background:#eef3fb;
+    cursor:pointer;
+    font-size:14px;
+    transition:.3s;
+}
+
+.driver-export-btn:hover{
+    background:#dde9fb;
+}
+
+.driver-export-menu{
+    position:absolute;
+    top:50px;
+    right:0;
+    width:170px;
+    background:#fff;
+    border-radius:12px;
+    overflow:hidden;
+    box-shadow:0 8px 20px rgba(0,0,0,.15);
+    z-index:100;
+}
+
+.driver-export-menu div{
+    padding:14px 18px;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.driver-export-menu div:hover{
+    background:#f5f5f5;
+}
+
+.driver-table{
+    width:100%;
+    border-collapse:collapse;
+    min-width:1200px;
+}
+
+.driver-table thead{
+    background:#f8f8f8;
+}
+
+.driver-table th{
+    padding:16px;
+    text-align:left;
+    font-size:14px;
+    font-weight:600;
+    color:#ff6b00;
+    border-bottom:1px solid #ececec;
+    white-space:nowrap;
+}
+
+.driver-table td{
+    padding:16px;
+    border-bottom:1px solid #f2f2f2;
+    white-space:nowrap;
+    vertical-align:middle;
+}
+
+.driver-table tbody tr:hover{
+    background:#fafafa;
+}
+
+.driver-profile{
+    width:46px;
+    height:46px;
+    border-radius:50%;
+    object-fit:cover;
+    border:2px solid #f3f3f3;
+}
+
+.driver-expand-btn,
+.driver-collapse-btn{
+    width:30px;
+    height:30px;
+    border:none;
+    border-radius:50%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    cursor:pointer;
+    color:#fff;
+    font-size:18px;
+    transition:.3s;
+}
+
+.driver-expand-btn{
+    background:#22c55e;
+}
+
+.driver-expand-btn:hover{
+    background:#16a34a;
+}
+
+.driver-collapse-btn{
+    background:#ef4444;
+}
+
+.driver-collapse-btn:hover{
+    background:#dc2626;
+}
+
+.driver-expand-btn svg,
+.driver-collapse-btn svg{
+    width:18px;
+    height:18px;
+}
+
+.driver-expand-row{
+    background:#fafafa;
+}
+
+.driver-details{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:18px;
+    padding:20px;
+}
+
+.driver-detail-card{
+    background:#fff;
+    border:1px solid #ececec;
+    border-left:4px solid #ff6b00;
+    border-radius:10px;
+    padding:16px;
+}
+
+.driver-detail-card span{
+    display:block;
+    color:#888;
+    font-size:13px;
+    margin-bottom:6px;
+}
+
+.driver-detail-card p{
+    margin:0;
+    font-size:15px;
+    font-weight:600;
+    color:#333;
+}
+
+.driver-no-result{
+    text-align:center;
+    padding:40px;
+    color:#888;
+    font-size:15px;
+}

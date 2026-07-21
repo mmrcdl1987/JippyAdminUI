@@ -1,0 +1,516 @@
+.compare-page{
+    min-height:100vh;
+    background:#76afafc8;
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+    padding:12px;
+    overflow:auto;
+}
+
+.compare-card{
+    width:88vw;
+    max-width:1320px;
+    min-width:1180px;
+    background:#fff;
+    border-radius:14px;
+    box-shadow:0 8px 24px rgba(0,0,0,.12);
+    overflow:hidden;
+}
+
+/* ================= Header ================= */
+
+.compare-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:14px 20px;
+    border-bottom:1px solid #ececec;
+    background:#fff;
+}
+
+.compare-header h2{
+    margin:0;
+    font-size:20px;
+    font-weight:700;
+    color:#222;
+}
+
+.close-btn{
+    width:38px;
+    height:38px;
+    border:none;
+    border-radius:50%;
+    background:#ef4444;
+    color:#fff;
+    cursor:pointer;
+    font-size:17px;
+    transition:.3s;
+}
+
+.close-btn:hover{
+    background:#dc2626;
+}
+
+/* ================= Info Card ================= */
+
+.info-card{
+    margin:12px 16px;
+    padding:10px 14px;
+    background:#eef7ff;
+    border:1px solid #cfe8ff;
+    border-radius:10px;
+    display:flex;
+    gap:12px;
+    align-items:center;
+}
+
+.info-icon{
+    width:42px;
+    height:42px;
+    border-radius:50%;
+    background:#dbeeff;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:18px;
+    flex-shrink:0;
+}
+
+.info-card h3{
+    margin:0 0 4px;
+    font-size:15px;
+    color:#222;
+}
+
+.info-card p{
+    margin:0;
+    color:#666;
+    line-height:1.4;
+    font-size:12px;
+}
+
+/* ================= Upload ================= */
+
+.upload-area{
+    margin:0 16px 12px;
+    min-height:95px;
+    padding:12px;
+    border:2px dashed #d6dbe3;
+    border-radius:12px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+    transition:.3s;
+}
+
+.upload-area:hover{
+    border-color:#2563eb;
+    background:#fafcff;
+}
+
+.upload-icon{
+    width:42px;
+    height:42px;
+    border-radius:50%;
+    background:#eef7ff;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:20px;
+    margin-bottom:6px;
+}
+
+.upload-area h3{
+    margin:0;
+    font-size:16px;
+    color:#222;
+}
+
+.upload-area span{
+    margin:4px 0;
+    color:#999;
+    font-size:11px;
+}
+
+.browse-btn{
+    background:#2563eb;
+    color:#fff;
+    padding:7px 16px;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:13px;
+    font-weight:600;
+    transition:.3s;
+}
+
+.browse-btn:hover{
+    background:#1d4ed8;
+}
+
+.selected-file{
+    margin-top:8px;
+    color:#16a34a;
+    font-size:12px;
+    font-weight:600;
+}
+
+/* ================= Stats ================= */
+
+.compare-stats{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:10px;
+    margin:0 16px 10px;
+}
+
+.compare-stat-card{
+    background:#fff;
+    border:1px solid #e5e7eb;
+    border-radius:10px;
+    padding:10px;
+    text-align:center;
+    box-shadow:0 2px 6px rgba(0,0,0,.05);
+}
+
+.compare-stat-card h2{
+    margin:0;
+    font-size:18px;
+    color:#2563eb;
+}
+
+.compare-stat-card p{
+    margin-top:2px;
+    font-size:11px;
+    color:#666;
+}
+
+/* ================= Tabs ================= */
+
+.result-tabs{
+    display:flex;
+    gap:8px;
+    margin:0 16px 8px;
+}
+
+.tab-btn{
+    border:none;
+    background:#f3f4f6;
+    color:#555;
+    padding:7px 14px;
+    border-radius:8px;
+    font-size:12px;
+    font-weight:600;
+    cursor:pointer;
+    transition:.3s;
+}
+
+.tab-btn.active{
+    background:#2563eb;
+    color:#fff;
+}
+
+.tab-btn:hover{
+    background:#2563eb;
+    color:#fff;
+}
+
+/* ================= Toolbar ================= */
+
+.table-toolbar{
+    display:flex;
+    justify-content:flex-end;
+    padding:0 16px 8px;
+}
+
+.bulk-add-btn{
+    background:#22c55e;
+    color:#fff;
+    border:none;
+    padding:8px 14px;
+    border-radius:8px;
+    font-size:12px;
+    font-weight:600;
+    cursor:pointer;
+}
+
+.bulk-add-btn:hover{
+    background:#16a34a;
+}
+
+
+/* ================= Table ================= */
+
+.compare-table-container{
+    width:calc(100% - 32px);
+    margin:0 16px 10px;
+    border:1px solid #e5e7eb;
+    border-radius:10px;
+    overflow:auto;
+    max-height:360px;
+}
+
+.compare-table{
+    width:100%;
+    min-width:1220px;
+    border-collapse:collapse;
+    table-layout:auto;
+}
+
+.compare-table thead{
+    position:sticky;
+    top:0;
+    background:#2563eb;
+    z-index:5;
+}
+
+.compare-table th{
+    padding:9px 8px;
+    color:#fff;
+    font-size:12px;
+    font-weight:600;
+    white-space:nowrap;
+    text-align:center;
+}
+
+.compare-table td{
+    padding:8px 8px;
+    font-size:12px;
+    color:#444;
+    text-align:center;
+    border-bottom:1px solid #ececec;
+    vertical-align:middle;
+}
+
+.compare-table tbody tr:hover{
+    background:#f8fbff;
+}
+
+.compare-table input[type="checkbox"]{
+    width:16px;
+    height:16px;
+    cursor:pointer;
+}
+
+.select-all-label{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    white-space:nowrap;
+    font-size:12px;
+    font-weight:600;
+}
+
+.select-all-label input{
+    margin:0;
+}
+
+/* ================= Product ================= */
+
+.product-photo{
+    width:34px;
+    height:34px;
+    object-fit:cover;
+    border-radius:6px;
+    border:1px solid #e5e7eb;
+}
+
+.product-info{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+}
+
+.product-info strong{
+    font-size:13px;
+    color:#222;
+}
+
+.product-sub{
+    font-size:11px;
+    color:#777;
+    margin-top:2px;
+}
+
+.compare-table td:nth-child(3){
+    text-align:left;
+    min-width:170px;
+}
+
+.compare-table td:nth-child(4){
+    text-align:left;
+    min-width:130px;
+}
+
+/* ================= Tags ================= */
+
+.yes-tag,
+.no-tag,
+.published-tag,
+.draft-tag{
+    display:inline-block;
+    padding:4px 10px;
+    border-radius:20px;
+    font-size:11px;
+    font-weight:600;
+}
+
+.yes-tag{
+    background:#dcfce7;
+    color:#15803d;
+}
+
+.no-tag{
+    background:#fee2e2;
+    color:#dc2626;
+}
+
+.published-tag{
+    background:#dcfce7;
+    color:#15803d;
+}
+
+.draft-tag{
+    background:#fef3c7;
+    color:#b45309;
+}
+
+/* ================= Edit Button ================ */
+
+.edit-small-btn{
+    width:30px;
+    height:30px;
+    border:none;
+    border-radius:6px;
+    background:#fff7d6;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    transition:.25s;
+}
+
+.edit-small-btn svg{
+    font-size:15px;
+    color:#f59e0b;
+}
+
+.edit-small-btn:hover{
+    background:#f59e0b;
+}
+
+.edit-small-btn:hover svg{
+    color:#fff;
+}
+
+/* ================= Footer ================= */
+
+.compare-footer{
+    display:flex;
+    justify-content:flex-end;
+    gap:10px;
+    padding:12px 16px;
+    border-top:1px solid #ececec;
+}
+
+.cancel-btn{
+    width:110px;
+    height:40px;
+    border:none;
+    border-radius:8px;
+    background:#ef4444;
+    color:#fff;
+    font-size:13px;
+    font-weight:600;
+    cursor:pointer;
+}
+
+.cancel-btn:hover{
+    background:#dc2626;
+}
+
+.compare-button{
+    width:140px;
+    height:40px;
+    border:none;
+    border-radius:8px;
+    background:#22c55e;
+    color:#fff;
+    font-size:13px;
+    font-weight:600;
+    cursor:pointer;
+}
+
+.compare-button:hover{
+    background:#16a34a;
+}
+
+
+.confirm-popup-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.45);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    z-index:9999;
+}
+
+.confirm-popup{
+    width:430px;
+    background:#fff;
+    border-radius:14px;
+    padding:28px;
+    text-align:center;
+    box-shadow:0 15px 40px rgba(0,0,0,.25);
+}
+
+.confirm-popup h3{
+    margin:0;
+    font-size:24px;
+    color:#222;
+}
+
+.confirm-popup p{
+    margin:20px 0 28px;
+    color:#666;
+    line-height:1.6;
+}
+
+.confirm-buttons{
+    display:flex;
+    justify-content:center;
+    gap:15px;
+}
+
+.cancel-popup-btn{
+    width:120px;
+    height:44px;
+    border:none;
+    border-radius:8px;
+    background:#ef4444;
+    color:#fff;
+    cursor:pointer;
+    font-weight:600;
+}
+
+.cancel-popup-btn:hover{
+    background:#dc2626;
+}
+
+.confirm-popup-btn{
+    width:120px;
+    height:44px;
+    border:none;
+    border-radius:8px;
+    background:#22c55e;
+    color:#fff;
+    cursor:pointer;
+    font-weight:600;
+}
+
+.confirm-popup-btn:hover{
+    background:#16a34a;
+}

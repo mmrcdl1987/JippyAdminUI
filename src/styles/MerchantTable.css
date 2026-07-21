@@ -1,0 +1,273 @@
+.merchant-table-container{
+    margin-top:30px;
+    background:#fff;
+    border-radius:16px;
+    border:1px solid #ececec;
+    overflow-x:auto;
+}
+
+.merchant-table{
+    width:100%;
+    border-collapse:collapse;
+   /*min-width:1600px; */
+    
+}
+
+.merchant-table thead{
+    background:#f8f8f8;
+}
+
+.merchant-table th{
+    padding:16px;
+    text-align:left;
+    font-size:14px;
+    font-weight:600;
+    /*color: rgba(0, 0, 255, 0.843);*/
+    color:#ff6a00db;
+    white-space:nowrap;
+    border-bottom:1px solid #ececec;
+}
+
+.merchant-table td{
+    padding:16px;
+    white-space:nowrap;
+    border-bottom:1px solid #f2f2f2;
+}
+
+.merchant-table-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:25px;
+}
+
+.merchant-table-header h3{
+    margin:0;
+    font-size:28px;
+    font-weight:600;
+}
+
+.merchant-table-header p{
+    margin-top:6px;
+    color:#8a8a8a;
+    font-size:15px;
+}
+
+.create-merchant-btn{
+    background:#ff6b00;
+    color:#fff;
+    border:none;
+    border-radius:30px;
+    padding:12px 24px;
+    cursor:pointer;
+    font-size:15px;
+    font-weight:600;
+}
+.merchant-toolbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:20px 25px;
+  
+}
+
+.entries-section{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.entries-section select{
+    width:70px;
+    height:40px;
+    border:1px solid #ddd;
+    border-radius:20px;
+    padding:0 10px;
+}
+
+.toolbar-right{
+    display:flex;
+    gap:15px;
+    align-items:center;
+    justify-content:flex-end;
+}
+
+.search-wrapper{
+    position:relative;
+    width:240px;
+    /* display:flex;
+    align-items:center; */
+}
+
+.search-box{
+    width:100%;
+    height:44px;
+    border-radius:25px;
+    border:1px solid #ddd;
+    padding:0 42px 0 18px;
+    outline:none;
+}
+
+.search-icon{   
+    position:absolute;
+    right:15px;
+    top:30%;
+    transform:translateY(-50%);
+    color:#777;
+    font-size:18px;
+}
+
+
+.export-wrapper{
+    position:relative;
+}
+
+.export-btn{
+    width:125px;
+    height:42px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+
+    border:none;
+    border-radius:22px;
+
+    background:#eef3fb;
+    cursor:pointer;
+}
+
+.export-menu{
+    position:absolute;
+    top:52px;
+    right:0;
+
+    width:170px;
+
+    background:#fff;
+
+    border-radius:12px;
+
+    box-shadow:0 8px 20px rgba(0,0,0,.15);
+
+    overflow:hidden;
+
+    z-index:999;
+}
+
+.export-menu div{
+    padding:14px 18px;
+    cursor:pointer;
+}
+
+.export-item{
+    padding:14px 18px;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.export-item:hover{
+    background:#f5f5f5;
+}
+
+.export-menu div:hover{
+    background:#f5f5f5;
+}
+
+.no-result{
+    text-align:center;
+    padding:40px;
+    color:#888;
+}   
+
+.expand-row{
+    background:#fafafa;
+}
+
+.merchant-details{
+    /* display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:18px;
+    padding:20px; */
+
+    
+     display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(220px, 260px));
+    gap:16px;
+    padding:20px;
+}
+
+
+/* .merchant-details div{
+    padding:10px;
+    background:#fff;
+    border:1px solid #eee;
+    border-radius:8px;
+} */
+
+.detail-card{
+    background:#fff;
+    border:1px solid #ececec;
+    border-radius:10px;
+    padding:16px;
+}
+
+.detail-card span{
+    display:block;
+    font-size:13px;
+    color:#888;
+    margin-bottom:6px;
+}
+
+.detail-card p{
+    margin:0;
+    font-size:15px;
+    font-weight:600;
+    color:#333;
+}
+
+.expand-btn,
+.collapse-btn{
+
+    width:30px;
+    height:30px;
+    border:none;
+    border-radius:50%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    cursor:pointer;
+    color:#fff;
+    font-size:18px;
+    transition:.3s;
+}
+
+.expand-btn{
+    /* background:#22c55e54;  */
+    background:#22c55e;
+
+}
+
+.collapse-btn{
+    /* background:#ef44449e;  */
+     background:#ef4444;
+}
+
+.expand-btn:hover{
+    /* background:#16a34a; */
+     background:#16a34a;
+}
+
+.collapse-btn:hover{
+    /* background:#dc2626; */
+    background:#dc2626;
+}
+
+.profile-pic {
+  width: 100px;
+  height: 60px;
+  border-radius: 5px;
+  object-fit: cover;
+  border: 1px solid #810adb;
+}

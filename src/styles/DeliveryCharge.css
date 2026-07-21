@@ -1,0 +1,89 @@
+.ddc-page-wrapper{
+    padding:25px;
+    background:#f6f7fb;
+    min-height:100vh;
+}
+
+.ddc-main-title{
+    font-size:28px;
+    font-weight:600;
+    margin-bottom:30px;
+}
+
+.ddc-section-card{
+    position:relative;
+    background:#fff;
+    border:1px solid #ddd;
+    border-radius:8px;
+    padding:35px 25px;
+    margin-bottom:35px;
+}
+
+.ddc-section-header{
+    position:absolute;
+    top:-14px;
+    left:20px;
+    background:#ff6b35;
+    color:#fff;
+    padding:8px 18px;
+    border-radius:4px;
+    font-size:13px;
+    font-weight:600;
+}
+
+.ddc-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:20px;
+}
+
+.ddc-form-group{
+    display:flex;
+    flex-direction:column;
+}
+
+.ddc-form-label{
+    font-size:14px;
+    font-weight:600;
+    margin-bottom:8px;
+}
+
+.ddc-form-input{
+    height:42px;
+    border:1px solid #ccc;
+    border-radius:4px;
+    padding:0 12px;
+    outline:none;
+}
+
+.ddc-form-input:focus{
+    border-color:#ff6b35;
+}
+
+.ddc-button-container{
+    margin-top:30px;
+    display:flex;
+    justify-content:center;
+}
+
+.ddc-save-button{
+    background:#ff6b35;
+    color:#fff;
+    border:none;
+    padding:11px 24px;
+    border-radius:4px;
+    cursor:pointer;
+    font-weight:600;
+}
+
+.ddc-save-button:hover{
+    background:#e65b28;
+}
+
+@media(max-width:768px){
+
+.ddc-grid{
+grid-template-columns:1fr;
+}
+
+}

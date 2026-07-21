@@ -1,0 +1,470 @@
+.outlets-page{
+    padding:25px;
+    background:#f6f8fb;
+    min-height:100vh;
+}
+
+/* ================= Header ================= */
+
+.outlets-page-header h1{
+    margin:0 0 20px;
+    font-size:30px;
+    font-weight:700;
+    color:#222;
+}
+
+.outlets-section-header{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:25px;
+}
+
+.outlets-section-header h2{
+    margin:0;
+    font-size:28px;
+    color:#222;
+}
+
+.outlets-count-badge{
+    background:#ffe7df;
+    color:#ff6b3d;
+    padding:4px 10px;
+    border-radius:20px;
+    font-size:14px;
+    font-weight:700;
+}
+
+/* ================= Filters ================= */
+
+.outlets-filter-row{
+    display:flex;
+    justify-content:flex-end;
+    gap:15px;
+    margin-bottom:25px;
+}
+
+.outlets-filter-row select{
+    width:170px;
+    height:42px;
+    border:none;
+    border-radius:25px;
+    background:#f2f2f2;
+    padding:0 18px;
+    color:#555;
+    cursor:pointer;
+}
+
+/* ================= Statistics ================= */
+
+.outlets-stats-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:20px;
+}
+
+.outlets-stat-card{
+    border-radius:14px;
+    padding:22px;
+    border:1px solid #ececec;
+}
+
+.outlets-stat-card h3{
+    margin:0;
+    font-size:34px;
+    color:#222;
+}
+
+.outlets-stat-card p{
+    margin-top:8px;
+    color:#666;
+}
+
+.blue{
+    background:#dff1ff;
+}
+
+.cream{
+    background:#fff4e8;
+}
+
+.green{
+    background:#e6f8e8;
+}
+
+.pink{
+    background:#fdeefe;
+}
+
+/* ================= Bulk Upload ================= */
+
+.outlets-bulk-card{
+    margin-top:30px;
+    background:#fff;
+    border-radius:18px;
+    padding:25px;
+    box-shadow:0 2px 10px rgba(0,0,0,.06);
+}
+
+.outlets-bulk-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+.outlets-bulk-header h3{
+    margin:0;
+    font-size:22px;
+    color:#222;
+}
+
+.outlets-bulk-header p{
+    margin-top:8px;
+    color:#777;
+}
+
+.outlets-download-btn{
+    border:1px solid #ff6b3d;
+    background:#fff;
+    color:#ff6b3d;
+    padding:12px 24px;
+    border-radius:25px;
+    cursor:pointer;
+    font-weight:600;
+}
+
+.outlets-bulk-body{
+    display:flex;
+    flex-direction:column;
+    gap:15px;
+}
+
+.outlets-bulk-body label{
+    font-weight:600;
+    color:#555;
+}
+
+.outlets-bulk-body input[type=file]{
+    width:65%;
+}
+
+.outlets-bulk-body small{
+    color:#8c8c8c;
+}
+
+.outlets-bulk-upload-btn{
+    align-self:flex-end;
+    background:#ff6b3d;
+    color:#fff;
+    border:none;
+    padding:12px 28px;
+    border-radius:25px;
+    cursor:pointer;
+    font-size:15px;
+    font-weight:600;
+}
+
+/* ================= Global Status ================= */
+
+.outlets-status-card{
+    margin-top:30px;
+    background:#fff;
+    border-radius:18px;
+    padding:22px 25px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    box-shadow:0 2px 10px rgba(0,0,0,.06);
+}
+
+.outlets-status-card h4{
+    margin:0;
+    color:#222;
+}
+
+.outlets-status-card p{
+    margin-top:6px;
+    color:#888;
+}
+
+.outlets-status-actions{
+    display:flex;
+    align-items:center;
+    gap:20px;
+}
+
+.outlets-status-text{
+    color:#4caf50;
+    font-weight:600;
+}
+
+.outlets-apply-btn{
+    background:#ff6b3d;
+    color:#fff;
+    border:none;
+    padding:12px 24px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:600;
+}
+
+/* ================= Outlets List ================= */
+
+.outlets-list-card{
+    margin-top:30px;
+    background:#fff;
+    border-radius:18px;
+    padding:25px;
+    box-shadow:0 2px 10px rgba(0,0,0,.06);
+}
+
+.outlets-list-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+.outlets-list-header h3{
+    margin:0;
+    color:#222;
+    font-size:24px;
+}
+
+.outlets-list-header p{
+    margin-top:6px;
+    color:#777;
+}
+
+.outlets-list-header-buttons{
+    display:flex;
+    gap:15px;
+}
+
+.outlets-columns-btn{
+    background:#fff;
+    border:1px solid #d9d9d9;
+    padding:10px 22px;
+    border-radius:25px;
+    cursor:pointer;
+    transition:.25s;
+}
+
+.outlets-columns-btn:hover{
+    background:#f5f5f5;
+}
+
+.outlets-create-btn{
+    background:#ff6b3d;
+    color:#fff;
+    border:none;
+    padding:11px 24px;
+    border-radius:25px;
+    cursor:pointer;
+    font-weight:600;
+    transition:.25s;
+}
+
+.outlets-create-btn:hover{
+    background:#f5531f;
+}
+
+/* ================= Toolbar ================= */
+
+.outlets-table-toolbar{
+    margin:25px 0;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.outlets-entries{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.outlets-entries select{
+    height:38px;
+    padding:0 10px;
+    border-radius:8px;
+    border:1px solid #ddd;
+}
+
+.outlets-toolbar-right{
+    display:flex;
+    gap:15px;
+}
+
+.outlets-search-box{
+    width:250px;
+    height:40px;
+    border:1px solid #ddd;
+    border-radius:25px;
+    padding:0 18px;
+    outline:none;
+}
+
+.outlets-search-box:focus{
+    border-color:#ff6b3d;
+}
+
+.outlets-export-btn{
+    border:none;
+    background:#eef5ff;
+    color:#333;
+    padding:10px 22px;
+    border-radius:25px;
+    cursor:pointer;
+    transition:.25s;
+}
+
+.outlets-export-btn:hover{
+    background:#dcecff;
+}
+
+/* ================= Table ================= */
+
+.outlets-table-wrapper{
+    width:100%;
+    overflow-x:auto;
+}
+
+.outlets-table{
+    width:max-content;
+    min-width:100%;
+    border-collapse:collapse;
+    table-layout:auto;
+}
+
+.outlets-table th{
+    background:#f7f7f7;
+    color:orangered;
+    padding:15px;
+    text-align:left;
+    font-weight:600;
+    white-space:nowrap;
+}
+
+.outlets-table th:last-child,
+.outlets-table td:last-child{
+    width:80px;
+    text-align:center;
+}
+
+.outlets-table td{
+    padding:14px 16px;
+    border-top:1px solid #eee;
+    white-space:nowrap;
+}
+
+.outlets-table tbody tr:hover{
+    background:#fafafa;
+}
+
+/* ================= Status ================= */
+
+.outlets-active-status{
+    background:#d8f7e1;
+    color:#0f9d58;
+    padding:6px 14px;
+    border-radius:20px;
+    font-size:13px;
+    font-weight:600;
+}
+
+.outlets-inactive-status{
+    background:#ffe4e4;
+    color:#e53935;
+    padding:6px 14px;
+    border-radius:20px;
+    font-size:13px;
+    font-weight:600;
+}
+
+/* ================= Responsive ================= */
+
+@media(max-width:1200px){
+
+    .outlets-table{
+        display:block;
+        overflow-x:auto;
+    }
+
+    .outlets-table-toolbar{
+        flex-direction:column;
+        gap:15px;
+        align-items:flex-start;
+    }
+
+    .outlets-toolbar-right{
+        width:100%;
+        flex-wrap:wrap;
+    }
+
+    .outlets-search-box{
+        width:100%;
+    }
+
+}
+
+@media(max-width:768px){
+
+    .outlets-filter-row{
+        flex-direction:column;
+    }
+
+    .outlets-filter-row select{
+        width:100%;
+    }
+
+    .outlets-stats-grid{
+        grid-template-columns:1fr;
+    }
+
+    .outlets-list-header{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:15px;
+    }
+
+    .outlets-list-header-buttons{
+        width:100%;
+    }
+
+    .outlets-columns-btn,
+    .outlets-create-btn{
+        flex:1;
+    }
+
+    .outlets-status-card{
+        flex-direction:column;
+        gap:20px;
+        align-items:flex-start;
+    }
+
+}
+
+.outlets-actions{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:12px;
+    min-width:70px;
+}
+
+.edit-icon,
+.delete-icon{
+    cursor:pointer;
+    font-size:18px;
+    transition:0.2s;
+}
+
+.edit-icon:hover{
+    transform:scale(1.15);
+}
+
+.delete-icon:hover{
+    transform:scale(1.15);
+}
