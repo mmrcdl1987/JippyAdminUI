@@ -5,14 +5,14 @@ import { menuData } from "../data/menuData";
 import "../styles/Roles.css";
 
 function Roles() {
-  const [selectedPermissions, setSelectedPermissions] =
-  useState([]);
+  const [selectedPermissions, setSelectedPermissions] = useState([]);
   const [activeTab, setActiveTab] = useState("list");
   const [roles, setRoles] = useState([]);
   const [search, setSearch] = useState("");
   const [roleName, setRoleName] = useState("");
 
-  const [showPermissionModal, setShowPermissionModal] = useState(false); const [selectedRole, setSelectedRole] = useState(null);
+  const [showPermissionModal, setShowPermissionModal] = useState(false);
+  const [selectedRole, setSelectedRole] = useState(null);
 
   useEffect(() => {
     loadRoles();
@@ -49,36 +49,35 @@ function Roles() {
       console.error(error);
 
       alert(
-        error.response?.data?.errorMessage ||
-          "Failed To Create Role"
+        error.response?.data?.errorMessage || "Failed To Create Role"
       );
     }
   };
 
   const filteredRoles = roles.filter((role) =>
-    role.roleName
-      ?.toLowerCase()
-      .includes(search.toLowerCase())
+    role.roleName?.toLowerCase().includes(search.toLowerCase())
   );
- const handleEditRole = (role) => {
-  setSelectedRole(role);
-  setSelectedPermissions([]);
-  setShowPermissionModal(true);
-};
-const togglePermission = (permission) => {
-  setSelectedPermissions((prev) =>
-    prev.includes(permission)
-      ? prev.filter((p) => p !== permission)
-      : [...prev, permission]
-  );
-};
 
-const handleSavePermissions = () => {
-  console.log("Role:", selectedRole?.roleName);
-  console.log("Permissions:", selectedPermissions);
+  const handleEditRole = (role) => {
+    setSelectedRole(role);
+    setSelectedPermissions([]);
+    setShowPermissionModal(true);
+  };
 
-  alert("Permissions selected successfully");
-};
+  const togglePermission = (permission) => {
+    setSelectedPermissions((prev) =>
+      prev.includes(permission)
+        ? prev.filter((p) => p !== permission)
+        : [...prev, permission]
+    );
+  };
+
+  const handleSavePermissions = () => {
+    console.log("Role:", selectedRole?.roleName);
+    console.log("Permissions:", selectedPermissions);
+
+    alert("Permissions selected successfully");
+  };
 
   return (
     <div className="roles-page">
@@ -88,27 +87,15 @@ const handleSavePermissions = () => {
 
       <div className="roles-tabs">
         <button
-          className={
-            activeTab === "list"
-              ? "active-tab"
-              : ""
-          }
-          onClick={() =>
-            setActiveTab("list")
-          }
+          className={activeTab === "list" ? "active-tab" : ""}
+          onClick={() => setActiveTab("list")}
         >
           📋 Role List
         </button>
 
         <button
-          className={
-            activeTab === "create"
-              ? "active-tab"
-              : ""
-          }
-          onClick={() =>
-            setActiveTab("create")
-          }
+          className={activeTab === "create" ? "active-tab" : ""}
+          onClick={() => setActiveTab("create")}
         >
           ➕ Create Role
         </button>
@@ -123,9 +110,7 @@ const handleSavePermissions = () => {
             </div>
 
             <div className="summary-card">
-              <h3>
-                {filteredRoles.length}
-              </h3>
+              <h3>{filteredRoles.length}</h3>
               <p>Visible Roles</p>
             </div>
 
@@ -141,267 +126,217 @@ const handleSavePermissions = () => {
                 type="text"
                 placeholder="Search Role..."
                 value={search}
-                onChange={(e) =>
-                  setSearch(
-                    e.target.value
-                  )
-                }
+                onChange={(e) => setSearch(e.target.value)}
               />
             </div>
 
-            <table className="roles-table">
-              <thead>
-                <tr>
-                  <th>Role Name</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
+            <div className="roles-table-scroll">
+              <table className="roles-table">
+                <thead>
+                  <tr>
+                    <th>Role Name</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
 
-              <tbody>
-                {filteredRoles.length >
-                0 ? (
-                  filteredRoles.map(
-                    (role) => (
-                      <tr
-                        key={
-                          role.roleId
-                        }
-                      >
-                        <td>
-                          {
-                            role.roleName
-                          }
-                        </td>
-
+                <tbody>
+                  {filteredRoles.length > 0 ? (
+                    filteredRoles.map((role) => (
+                      <tr key={role.roleId}>
+                        <td>{role.roleName}</td>
                         <td>
                           <button
-  className="edit-btn"
-  onClick={() => handleEditRole(role)}
->
-  Edit
-</button>
+                            className="edit-btn"
+                            onClick={() => handleEditRole(role)}
+                          >
+                            Edit
+                          </button>
                         </td>
                       </tr>
-                    )
-                  )
-                ) : (
-                  <tr>
-                    <td
-                      colSpan="2"
-                      style={{
-                        textAlign:
-                          "center",
-                        padding:
-                          "20px",
-                      }}
-                    >
-                      No Roles Found
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                    ))
+                  ) : (
+                    <tr>
+                      <td
+                        colSpan="2"
+                        style={{
+                          textAlign: "center",
+                          padding: "20px",
+                        }}
+                      >
+                        No Roles Found
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </>
       )}
 
       {activeTab === "create" && (
-  <div className="create-role-form">
-    <h3>Create Role</h3>
+        <div className="create-role-form">
+          <h3>Create Role</h3>
 
-    <input
-      type="text"
-      placeholder="Enter Role Name"
-      value={roleName}
-      onChange={(e) =>
-        setRoleName(e.target.value)
-      }
-    />
+          <input
+            type="text"
+            placeholder="Enter Role Name"
+            value={roleName}
+            onChange={(e) => setRoleName(e.target.value)}
+          />
 
-    <button onClick={handleCreateRole}>
-      Save Role
-    </button>
-  </div>
-)}
-
-{/* Permission Modal Starts Here */}
-
-{showPermissionModal && (
-  <div className="modal-overlay">
-    <div className="permission-modal">
-      <div className="modal-header">
-        <h3>
-          Permissions - {selectedRole?.roleName}
-        </h3>
-
-        <button
-          className="close-btn"
-          onClick={() =>
-            setShowPermissionModal(false)
-          }
-        >
-          ✖
-        </button>
-      </div>
-
-     <div className="permission-grid">
-
-  {menuData.map((section) =>
-    section.items.map((item) =>
-
-      item.children ? (
-        item.children.map((child) => (
-          <div
-            key={child.name}
-            className="permission-row"
-          >
-            <span>{child.name}</span>
-
-          <label>
-  <input
-    type="checkbox"
-    checked={selectedPermissions.includes(
-      `${child.name}_VIEW`
-    )}
-    onChange={() =>
-      togglePermission(
-        `${child.name}_VIEW`
-      )
-    }
-  />
-  View
-</label>
-
-           <label>
-  <input
-    type="checkbox"
-    checked={selectedPermissions.includes(
-      `${child.name}_CREATE`
-    )}
-    onChange={() =>
-      togglePermission(
-        `${child.name}_CREATE`
-      )
-    }
-  />
-  Create
-</label>
-<label>
-  <input
-    type="checkbox"
-    checked={selectedPermissions.includes(
-      `${child.name}_EDIT`
-    )}
-    onChange={() =>
-      togglePermission(
-        `${child.name}_EDIT`
-      )
-    }
-  />
-  Edit
-</label>
-
-            <label>
-  <input
-    type="checkbox"
-    checked={selectedPermissions.includes(
-      `${child.name}_DELETE`
-    )}
-    onChange={() =>
-      togglePermission(
-        `${child.name}_DELETE`
-      )
-    }
-  />
-  Delete
-</label>
-          </div>
-        ))
-      ) : (
-        <div
-          key={item.name}
-          className="permission-row"
-        >
-          <span>{item.name}</span>
-
-         <label>
-  <input
-    type="checkbox"
-    checked={selectedPermissions.includes(
-      `${item.name}_VIEW`
-    )}
-    onChange={() =>
-      togglePermission(
-        `${item.name}_VIEW`
-      )
-    }
-  />
-  View
-</label>
-
-<label>
-  <input
-    type="checkbox"
-    checked={selectedPermissions.includes(
-      `${item.name}_CREATE`
-    )}
-    onChange={() =>
-      togglePermission(
-        `${item.name}_CREATE`
-      )
-    }
-  />
-  Create
-</label>
-
-<label>
-  <input
-    type="checkbox"
-    checked={selectedPermissions.includes(
-      `${item.name}_EDIT`
-    )}
-    onChange={() =>
-      togglePermission(
-        `${item.name}_EDIT`
-      )
-    }
-  />
-  Edit
-</label>
-
-<label>
-  <input
-    type="checkbox"
-    checked={selectedPermissions.includes(
-      `${item.name}_DELETE`
-    )}
-    onChange={() =>
-      togglePermission(
-        `${item.name}_DELETE`
-      )
-    }
-  />
-  Delete
-</label>
+          <button onClick={handleCreateRole}>Save Role</button>
         </div>
-      )
-    )
-  )}
+      )}
 
-</div>
+      {/* Permission Modal */}
+      {showPermissionModal && (
+        <div className="modal-overlay">
+          <div className="permission-modal">
+            <div className="modal-header">
+              <h3>Permissions - {selectedRole?.roleName}</h3>
 
-    <button
-  className="save-btn"
-  onClick={handleSavePermissions}
->
-  Save Permissions
-</button>
+              <button
+                className="close-btn"
+                onClick={() => setShowPermissionModal(false)}
+              >
+                ✖
+              </button>
+            </div>
+
+            <div className="permission-grid">
+              {menuData.map((section) =>
+                section.items.map((item) =>
+                  item.children ? (
+                    item.children.map((child) => (
+                      <div key={child.name} className="permission-row">
+                        <span>{child.name}</span>
+
+                        <label>
+                          <input
+                            type="checkbox"
+                            checked={selectedPermissions.includes(
+                              `${child.name}_VIEW`
+                            )}
+                            onChange={() =>
+                              togglePermission(`${child.name}_VIEW`)
+                            }
+                          />
+                          View
+                        </label>
+
+                        <label>
+                          <input
+                            type="checkbox"
+                            checked={selectedPermissions.includes(
+                              `${child.name}_CREATE`
+                            )}
+                            onChange={() =>
+                              togglePermission(`${child.name}_CREATE`)
+                            }
+                          />
+                          Create
+                        </label>
+
+                        <label>
+                          <input
+                            type="checkbox"
+                            checked={selectedPermissions.includes(
+                              `${child.name}_EDIT`
+                            )}
+                            onChange={() =>
+                              togglePermission(`${child.name}_EDIT`)
+                            }
+                          />
+                          Edit
+                        </label>
+
+                        <label>
+                          <input
+                            type="checkbox"
+                            checked={selectedPermissions.includes(
+                              `${child.name}_DELETE`
+                            )}
+                            onChange={() =>
+                              togglePermission(`${child.name}_DELETE`)
+                            }
+                          />
+                          Delete
+                        </label>
+                      </div>
+                    ))
+                  ) : (
+                    <div key={item.name} className="permission-row">
+                      <span>{item.name}</span>
+
+                      <label>
+                        <input
+                          type="checkbox"
+                          checked={selectedPermissions.includes(
+                            `${item.name}_VIEW`
+                          )}
+                          onChange={() =>
+                            togglePermission(`${item.name}_VIEW`)
+                          }
+                        />
+                        View
+                      </label>
+
+                      <label>
+                        <input
+                          type="checkbox"
+                          checked={selectedPermissions.includes(
+                            `${item.name}_CREATE`
+                          )}
+                          onChange={() =>
+                            togglePermission(`${item.name}_CREATE`)
+                          }
+                        />
+                        Create
+                      </label>
+
+                      <label>
+                        <input
+                          type="checkbox"
+                          checked={selectedPermissions.includes(
+                            `${item.name}_EDIT`
+                          )}
+                          onChange={() =>
+                            togglePermission(`${item.name}_EDIT`)
+                          }
+                        />
+                        Edit
+                      </label>
+
+                      <label>
+                        <input
+                          type="checkbox"
+                          checked={selectedPermissions.includes(
+                            `${item.name}_DELETE`
+                          )}
+                          onChange={() =>
+                            togglePermission(`${item.name}_DELETE`)
+                          }
+                        />
+                        Delete
+                      </label>
+                    </div>
+                  )
+                )
+              )}
+            </div>
+
+            <button
+              className="save-btn"
+              onClick={handleSavePermissions}
+            >
+              Save Permissions
+            </button>
+          </div>
+        </div>
+      )}
     </div>
-  </div>
-)}
-
-</div>
-); 
+  );
 }
 
 export default Roles;

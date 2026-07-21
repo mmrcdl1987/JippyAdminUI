@@ -1,60 +1,39 @@
 import { useEffect, useState } from "react";
 import { FM_API } from "../services/api";
 import { FaEdit, FaTrash } from "react-icons/fa";
-import { hasPermission }
-from "../utils/permissionUtils";
+import { hasPermission } from "../utils/permissionUtils";
 import "../styles/RolesPermissions.css";
 
 function RolesPermissions() {
- 
-const [activeTab, setActiveTab] =
-  useState("roles");
-  const [showPermissionCrudModal,
-setShowPermissionCrudModal] =
-useState(false);
+  const [activeTab, setActiveTab] = useState("roles");
 
-const [isPermissionEditMode,
-      setIsPermissionEditMode] =
-      useState(false);
-const [permissionName,
-setPermissionName] =
-useState("");
-
-const [selectedPermission,
-setSelectedPermission] =
-useState(null);
+  // State Management
   const [roles, setRoles] = useState([]);
   const [selectedRole, setSelectedRole] = useState(null);
   const [searchRole, setSearchRole] = useState("");
-  const [permissions, setPermissions] =
-  useState([]);
-  const [showPermissionModal,
-      setShowPermissionModal] =
-      useState(false);
-const [editRoleName, setEditRoleName] =
-  useState("");
-const [allPermissions,
-      setAllPermissions] =
-      useState([]);
+  const [permissions, setPermissions] = useState([]);
+  const [allPermissions, setAllPermissions] = useState([]);
 
-const [selectedPermissions,
-      setSelectedPermissions] =
-      useState([]);
-      const [showRoleModal,
-      setShowRoleModal] =
-      useState(false);
-      const [isEditMode, setIsEditMode] =
-  useState(false);
+  // Role Modal State
+  const [showRoleModal, setShowRoleModal] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [roleName, setRoleName] = useState("");
 
-const [roleName,
-      setRoleName] =
-      useState("");
-     
+  // Assign Permissions Modal State
+  const [showPermissionModal, setShowPermissionModal] = useState(false);
+  const [selectedPermissions, setSelectedPermissions] = useState([]);
 
-useEffect(() => {
-  loadRoles();
-  loadAllPermissions();
-}, []);
+  // Permission CRUD Modal State
+  const [showPermissionCrudModal, setShowPermissionCrudModal] = useState(false);
+  const [isPermissionEditMode, setIsPermissionEditMode] = useState(false);
+  const [permissionName, setPermissionName] = useState("");
+  const [selectedPermission, setSelectedPermission] = useState(null);
+
+  useEffect(() => {
+    loadRoles();
+    loadAllPermissions();
+  }, []);
+
   if (!hasPermission("ROLE_READ")) {
     return (
       <div className="access-denied">
@@ -64,1025 +43,574 @@ useEffect(() => {
     );
   }
 
- const loadRoles = async () => {
-  try {
-    // Load Roles
-const response = await FM_API.get(
-  "/api/fm/roles"
-);
+  // --- API CALLS ---
 
-    console.log("Roles Response:", response.data);
+  const loadRoles = async () => {
+    try {
+      const response = await FM_API.get("/api/fm/roles");
+      setRoles(response.data);
 
-    setRoles(response.data);
+      if (response.data.length > 0) {
+        const initialRole = selectedRole
+          ? response.data.find((r) => r.roleId === selectedRole.roleId) || response.data[0]
+          : response.data[0];
 
-    if (response.data.length > 0) {
-      setSelectedRole(response.data[0]);
-
-      loadPermissions(
-        response.data[0].roleId
-      );
+        setSelectedRole(initialRole);
+        loadPermissions(initialRole.roleId);
+      } else {
+        setSelectedRole(null);
+        setPermissions([]);
+      }
+    } catch (error) {
+      console.error("Error loading roles:", error);
     }
-  } catch (error) {
-    console.error(
-      "Error loading roles:",
-      error
-    );
-  }
-};
-  const loadPermissions = async (
-  roleId
-) => {
-  try {
+  };
 
-    console.log(
-      "Loading permissions for role:",
-      roleId
-    );
+  const loadPermissions = async (roleId) => {
+    try {
+      const response = await FM_API.get(`/api/fm/roles/${roleId}/permissions`);
+      setPermissions(response.data);
+    } catch (error) {
+      console.error("Permission Error:", error);
+    }
+  };
 
-   // Load Permissions by Role
-const response = await FM_API.get(
-  `/api/fm/roles/${roleId}/permissions`
-);
+  const loadAllPermissions = async () => {
+    try {
+      const response = await FM_API.get("/api/fm/permissions");
+      setAllPermissions(response.data);
+    } catch (error) {
+      console.error("Error loading all permissions:", error);
+    }
+  };
 
-    console.log(
-      "Permissions:",
-      response.data
-    );
+  // --- ROLE ACTIONS ---
 
-    setPermissions(
-      response.data
-    );
+  const createRole = async () => {
+    if (!roleName.trim()) {
+      alert("Please enter a role name");
+      return;
+    }
+    try {
+      await FM_API.post("/api/fm/roles", { roleName });
+      alert("Role Created Successfully");
+      setShowRoleModal(false);
+      setRoleName("");
+      loadRoles();
+    } catch (error) {
+      console.error("Create Role Error:", error);
+      alert("Failed To Create Role");
+    }
+  };
 
-  } catch (error) {
+  const updateRole = async () => {
+    if (!selectedRole) {
+      alert("Please select a role");
+      return;
+    }
+    if (!roleName.trim()) {
+      alert("Please enter a role name");
+      return;
+    }
 
-    console.error(
-      "Permission Error:",
-      error
-    );
+    try {
+      await FM_API.put(`/api/fm/roles/${selectedRole.roleId}`, { roleName });
+      alert("Role Updated Successfully");
+      setShowRoleModal(false);
+      setIsEditMode(false);
+      setRoleName("");
+      loadRoles();
+    } catch (error) {
+      console.error("Update Role Error:", error);
+      alert("Failed To Update Role");
+    }
+  };
 
-  }
-};
-const loadAllPermissions = async () => {
-  try {
+  const deleteRole = async (roleId) => {
+    if (!roleId) return;
 
-    const response =
-      await FM_API.get(
-        "/api/fm/permissions"
-      );
+    const confirmDelete = window.confirm("Are you sure you want to delete this role?");
+    if (!confirmDelete) return;
 
-    console.log(
-      "All Permissions:",
-      response.data
-    );
+    try {
+      await FM_API.delete(`/api/fm/roles/${roleId}`);
+      alert("Role Deleted Successfully");
+      setSelectedRole(null);
+      loadRoles();
+    } catch (error) {
+      console.error("Delete Role Error:", error);
+      alert("Failed To Delete Role");
+    }
+  };
 
-    setAllPermissions(
-      response.data
-    );
+  const savePermissions = async () => {
+    if (!selectedRole) {
+      alert("Please select a role");
+      return;
+    }
 
-  } catch (error) {
+    try {
+      const payload = { permissionIds: selectedPermissions };
+      await FM_API.put(`/api/fm/roles/${selectedRole.roleId}/permissions`, payload);
 
-    console.error(
-      "Error loading all permissions:",
-      error
-    );
+      alert("Permissions Updated Successfully");
+      setShowPermissionModal(false);
+      loadPermissions(selectedRole.roleId);
+    } catch (error) {
+      console.error("Save Permission Error:", error);
+      alert("Failed To Save Permissions");
+    }
+  };
 
-  }
-};
-const savePermissions = async () => {
+  // --- PERMISSION CRUD ACTIONS ---
 
-  if (!selectedRole) {
-    alert("Please select a role");
-    return;
-  }
+  const createPermission = async () => {
+    if (!permissionName.trim()) {
+      alert("Please enter a permission name");
+      return;
+    }
 
-  try {
+    try {
+      await FM_API.post("/api/fm/permissions", { permissionName });
+      alert("Permission Created Successfully");
+      setShowPermissionCrudModal(false);
+      setPermissionName("");
+      loadAllPermissions();
+    } catch (error) {
+      console.error("Create Permission Error:", error);
+      alert("Failed To Create Permission");
+    }
+  };
 
-    const payload = {
-      permissionIds:
-        selectedPermissions
-    };
+  const updatePermission = async () => {
+    if (!selectedPermission) return;
+    if (!permissionName.trim()) {
+      alert("Please enter a permission name");
+      return;
+    }
 
-    console.log(
-  "Selected Role:",
-  selectedRole
-);
+    try {
+      await FM_API.put(`/api/fm/permissions/${selectedPermission.permissionId}`, {
+        permissionName,
+      });
+      alert("Permission Updated");
+      setShowPermissionCrudModal(false);
+      loadAllPermissions();
+    } catch (error) {
+      console.error("Update Permission Error:", error);
+      alert("Update Failed");
+    }
+  };
 
-console.log(
-  "Selected Permission Ids:",
-  selectedPermissions
-);
+  const deletePermission = async (permissionId) => {
+    const confirmDelete = window.confirm("Delete Permission?");
+    if (!confirmDelete) return;
 
-console.log(
-  "Request Payload:",
-  payload
-);
-   await FM_API.put(
-  `/api/fm/roles/${selectedRole.roleId}/permissions`,
-  payload
-);
+    try {
+      await FM_API.delete(`/api/fm/permissions/${permissionId}`);
+      alert("Permission Deleted");
+      loadAllPermissions();
+    } catch (error) {
+      console.error("Delete Permission Error:", error);
+      alert("Delete Failed");
+    }
+  };
 
-    alert(
-      "Permissions Updated Successfully"
-    );
-
-    setShowPermissionModal(false);
-
-    loadPermissions(
-      selectedRole.roleId
-    );
-
-  } catch (error) {
-
-    console.error(
-      "Save Permission Error:",
-      error
-    );
-
-    alert(
-      "Failed To Save Permissions"
-    );
-  }
-};
+  // --- FILTERING ---
   const filteredRoles = roles.filter((role) =>
-    role.roleName
-      ?.toLowerCase()
-      .includes(
-        searchRole.toLowerCase()
-      )
+    role.roleName?.toLowerCase().includes(searchRole.toLowerCase())
   );
 
-//   const permissions = [
-//     {
-//       module: "User Management",
-//       view: true,
-//       create: true,
-//       edit: true,
-//       delete: true,
-//     },
-//     {
-//       module: "Role Management",
-//       view: true,
-//       create: true,
-//       edit: false,
-//       delete: false,
-//     },
-//     {
-//       module: "Zone Management",
-//       view: true,
-//       create: true,
-//       edit: true,
-//       delete: false,
-//     },
-//   ];
-const createRole = async () => {
-
-  try {
-
-    await FM_API.post(
-      "/api/fm/roles",
-      {
-        roleName
-      }
-    );
-
-    alert(
-      "Role Created Successfully"
-    );
-
-    setShowRoleModal(false);
-
-    setRoleName("");
-
-    loadRoles();
-
-  } catch (error) {
-
-    console.error(
-      "Create Role Error:",
-      error
-    );
-
-  }
-};
-const updateRole = async () => {
-
-  if (!selectedRole) {
-    alert("Please select a role");
-    return;
-  }
-
-  try {
-
-  await FM_API.put(
-  `/api/fm/roles/${selectedRole.roleId}`,
-  {
-    roleName
-  }
-);
-
-    alert(
-      "Role Updated Successfully"
-    );
-
-    setShowRoleModal(false);
-
-    setIsEditMode(false);
-
-    setRoleName("");
-
-    loadRoles();
-
-  } catch (error) {
-
-    console.error(error);
-
-    alert(
-      "Failed To Update Role"
-    );
-
-  }
-
-};
-const createPermission = async () => {
-
-  try {
-
-    await FM_API.post(
-      "/api/fm/permissions",
-      {
-        permissionName
-      }
-    );
-
-    alert(
-      "Permission Created Successfully"
-    );
-
-    setShowPermissionCrudModal(false);
-
-    setPermissionName("");
-
-    loadAllPermissions();
-
-  } catch (error) {
-
-    console.error(error);
-
-    alert(
-      "Failed To Create Permission"
-    );
-
-  }
-
-};
-
-const deletePermission = async (
-  permissionId
-) => {
-
-  const confirmDelete =
-    window.confirm(
-      "Delete Permission?"
-    );
-
-  if (!confirmDelete) return;
-
-  try {
-
-  await FM_API.delete(
-  `/api/fm/permissions/${permissionId}`
-);
-
-    alert(
-      "Permission Deleted"
-    );
-
-    loadAllPermissions();
-
-  } catch (error) {
-
-    console.error(error);
-
-    alert(
-      "Delete Failed"
-    );
-
-  }
-
-};
-const updatePermission = async () => {
-
-  try {
-
-    await FM_API.put(
-  `/api/fm/permissions/${selectedPermission.permissionId}`,
-  {
-    permissionName
-  }
-);
-
-    alert(
-      "Permission Updated"
-    );
-
-    setShowPermissionCrudModal(false);
-
-    loadAllPermissions();
-
-  } catch (error) {
-
-    console.error(error);
-
-    alert(
-      "Update Failed"
-    );
-
-  }
-
-};
   return (
     <div className="rp-container">
-
+      {/* HEADER */}
       <div className="rp-header">
         <div>
-          <h2>
-            Roles & Permissions
-          </h2>
-
-          <p className="sub-title">
-            Manage roles and their
-            associated permissions
-          </p>
+          <h2>Roles & Permissions</h2>
+          <p className="sub-title">Manage roles and their associated permissions</p>
         </div>
-
-    {
-  hasPermission("ROLE_CREATE") && (
-    <button
-      className="create-role-btn"
-      onClick={() => {
-
-        setIsEditMode(false);
-
-        setRoleName("");
-
-        setShowRoleModal(true);
-
-      }}
-    >
-      + Create Role
-    </button>
-  )
-}
       </div>
 
-     <div className="top-tabs">
+      {/* TOP TABS */}
+      <div className="top-tabs">
+        <button
+          className={activeTab === "roles" ? "tab-active" : ""}
+          onClick={() => setActiveTab("roles")}
+        >
+          Roles
+        </button>
+        <button
+          className={activeTab === "permissions" ? "tab-active" : ""}
+          onClick={() => setActiveTab("permissions")}
+        >
+          Permissions
+        </button>
+      </div>
 
-  <button
-    className={
-      activeTab === "roles"
-        ? "tab-active"
-        : ""
-    }
-    onClick={() =>
-      setActiveTab("roles")
-    }
-  >
-    Roles
-  </button>
-
-  <button
-    className={
-      activeTab === "permissions"
-        ? "tab-active"
-        : ""
-    }
-    onClick={() =>
-      setActiveTab("permissions")
-    }
-  >
-    Permissions
-  </button>
-
-  <button
-    className={
-      activeTab === "assignRoles"
-        ? "tab-active"
-        : ""
-    }
-    onClick={() =>
-      setActiveTab("assignRoles")
-    }
-  >
-    Assign Roles
-  </button>
-
-</div>
-
+      {/* ROLES TAB CONTENT */}
       {activeTab === "roles" && (
+        <div className="rp-layout">
+          {/* LEFT PANEL */}
+          <div className="roles-panel">
 
-<div className="rp-layout">
+  <div className="panel-header-flex">
 
-        {/* LEFT PANEL */}
+    <h3>Roles</h3>
 
-        <div className="roles-panel">
-
-          <h3>Roles</h3>
-
-          <input
-            type="text"
-            placeholder="Search roles..."
-            className="search-input"
-            value={searchRole}
-            onChange={(e) =>
-              setSearchRole(
-                e.target.value
-              )
-            }
-          />
-
-          {filteredRoles.map(
-            (role) => (
-              <div
-                key={role.roleId}
-                className={`role-card ${
-                  selectedRole?.roleId ===
-                  role.roleId
-                    ? "role-card-active"
-                    : ""
-                }`}
-onClick={() => {
-
-  console.log(
-    "Selected Role:",
-    role
-  );
-
-  setSelectedRole(role);
-
-  loadPermissions(
-    role.roleId
-  );
-
-}}
-              >
-                <div>
-                  <h4>
-                    {role.roleName}
-                  </h4>
-
-                  <p>
-                    Manage
-                    permissions
-                  </p>
-                </div>
-
-             <span className="role-count">
-  {selectedRole?.roleId === role.roleId
-    ? permissions.length
-    : ""}
-</span>
-              </div>
-            )
-          )}
-
-        </div>
-
-        {/* RIGHT PANEL */}
-
-        <div className="permissions-panel">
-
-          <div className="role-details-header">
-
-            <div>
-
-              <h3>
-                Role Details
-              </h3>
-
-              <div className="role-field">
-
-                <label>
-                  Role Name
-                </label>
-
-                <input
-                  value={
-                    selectedRole?.roleName ||
-                    ""
-                  }
-                  readOnly
-                  className="role-name-box"
-                />
-
-              </div>
-
-            </div>
-
-            <div className="action-buttons">
-
-{
-  hasPermission("ROLE_UPDATE") && (
-    <button
-      className="edit-role-btn"
-      onClick={() => {
-
-        setIsEditMode(true);
-
-        setRoleName(
-          selectedRole?.roleName || ""
-        );
-
-        setShowRoleModal(true);
-
-      }}
-    >
-      Edit Role
-    </button>
-  )
-}
-{
-  hasPermission("ROLE_UPDATE") && (
-    <button
-      className="edit-role-btn"
-      onClick={() => {
-
-        setSelectedPermissions(
-          permissions.map(
-            permission =>
-              permission.permissionId
-          )
-        );
-
-        setShowPermissionModal(true);
-
-      }}
-    >
-      Manage Permissions
-    </button>
-  )
-}
-            {
-  hasPermission("ROLE_DELETE") && (
-    <button
-      className="delete-role-btn"
-    >
-      Delete Role
-    </button>
-  )
-}
-
-            </div>
-
-          </div>
-
-          <div className="permission-section">
-
-            <div className="permission-header">
-
-  <h3>
-    Permissions (
-    {permissions.length}
-    )
-  </h3>
-
- {
-  hasPermission("ROLE_CREATE") && (
-    <button
-      className="create-role-btn"
-      onClick={() => {
-
-        setSelectedPermission(null);
-
-        setPermissionName("");
-
-        setIsPermissionEditMode(false);
-
-        setShowPermissionCrudModal(true);
-
-      }}
-    >
-      + Add Permission
-    </button>
-  )
-}
-
-</div>
-
-            <table className="permission-table">
-
-              <thead>
-                <tr>
-                  <th>
-                    Permission
-                    Name
-                  </th>
-
-                  <th>
-                    Description
-                  </th>
-
-                  <th>
-                    Status
-                  </th>
-
-                  <th>
-                    Action
-                  </th>
-                </tr>
-              </thead>
-
-              {/* <tbody>
-
-                {permissions.map(
-                  (
-                    permission,
-                    index
-                  ) => (
-                    <tr
-                      key={index}
-                    >
-                     <td>
-  {permission.permissionName}
-</td>
-
-<td>
-  Role Permission
-</td>
-
-                      <td>
-                        <span className="status-active">
-                          Active
-                        </span>
-                      </td>
-
-                      <td>
-                        👁️
-                      </td>
-                    </tr>
-                  )
-                )}
-
-              </tbody> */}
-
-<tbody>
-  {permissions.length > 0 ? (
-    permissions.map((permission) => (
-      <tr key={permission.permissionId}>
-        <td>{permission.permissionName}</td>
-        <td>Role Permission</td>
-        <td>
-          <span className="status-active">
-            Active
-          </span>
-        </td>
-        <td>👁️</td>
-      </tr>
-    ))
-  ) : (
-    <tr>
-      <td
-        colSpan="4"
-        style={{
-          textAlign: "center",
-          padding: "20px"
+    {/* {hasPermission("ROLE_CREATE") && (
+      <button
+        className="create-role-btn"
+        onClick={() => {
+          setIsEditMode(false);
+          setRoleName("");
+          setShowRoleModal(true);
         }}
       >
-        No Permissions Found
-      </td>
-    </tr>
-  )}
-</tbody>
-
-            </table>
-
-          </div>
-
-        </div>
-
-
-           </div>
-)}
-{activeTab === "permissions" && (
-
-<div className="permissions-page">
-
-  <div className="permission-header">
-
-    <h2>Permissions</h2>
-
-  {
-  hasPermission("ROLE_CREATE") && (
-    <button
-      className="create-role-btn"
-      onClick={() => {
-
-        setSelectedPermission(null);
-
-        setPermissionName("");
-
-        setIsPermissionEditMode(false);
-
-        setShowPermissionCrudModal(true);
-
-      }}
-    >
-      + Create Permission
-    </button>
-  )
-}
+        + Create Role
+      </button>
+    )} */}
 
   </div>
 
-  <table className="permission-table">
+  <input
+    type="text"
+    placeholder="Search roles..."
+    className="search-input"
+    value={searchRole}
+    onChange={(e) => setSearchRole(e.target.value)}
+  />
 
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Permission Name</th>
-        <th>Action</th>
-      </tr>
-    </thead>
+  <div className="roles-list">
 
-    <tbody>
+    {filteredRoles.map((role) => (
+      <div
+        key={role.roleId}
+        className={`role-card ${
+          selectedRole?.roleId === role.roleId
+            ? "role-card-active"
+            : ""
+        }`}
+        onClick={() => {
+          setSelectedRole(role);
+          loadPermissions(role.roleId);
+        }}
+      >
+        <div>
+          <h4>{role.roleName}</h4>
+          <p>Manage permissions</p>
+        </div>
 
-      {allPermissions.map(permission => (
+        <span className="role-count">
+          {selectedRole?.roleId === role.roleId
+            ? permissions.length
+            : ""}
+        </span>
 
-        <tr key={permission.permissionId}>
+      </div>
+    ))}
 
-          <td>{permission.permissionId}</td>
+  </div>
 
-          <td>{permission.permissionName}</td>
+</div>  
+          {/* RIGHT PANEL */}
+          <div className="permissions-panel">
+            <div className="role-details-header">
+              <div>
+                <h3>Role Details</h3>
+                <div className="role-field">
+                  <label>Role Name</label>
+                  <input
+                    value={selectedRole?.roleName || ""}
+                    readOnly
+                    className="role-name-box"
+                  />
+                </div>
+              </div>
 
-          <td>
-{
-  hasPermission("ROLE_UPDATE") && (
-    <button
-      className="edit-btn icon-btn"
-      onClick={() => {
-        setSelectedPermission(permission);
-        setPermissionName(permission.permissionName);
-        setIsPermissionEditMode(true);
-        setShowPermissionCrudModal(true);
-      }}
-    >
-      <FaEdit />
-    </button>
-  )
-}
+              <div className="action-buttons">
 
-{
-  hasPermission("ROLE_DELETE") && (
-    <button
-      className="delete-btn icon-btn"
-      onClick={() =>
-        deletePermission(
-          permission.permissionId
-        )
-      }
-    >
-      <FaTrash />
-    </button>
-  )
-}
-          </td>
+  <div className="top-actions">
 
-        </tr>
+    {hasPermission("ROLE_UPDATE") && (
+      <button
+        className="edit-role-btn"
+        onClick={() => {
+          setIsEditMode(true);
+          setRoleName(selectedRole?.roleName || "");
+          setShowRoleModal(true);
+        }}
+      >
+        Edit Role
+      </button>
+    )}
 
-      ))}
+    {hasPermission("ROLE_UPDATE") && (
+      <button
+        className="edit-role-btn"
+        onClick={() => {
+          setSelectedPermissions(
+            permissions.map((permission) => permission.permissionId)
+          );
+          setShowPermissionModal(true);
+        }}
+      >
+        Manage Permissions
+      </button>
+    )}
 
-    </tbody>
+  </div>
 
-  </table>
+  <div className="bottom-actions">
+
+    {hasPermission("ROLE_DELETE") && (
+      <button
+        className="delete-role-btn"
+        onClick={() => deleteRole(selectedRole?.roleId)}
+      >
+        Delete Role
+      </button>
+    )}
+
+    {hasPermission("ROLE_CREATE") && (
+      <button
+        className="create-role-btn"
+        onClick={() => {
+          setIsEditMode(false);
+          setRoleName("");
+          setShowRoleModal(true);
+        }}
+      >
+        + Create Role
+      </button>
+    )}
+
+  </div>
 
 </div>
-
-)}
-{activeTab === "assignRoles" && (
-
-<div className="permissions-page">
-
-  <h2>Assign Roles To Users</h2>
-
-  <p>
-    Move your AdminUsers component here.
-  </p>
-
-</div>
-
-)}
-      {showPermissionModal && (
-        <div className="modal-overlay">
-
-          <div className="permission-modal">
-
-            <div className="modal-header">
-
-              <h3>
-                Manage Permissions -
-                {selectedRole?.roleName}
-              </h3>
-
-              <button
-                onClick={() =>
-                  setShowPermissionModal(false)
-                }
-              >
-                ✖
-              </button>
-
             </div>
 
-            {allPermissions.map(
-              (permission) => (
+            <div className="permission-section">
+              <div className="permission-header">
+                <h3>Permissions ({permissions.length})</h3>
+              </div>
 
-                <div
-                  key={permission.permissionId}
-                  className="checkbox-row"
-                >
-
-                 <input
-  type="checkbox"
-  checked={selectedPermissions.includes(
-    permission.permissionId
-  )}
-  onChange={(e) => {
-
-    if (e.target.checked) {
-
-      setSelectedPermissions([
-        ...selectedPermissions,
-        permission.permissionId
-      ]);
-
-    } else {
-
-      setSelectedPermissions(
-        selectedPermissions.filter(
-          id =>
-            id !== permission.permissionId
-        )
-      );
-
-    }
-
-  }}
-/>
-
-                  <label>
-                    {permission.permissionName}
-                  </label>
-
-                </div>
-
-              )
-            )}
-
-        {
-  hasPermission("ROLE_UPDATE") && (
-    <button
-      className="save-btn"
-      onClick={savePermissions}
-    >
-      Save Permissions
-    </button>
-  )
-}
-
+              {/* TABLE CONTAINER FOR SCROLLBAR */}
+              <div className="permission-table-wrapper">
+                <table className="permission-table">
+                  <thead>
+                    <tr>
+                      <th>Permission Name</th>
+                      <th>Description</th>
+                      <th>Status</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {permissions.length > 0 ? (
+                      permissions.map((permission) => (
+                        <tr key={permission.permissionId}>
+                          <td>{permission.permissionName}</td>
+                          <td>Role Permission</td>
+                          <td>
+                            <span className="status-active">Active</span>
+                          </td>
+                          <td>👁️</td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="4" style={{ textAlign: "center", padding: "20px" }}>
+                          No Permissions Found
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
-
         </div>
       )}
+
+      {/* PERMISSIONS TAB CONTENT */}
+      {activeTab === "permissions" && (
+        <div className="permissions-page">
+          <div className="permission-header">
+            <h2>Permissions</h2>
+            {hasPermission("ROLE_CREATE") && (
+              <button
+                className="create-role-btn"
+                onClick={() => {
+                  setSelectedPermission(null);
+                  setPermissionName("");
+                  setIsPermissionEditMode(false);
+                  setShowPermissionCrudModal(true);
+                }}
+              >
+                + Create Permission
+              </button>
+            )}
+          </div>
+
+          {/* TABLE CONTAINER FOR SCROLLBAR */}
+          <div className="permission-table-wrapper">
+            <table className="permission-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Permission Name</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {allPermissions.map((permission) => (
+                  <tr key={permission.permissionId}>
+                    <td>{permission.permissionId}</td>
+                    <td>{permission.permissionName}</td>
+                    <td>
+  <div className="table-actions">
+
+    {hasPermission("ROLE_UPDATE") && (
+      <button
+        className="action-btn edit-action"
+        title="Edit Permission"
+        onClick={() => {
+          setSelectedPermission(permission);
+          setPermissionName(permission.permissionName);
+          setIsPermissionEditMode(true);
+          setShowPermissionCrudModal(true);
+        }}
+      >
+        <FaEdit />
+      </button>
+    )}
+
+    {hasPermission("ROLE_DELETE") && (
+      <button
+        className="action-btn delete-action"
+        title="Delete Permission"
+        onClick={() => deletePermission(permission.permissionId)}
+      >
+        <FaTrash />
+      </button>
+    )}
+
+  </div>
+</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: MANAGE ROLE PERMISSIONS */}
+      {showPermissionModal && (
+        <div className="modal-overlay">
+          <div className="permission-modal">
+            <div className="modal-header">
+              <h3>Manage Permissions - {selectedRole?.roleName}</h3>
+              <button onClick={() => setShowPermissionModal(false)}>✖</button>
+            </div>
+
+            <div className="permission-table-wrapper" style={{ maxHeight: "300px" }}>
+              {allPermissions.map((permission) => (
+                <div key={permission.permissionId} className="checkbox-row">
+                  <input
+                    type="checkbox"
+                    checked={selectedPermissions.includes(permission.permissionId)}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setSelectedPermissions([
+                          ...selectedPermissions,
+                          permission.permissionId,
+                        ]);
+                      } else {
+                        setSelectedPermissions(
+                          selectedPermissions.filter(
+                            (id) => id !== permission.permissionId
+                          )
+                        );
+                      }
+                    }}
+                  />
+                  <label>{permission.permissionName}</label>
+                </div>
+              ))}
+            </div>
+
+            {hasPermission("ROLE_UPDATE") && (
+              <button className="save-btn" onClick={savePermissions}>
+                Save Permissions
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: CREATE / EDIT ROLE */}
       {showRoleModal && (
+        <div className="modal-overlay">
+          <div className="permission-modal">
+            <div className="modal-header">
+              <h3>{isEditMode ? "Edit Role" : "Create New Role"}</h3>
+              <button onClick={() => setShowRoleModal(false)}>✖</button>
+            </div>
 
-  <div className="modal-overlay">
+            <input
+              type="text"
+              placeholder="Enter Role Name"
+              value={roleName}
+              onChange={(e) => setRoleName(e.target.value)}
+              className="role-name-box"
+            />
+            <br />
+            <br />
 
-    <div className="permission-modal">
+            {((!isEditMode && hasPermission("ROLE_CREATE")) ||
+              (isEditMode && hasPermission("ROLE_UPDATE"))) && (
+              <button
+                className="save-btn"
+                onClick={isEditMode ? updateRole : createRole}
+              >
+                {isEditMode ? "Update Role" : "Create Role"}
+              </button>
+            )}
+          </div>
+        </div>
+      )}
 
-      <div className="modal-header">
+      {/* MODAL: CREATE / EDIT PERMISSION */}
+      {showPermissionCrudModal && (
+        <div className="modal-overlay">
+          <div className="permission-modal">
+            <div className="modal-header">
+              <h3>{isPermissionEditMode ? "Edit Permission" : "Create Permission"}</h3>
+              <button onClick={() => setShowPermissionCrudModal(false)}>✖</button>
+            </div>
 
-   <h3>
-  {isEditMode
-    ? "Edit Role"
-    : "Create New Role"}
-</h3>
+            <input
+              type="text"
+              placeholder="Permission Name"
+              value={permissionName}
+              onChange={(e) => setPermissionName(e.target.value)}
+            />
+            <br />
+            <br />
 
-        <button
-          onClick={() =>
-            setShowRoleModal(false)
-          }
-        >
-          ✖
-        </button>
-
-      </div>
-
-      <input
-        type="text"
-        placeholder="Enter Role Name"
-        value={roleName}
-        onChange={(e) =>
-          setRoleName(
-            e.target.value
-          )
-        }
-        className="role-name-box"
-      />
-
-      <br />
-      <br />
-{
-  (
-    (!isEditMode &&
-      hasPermission("ROLE_CREATE")) ||
-    (isEditMode &&
-      hasPermission("ROLE_UPDATE"))
-  ) && (
-    <button
-      className="save-btn"
-      onClick={
-        isEditMode
-          ? updateRole
-          : createRole
-      }
-    >
-      {isEditMode
-        ? "Update Role"
-        : "Create Role"}
-    </button>
-  )
-}
-
-    </div>
-
-  </div>
-
-)}
-{showPermissionCrudModal && (
-
-  <div className="modal-overlay">
-
-    <div className="permission-modal">
-
-      <div className="modal-header">
-
-        <h3>
-  {isPermissionEditMode
-    ? "Edit Permission"
-    : "Create Permission"}
-</h3>
-
-        <button
-          onClick={() =>
-            setShowPermissionCrudModal(false)
-          }
-        >
-          ✖
-        </button>
-
-      </div>
-
-      <input
-        type="text"
-        placeholder="Permission Name"
-        value={permissionName}
-        onChange={(e) =>
-          setPermissionName(
-            e.target.value
-          )
-        }
-      />
-
-      <br />
-      <br />
-
-    {
-  (
-    (!isPermissionEditMode &&
-      hasPermission("ROLE_CREATE")) ||
-    (isPermissionEditMode &&
-      hasPermission("ROLE_UPDATE"))
-  ) && (
-    <button
-      className="save-btn"
-      onClick={
-        isPermissionEditMode
-          ? updatePermission
-          : createPermission
-      }
-    >
-      {isPermissionEditMode
-        ? "Update Permission"
-        : "Save Permission"}
-    </button>
-  )
-}
-
-    </div>
-
-  </div>
-
-)}
-
+            {((!isPermissionEditMode && hasPermission("ROLE_CREATE")) ||
+              (isPermissionEditMode && hasPermission("ROLE_UPDATE"))) && (
+              <button
+                className="save-btn"
+                onClick={isPermissionEditMode ? updatePermission : createPermission}
+              >
+                {isPermissionEditMode ? "Update Permission" : "Save Permission"}
+              </button>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
