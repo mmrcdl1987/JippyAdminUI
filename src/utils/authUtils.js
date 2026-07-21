@@ -1,4 +1,4 @@
-export const getToken = () =>
+  export const getToken = () =>
   localStorage.getItem("token") || "";
 
 export const getRole = () =>

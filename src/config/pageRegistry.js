@@ -8,14 +8,14 @@ import AdvertisementOutlets from "../pages/AdvertisementOutlets";
 import BannerDesigner from "../pages/BannerDesigner";
 import BannerDesignerEdit from "../pages/BannerDesignerEdit";
 import PlanCampaign from "../pages/PlanCampaign";
+
 import ProductPriceUpdate from "../pages/ProductPriceUpdate";
 import Merchants from "../pages/Merchants/Merchants";
 import EditMerchant from "../pages/Merchants/EditMerchant";
 import ViewMerchant from "../pages/Merchants/ViewMerchant";
 
-
-import AllDrivers from "../pages/AllDrivers";
 import AllMerchants from "../pages/AllMerchants";
+import AllDrivers from "../pages/AllDrivers";
 import MerchantsBulkUpload from "../pages/MerchantsBulkUpload";
 import Categories from "../pages/Categories";
 import CreateCategory from "../pages/CreateCategory";
@@ -24,14 +24,17 @@ import MasterProducts from "../pages/MasterProducts";
 import CompareFile from "../pages/CompareFile";
 import EditMasterProduct from "../pages/EditMasterProduct";
 import CreateMasterProduct from "../pages/CreateMasterProduct";
+
+
 import Outlets from "../pages/Outlets";
 import CreateOutlet from "../pages/CreateOutlet";
-
 import DeliveryCharge from "../pages/DeliveryCharge";
 import Incentives from "../pages/Incentives";
 import OrderSettings from "../pages/OrderSettings";
 import WalletSettings from "../pages/WalletSettings";
 import SubscriptionPlanSettings from "../pages/SubscriptionPlanSettings";
+
+
 
 
 
@@ -98,6 +101,7 @@ planCampaign: {
   component: PlanCampaign,
   permission: "PROMOTION_READ",
 },
+
 productPriceUpdate: {
   component: ProductPriceUpdate,
   permission: "PROMOTION_READ",
@@ -151,10 +155,10 @@ createMasterProduct: {
   permission: "MASTER_PRODUCTS_CREATE",
 },
 
-outlets: {
-  component: Outlets,
-  permission: "RESTAURANT_READ",
-},
+// outlets: {
+//   component: Outlets,
+//   permission: "RESTAURANT_READ",
+// },
 
 
 createOutlet: {

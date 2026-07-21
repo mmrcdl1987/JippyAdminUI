@@ -235,6 +235,9 @@ function Dashboard() {
  
 
 
+ 
+
+
   const pageConfig =
     pageRegistry[activePage];
 
@@ -247,6 +250,7 @@ function Dashboard() {
 console.log("Active Page:", activePage);
 console.log("Page Config:", pageConfig);
 
+
   return (
     <div className="dashboard-layout">
 
@@ -255,10 +259,10 @@ console.log("Page Config:", pageConfig);
       />
 
       <div className="dashboard-content">
+       
 
-        {/* Dashboard Home */}
-        {activePage === "dashboard" && (
-          <>
+        {/* Dashboard */} 
+          {activePage === "dashboard" && (      <>
             <h2 className="dashboard-title">
               Business Analytics
             </h2>
@@ -270,7 +274,7 @@ console.log("Page Config:", pageConfig);
                   <h3>₹830389</h3>
                   <p>Total Earnings</p>
                 </div>
-                <FaMoneyBillWave size={40} />
+                <FaMoneyBillWave size={40} /> 
               </div>
 
               <div className="dashboard-card blue">
@@ -331,6 +335,9 @@ console.log("Page Config:", pageConfig);
           hasPermission(
             pageConfig.permission
           ) && (
+            // <CurrentPage
+            //   setActivePage={setActivePage}
+            // />
             <CurrentPage
   setActivePage={setActivePage}
   refreshCategories={refreshCategories}
@@ -339,6 +346,38 @@ console.log("Page Config:", pageConfig);
   setSelectedProduct={setSelectedProduct}
 />
           )}
+
+        {/* Create Zone */}
+        {
+          activePage === "createZone" &&
+          hasPermission("ZONE_CREATE") && (
+            <CreateZone
+              setActivePage={setActivePage}
+            />
+          )
+        }
+
+        {/* Roles & Permissions */}
+        {
+          activePage === "roles" &&
+          hasPermission("ROLE_READ") && (
+            <RolesPermissions />
+          )
+        }
+
+        {/* Admin Users */}
+        {/* Dynamic Page Rendering */}
+{/* {activePage !== "dashboard" &&
+  pageConfig &&
+  hasPermission(pageConfig.permission) && (
+    <CurrentPage
+      setActivePage={setActivePage}
+      refreshCategories={refreshCategories}
+      setRefreshCategories={setRefreshCategories}
+      selectedProduct={selectedProduct}
+      setSelectedProduct={setSelectedProduct}
+    />
+)} */}
 
         {/* Create Zone */}
         {

@@ -2,59 +2,51 @@ import { useState } from "react";
 import { createCategory } from "../services/categoryService";
 import "../styles/CreateCategory.css";
 
-function CreateCategory({
-  setActivePage,
-  setRefreshCategories,
+
+function CreateCategory({setActivePage, setRefreshCategories
 }) {
 
   const [categoryName, setCategoryName] = useState("");
-  const [categoryType, setCategoryType] = useState("ALL");
-  const [categoryImageUrl, setCategoryImageUrl] = useState("");
+  const [description, setDescription] = useState("");
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [publish, setPublish] = useState(true);
+  const [showInHomepage, setShowInHomepage] = useState(false);
 
   const handleSave = async () => {
 
-    if (!categoryName.trim()) {
+  if (!categoryName.trim()) {
 
-      alert("Category Name is required.");
+    alert("Category Name is required.");
 
-      return;
+    return;
 
-    }
+  }
 
-    try {
+  try {
 
-      const response = await createCategory({
+    const response = await createCategory({
+  categoryName
+});
 
-        categoryName,
+console.log("Category Created:", response);
 
-        categoryType,
+alert(response.message);
 
-        categoryImageUrl,
+console.log("Refreshing categories...");
 
-        createdBy: 5,
+setRefreshCategories(prev => prev + 1);
 
-      });
+setActivePage("categories");
 
-      console.log(response);
+  } catch (error) {
 
-      alert(response.message);
+    console.error(error);
 
-      setRefreshCategories(prev => prev + 1);
+    alert("Failed to create category.");
 
-      setActivePage("categories");
+  }
 
-    } catch (error) {
-
-      console.error(error);
-
-      alert(
-        error?.response?.data?.message ||
-        "Failed to create category."
-      );
-
-    }
-
-  };
+};
 
   return (
 
@@ -73,7 +65,10 @@ function CreateCategory({
           <button className="active-tab">
 
             Category Information
+          </button>
 
+          <button className="inactive-tab">
+            Review Attributes
           </button>
 
         </div>
@@ -88,82 +83,105 @@ function CreateCategory({
 
           <div className="form-group">
 
-            <label>
-
-              Category Name
-
-            </label>
+            <label>Name</label>
 
             <input
               type="text"
-              placeholder="Enter Category Name"
+              placeholder="Insert Name"
               value={categoryName}
               onChange={(e) =>
                 setCategoryName(e.target.value)
               }
             />
 
-            <label>
+          </div>
 
-              Category Type
+          <div className="form-group">
 
-            </label>
+            <label>Description</label>
 
-            <select
-              value={categoryType}
+            <textarea
+              rows={6}
+              placeholder="Insert Description"
+              value={description}
               onChange={(e) =>
-                setCategoryType(e.target.value)
-              }
-            >
-
-              <option value="ALL">
-                ALL
-              </option>
-
-              <option value="RESTAURANT">
-                HOME
-              </option>
-
-              
-
-            </select>
-
-                        <label>
-
-              Category Image URL
-
-            </label>
-
-            <input
-              type="text"
-              placeholder="Enter Image URL"
-              value={categoryImageUrl}
-              onChange={(e) =>
-                setCategoryImageUrl(e.target.value)
+                setDescription(e.target.value)
               }
             />
 
           </div>
 
-          <div className="button-group">
+          <div className="form-group">
 
-            <button
-              className="cancel-btn"
-              onClick={() =>
-                setActivePage("categories")
+            <label>Image</label>
+
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) =>
+                setSelectedImage(e.target.files[0])
               }
-            >
-              Cancel
-            </button>
+            />
 
-            <button
-              className="save-btn"
-              onClick={handleSave}
-            >
-              Save
-            </button>
+            <small>
+              Insert image in SVG format
+            </small>
 
           </div>
+
+          <div className="checkbox-group">
+
+            <label>
+
+              <input
+                type="checkbox"
+                checked={publish}
+                onChange={() =>
+                  setPublish(!publish)
+                }
+              />
+
+              Publish
+
+            </label>
+
+            <label>
+
+              <input
+                type="checkbox"
+                checked={showInHomepage}
+                onChange={() =>
+                  setShowInHomepage(!showInHomepage)
+                }
+              />
+
+              Show in Homepage?
+
+            </label>
+
+            <small>
+              Maximum 5 categories will show in homepage
+            </small>
+
+          </div>
+
+         <div className="button-group">
+
+  <button
+    className="cancel-btn"
+    onClick={() => setActivePage("categories")}
+  >
+    Cancel
+  </button>
+
+  <button
+    className="save-btn"
+    onClick={handleSave}
+  >
+    Save
+  </button>
+
+</div>
 
         </div>
 

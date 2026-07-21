@@ -8,6 +8,9 @@ import "react-date-range/dist/theme/default.css";
 
 import { getAllMerchants } from "../services/merchantService";
 import MerchantTable from "../components/merchants/MerchantTable";
+import merchantData from "../data/merchantData";
+
+
 
 function AllMerchants() {
 
@@ -16,344 +19,256 @@ function AllMerchants() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [fileError, setFileError] = useState("");
   const [merchants, setMerchants] = useState([]);
-  const [loading, setLoading] = useState(false);
+const [loading, setLoading] = useState(false);
 
-  const [range, setRange] = useState([
-    {
-      startDate: new Date(),
-      endDate: new Date(),
-      key: "selection",
-    },
-  ]);
+const [range, setRange] = useState([
+  {
+    startDate: new Date(),
+    endDate: new Date(),
+    key: "selection",
+  },
+]);
 
-  const handleImport = () => {
+// const handleImport = () => {
+//   if (!selectedFile) {
+//     setFileError("Please select a file.");
+//     return;
+//   }
 
-    if (!selectedFile) {
+//   setFileError("");
 
-      setFileError("Please select a file.");
+//   console.log("Import file:", selectedFile);
+// };
 
-      return;
+const handleImport = () => {
+  if (!selectedFile) {
+    setFileError("Please select a file.");
+    return;
+  }
 
-    }
+  const reader = new FileReader();
 
-    const reader = new FileReader();
+  reader.readAsArrayBuffer(selectedFile);
 
-    reader.readAsArrayBuffer(selectedFile);
+  reader.onload = (e) => {
+    const data = e.target.result;
 
-    reader.onload = (e) => {
+    const workbook = XLSX.read(data, {
+      type: "array",
+    });
 
-      const workbook = XLSX.read(
-        e.target.result,
-        {
-          type: "array",
-        }
-      );
+    const sheetName = workbook.SheetNames[0];
 
-      const worksheet =
-        workbook.Sheets[
-          workbook.SheetNames[0]
-        ];
+    const worksheet = workbook.Sheets[sheetName];
 
-      const jsonData =
-        XLSX.utils.sheet_to_json(
-          worksheet,
-          {
-            raw: false,
-          }
-        );
+    // const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
-      const formattedData =
-        jsonData.map((merchant) => ({
-          ...merchant,
-          dob: merchant.dob
-            ? XLSX.SSF.format(
-                "yyyy-mm-dd",
-                merchant.dob
-              )
-            : "",
-        }));
+    const jsonData = XLSX.utils.sheet_to_json(worksheet, {
+  raw: false,
+});
 
-      setMerchants(formattedData);
+    // setMerchants(jsonData);
 
-    };
+    const formattedData = jsonData.map((merchant) => ({
+  ...merchant,
+  dob: XLSX.SSF.format("yyyy-mm-dd", merchant.dob),
+}));
 
+setMerchants(formattedData);
   };
+};
 
-  const fetchMerchants = async () => {
+const fetchMerchants = async () => {
+  try {
+    setLoading(true);
 
-    try {
+    const response = await getAllMerchants();
 
-      setLoading(true);
+    console.log("Merchant API Response:", response);
 
-      const response =
-        await getAllMerchants();
+    setMerchants(response.data);
 
-      setMerchants(response.data);
+  } catch (error) {
+    console.error("Failed to fetch merchants:", error);
+  } finally {
+    setLoading(false);
+  }
+};
 
-    } catch (error) {
+useEffect(() => {
+  fetchMerchants();
+}, []);
 
-      console.error(
-        "Failed to fetch merchants",
-        error
-      );
-
-    } finally {
-
-      setLoading(false);
-
-    }
-
-  };
-
-  useEffect(() => {
-
-    fetchMerchants();
-
-  }, []);
 
   return (
+    <div>
+      <div className="all-merchants-container">
 
-    <div className="all-merchants-container">
+  <h2>All Merchants</h2>
 
-      <h2>
-        All Merchants
-      </h2>
+<div className="vendors-header">
+  <h3>
+    Merchants List
+    <span className="vendors-count">
+      18
+    </span>
+  </h3>
+</div>
 
-      <div className="vendors-header">
+<p>Total Merchants: {merchants.length}</p>
 
-        <h3>
+  <div className="filters-row">
 
-          Merchants List
+   
+<Select
+  className="filter-select"
+  placeholder="Merchant Type"
+  isClearable
+  options={[
+    { value: "RESTAURANT", label: "Restaurant" },
+    { value: "MART", label: "Mart" },
+  ]}
+  styles={{
+    control: (base) => ({
+      ...base,
+      borderRadius: "12px",
+      minHeight: "42px",
+    }),
+  }}
+/>
 
-          <span className="vendors-count">
-            {merchants.length}
-          </span>
+<Select
+  className="filter-select"
+  placeholder="Status"
+  isClearable
+  options={[
+    { value: "ACTIVE", label: "Active" },
+    { value: "INACTIVE", label: "Inactive" },
+  ]}
+  styles={{
+    control: (base) => ({
+      ...base,
+      borderRadius: "12px",
+      minHeight: "42px",
+    }),
+  }}
+/>
 
-        </h3>
+<Select
+  className="filter-select"
+  placeholder="Select Area"
+  isClearable
+  options={[
+    { value: "1", label: "Kukatpally" },
+    { value: "2", label: "Madhapur" },
+    { value: "3", label: "Hitech City" },
+  ]}
+styles={{
+    control: (base) => ({
+      ...base,
+      borderRadius: "12px",
+      minHeight: "42px",
+    }),
+  }} 
+/>
 
+
+<div className="range-picker">
+
+  <div
+    className="range-input"
+    onClick={() => setShowCalendar(!showCalendar)}
+  >
+     Select Range ▼
+  </div>
+
+  {showCalendar && (
+    <div className="calendar-popup">
+
+      <DateRange
+  editableDateInputs={true}
+  onChange={(item) => setRange([item.selection])}
+  moveRangeOnFirstSelection={false}
+  ranges={range}
+  months={2}
+  direction="horizontal"
+  showMonthAndYearPickers={true}
+  rangeColors={["#FF6A00F7"]}
+/>
+
+      <div className="range-actions">
+        <button
+          onClick={() => setShowCalendar(false)}
+        >
+          Cancel
+        </button>
+
+        <button
+          onClick={() => setShowCalendar(false)}
+        >
+          Apply
+        </button>
       </div>
-
-      <p>
-        Total Merchants:
-        {" "}
-        {merchants.length}
-      </p>
-
-      <div className="filters-row">
-
-        <Select
-          className="filter-select"
-          placeholder="Merchant Type"
-          isClearable
-          options={[
-            {
-              value: "RESTAURANT",
-              label: "Restaurant",
-            },
-            {
-              value: "MART",
-              label: "Mart",
-            },
-          ]}
-          styles={{
-            control: (base) => ({
-              ...base,
-              borderRadius: "12px",
-              minHeight: "42px",
-            }),
-          }}
-        />
-
-        <Select
-          className="filter-select"
-          placeholder="Status"
-          isClearable
-          options={[
-            {
-              value: "ACTIVE",
-              label: "Active",
-            },
-            {
-              value: "INACTIVE",
-              label: "Inactive",
-            },
-          ]}
-          styles={{
-            control: (base) => ({
-              ...base,
-              borderRadius: "12px",
-              minHeight: "42px",
-            }),
-          }}
-        />
-
-        <Select
-          className="filter-select"
-          placeholder="Select Area"
-          isClearable
-          options={[
-            {
-              value: "1",
-              label: "Kukatpally",
-            },
-            {
-              value: "2",
-              label: "Madhapur",
-            },
-            {
-              value: "3",
-              label: "Hitech City",
-            },
-          ]}
-          styles={{
-            control: (base) => ({
-              ...base,
-              borderRadius: "12px",
-              minHeight: "42px",
-            }),
-          }}
-        />
-
-        <div className="range-picker">
-
-          <div
-            className="range-input"
-            onClick={() =>
-              setShowCalendar(
-                !showCalendar
-              )
-            }
-          >
-            Select Range ▼
-          </div>
-
-          {showCalendar && (
-
-            <div className="calendar-popup">
-
-              <DateRange
-                editableDateInputs
-                onChange={(item) =>
-                  setRange([
-                    item.selection,
-                  ])
-                }
-                moveRangeOnFirstSelection={false}
-                ranges={range}
-                months={2}
-                direction="horizontal"
-                showMonthAndYearPickers
-                rangeColors={["#FF6A00"]}
-              />
-
-              <div className="range-actions">
-
-                <button
-                  onClick={() =>
-                    setShowCalendar(
-                      false
-                    )
-                  }
-                >
-                  Cancel
-                </button>
-
-                <button
-                  onClick={() =>
-                    setShowCalendar(
-                      false
-                    )
-                  }
-                >
-                  Apply
-                </button>
-
-              </div>
-
-            </div>
-
-          )}
-
-        </div>
-
-      </div>
-
-            {/* Bulk Import Card */}
-
-      <div className="merchant-import-card">
-
-        <div className="merchant-import-top">
-
-          <div>
-
-            <h3>
-              Bulk Import Merchants
-            </h3>
-
-            <p>
-              Upload Excel file to import multiple merchants at once
-            </p>
-
-          </div>
-
-          <button className="merchant-download-btn">
-            Download Template
-          </button>
-
-        </div>
-
-        <div className="merchant-import-body">
-
-          <label>
-            Select Excel File (.xls/.xlsx)
-          </label>
-
-          <input
-            type="file"
-            accept=".xls,.xlsx"
-            onChange={(e) => {
-
-              setSelectedFile(e.target.files[0]);
-
-              setFileError("");
-
-            }}
-          />
-
-          {fileError && (
-
-            <p className="file-error">
-              {fileError}
-            </p>
-
-          )}
-
-          <p className="merchant-import-note">
-
-            File should contain merchant details
-            in the required format.
-
-          </p>
-
-          <button
-            className="merchant-import-btn"
-            onClick={handleImport}
-          >
-            Import Merchants
-          </button>
-
-        </div>
-
-      </div>
-
-      {/* Merchant Table */}
-
-      <MerchantTable
-        merchants={merchants}
-      />
 
     </div>
+  )}
 
+</div>
+ 
+
+</div>
+
+    
+   
+
+  </div>
+
+<div className="bulk-import-card">
+
+  <div className="bulk-import-top">
+    <div>
+      <h3>Bulk Import Merchants</h3>
+      <p>Upload Excel file to import multiple merchants at once</p>
+    </div>
+
+    <button className="download-template-btn">
+      Download Template
+    </button>
+  </div>
+
+  <div className="bulk-import-body">
+
+    <label>Select Excel File (.xls/.xlsx)</label>
+
+    <input
+      type="file"
+      accept=".xls,.xlsx"
+      onChange={(e) => {
+  setSelectedFile(e.target.files[0]);
+  setFileError("");
+}}
+    />
+    {fileError && (
+  <p className="file-error">{fileError}</p>
+)}
+
+    <p className="import-note">
+      File should contain merchant details in the required format.
+    </p>
+
+    <button className="import-btn"
+      onClick={handleImport}>
+
+      Import Merchants
+    </button>
+
+  </div>
+
+</div>
+{/* <MerchantTable merchants={merchantData} /> */}
+<MerchantTable merchants={merchants} />
+</div>
+    
   );
 
 }

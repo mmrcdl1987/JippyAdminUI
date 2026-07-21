@@ -165,17 +165,24 @@ export const menuData = [
         permission: "RESTAURANT_READ",
       },
       {
-        name: "Categories",
-        permission: "RESTAURANT_READ",
-      },
+  name: "Categories",
+  pageKey: "categories",
+  permission: "CATEGORY_READ",
+},
       {
         name: "Foods",
         permission: "RESTAURANT_READ",
       },
       {
-        name: "Master Products",
-        permission: "RESTAURANT_READ",
-      },
+  name: "Master Products",
+  pageKey: "masterProducts",
+  permission: "RESTAURANT_READ",
+},
+{
+  name: "Compare File",
+  pageKey: "compareFile",
+  permission: "RESTAURANT_READ",
+},
       {
         name: "Mart Categories",
         permission: "RESTAURANT_READ",

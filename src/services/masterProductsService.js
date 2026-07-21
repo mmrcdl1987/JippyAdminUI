@@ -9,6 +9,8 @@ export const getAllMasterProducts = async () => {
 // Get a product by ID
 export const getMasterProductById = async (masterProductId) => {
   return await FM_API.get(`/api/fm/master-products/${masterProductId}`);
+  const response = await getMasterProductById(masterProductId);
+const product = response.data;
 };
 
 // Update a product by ID
