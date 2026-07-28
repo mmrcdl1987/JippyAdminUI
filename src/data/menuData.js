@@ -79,7 +79,7 @@ export const menuData = [
             name: "Approved Vendors",
             permission: "VENDOR_READ",
           },
-          {
+          { 
             name: "Approval Pending Vendors",
             permission: "VENDOR_READ",
           },
