@@ -1,78 +1,163 @@
-/* ==========================================
-   Campaign Location Layout
-========================================== */
-
-.location-layout{
-    display:grid;
-    grid-template-columns:1fr 1.7fr 1.2fr;
-    gap:25px;
-    align-items:flex-start;
-    width:100%;
+/* Base Layout */
+.section-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  margin-bottom: 24px;
 }
 
-/* ==========================================
-   Left Column
-========================================== */
-
-.location-card{
-    width:100%;
+.section-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
 }
 
-.location-card .form-group{
-    margin-bottom:20px;
+.icon-badge {
+  font-size: 24px;
+  background-color: #f1f5f9;
+  padding: 8px 12px;
+  border-radius: 8px;
 }
 
-.location-card label{
-    display:block;
-    margin-bottom:8px;
-    font-size:14px;
-    font-weight:600;
-    color:#374151;
+.location-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
 }
 
-.location-card select{
-    width:100%;
-    height:45px;
-    padding:0 14px;
-    border:1px solid #d1d5db;
-    border-radius:8px;
-    background:#fff;
-    outline:none;
-    transition:.3s;
+.sub-card {
+  background: #f8fafc;
+  padding: 20px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
 }
 
-.location-card select:focus{
-    border-color:#2563eb;
-    box-shadow:0 0 0 3px rgba(37,99,235,.15);
+.sub-card h3 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: 1.1rem;
+  color: #1e293b;
 }
 
-/* ==========================================
-   Middle Column
-========================================== */
-
-.outlet-card{
-    width:100%;
+.form-group {
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
 }
 
-/* ==========================================
-   Right Column
-========================================== */
-
-.time-card{
-    width:100%;
-    display:flex;
-    flex-direction:column;
-    gap:25px;
+.form-group label {
+  font-weight: 500;
+  font-size: 0.88rem;
+  margin-bottom: 6px;
+  color: #334155;
 }
 
-/* ==========================================
-   Responsive
-========================================== */
+.required {
+  color: #ef4444;
+}
 
-@media(max-width:1300px){
+select,
+input[type="date"],
+input[type="number"],
+input[type="text"] {
+  padding: 10px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  outline: none;
+  background-color: #ffffff;
+}
 
-    .location-layout{
-        grid-template-columns:1fr;
-    }
+select:focus,
+input:focus {
+  border-color: #6366f1;
+}
 
+.sub-divider {
+  border: none;
+  border-top: 1px dashed #cbd5e1;
+  margin: 20px 0;
+}
+
+.date-fields-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* Meal Slots Styling */
+.meal-slots-container {
+  margin-top: 10px;
+}
+
+.sub-heading {
+  font-size: 1rem;
+  color: #1e293b;
+  margin-bottom: 4px;
+}
+
+.sub-description {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin-bottom: 12px;
+}
+
+.meal-slots-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.meal-slot-card {
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 10px;
+  cursor: pointer;
+  background-color: #ffffff;
+  transition: all 0.2s ease-in-out;
+  display: flex;
+  flex-direction: column;
+}
+
+.meal-slot-card:hover:not(.disabled) {
+  border-color: #6366f1;
+  background-color: #f1f5f9;
+}
+
+.meal-slot-card.selected {
+  border-color: #6366f1;
+  background-color: #e0e7ff;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.3);
+}
+
+.slot-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: #1e293b;
+}
+
+.slot-time {
+  font-size: 0.72rem;
+  color: #64748b;
+  margin-top: 4px;
+}
+
+/* Disabled & Booked Styling */
+.meal-slot-card.disabled {
+  background-color: #f1f5f9;
+  border-color: #cbd5e1;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.booked-badge {
+  font-size: 0.7rem;
+  color: #ef4444;
+  font-weight: bold;
+  margin-top: 4px;
 }

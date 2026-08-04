@@ -206,7 +206,8 @@ case "Gift Cards":
                                 child.name
                               }
                               className="submenu-item"
-                              onClick={() => {
+ onClick={() => {
+  console.log("Clicked:", child.pageKey);
   if (child.pageKey) {
     setActivePage(child.pageKey);
   }

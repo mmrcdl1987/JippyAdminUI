@@ -1,91 +1,135 @@
 import React, { useState } from "react";
-
 import "../styles/PlanCampaign.css";
 
-import CampaignStepper from "../components/campaign/CampaignStepper";
 import CampaignLocation from "../components/campaign/CampaignLocation";
-import CampaignConfiguration from "../components/campaign/CampaignConfiguration";
-import CampaignPreview from "../components/campaign/CampaignPreview";
-import CampaignFooter from "../components/campaign/CampaignFooter";
+import CampaignRules from "../components/campaign/CampaignRules";
+import { createCampaign } from "../services/campaignApi";
 
 function PlanCampaign() {
+  const [campaignData, setCampaignData] = useState({
+    stateId: "",
+    cityId: "",
+    areaId: "",
+    locationId: null,
+    locationType: "STATE",
+    selectedOutlets: [],
 
-  const [currentStep, setCurrentStep] = useState(1);
+    startDate: "",
+    endDate: "",
+    mealTypeSlotIds: [], // List of slot IDs
 
-  const nextStep = () => {
+    campaignType: "",
+    couponId: null,
+    priceModelId: null,
+    priceDropValue: null,
+  });
 
-    if (currentStep < 3) {
+  const [loading, setLoading] = useState(false);
 
-      setCurrentStep(currentStep + 1);
-
-    }
-
+  const buildPayload = () => {
+    return {
+      campainType: campaignData.campaignType,
+      locationId: parseInt(campaignData.locationId, 10),
+      locationType: campaignData.locationType,
+      mealTypeSlotIds: campaignData.mealTypeSlotIds,
+      promotionFromDate: `${campaignData.startDate}T00:00:00`,
+      promotionToDate: `${campaignData.endDate}T23:59:59`,
+      outletIds: campaignData.selectedOutlets,
+      couponId: campaignData.couponId ? parseInt(campaignData.couponId, 10) : null,
+      priceModelId: campaignData.priceModelId ? parseInt(campaignData.priceModelId, 10) : null,
+      priceDropValue: campaignData.priceDropValue ? parseFloat(campaignData.priceDropValue) : null,
+      createdBy: "Admin",
+    };
   };
 
-  const previousStep = () => {
-
-    if (currentStep > 1) {
-
-      setCurrentStep(currentStep - 1);
-
+  const handlePublish = async () => {
+    // 1. Location Validation
+    if (!campaignData.locationId) {
+      alert("Please select a Location.");
+      return;
     }
 
-  };
-
-  const renderStep = () => {
-
-    switch (currentStep) {
-
-      case 1:
-        return <CampaignLocation />;
-
-      case 2:
-        return <CampaignConfiguration />;
-
-      case 3:
-        return <CampaignPreview />;
-
-      default:
-        return <CampaignLocation />;
-
+    // 2. Dates Validation
+    if (!campaignData.startDate || !campaignData.endDate) {
+      alert("Please select both Start Date and End Date.");
+      return;
     }
 
+    // 3. Meal Slots Validation
+    if (!campaignData.mealTypeSlotIds || campaignData.mealTypeSlotIds.length === 0) {
+      alert("Please select at least one available Meal Time Slot.");
+      return;
+    }
+
+    // 4. Outlets Validation
+    if (!campaignData.selectedOutlets || campaignData.selectedOutlets.length === 0) {
+      alert("Please select at least one outlet.");
+      return;
+    }
+
+    // 5. Campaign Type & Specific Type Validations
+    if (!campaignData.campaignType) {
+      alert("Please select a Campaign Type.");
+      return;
+    }
+
+    if (campaignData.campaignType === "COUPON" && !campaignData.couponId) {
+      alert("Please select a Coupon.");
+      return;
+    }
+
+    if (campaignData.campaignType === "PRICE_DROP" && !campaignData.priceDropValue) {
+      alert("Please enter a valid Price Drop Value.");
+      return;
+    }
+
+    const payload = buildPayload();
+
+    try {
+      setLoading(true);
+      const response = await createCampaign(payload);
+      alert(response?.message || "Campaign Created Successfully!");
+    } catch (error) {
+      console.error("Failed to publish campaign:", error);
+      alert(error?.response?.data?.message || "Failed to create campaign.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-
-    <div className="campaign-container">
-
-      <div className="campaign-header">
-
+    <div className="campaign-page-wrapper">
+      <div className="campaign-header-card">
         <div>
-
           <h1>Campaign Scheduler</h1>
-
-          <p>
-            Create and manage outlet campaigns.
-          </p>
-
+          <p>Create and manage outlet campaigns seamlessly across your stores.</p>
         </div>
-
       </div>
 
-      <CampaignStepper
-        currentStep={currentStep}
-      />
+      <div className="campaign-body-container">
+        <CampaignLocation
+          campaignData={campaignData}
+          setCampaignData={setCampaignData}
+        />
 
-      {renderStep()}
+        <CampaignRules
+          campaignData={campaignData}
+          setCampaignData={setCampaignData}
+        />
+      </div>
 
-      <CampaignFooter
-        currentStep={currentStep}
-        nextStep={nextStep}
-        previousStep={previousStep}
-      />
-
+      <div className="campaign-action-footer">
+        <button
+          type="button"
+          className="btn-primary"
+          onClick={handlePublish}
+          disabled={loading}
+        >
+          {loading ? "Publishing..." : "🚀 Publish Campaign"}
+        </button>
+      </div>
     </div>
-
   );
-
 }
 
 export default PlanCampaign;
