@@ -1,0 +1,163 @@
+.edit-sub-page-wrapper{
+    padding:24px;
+    background:#f5f7fb;
+    min-height:100vh;
+}
+
+.edit-sub-page-title{
+    font-size:28px;
+    font-weight:600;
+    color:#333;
+    margin-bottom:30px;
+}
+
+.edit-sub-card{
+    position:relative;
+    background:#fff;
+    border:1px solid #e5e5e5;
+    border-radius:10px;
+    padding:40px 30px 30px;
+    box-shadow:0 2px 10px rgba(0,0,0,.06);
+    max-width:1200px;
+    margin:auto;
+}
+
+.edit-sub-card-header{
+    position:absolute;
+    top:-14px;
+    left:22px;
+    background:#ff6b35;
+    color:#fff;
+    padding:8px 18px;
+    border-radius:5px;
+    font-size:13px;
+    font-weight:600;
+    letter-spacing:.5px;
+}
+
+.edit-sub-form-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:24px 30px;
+    margin-top:10px;
+}
+
+.edit-sub-form-group{
+    display:flex;
+    flex-direction:column;
+}
+
+.edit-sub-form-label{
+    font-size:14px;
+    font-weight:600;
+    color:#444;
+    margin-bottom:8px;
+}
+
+.edit-sub-form-input{
+    width:100%;
+    height:46px;
+    padding:0 14px;
+    border:1px solid #d8d8d8;
+    border-radius:6px;
+    font-size:14px;
+    outline:none;
+    box-sizing:border-box;
+    transition:.3s;
+}
+
+.edit-sub-form-input:focus{
+    border-color:#ff6b35;
+    box-shadow:0 0 5px rgba(255,107,53,.25);
+}
+
+.edit-sub-button-wrapper{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:16px;
+    margin-top:35px;
+}
+
+.edit-sub-update-btn{
+    background:#ff6b35;
+    color:#fff;
+    border:none;
+    padding:12px 28px;
+    border-radius:6px;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+    transition:.3s;
+}
+
+.edit-sub-update-btn:hover{
+    background:#e65b28;
+}
+
+.edit-sub-update-btn:disabled{
+    background:#bdbdbd;
+    cursor:not-allowed;
+}
+
+.edit-sub-cancel-btn{
+    background:rgba(255, 0, 0, 0.821);
+    color:#fff;
+    border:none;
+    padding:12px 28px;
+    border-radius:6px;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+    transition:.3s;
+}
+
+.edit-sub-cancel-btn:hover{
+    background: red;
+}
+.required-star{
+    color:#e53935;
+    font-size:16px;
+    font-weight:700;
+    margin-left:2px;
+}
+
+.required-note{
+    margin:-18px 0 20px;
+    color:#666;
+    font-size:13px;
+    font-weight:500;
+}
+
+@media(max-width:992px){
+
+.edit-sub-form-grid{
+    grid-template-columns:1fr;
+}
+
+}
+
+@media(max-width:768px){
+
+.edit-sub-page-wrapper{
+    padding:16px;
+}
+
+.edit-sub-page-title{
+    font-size:24px;
+}
+
+.edit-sub-card{
+    padding:35px 20px 20px;
+}
+
+.edit-sub-button-wrapper{
+    flex-direction:column;
+}
+
+.edit-sub-update-btn,
+.edit-sub-cancel-btn{
+    width:100%;
+}
+
+}

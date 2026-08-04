@@ -33,7 +33,11 @@ import Incentives from "../pages/Incentives";
 import OrderSettings from "../pages/OrderSettings";
 import WalletSettings from "../pages/WalletSettings";
 import SubscriptionPlanSettings from "../pages/SubscriptionPlanSettings";
+import CreateSubscriptionPlan from "../pages/CreateSubscriptionPlan";
+import EditSubscriptionPlan from "../pages/EditSubscriptionPlan";
+import ViewSubscriptionPlan from "../pages/ViewSubscriptionPlan";
 
+import DriverSettings from "../pages/DriverSettings";
 
 
 
@@ -187,9 +191,32 @@ walletSettings: {
 },
 
 subscriptionPlanSettings: {
-  component: SubscriptionPlanSettings,
-  permission: "SETTINGS_READ",
+    permission: "SETTINGS_READ",
+    component: SubscriptionPlanSettings,
 },
+
+createSubscriptionPlan: {
+    permission: "SETTINGS_READ",
+    component: CreateSubscriptionPlan,
+},
+
+viewSubscriptionPlan: {
+    permission: "SETTINGS_READ",
+    component: ViewSubscriptionPlan,
+},
+
+editSubscriptionPlan: {
+    permission: "SETTINGS_READ",
+    component: EditSubscriptionPlan,
+},
+
+
+
+driverSettings: {
+    component: DriverSettings,
+    permission: "SETTINGS_READ",
+},
+
 
 };
 

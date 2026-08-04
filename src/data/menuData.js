@@ -98,27 +98,27 @@ export const menuData = [
       pageKey: "outlets",   // Opens Outlets.jsx
       permission: "RESTAURANT_READ",
     },
-    {
-      name: "Marts",
-      permission: "RESTAURANT_READ",
-    },
-    {
-      name: "Drivers",
-      children: [
-        {
-          name: "All Drivers",
-          permission: "DRIVER_READ",
-        },
-        {
-          name: "Approved Drivers",
-          permission: "DRIVER_READ",
-        },
-        {
-          name: "Approval Pending Drivers",
-          permission: "DRIVER_READ",
-        },
-      ],
-    },
+    // {
+    //   name: "Marts",
+    //   permission: "RESTAURANT_READ",
+    // },
+    // {
+    //   name: "Drivers",
+    //   children: [
+    //     {
+    //       name: "All Drivers",
+    //       permission: "DRIVER_READ",
+    //     },
+    //     {
+    //       name: "Approved Drivers",
+    //       permission: "DRIVER_READ",
+    //     },
+    //     {
+    //       name: "Approval Pending Drivers",
+    //       permission: "DRIVER_READ",
+    //     },
+    //   ],
+    // },
   ],
 },
 
@@ -130,10 +130,10 @@ export const menuData = [
         name: "Restaurants",
         permission: "RESTAURANT_READ",
       },
-      {
-        name: "Marts",
-        permission: "RESTAURANT_READ",
-      },
+      // {
+      //   name: "Marts",
+      //   permission: "RESTAURANT_READ",
+      // },
       {
         name: "Drivers",
         children: [
@@ -160,10 +160,10 @@ export const menuData = [
     title: "MENU & FOOD MANAGEMENT",
     permission: "RESTAURANT_READ",
     items: [
-      {
-        name: "Cuisines",
-        permission: "RESTAURANT_READ",
-      },
+      // {
+      //   name: "Cuisines",
+      //   permission: "RESTAURANT_READ",
+      // },
       {
   name: "Categories",
   pageKey: "categories",
@@ -178,19 +178,19 @@ export const menuData = [
   pageKey: "masterProducts",
   permission: "RESTAURANT_READ",
 },
-{
-  name: "Compare File",
-  pageKey: "compareFile",
-  permission: "RESTAURANT_READ",
-},
-      {
-        name: "Mart Categories",
-        permission: "RESTAURANT_READ",
-      },
-      {
-        name: "Mart Items",
-        permission: "RESTAURANT_READ",
-      },
+// {
+//   name: "Compare File",
+//   pageKey: "compareFile",
+//   permission: "RESTAURANT_READ",
+// },
+      // {
+      //   name: "Mart Categories",
+      //   permission: "RESTAURANT_READ",
+      // },
+      // {
+      //   name: "Mart Items",
+      //   permission: "RESTAURANT_READ",
+      // },
       {
         name: "Attributes",
         children: [
@@ -361,41 +361,46 @@ export const menuData = [
     {
       name: "Settings",
       children: [
+        // {
+        //   name: "Global Settings",
+        //   pageKey: "globalSettings",
+        //   permission: "SETTINGS_READ",
+        // },
+        // {
+        //   name: "Currencies Settings",
+        //   pageKey: "currenciesSettings",
+        //   permission: "SETTINGS_READ",
+        // },
+        // {
+        //   name: "Payment Methods",
+        //   pageKey: "paymentMethods",
+        //   permission: "SETTINGS_READ",
+        // },
+        // {
+        //   name: "Business Model Settings",
+        //   pageKey: "businessModelSettings",
+        //   permission: "SETTINGS_READ",
+        // },
+        // {
+        //   name: "Radius Configuration",
+        //   pageKey: "radiusConfiguration",
+        //   permission: "SETTINGS_READ",
+        // },
+        // {
+        //   name: "DINE IN Feature Settings",
+        //   pageKey: "dineInFeatureSettings",
+        //   permission: "SETTINGS_READ",
+        // },
+        // {
+        //   name: "Tax Settings",
+        //   pageKey: "taxSettings",
+        //   permission: "SETTINGS_READ",
+        // },
         {
-          name: "Global Settings",
-          pageKey: "globalSettings",
-          permission: "SETTINGS_READ",
-        },
-        {
-          name: "Currencies Settings",
-          pageKey: "currenciesSettings",
-          permission: "SETTINGS_READ",
-        },
-        {
-          name: "Payment Methods",
-          pageKey: "paymentMethods",
-          permission: "SETTINGS_READ",
-        },
-        {
-          name: "Business Model Settings",
-          pageKey: "businessModelSettings",
-          permission: "SETTINGS_READ",
-        },
-        {
-          name: "Radius Configuration",
-          pageKey: "radiusConfiguration",
-          permission: "SETTINGS_READ",
-        },
-        {
-          name: "DINE IN Feature Settings",
-          pageKey: "dineInFeatureSettings",
-          permission: "SETTINGS_READ",
-        },
-        {
-          name: "Tax Settings",
-          pageKey: "taxSettings",
-          permission: "SETTINGS_READ",
-        },
+    name: "Driver Settings",
+    pageKey: "driverSettings",
+    permission: "SETTINGS_READ",
+},
         {
           name: "Delivery Charge",
           pageKey: "deliveryCharge",
@@ -429,61 +434,61 @@ export const menuData = [
           permission: "SETTINGS_READ",
         },
 
-        {
-          name: "Mart Settings",
-          pageKey: "martSettings",
-          permission: "SETTINGS_READ",
-        },
-        {
-          name: "Surge Rules",
-          pageKey: "surgeRules",
-          permission: "SETTINGS_READ",
-        },
-        {
-          name: "Coins Settings",
-          pageKey: "coinsSettings",
-          permission: "SETTINGS_READ",
-        },
-        {
-          name: "App Settings",
-          pageKey: "appSettings",
-          permission: "SETTINGS_READ",
-        },
-        {
-          name: "Document Verification",
-          pageKey: "documentVerification",
-          permission: "SETTINGS_READ",
-        },
-        {
-          name: "Languages",
-          pageKey: "languages",
-          permission: "SETTINGS_READ",
-        },
-        {
-          name: "Special Offer",
-          pageKey: "specialOffer",
-          permission: "SETTINGS_READ",
-        },
-        {
-          name: "Terms and Conditions",
-          pageKey: "termsAndConditions",
-          permission: "SETTINGS_READ",
-        },
-        {
-          name: "Privacy Policy",
-          pageKey: "privacyPolicy",
-          permission: "SETTINGS_READ",
-        },
-        {
-          name: "Landing Page Template",
-          pageKey: "landingPageTemplate",
-          permission: "SETTINGS_READ",
-        },
-        {
-          name: "Footer Template",
-          pageKey: "footerTemplate",
-          permission: "SETTINGS_READ",
-        },
+        // {
+        //   name: "Mart Settings",
+        //   pageKey: "martSettings",
+        //   permission: "SETTINGS_READ",
+        // },
+        // {
+        //   name: "Surge Rules",
+        //   pageKey: "surgeRules",
+        //   permission: "SETTINGS_READ",
+        // },
+        // {
+        //   name: "Coins Settings",
+        //   pageKey: "coinsSettings",
+        //   permission: "SETTINGS_READ",
+        // },
+        // {
+        //   name: "App Settings",
+        //   pageKey: "appSettings",
+        //   permission: "SETTINGS_READ",
+        // },
+        // {
+        //   name: "Document Verification",
+        //   pageKey: "documentVerification",
+        //   permission: "SETTINGS_READ",
+        // },
+        // {
+        //   name: "Languages",
+        //   pageKey: "languages",
+        //   permission: "SETTINGS_READ",
+        // },
+        // {
+        //   name: "Special Offer",
+        //   pageKey: "specialOffer",
+        //   permission: "SETTINGS_READ",
+        // },
+        // {
+        //   name: "Terms and Conditions",
+        //   pageKey: "termsAndConditions",
+        //   permission: "SETTINGS_READ",
+        // },
+        // {
+        //   name: "Privacy Policy",
+        //   pageKey: "privacyPolicy",
+        //   permission: "SETTINGS_READ",
+        // },
+        // {
+        //   name: "Landing Page Template",
+        //   pageKey: "landingPageTemplate",
+        //   permission: "SETTINGS_READ",
+        // },
+        // {
+        //   name: "Footer Template",
+        //   pageKey: "footerTemplate",
+        //   permission: "SETTINGS_READ",
+        // },
       ],
     },
   ],

@@ -23,6 +23,19 @@
   align-items: center;
 }
 
+.users-table th {
+  background: #f8fafc !important;
+  color: orangered !important;
+  font-size: 14px;
+  font-weight: 700 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 16px 18px;
+  text-align: left;
+  border-bottom: 2px solid #e5e7eb;
+  white-space: nowrap;
+}
+
 .users-info {
   display: flex;
   align-items: center;

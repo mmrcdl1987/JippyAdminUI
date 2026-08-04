@@ -1,12 +1,8 @@
 import { useState } from "react";
 import Sidebar from "../components/Sidebar";
 import { hasPermission } from "../utils/permissionUtils";
-import AllMerchants from "./AllMerchants";
-import AllDrivers from "./AllDrivers";
-import { pageRegistry} from "../config/pageRegistry";
-import EditMasterProduct from "./EditMasterProduct";
+import { pageRegistry } from "../config/pageRegistry";
 import AddToOutletProducts from "../pages/AddToOutletProducts";
-
 
 import "../styles/Dashboard.css";
 
@@ -20,54 +16,34 @@ import {
 } from "react-icons/fa";
 
 function Dashboard() {
-  const [activePage, setActivePage] =
-    useState("dashboard");
+  const [activePage, setActivePage] = useState("dashboard");
+  const [refreshCategories, setRefreshCategories] = useState(0);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [selectedPlan, setSelectedPlan] = useState(null);
 
-    const [refreshCategories, setRefreshCategories] = useState(0);
-    const [selectedProduct, setSelectedProduct] = useState(null);
- 
+  const pageConfig = pageRegistry[activePage];
+  const CurrentPage = pageConfig?.component;
 
-
- 
-
-
-  const pageConfig =
-    pageRegistry[activePage];
-
-  const CurrentPage =
-    pageConfig?.component;
-    
-
- 
-
-console.log("Active Page:", activePage);
-console.log("Page Config:", pageConfig);
-
+  console.log("Active Page:", activePage);
+  console.log("Page Config:", pageConfig);
 
   return (
     <div className="dashboard-layout">
-
-      <Sidebar
-        setActivePage={setActivePage}
-      />
+      <Sidebar setActivePage={setActivePage} />
 
       <div className="dashboard-content">
-       
-
-        {/* Dashboard */} 
-          {activePage === "dashboard" && (      <>
-            <h2 className="dashboard-title">
-              Business Analytics
-            </h2>
+        {/* Dashboard Cards */}
+        {activePage === "dashboard" && (
+          <>
+            <h2 className="dashboard-title">Business Analytics</h2>
 
             <div className="cards-grid">
-
               <div className="dashboard-card green">
                 <div>
                   <h3>₹830389</h3>
                   <p>Total Earnings</p>
                 </div>
-                <FaMoneyBillWave size={40} /> 
+                <FaMoneyBillWave size={40} />
               </div>
 
               <div className="dashboard-card blue">
@@ -117,7 +93,6 @@ console.log("Page Config:", pageConfig);
                 </div>
                 <FaTruck size={40} />
               </div>
-
             </div>
           </>
         )}
@@ -125,122 +100,28 @@ console.log("Page Config:", pageConfig);
         {/* Dynamic Page Rendering */}
         {activePage !== "dashboard" &&
           pageConfig &&
-          hasPermission(
-            pageConfig.permission
-          ) && (
-            // <CurrentPage
-            //   setActivePage={setActivePage}
-            // />
+          hasPermission(pageConfig.permission) && (
             <CurrentPage
-  setActivePage={setActivePage}
-  refreshCategories={refreshCategories}
-  setRefreshCategories={setRefreshCategories}
-  selectedProduct={selectedProduct}
-  setSelectedProduct={setSelectedProduct}
+    setActivePage={setActivePage}
+    refreshCategories={refreshCategories}
+    setRefreshCategories={setRefreshCategories}
+    selectedProduct={selectedProduct}
+    setSelectedProduct={setSelectedProduct}
+    selectedPlan={selectedPlan}
+    setSelectedPlan={setSelectedPlan}
 />
           )}
 
-        {/* Create Zone */}
-        {
-          activePage === "createZone" &&
-          hasPermission("ZONE_CREATE") && (
-            <CreateZone
-              setActivePage={setActivePage}
-            />
-          )
-        }
-
-        {/* Roles & Permissions */}
-        {
-          activePage === "roles" &&
-          hasPermission("ROLE_READ") && (
-            <RolesPermissions />
-          )
-        }
-
-        {/* Admin Users */}
-        {/* Dynamic Page Rendering */}
-{/* {activePage !== "dashboard" &&
-  pageConfig &&
-  hasPermission(pageConfig.permission) && (
-    <CurrentPage
-      setActivePage={setActivePage}
-      refreshCategories={refreshCategories}
-      setRefreshCategories={setRefreshCategories}
-      selectedProduct={selectedProduct}
-      setSelectedProduct={setSelectedProduct}
-    />
-)} */}
-
-        {/* Create Zone */}
-        {
-          activePage === "createZone" &&
-          hasPermission("ZONE_CREATE") && (
-            <CreateZone
-              setActivePage={setActivePage}
-            />
-          )
-        }
-
-        {/* Roles & Permissions */}
-        {
-          activePage === "roles" &&
-          hasPermission("ROLE_READ") && (
-            <RolesPermissions />
-          )
-        }
-
-        {/* Admin Users */}
-        {
-          activePage === "adminUsers" &&
-          hasPermission("ADMIN_USER_READ") && (
-            <AdminUsers />
-          )
-        }
-
-        {/* Access Denied */}
+        {/* Access Denied (Handles all registered pages dynamically) */}
         {activePage !== "dashboard" &&
           pageConfig &&
-          !hasPermission(
-            pageConfig.permission
-          ) && (
-            <h2>
-              Access Denied
-            </h2>
-          )
-        }
+          !hasPermission(pageConfig.permission) && <h2>Access Denied</h2>}
 
-        {
-          activePage === "roles" &&
-          !hasPermission("ROLE_READ") && (
-            <h2>
-              Access Denied
-            </h2>
-          )
-        }
-
-        {
-          activePage === "adminUsers" &&
-          !hasPermission("ADMIN_USER_READ") && (
-            <h2>
-              Access Denied
-            </h2>
-          )
-        }
-
-{
-activePage === "addToOutletProducts" && (
-<AddToOutletProducts
-setActivePage={setActivePage}
-/>
-)
-}
-        
-
-
-      
+        {/* Special/Standalone Page Handling */}
+        {activePage === "addToOutletProducts" && (
+          <AddToOutletProducts setActivePage={setActivePage} />
+        )}
       </div>
-
     </div>
   );
 }

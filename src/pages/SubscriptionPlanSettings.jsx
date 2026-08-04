@@ -4,376 +4,294 @@ import "../styles/SubscriptionPlanSettings.css";
 import {
   getAllSubscriptionPlans,
   getSubscriptionPlanById,
-  createSubscriptionPlan,
   deleteSubscriptionPlan,
   getSubscriptionPlansByArea,
+  getStates,
+  getCitiesByState,
+  getAreasByCity,
 } from "../services/subscriptionPlanSettingsService";
 
-function SubscriptionPlanSettings() {
+function SubscriptionPlanSettings({
+  selectedPlan,
+  setSelectedPlan,
+  setActivePage,
+}) {
 
-const [plans,setPlans]=useState([]);
+  const [plans, setPlans] = useState([]);
+  const [areaPlans, setAreaPlans] = useState([]);
+  const [showAreaResults, setShowAreaResults] = useState(false);
 
-const [selectedPlan,setSelectedPlan]=useState(null);
+  const [states, setStates] = useState([]);
+const [cities, setCities] = useState([]);
+const [areas, setAreas] = useState([]);
 
-const [areaPlans,setAreaPlans]=useState([]);
+const [selectedState, setSelectedState] = useState("");
+const [selectedCity, setSelectedCity] = useState("");
+const [selectedArea, setSelectedArea] = useState("");
 
-const [loading,setLoading]=useState(false);
+ useEffect(() => {
+  fetchPlans();
+  loadStates();
+}, []);
 
-const [areaId,setAreaId]=useState("");
+  const fetchPlans = async () => {
+    try {
+      const response = await getAllSubscriptionPlans();
+      setPlans(response.data.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
-const [formData,setFormData]=useState({
+  const loadStates = async () => {
+  try {
+    const response = await getStates();
+    console.log("States:", response.data);
 
-planName:"",
-
-price:"",
-
-durationInDays:"",
-
-bannerDurationInDays:"",
-
-radiusInKms:"",
-
-bannerSlot:"",
-
-bestRestaurantSlot:"",
-
-dealsSlot:"",
-
-whatsappBroadcast:"",
-
-videoCredits:"",
-
-areaId:"",
-
-userId:""
-
-});
-
-useEffect(()=>{
-
-fetchPlans();
-
-},[]);
-
-const fetchPlans=async()=>{
-
-try{
-
-const response=await getAllSubscriptionPlans();
-
-setPlans(response.data.data);
-
-}catch(error){
-
-console.log(error);
-
-}
-
-};
-
-const handleChange=(e)=>{
-
-const {name,value}=e.target;
-
-setFormData((prev)=>({
-
-...prev,
-
-[name]:value
-
-}));
-
-};
-
-const handleSave=async()=>{
-
-try{
-
-setLoading(true);
-
-const response=await createSubscriptionPlan(formData);
-
-alert(response.data.message);
-
-fetchPlans();
-
-}catch(error){
-
-console.log(error);
-
-alert(
-error.response?.data?.errors?.[0] ||
-"Unable to create plan."
+    setStates(
+  Array.isArray(response.data)
+    ? response.data
+    : []
 );
 
-}finally{
+    console.log("First State:", response.data[0]);
 
-setLoading(false);
-
-}
-
+  } catch (error) {
+    console.log(error);
+  }
 };
 
-const handleView=async(id)=>{
 
-try{
+const handleStateChange = async (e) => {
 
-const response=
+  const stateId = e.target.value;
 
-await getSubscriptionPlanById(id);
+  setSelectedState(stateId);
 
-setSelectedPlan(response.data.data);
+  setSelectedCity("");
+  setSelectedArea("");
 
-}catch(error){
+  setCities([]);
+  setAreas([]);
 
-console.log(error);
+  if (!stateId) return;
 
-}
+  try {
 
-};
+    const response =
+      await getCitiesByState(stateId);
 
-const handleDelete=async(id)=>{
+    console.log("Cities:", response.data);
 
-if(!window.confirm("Delete Subscription Plan?")) return;
-
-try{
-
-const response=
-
-await deleteSubscriptionPlan(id);
-
-alert(response.data.message);
-
-fetchPlans();
-
-}catch(error){
-
-alert(
-error.response?.data?.message ||
-"Unable to delete."
+   setCities(
+  Array.isArray(response.data)
+    ? response.data
+    : []
 );
 
-}
+   console.log("First City:", response.data[0]);
+
+  } catch (error) {
+    console.log(error);
+  }
 
 };
 
-const handleAreaSearch=async()=>{
+const handleCityChange = async (e) => {
 
-try{
+  const cityId = e.target.value;
 
-const response=
+  setSelectedCity(cityId);
 
-await getSubscriptionPlansByArea(areaId);
+  setSelectedArea("");
 
-setAreaPlans(response.data.data);
+  setAreas([]);
 
-}catch(error){
+  if (!cityId) return;
 
-console.log(error);
+  try {
 
-}
+    const response =
+      await getAreasByCity(cityId);
+
+    console.log("Areas:", response.data);
+
+    setAreas(
+  Array.isArray(response.data)
+    ? response.data
+    : []
+);
+
+   console.log("First Area:", response.data[0]);
+
+  } catch (error) {
+    console.log(error);
+  }
 
 };
 
-return(
+  const handleView = async (id) => {
+    try {
+      const response = await getSubscriptionPlanById(id);
 
-<div className="sub-page-wrapper">
+      setSelectedPlan(response.data.data);
 
-<h2 className="sub-page-title">
+      setActivePage("viewSubscriptionPlan");
 
-Subscription Plan Settings
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
-</h2>
+  const handleDelete = async (id) => {
+
+    if (!window.confirm("Delete Subscription Plan?")) {
+      return;
+    }
+
+    try {
+
+      const response = await deleteSubscriptionPlan(id);
+
+      alert(response.data.message);
+
+      fetchPlans();
+
+    } catch (error) {
+
+      alert(
+        error.response?.data?.message ||
+        "Unable to delete subscription plan."
+      );
+
+    }
+
+  };
+
+ const handleAreaSearch = async () => {
+
+  if (!selectedArea) {
+    alert("Please select an Area.");
+    return;
+  }
+
+  try {
+
+    const response = await getSubscriptionPlansByArea(selectedArea);
+
+    const plans = response.data.data;
+
+    if (!plans || plans.length === 0) {
+      alert("No Subscription Plans Found");
+      setAreaPlans([]);
+      setShowAreaResults(false);
+      return;
+    }
+
+    setAreaPlans(plans);
+    setShowAreaResults(true);
+
+  } catch (error) {
+
+    alert(
+      error.response?.data?.message ||
+      "No Subscription Plans Found"
+    );
+
+    setAreaPlans([]);
+    setShowAreaResults(false);
+  }
+
+};
 
 
-      <div className="sub-card">
+  return (
 
-        <div className="sub-card-header">
-          CREATE SUBSCRIPTION PLAN
-        </div>
+    <div className="sub-page-wrapper">
 
-        <div className="sub-form-grid">
+      <h2 className="sub-page-title">
+        Subscription Plan Settings
+      </h2>
 
-          <div className="sub-form-group">
-            <label className="sub-form-label">Plan Name</label>
+      <div className="subscription-plan-settings-toolbar-container">
 
-            <input
-              className="sub-form-input"
-              type="text"
-              name="planName"
-              value={formData.planName}
-              onChange={handleChange}
-            />
-          </div>
+        <button
+          className="subscription-plan-settings-create-button"
+          onClick={() =>
+            setActivePage("createSubscriptionPlan")
+          }
+        >
+          + Create Subscription Plan
+        </button>
 
-          <div className="sub-form-group">
-            <label className="sub-form-label">Price</label>
+        <div className="subscription-plan-settings-search-container">
 
-            <input
-              className="sub-form-input"
-              type="number"
-              name="price"
-              value={formData.price}
-              onChange={handleChange}
-            />
-          </div>
+  <select
+    className="subscription-plan-settings-search-select"
+    value={selectedState}
+    onChange={handleStateChange}
+  >
+    <option value="">Select State</option>
 
-          <div className="sub-form-group">
-            <label className="sub-form-label">
-              Duration (Days)
-            </label>
+    {Array.isArray(states) &&
+      states.map((state) => (
+        <option
+          key={state.stateId}
+          value={state.stateId}
+        >
+          {state.stateName}
+        </option>
+      ))}
+  </select>
 
-            <input
-              className="sub-form-input"
-              type="number"
-              name="durationInDays"
-              value={formData.durationInDays}
-              onChange={handleChange}
-            />
-          </div>
+  <select
+    className="subscription-plan-settings-search-select"
+    value={selectedCity}
+    onChange={handleCityChange}
+    disabled={!selectedState}
+  >
+    <option value="">Select City</option>
 
-          <div className="sub-form-group">
-            <label className="sub-form-label">
-              Banner Duration (Days)
-            </label>
+    {Array.isArray(cities) &&
+      cities.map((city) => (
+        <option
+          key={city.cityId}
+          value={city.cityId}
+        >
+          {city.cityName}
+        </option>
+      ))}
+  </select>
 
-            <input
-              className="sub-form-input"
-              type="number"
-              name="bannerDurationInDays"
-              value={formData.bannerDurationInDays}
-              onChange={handleChange}
-            />
-          </div>
+  <select
+    className="subscription-plan-settings-search-select"
+    value={selectedArea}
+    onChange={(e) => setSelectedArea(e.target.value)}
+    disabled={!selectedCity}
+  >
+    <option value="">Select Area</option>
 
-          <div className="sub-form-group">
-            <label className="sub-form-label">
-              Radius (KM)
-            </label>
+    {Array.isArray(areas) &&
+      areas.map((area) => (
+        <option
+          key={area.areaId}
+          value={area.areaId}
+        >
+          {area.areaName}
+        </option>
+      ))}
+  </select>
 
-            <input
-              className="sub-form-input"
-              type="number"
-              name="radiusInKms"
-              value={formData.radiusInKms}
-              onChange={handleChange}
-            />
-          </div>
+  <button
+    className="subscription-plan-settings-search-button"
+    onClick={handleAreaSearch}
+  >
+    Search
+  </button>
 
-          <div className="sub-form-group">
-            <label className="sub-form-label">
-              Banner Slot
-            </label>
-
-            <input
-              className="sub-form-input"
-              type="number"
-              name="bannerSlot"
-              value={formData.bannerSlot}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div className="sub-form-group">
-            <label className="sub-form-label">
-              Best Restaurant Slot
-            </label>
-
-            <input
-              className="sub-form-input"
-              type="number"
-              name="bestRestaurantSlot"
-              value={formData.bestRestaurantSlot}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div className="sub-form-group">
-            <label className="sub-form-label">
-              Deals Slot
-            </label>
-
-            <input
-              className="sub-form-input"
-              type="number"
-              name="dealsSlot"
-              value={formData.dealsSlot}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div className="sub-form-group">
-            <label className="sub-form-label">
-              WhatsApp Broadcast
-            </label>
-
-            <input
-              className="sub-form-input"
-              type="text"
-              name="whatsappBroadcast"
-              value={formData.whatsappBroadcast}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div className="sub-form-group">
-            <label className="sub-form-label">
-              Video Credits
-            </label>
-
-            <input
-              className="sub-form-input"
-              type="text"
-              name="videoCredits"
-              value={formData.videoCredits}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div className="sub-form-group">
-            <label className="sub-form-label">
-              Area ID
-            </label>
-
-            <input
-              className="sub-form-input"
-              type="number"
-              name="areaId"
-              value={formData.areaId}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div className="sub-form-group">
-            <label className="sub-form-label">
-              User ID
-            </label>
-
-            <input
-              className="sub-form-input"
-              type="number"
-              name="userId"
-              value={formData.userId}
-              onChange={handleChange}
-            />
-          </div>
-
-        </div>
-
-        <div className="sub-button-wrapper">
-
-          <button
-            className="sub-save-btn"
-            onClick={handleSave}
-            disabled={loading}
-          >
-            {loading ? "Saving..." : "Save Subscription Plan"}
-          </button>
-
-        </div>
+</div>
 
       </div>
-            {/* Subscription Plans List */}
 
       <div className="sub-card">
 
@@ -399,7 +317,7 @@ Subscription Plan Settings
 
                 <th>Radius</th>
 
-                <th>Area</th>
+                <th>Area ID</th>
 
                 <th>Actions</th>
 
@@ -408,80 +326,110 @@ Subscription Plan Settings
             </thead>
 
             <tbody>
+                            {
 
-              {
-                plans.length > 0 ?
+                plans.length > 0 ? (
 
-                plans.map((plan)=>(
+                  plans.map((plan) => (
 
-                  <tr key={plan.subscriptionPlanId}>
+                    <tr key={plan.subscriptionPlanId}>
 
-                    <td>
-                      {plan.subscriptionPlanId}
-                    </td>
+                      <td>
+                        {plan.subscriptionPlanId}
+                      </td>
 
-                    <td>
-                      {plan.planName}
-                    </td>
+                      <td>
+                        {plan.planName}
+                      </td>
 
-                    <td>
-                      ₹ {plan.price}
-                    </td>
+                      <td>
+                        ₹ {plan.price}
+                      </td>
 
-                    <td>
-                      {plan.durationInDays} Days
-                    </td>
+                      <td>
+                        {plan.durationInDays} Days
+                      </td>
 
-                    <td>
-                      {plan.radiusInKms} Km
-                    </td>
+                      <td>
+                        {plan.radiusInKms} Km
+                      </td>
 
-                    <td>
-                      {plan.areaId}
-                    </td>
+                      <td>
+                        {plan.areaId}
+                      </td>
 
-                    <td>
+                      <td className="subscription-plan-settings-action-column">
 
-                      <button
-                        className="sub-view-btn"
-                        onClick={()=>
-                          handleView(
-                            plan.subscriptionPlanId
-                          )
-                        }
-                      >
-                        View
-                      </button>
+                        <button
+                          className="sub-view-btn"
+                          onClick={() =>
+                            handleView(plan.subscriptionPlanId)
+                          }
+                        >
+                          View
+                        </button>
 
-                      <button
-                        className="sub-delete-btn"
-                        onClick={()=>
-                          handleDelete(
-                            plan.subscriptionPlanId
-                          )
-                        }
-                      >
-                        Delete
-                      </button>
+                        <button
+                          className="sub-edit-btn"
+                          onClick={async () => {
 
+                            try {
+
+                              const response =
+                                await getSubscriptionPlanById(
+                                  plan.subscriptionPlanId
+                                );
+
+                              setSelectedPlan(
+                                response.data.data
+                              );
+
+                              setActivePage(
+                                "editSubscriptionPlan"
+                              );
+
+                            } catch (error) {
+
+                              console.log(error);
+
+                            }
+
+                          }}
+                        >
+                          Edit
+                        </button>
+
+                        <button
+                          className="sub-delete-btn"
+                          onClick={() =>
+                            handleDelete(
+                              plan.subscriptionPlanId
+                            )
+                          }
+                        >
+                          Delete
+                        </button>
+
+                      </td>
+
+                    </tr>
+
+                  ))
+
+                ) : (
+
+                  <tr>
+
+                    <td
+                      colSpan="7"
+                      className="sub-empty-row"
+                    >
+                      No Subscription Plans Found
                     </td>
 
                   </tr>
 
-                ))
-
-                :
-
-                <tr>
-
-                  <td
-                    colSpan="7"
-                    className="sub-empty-row"
-                  >
-                    No Subscription Plans Found
-                  </td>
-
-                </tr>
+                )
 
               }
 
@@ -492,147 +440,111 @@ Subscription Plan Settings
         </div>
 
       </div>
-            {/* Subscription Plan Details */}
+            {
 
-      {
-        selectedPlan && (
+        
+    areaPlans.length > 0 && (
 
-          <div className="sub-card">
+        <div className="sub-card">
 
             <div className="sub-card-header">
-              SUBSCRIPTION PLAN DETAILS
+                SEARCH RESULTS
             </div>
 
-            <div className="sub-details-grid">
+            <div
+                className="subscription-plan-settings-expand-header"
+                onClick={() =>
+                    setShowAreaResults(!showAreaResults)
+                }
+            >
 
-              <div><strong>Plan Name :</strong> {selectedPlan.planName}</div>
+                <span>
+                 Area Plans ({areaPlans.length})
+                </span>
 
-              <div><strong>Price :</strong> ₹ {selectedPlan.price}</div>
-
-              <div><strong>Duration :</strong> {selectedPlan.durationInDays} Days</div>
-
-              <div><strong>Banner Duration :</strong> {selectedPlan.bannerDurationInDays} Days</div>
-
-              <div><strong>Radius :</strong> {selectedPlan.radiusInKms} Km</div>
-
-              <div><strong>Banner Slot :</strong> {selectedPlan.bannerSlot}</div>
-
-              <div><strong>Best Restaurant Slot :</strong> {selectedPlan.bestRestaurantSlot}</div>
-
-              <div><strong>Deals Slot :</strong> {selectedPlan.dealsSlot}</div>
-
-              <div><strong>WhatsApp Broadcast :</strong> {selectedPlan.whatsappBroadcast}</div>
-
-              <div><strong>Video Credits :</strong> {selectedPlan.videoCredits}</div>
-
-              <div><strong>Area ID :</strong> {selectedPlan.areaId}</div>
+                <button
+                    className="subscription-plan-settings-expand-button"
+                >
+                    {showAreaResults ? "▲" : "▼"}
+                </button>
 
             </div>
 
-          </div>
+            {
+                showAreaResults && (
+
+           
+            <div className="sub-table-wrapper">
+
+              <table className="sub-table">
+
+                <thead>
+
+                  <tr>
+
+                    <th>ID</th>
+
+                    <th>Plan Name</th>
+
+                    <th>Price</th>
+
+                    <th>Duration</th>
+
+                    <th>Area</th>
+
+                  </tr>
+
+                </thead>
+
+                <tbody>
+
+                  {
+
+                    areaPlans.map((plan) => (
+
+                      <tr key={plan.subscriptionPlanId}>
+
+                        <td>
+                          {plan.subscriptionPlanId}
+                        </td>
+
+                        <td>
+                          {plan.planName}
+                        </td>
+
+                        <td>
+                          ₹ {plan.price}
+                        </td>
+
+                        <td>
+                          {plan.durationInDays} Days
+                        </td>
+
+                        <td>
+                          {plan.areaId}
+                        </td>
+
+                      </tr>
+
+                    ))
+
+                  }
+
+                </tbody>
+
+              </table>
+
+            </div>
+                            )
+            }
+
+        </div>
+
+      
 
         )
+
       }
-
-
-      {/* Search Plans By Area */}
-
-      <div className="sub-card">
-
-        <div className="sub-card-header">
-
-          SEARCH PLANS BY AREA
-
-        </div>
-
-        <div className="sub-area-search">
-
-          <input
-
-            className="sub-form-input"
-
-            type="number"
-
-            placeholder="Enter Area ID"
-
-            value={areaId}
-
-            onChange={(e)=>setAreaId(e.target.value)}
-
-          />
-
-          <button
-
-            className="sub-search-btn"
-
-            onClick={handleAreaSearch}
-
-          >
-
-            Search
-
-          </button>
-
-        </div>
-
-
-        {
-
-          areaPlans.length>0 && (
-
-            <table className="sub-table">
-
-              <thead>
-
-                <tr>
-
-                  <th>ID</th>
-
-                  <th>Plan</th>
-
-                  <th>Price</th>
-
-                  <th>Duration</th>
-
-                  <th>Area</th>
-
-                </tr>
-
-              </thead>
-
-              <tbody>
-
-                {
-
-                  areaPlans.map((plan)=>(
-
-                    <tr key={plan.subscriptionPlanId}>
-
-                      <td>{plan.subscriptionPlanId}</td>
-
-                      <td>{plan.planName}</td>
-
-                      <td>₹ {plan.price}</td>
-
-                      <td>{plan.durationInDays} Days</td>
-
-                      <td>{plan.areaId}</td>
-
-                    </tr>
-
-                  ))
-
-                }
-
-              </tbody>
-
-            </table>
-
-          )
-
-        }
-
-      </div>
 
     </div>
 

@@ -15,3 +15,13 @@ export const calculateDeliveryCharge = async (payload) => {
     payload
   );
 };
+
+// Get All Outlets
+export const getOutlets = async () => {
+  return await FM_API.get("/api/fm/outlets");
+};
+
+// Get All Customers
+export const getCustomers = async () => {
+  return await FM_API.get("/api/co/customers");
+};

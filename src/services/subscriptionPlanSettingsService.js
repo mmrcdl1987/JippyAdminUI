@@ -20,6 +20,26 @@ export const deleteSubscriptionPlan = async (id) => {
   return await FM_API.delete(`/api/fm/subscription-plans/${id}`);
 };
 
+// Get All States
+export const getStates = async () => {
+  return await FM_API.get("/api/fm/location/fetchStates");
+};
+
+// Get Cities By State
+export const getCitiesByState = async (stateId) => {
+  return await FM_API.get(
+    `/api/fm/location/fetchCityInState?stateId=${stateId}`
+  );
+};
+
+// Get Areas By City
+export const getAreasByCity = async (cityId) => {
+  return await FM_API.get(
+    `/api/fm/location/fetchAreaInCity?cityId=${cityId}`
+  );
+};
+
+
 // Get Plans By Area
 export const getSubscriptionPlansByArea = async (areaId) => {
   return await FM_API.get(

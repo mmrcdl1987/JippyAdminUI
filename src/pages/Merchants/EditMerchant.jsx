@@ -1,130 +1,107 @@
-import { useEffect, useState } from "react";
-import { FM_API } from "../../services/api";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { FiArrowLeft } from "react-icons/fi";
 import "../../styles/Merchants/EditMerchant.css";
+import { getOutletsByMerchant } from "../../services/outletService";
 
 
-function EditMerchant({ setActivePage }) {
 
+const EditMerchant = () => {
+  const navigate = useNavigate();
+  const { id } = useParams();
   const merchantId = localStorage.getItem("merchantId");
-  const [showWorkingHours, setShowWorkingHours] = useState(false);
+
   const [outlets, setOutlets] = useState([]);
-const [selectedOutlet, setSelectedOutlet] = useState("");
-useEffect(() => {
-    fetchMerchantOutlets();
+
+  const [merchant, setMerchant] = useState({
+  
+    outletId: "",
+      outletName: "",
+    email: "",
+    phone: "",
+    alternatePhone: "",
+    cuisine: "",
+
+    favourite: false,
+    available: true,
+
+    buildingNumber: "",
+    roadName: "",
+    landmark: "",
+    state: "",
+    city: "",
+    area: "",
+    latitude: "",
+    longitude: "",
+
+    accountHolder: "",
+    bankName: "",
+    accountNumber: "",
+    ifscCode: ""
+  });
+
+  useEffect(() => {
+    fetchOutlets();
 }, []);
 
-const weekDays = [
-  "Sunday",
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-];
-const fetchMerchantOutlets = async () => {
-
+const fetchOutlets = async () => {
     try {
 
-        const response = await FM_API.get(
-            "/api/fm/outlets/getOutletsByMerchant",
-            {
-                params: {
-                    merchantId: merchantId
-                }
-            }
-        );
+        const response = await getOutletsByMerchant(merchantId);
 
-        console.log("Merchant Outlets:", response.data);
+        console.log("Outlets:", response);
 
-        setOutlets(response.data);
+        setOutlets(response);
 
     } catch (error) {
 
-        console.error("Failed to fetch outlets", error);
+        console.error("Error fetching outlets:", error);
 
     }
-
 };
-const fetchOutletDetails = async (outletId) => {
 
-    try {
+  const handleChange = (e) => {
+    const { name, value, checked, type } = e.target;
 
-       const response = await FM_API.get(
-    "/api/fm/outlets/outletDetails",
-    {
-        params: {
-            outletId
-        }
-    }
-);
+    setMerchant((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+  };
 
-        console.log("Outlet Details", response.data);
-
-        // Later we'll populate the form here
-
-    } catch (error) {
-
-        console.error(error);
-
-    }
-
-};
   return (
+    <div className="edit-merchant-page">
 
-    <div className="edit-page">
+      <div className="edit-merchant-card">
 
-      {/* Header */}
-
-      <div className="edit-header">
-
-        <div>
-          <h1>Edit Outlet</h1>
-        </div>
-<div className="breadcrumb">
-  Dashboard &gt; Outlets &gt; Edit Outlet
-</div>
-
-      </div>
-
-      {/* Tabs */}
-
-      <div className="tabs">
-
-        <button className="tab">
-          Profile
+        <button
+          className="edit-merchant-back-btn"
+          onClick={() => navigate("/merchants")}
+        >
+          <FiArrowLeft />
+          Back
         </button>
 
-        <button className="tab active">
-          Restaurant
-        </button>
+        <h2 className="edit-merchant-title">
+          Edit Outlet
+        </h2>
 
-      </div>
+        {/* ================= Outlet Information ================= */}
 
-      {/* Restaurant Details */}
+        <div className="edit-merchant-section">
 
-      <div className="section">
-<div className="section-title">
-  OUTLET DETAILS
-</div>
+          <div className="edit-merchant-section-header">
+            Outlet Information
+          </div>
 
-        <div className="form-grid">
+          <div className="edit-merchant-grid">
 
-          <div className="form-group">
-           <label>Outlet Name</label>
-<select
-    value={selectedOutlet}
-    onChange={(e) => {
-
-    const outletId = e.target.value;
-
-    setSelectedOutlet(outletId);
-
-    if (outletId) {
-        fetchOutletDetails(outletId);
-    }
-
-}}
+            <div className="edit-merchant-field">
+              <label>Outlet Name</label>
+              <select
+    name="outletId"
+    value={merchant.outletId}
+    onChange={handleChange}
 >
     <option value="">Select Outlet</option>
 
@@ -136,404 +113,536 @@ const fetchOutletDetails = async (outletId) => {
             {outlet.outletName}
         </option>
     ))}
-</select>    
-   </div>
-
-          <div className="form-group">
-            <label>Offer Label</label>
-
-            <input
-              type="text"
-              placeholder="Offer Label"
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Cuisine</label>
-
-            <select>
-  <option value="">Select Cuisine</option>
 </select>
+            </div>
+
+            {/* <div className="edit-merchant-field">
+              <label>Outlet ID</label>
+              <input
+                type="text"
+                name="outletId"
+                value={merchant.outletId}
+                disabled
+              />
+            </div> */}
+
+            <div className="edit-merchant-field">
+              <label>Email</label>
+              <input
+                type="email"
+                name="email"
+                value={merchant.email}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className="edit-merchant-field">
+              <label>Phone</label>
+              <input
+                type="text"
+                name="phone"
+                value={merchant.phone}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className="edit-merchant-field">
+              <label>Alternate Phone</label>
+              <input
+                type="text"
+                name="alternatePhone"
+                value={merchant.alternatePhone}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className="edit-merchant-field">
+              <label>Cuisine</label>
+
+              <select
+                name="cuisine"
+                value={merchant.cuisine}
+                onChange={handleChange}
+              >
+                <option>Select Cuisine</option>
+                <option>Indian</option>
+                <option>Chinese</option>
+                <option>Italian</option>
+                <option>Fast Food</option>
+              </select>
+
+            </div>
+
           </div>
 
-          <div className="form-group">
-            <label>Category</label>
-<select multiple>
-</select>
+          <div className="edit-merchant-checkbox-row">
 
-          </div>
+            <label className="edit-merchant-checkbox">
 
-          <div className="form-group">
-            <label>Phone</label>
+              <input
+                type="checkbox"
+                name="favourite"
+                checked={merchant.favourite}
+                onChange={handleChange}
+              />
 
-            <input
-              type="text"
-              placeholder="Phone Number"
-            />
-          </div>
+              Favourite
 
-          <div className="form-group">
-           <label>Outlet Type</label>
-<select>
-  <option value="">Select Vendor Type</option>
-</select>
+            </label>
 
-          </div>
+            <label className="edit-merchant-checkbox">
 
-          <div className="form-group">
-            <label>Address</label>
+              <input
+                type="checkbox"
+                name="available"
+                checked={merchant.available}
+                onChange={handleChange}
+              />
 
-            <input
-              type="text"
-              placeholder="Address"
-            />
-          </div>
+              Available
 
-          <div className="form-group">
-            <label>Zone</label>
-<select>
-  <option value="">Select Zone</option>
-</select>
-          </div>
-
-          <div className="form-group">
-            <label>Latitude</label>
-
-            <input
-              type="text"
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Longitude</label>
-
-            <input
-              type="text"
-            />
-          </div>
-
-          <div className="form-group full">
-
-            <label>Description</label>
-
-            <textarea
-              rows="5"
-            ></textarea>
+            </label>
 
           </div>
 
         </div>
-        
 
-      </div>
-      {/* ================= BANK DETAILS ================= */}
+                {/* ================= Address Details ================= */}
 
-<div className="section">
+        <div className="edit-merchant-section">
 
-  <div className="section-title">
-    BANK DETAILS
-  </div>
+          <div className="edit-merchant-section-header">
+            Address Details
+          </div>
 
-  <div className="form-grid">
+          <div className="edit-merchant-grid">
 
-    <div className="form-group full">
-      <label>Bank Name</label>
-      <input
-        type="text"
-        placeholder="Enter Bank Name"
-      />
-    </div>
-
-    <div className="form-group full">
-      <label>Branch Name</label>
-      <input
-        type="text"
-        placeholder="Enter Branch Name"
-      />
-    </div>
-
-    <div className="form-group full">
-      <label>Holder Name</label>
-      <input
-        type="text"
-        placeholder="Enter Holder Name"
-      />
-    </div>
-
-    <div className="form-group full">
-      <label>Account Number</label>
-      <input
-        type="text"
-        placeholder="Enter Account Number"
-      />
-    </div>
-
-    <div className="form-group full">
-      <label>Other Information</label>
-      <textarea
-        rows="4"
-        placeholder="Enter Other Information"
-      ></textarea>
-    </div>
-
-  </div>
-
-</div>
-<div className="section">
-
-  <div className="section-title">
-    OUTLET ADMIN COMMISSION
-  </div>
-
-  <div className="form-grid">
-
-    <div className="form-group">
-      <label>Commission Type</label>
-
-      <select>
-        <option value="">Select Commission Type</option>
-      </select>
-    </div>
-
-    <div className="form-group">
-      <label>Admin Commission</label>
-
-      <input
-        type="number"
-        placeholder="Enter Admin Commission"
-      />
-    </div>
-
-  </div>
-
-</div>
-<div className="section">
-
-  <div className="section-title">
-    GALLERY
-  </div>
-
-  <p>Photos not available.</p>
-
-  <input
-    type="file"
-    multiple
-  />
-
-</div>
-<div className="section">
-
-  <div className="section-title">
-    WORKING HOURS
-  </div>
-
-  <p className="warning">
-    NOTE : Please Click on Edit Button After Making Changes in Working Hours, Otherwise Data may not Save!!
-  </p>
-
-  <button
-    className="save-btn"
-    onClick={() => setShowWorkingHours(true)}
->
-    Add Working Hours
-</button>
-{showWorkingHours && (
-
-<div className="working-hours-list">
-
-    {weekDays.map((day,index)=>(
-
-        <div
-            key={index}
-            className="working-row"
-        >
-
-            <div className="day-name">
-                {day}
+            <div className="edit-merchant-field">
+              <label>Building Number</label>
+              <input
+                type="text"
+                name="buildingNumber"
+                value={merchant.buildingNumber}
+                onChange={handleChange}
+              />
             </div>
 
-            <button className="mini-btn">
-                Add
-            </button>
+            <div className="edit-merchant-field">
+              <label>Road / Street Name</label>
+              <input
+                type="text"
+                name="roadName"
+                value={merchant.roadName}
+                onChange={handleChange}
+              />
+            </div>
 
-            <div className="time-grid">
+            <div className="edit-merchant-field">
+              <label>Landmark</label>
+              <input
+                type="text"
+                name="landmark"
+                value={merchant.landmark}
+                onChange={handleChange}
+              />
+            </div>
 
-                <div>
+            <div className="edit-merchant-field">
+              <label>State</label>
 
-                    <label>From</label>
-
-                    <input
-                        type="time"
-                        defaultValue="12:30"
-                    />
-
-                </div>
-
-                <div>
-
-                    <label>To</label>
-
-                    <input
-                        type="time"
-                        defaultValue="23:59"
-                    />
-
-                </div>
-
-                <div>
-
-                    <label>Action</label>
-
-                    <button className="delete-btn">
-                        🗑
-                    </button>
-
-                </div>
+              <select
+                name="state"
+                value={merchant.state}
+                onChange={handleChange}
+              >
+                <option>Select State</option>
+                <option>Telangana</option>
+                <option>Andhra Pradesh</option>
+              </select>
 
             </div>
+
+            <div className="edit-merchant-field">
+              <label>City</label>
+
+              <select
+                name="city"
+                value={merchant.city}
+                onChange={handleChange}
+              >
+                <option>Select City</option>
+                <option>Hyderabad</option>
+                <option>Warangal</option>
+              </select>
+
+            </div>
+
+            <div className="edit-merchant-field">
+              <label>Area</label>
+
+              <select
+                name="area"
+                value={merchant.area}
+                onChange={handleChange}
+              >
+                <option>Select Area</option>
+                <option>Kukatpally</option>
+                <option>Madhapur</option>
+                <option>Gachibowli</option>
+              </select>
+
+            </div>
+
+            <div className="edit-merchant-field">
+              <label>Latitude</label>
+              <input
+                type="text"
+                name="latitude"
+                value={merchant.latitude}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className="edit-merchant-field">
+              <label>Longitude</label>
+              <input
+                type="text"
+                name="longitude"
+                value={merchant.longitude}
+                onChange={handleChange}
+              />
+            </div>
+
+          </div>
 
         </div>
 
-    ))}
+        {/* ================= Bank Details ================= */}
 
-</div>
+        <div className="edit-merchant-section">
 
-)}
+          <div className="edit-merchant-section-header">
+            Bank Details
+          </div>
 
-</div>
-<div className="section">
+          <div className="edit-merchant-grid">
 
-  <div className="section-title">
-    OUTLET STATUS
-  </div>
+            <div className="edit-merchant-field">
+              <label>Account Holder</label>
+              <input
+                type="text"
+                name="accountHolder"
+                value={merchant.accountHolder}
+                onChange={handleChange}
+              />
+            </div>
 
-  <label>
+            <div className="edit-merchant-field">
+              <label>Bank Name</label>
+              <input
+                type="text"
+                name="bankName"
+                value={merchant.bankName}
+                onChange={handleChange}
+              />
+            </div>
 
-    <input type="checkbox" />
+            <div className="edit-merchant-field">
+              <label>Account Number</label>
+              <input
+                type="text"
+                name="accountNumber"
+                value={merchant.accountNumber}
+                onChange={handleChange}
+              />
+            </div>
 
-    Open / Closed
+            <div className="edit-merchant-field">
+              <label>IFSC Code</label>
+              <input
+                type="text"
+                name="ifscCode"
+                value={merchant.ifscCode}
+                onChange={handleChange}
+              />
+            </div>
 
-  </label>
+          </div>
 
-</div>
-<div className="section">
+        </div>
 
-  <div className="section-title">
-    DINE IN FEATURE SETTINGS
-  </div>
+                {/* ================= Outlet Timings ================= */}
 
-  <label>
+        <div className="edit-merchant-section">
 
-    <input type="checkbox" />
+          <div className="edit-merchant-section-header">
+            Outlet Timings
+          </div>
 
-    Enable DINE IN Feature
+          <table className="edit-merchant-timing-table">
 
-  </label>
+            <thead>
+              <tr>
+                <th>DAY</th>
+                <th>OPEN</th>
+                <th>START TIME</th>
+                <th>END TIME</th>
+              </tr>
+            </thead>
 
-</div>
-<div className="section">
+            <tbody>
 
-  <div className="section-title">
-    DELIVERY CHARGE
-  </div>
+              {[
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday",
+              ].map((day, index) => (
+                <tr key={day}>
 
-  <div className="form-grid">
+                  <td>{day}</td>
 
-    <div className="form-group full">
+                  <td>
+                    <input
+                      type="checkbox"
+                      defaultChecked
+                    />
+                  </td>
 
-      <label>Delivery Charge Per</label>
+                  <td>
+                    <input
+                      type="time"
+                      defaultValue="09:00"
+                      className="edit-merchant-time-input"
+                    />
+                  </td>
 
-      <input type="number" />
+                  <td>
+                    <input
+                      type="time"
+                      defaultValue="22:00"
+                      className="edit-merchant-time-input"
+                    />
+                  </td>
 
-    </div>
+                </tr>
+              ))}
 
-    <div className="form-group full">
+            </tbody>
 
-      <label>Minimum Delivery Charges</label>
+          </table>
 
-      <input type="number" />
+        </div>
 
-    </div>
+                {/* ================= Categories ================= */}
 
-    <div className="form-group full">
+        <div className="edit-merchant-section">
 
-      <label>Minimum Delivery Charge Within</label>
+          <div className="edit-merchant-section-header">
+            Categories
+          </div>
 
-      <input type="number" />
+          <div className="edit-merchant-category-card">
 
-    </div>
+            <div className="edit-merchant-category-header">
 
-  </div>
+              <div className="edit-merchant-category-title">
+                ▼ Chicken
+              </div>
 
-</div>
-<div className="section">
+              <label className="edit-merchant-checkbox">
+                <input
+                  type="checkbox"
+                  defaultChecked
+                />
+                Category Available
+              </label>
 
-  <div className="section-title">
-    SPECIAL OFFER
-  </div>
+            </div>
 
-  <label>
+            <div className="edit-merchant-product-card">
 
-    <input type="checkbox" />
+              <div className="edit-merchant-grid">
 
-    Enable Special Discount
+                <div className="edit-merchant-field">
+                  <label>Product Name</label>
+                  <input
+                    type="text"
+                    defaultValue="Chicken Grill"
+                  />
+                </div>
 
-  </label>
+                <div className="edit-merchant-field">
+                  <label>Price</label>
+                  <input
+                    type="number"
+                    defaultValue="250"
+                  />
+                </div>
 
-  <br /><br />
+              </div>
 
-  <button className="save-btn">
-    Add Special Offer
-  </button>
+              <div className="edit-merchant-field">
+                <label>Description</label>
 
-</div>
-<div className="section">
+                <textarea
+                  rows="3"
+                  defaultValue="Juicy grilled chicken"
+                />
+              </div>
 
-  <div className="section-title">
-    STORY
-  </div>
+              <div className="edit-merchant-checkbox-row">
 
-  <div className="form-group">
+                <label className="edit-merchant-checkbox">
+                  <input type="checkbox" />
+                  Veg
+                </label>
 
-    <label>Choose Humbling GIF / Image</label>
+                <label className="edit-merchant-checkbox">
+                  <input
+                    type="checkbox"
+                    defaultChecked
+                  />
+                  Available
+                </label>
 
-    <input type="file" />
+              </div>
 
-  </div>
+              <hr className="edit-merchant-divider" />
 
-  <div className="form-group">
+              <h4 className="edit-merchant-sub-heading">
+                Variants
+              </h4>
 
-    <label>Select Story Video</label>
+              <div className="edit-merchant-variant-row">
 
-    <input type="file" />
+                <div className="edit-merchant-variant-box">
 
-  </div>
+                  <label>Small</label>
 
-</div>
+                  <input
+                    type="number"
+                    defaultValue="120"
+                  />
 
-      <div className="buttons">
+                </div>
 
-        <button
-          className="save-btn"
-        >
-          Save
-        </button>
+                <div className="edit-merchant-variant-box">
 
-        <button
-          className="cancel-btn"
-          onClick={() =>
-            setActivePage("outlets")
-          }
-        >
-          Cancel
-        </button>
+                  <label>Medium</label>
+
+                  <input
+                    type="number"
+                    defaultValue="180"
+                  />
+
+                </div>
+
+                <div className="edit-merchant-variant-box">
+
+                  <label>Large</label>
+
+                  <input
+                    type="number"
+                    defaultValue="250"
+                  />
+
+                </div>
+
+              </div>
+
+              <hr className="edit-merchant-divider" />
+
+              <h4 className="edit-merchant-sub-heading">
+                Product Timings
+              </h4>
+
+              <table className="edit-merchant-product-table">
+
+                <thead>
+
+                  <tr>
+                    <th>DAY</th>
+                    <th>TIMING WINDOW</th>
+                  </tr>
+
+                </thead>
+
+                <tbody>
+
+                  {[
+                    "Monday",
+                    "Tuesday",
+                    "Wednesday",
+                    "Thursday",
+                    "Friday",
+                    "Saturday",
+                    "Sunday",
+                  ].map((day) => (
+
+                    <tr key={day}>
+
+                      <td>{day}</td>
+
+                      <td>
+
+                        <div className="edit-merchant-time-window">
+
+                          <input
+                            type="time"
+                            defaultValue="09:00"
+                            className="edit-merchant-time-input"
+                          />
+
+                          <span>-</span>
+
+                          <input
+                            type="time"
+                            defaultValue="18:00"
+                            className="edit-merchant-time-input"
+                          />
+
+                        </div>
+
+                      </td>
+
+                    </tr>
+
+                  ))}
+
+                </tbody>
+
+              </table>
+
+            </div>
+
+          </div>
+
+        </div>
+                <div className="edit-merchant-footer">
+
+          <button
+            className="edit-merchant-cancel-btn"
+            onClick={() => navigate(Merchants)}
+          >
+            Cancel
+          </button>
+
+          <button
+            className="edit-merchant-update-btn"
+          >
+            Update Outlet
+          </button>
+
+        </div>
 
       </div>
 
     </div>
-
   );
-
-}
+};
 
 export default EditMerchant;

@@ -11,8 +11,8 @@ const [productName, setProductName] = useState("");
 const [description, setDescription] = useState("");
 const [shortDescription, setShortDescription] = useState("");
 
-const [createdBy, setCreatedBy] = useState("");
-const [updatedBy, setUpdatedBy] = useState("");
+// const [createdBy, setCreatedBy] = useState("");
+// const [updatedBy, setUpdatedBy] = useState("");
 
 const [photo, setPhoto] = useState("");
 const [photos, setPhotos] = useState("");
@@ -48,8 +48,8 @@ const clearForm = () => {
   setDescription("");
   setShortDescription("");
 
-  setCreatedBy("");
-  setUpdatedBy("");
+  // setCreatedBy("");
+  // setUpdatedBy("");
 
   setPhoto("");
   setPhotos("");
@@ -126,8 +126,8 @@ thumbnail: thumbnail || null,
 
   publish,
 
-  createdBy: Number(createdBy),
-  updatedBy: Number(updatedBy),
+  // createdBy: Number(createdBy),
+  // updatedBy: Number(updatedBy),
 
   // csvMerchantPrice: null,
   // csvTiming: null,
@@ -226,23 +226,7 @@ onChange={(e)=>setCategoryName(e.target.value)}
 />
 </div>
 
-<div className="form-group">
-  <label>Created By</label>
-  <input
-    type="number"
-    value={createdBy}
-    onChange={(e) => setCreatedBy(e.target.value)}
-  />
-</div>
 
-<div className="form-group">
-  <label>Updated By</label>
-  <input
-    type="number"
-    value={updatedBy}
-    onChange={(e) => setUpdatedBy(e.target.value)}
-  />
-</div>
 
 <div className="form-group">
 <label>Photo</label>
@@ -490,47 +474,7 @@ onChange={(e)=>setShortDescription(e.target.value)}
 
 </div>
 
-{/* ================= CSV ================= */}
 
-{/* <div className="form-card">
-
-  <h2>📄 CSV Details</h2>
-
-  <div className="form-grid">
-
-    <div className="form-group">
-      <label>CSV Merchant Price</label>
-
-      <input
-        type="number"
-        value={csvMerchantPrice}
-        onChange={(e) => setCsvMerchantPrice(e.target.value)}
-      />
-    </div>
-
-    <div className="form-group">
-      <label>CSV Timing</label>
-
-      <input
-        type="text"
-        value={csvTiming}
-        onChange={(e) => setCsvTiming(e.target.value)}
-      />
-    </div>
-
-    <div className="form-group full-width">
-      <label>CSV Day Of Week</label>
-
-      <input
-        type="text"
-        value={csvDayOfWeek}
-        onChange={(e) => setCsvDayOfWeek(e.target.value)}
-      />
-    </div>
-
-  </div>
-
-</div> */}
 
 {/* ================= BUTTONS ================= */}
 
