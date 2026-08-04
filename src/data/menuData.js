@@ -119,6 +119,23 @@ export const menuData = [
     //     },
     //   ],
     // },
+    {
+      name: "Drivers",
+      children: [
+        {
+          name: "All Drivers",
+          permission: "DRIVER_READ",
+        },
+        {
+          name: "Approved Drivers",
+          permission: "DRIVER_READ",
+        },
+        {
+          name: "Approval Pending Drivers",
+          permission: "DRIVER_READ",
+        },
+      ],
+    },
   ],
 },
 

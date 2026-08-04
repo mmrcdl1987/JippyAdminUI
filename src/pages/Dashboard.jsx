@@ -110,6 +110,12 @@ function Dashboard() {
     selectedPlan={selectedPlan}
     setSelectedPlan={setSelectedPlan}
 />
+              setActivePage={setActivePage}
+              refreshCategories={refreshCategories}
+              setRefreshCategories={setRefreshCategories}
+              selectedProduct={selectedProduct}
+              setSelectedProduct={setSelectedProduct}
+            />
           )}
 
         {/* Access Denied (Handles all registered pages dynamically) */}

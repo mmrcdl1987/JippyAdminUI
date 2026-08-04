@@ -78,6 +78,14 @@ function Roles() {
   }
 };
 
+
+      alert(
+        error.response?.data?.errorMessage || "Failed To Create Role"
+      );
+    }
+  };
+
+
   const filteredRoles = roles.filter((role) =>
     role.roleName?.toLowerCase().includes(search.toLowerCase())
   );
@@ -87,6 +95,19 @@ function Roles() {
     setSelectedPermissions([]);
     setShowPermissionModal(true);
   };
+
+  const togglePermission = (permission) => {
+    setSelectedPermissions((prev) =>
+      prev.includes(permission)
+        ? prev.filter((p) => p !== permission)
+        : [...prev, permission]
+    );
+  };
+
+  const handleSavePermissions = () => {
+    console.log("Role:", selectedRole?.roleName);
+    console.log("Permissions:", selectedPermissions);
+
 
   const togglePermission = (permission) => {
     setSelectedPermissions((prev) =>
@@ -221,6 +242,18 @@ function Roles() {
     }
   }}
 />
+
+          <button onClick={handleCreateRole}>Save Role</button>
+        </div>
+      )}
+
+
+          <input
+            type="text"
+            placeholder="Enter Role Name"
+            value={roleName}
+            onChange={(e) => setRoleName(e.target.value)}
+          />
 
           <button onClick={handleCreateRole}>Save Role</button>
         </div>
