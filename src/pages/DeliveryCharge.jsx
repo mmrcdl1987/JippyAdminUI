@@ -1,21 +1,24 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import Select from "react-select";
 import "../styles/DeliveryCharge.css";
 
 import {
   calculateDriverCharge as calculateDriverChargeApi,
   calculateDeliveryCharge as calculateDeliveryChargeApi,
+  getOutlets,
+  getCustomers,
 } from "../services/deliveryChargeService";
 
 function DeliveryCharge() {
 
-  
-const [driverLoading, setDriverLoading] = useState(false);
-
-const [deliveryLoading, setDeliveryLoading] = useState(false);
+  const [driverLoading, setDriverLoading] = useState(false);
+  const [deliveryLoading, setDeliveryLoading] = useState(false);
 
   const [driverResult, setDriverResult] = useState(null);
-
   const [deliveryResult, setDeliveryResult] = useState(null);
+
+  const [outletOptions, setOutletOptions] = useState([]);
+  const [customerOptions, setCustomerOptions] = useState([]);
 
   const [driverChargeRequest, setDriverChargeRequest] = useState({
     driverLatitude: "",
@@ -31,55 +34,124 @@ const [deliveryLoading, setDeliveryLoading] = useState(false);
     orderAmount: "",
   });
 
+  useEffect(() => {
+    loadOutlets();
+    loadCustomers();
+  }, []);
+
+  const loadOutlets = async () => {
+
+    try {
+
+      const response = await getOutlets();
+
+      const options = response.data.data.map((outlet) => ({
+        value: outlet.outletId,
+        label: outlet.outletName,
+      }));
+
+      setOutletOptions(options);
+
+    } catch (error) {
+
+      console.log(error);
+
+    }
+
+  };
+
+  const loadCustomers = async () => {
+
+    try {
+
+      const response = await getCustomers();
+
+      const options = response.data.map((customer) => ({
+        value: customer.customerId,
+        label: `${customer.customerName} (${customer.phoneNumber})`,
+      }));
+
+      setCustomerOptions(options);
+
+    } catch (error) {
+
+      console.log(error);
+
+    }
+
+  };
+
   const handleDriverChange = (e) => {
+
     const { name, value } = e.target;
 
     setDriverChargeRequest((prev) => ({
       ...prev,
       [name]: value,
     }));
+
   };
 
   const handleDeliveryChange = (e) => {
+
     const { name, value } = e.target;
 
     setDeliveryChargeRequest((prev) => ({
       ...prev,
       [name]: value,
     }));
+
   };
 
   const calculateDriverChargeHandler = async () => {
-  try {
-    setDriverLoading(true);
 
-    const response = await calculateDriverChargeApi(driverChargeRequest);
+    try {
 
-    setDriverResult(response.data);
+      setDriverLoading(true);
 
-  } catch (error) {
-    console.error(error);
-    alert("Unable to calculate driver charge.");
-  } finally {
-    setDriverLoading(false);
-  }
-};
+      const response =
+        await calculateDriverChargeApi(driverChargeRequest);
+
+      setDriverResult(response.data);
+
+    } catch (error) {
+
+      console.log(error);
+
+      alert("Unable to calculate driver charge.");
+
+    } finally {
+
+      setDriverLoading(false);
+
+    }
+
+  };
 
   const calculateDeliveryChargeHandler = async () => {
-  try {
-    setDeliveryLoading(true);
 
-    const response = await calculateDeliveryChargeApi(deliveryChargeRequest);
+    try {
 
-    setDeliveryResult(response.data);
+      setDeliveryLoading(true);
 
-  } catch (error) {
-    console.error(error);
-    alert("Unable to calculate delivery charge.");
-  } finally {
-    setDeliveryLoading(false);
-  }
-};
+      const response =
+        await calculateDeliveryChargeApi(deliveryChargeRequest);
+
+      setDeliveryResult(response.data);
+
+    } catch (error) {
+
+      console.log(error);
+
+      alert("Unable to calculate delivery charge.");
+
+    } finally {
+
+      setDeliveryLoading(false);
+
+    }
+
+  };
 
   return (
 
@@ -97,7 +169,8 @@ const [deliveryLoading, setDeliveryLoading] = useState(false);
 
         <div className="ddc-grid">
 
-          <div className="ddc-form-group">
+                    <div className="ddc-form-group">
+
             <label className="ddc-form-label">
               Driver Latitude
             </label>
@@ -108,9 +181,11 @@ const [deliveryLoading, setDeliveryLoading] = useState(false);
               value={driverChargeRequest.driverLatitude}
               onChange={handleDriverChange}
             />
+
           </div>
 
           <div className="ddc-form-group">
+
             <label className="ddc-form-label">
               Driver Longitude
             </label>
@@ -121,35 +196,68 @@ const [deliveryLoading, setDeliveryLoading] = useState(false);
               value={driverChargeRequest.driverLongitude}
               onChange={handleDriverChange}
             />
+
           </div>
 
           <div className="ddc-form-group">
+
             <label className="ddc-form-label">
-              Outlet ID
+              Outlet
             </label>
 
-            <input
-              className="ddc-form-input"
-              name="outletId"
-              value={driverChargeRequest.outletId}
-              onChange={handleDriverChange}
+            <Select
+              options={outletOptions}
+              placeholder="Search Outlet..."
+              isSearchable
+              isClearable
+              value={
+                outletOptions.find(
+                  (item) =>
+                    item.value === driverChargeRequest.outletId
+                ) || null
+              }
+              onChange={(selected) =>
+                setDriverChargeRequest((prev) => ({
+                  ...prev,
+                  outletId: selected ? selected.value : "",
+                }))
+              }
             />
+
           </div>
 
           <div className="ddc-form-group">
+
             <label className="ddc-form-label">
-              Customer Address ID
+              Customer
             </label>
 
-            <input
-              className="ddc-form-input"
-              name="customerAddressId"
-              value={driverChargeRequest.customerAddressId}
-              onChange={handleDriverChange}
+            <Select
+              options={customerOptions}
+              placeholder="Search Customer..."
+              isSearchable
+              isClearable
+              value={
+                customerOptions.find(
+                  (item) =>
+                    item.value ===
+                    driverChargeRequest.customerAddressId
+                ) || null
+              }
+              onChange={(selected) =>
+                setDriverChargeRequest((prev) => ({
+                  ...prev,
+                  customerAddressId: selected
+                    ? selected.value
+                    : "",
+                }))
+              }
             />
+
           </div>
 
           <div className="ddc-form-group">
+
             <label className="ddc-form-label">
               Order Amount
             </label>
@@ -160,6 +268,7 @@ const [deliveryLoading, setDeliveryLoading] = useState(false);
               value={driverChargeRequest.orderAmount}
               onChange={handleDriverChange}
             />
+
           </div>
 
         </div>
@@ -167,14 +276,17 @@ const [deliveryLoading, setDeliveryLoading] = useState(false);
         <div className="ddc-button-container">
 
           <button
-  className="ddc-save-button"
-  onClick={calculateDriverChargeHandler}
-  disabled={driverLoading}
->
-  {driverLoading
-    ? "Calculating..."
-    : "Calculate Driver Charge"}
-</button>
+            className="ddc-save-button"
+            onClick={calculateDriverChargeHandler}
+            disabled={driverLoading}
+          >
+            {
+              driverLoading
+                ? "Calculating..."
+                : "Calculate Driver Charge"
+            }
+          </button>
+
         </div>
 
         {driverResult && (
@@ -232,8 +344,9 @@ const [deliveryLoading, setDeliveryLoading] = useState(false);
 
         )}
 
-      </div>
 
+
+      </div>
 
             {/* Delivery Charge */}
 
@@ -246,32 +359,64 @@ const [deliveryLoading, setDeliveryLoading] = useState(false);
         <div className="ddc-grid">
 
           <div className="ddc-form-group">
+
             <label className="ddc-form-label">
-              Outlet ID
+              Outlet
             </label>
 
-            <input
-              className="ddc-form-input"
-              name="outletId"
-              value={deliveryChargeRequest.outletId}
-              onChange={handleDeliveryChange}
+            <Select
+              options={outletOptions}
+              placeholder="Search Outlet..."
+              isSearchable
+              isClearable
+              value={
+                outletOptions.find(
+                  (item) =>
+                    item.value === deliveryChargeRequest.outletId
+                ) || null
+              }
+              onChange={(selected) =>
+                setDeliveryChargeRequest((prev) => ({
+                  ...prev,
+                  outletId: selected ? selected.value : "",
+                }))
+              }
             />
+
           </div>
 
           <div className="ddc-form-group">
+
             <label className="ddc-form-label">
-              Customer Address ID
+              Customer
             </label>
 
-            <input
-              className="ddc-form-input"
-              name="customerAddressId"
-              value={deliveryChargeRequest.customerAddressId}
-              onChange={handleDeliveryChange}
+            <Select
+              options={customerOptions}
+              placeholder="Search Customer..."
+              isSearchable
+              isClearable
+              value={
+                customerOptions.find(
+                  (item) =>
+                    item.value ===
+                    deliveryChargeRequest.customerAddressId
+                ) || null
+              }
+              onChange={(selected) =>
+                setDeliveryChargeRequest((prev) => ({
+                  ...prev,
+                  customerAddressId: selected
+                    ? selected.value
+                    : "",
+                }))
+              }
             />
+
           </div>
 
           <div className="ddc-form-group">
+
             <label className="ddc-form-label">
               Order Amount
             </label>
@@ -282,6 +427,7 @@ const [deliveryLoading, setDeliveryLoading] = useState(false);
               value={deliveryChargeRequest.orderAmount}
               onChange={handleDeliveryChange}
             />
+
           </div>
 
         </div>
@@ -289,14 +435,16 @@ const [deliveryLoading, setDeliveryLoading] = useState(false);
         <div className="ddc-button-container">
 
           <button
-  className="ddc-save-button"
-  onClick={calculateDeliveryChargeHandler}
-  disabled={deliveryLoading}
->
-  {deliveryLoading
-    ? "Calculating..."
-    : "Calculate Delivery Charge"}
-</button>
+            className="ddc-save-button"
+            onClick={calculateDeliveryChargeHandler}
+            disabled={deliveryLoading}
+          >
+            {
+              deliveryLoading
+                ? "Calculating..."
+                : "Calculate Delivery Charge"
+            }
+          </button>
 
         </div>
 
@@ -343,4 +491,4 @@ const [deliveryLoading, setDeliveryLoading] = useState(false);
 
 }
 
-export default DeliveryCharge;  
+export default DeliveryCharge;

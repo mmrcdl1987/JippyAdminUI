@@ -2,10 +2,34 @@
   padding: 20px;
 }
 
-.tabs {
+.admin-table th:nth-child(1),
+.admin-table td:nth-child(1) {
+  width: 18%;   /* Username */
+}
+
+.admin-table th:nth-child(2),
+.admin-table td:nth-child(2) {
+  width: 12%;   /* User Type */
+}
+
+.admin-table th:nth-child(3),
+.admin-table td:nth-child(3) {
+  width: 35%;   /* Role */
+  word-break: break-word;
+}
+
+.admin-table th:nth-child(4),
+.admin-table td:nth-child(4) {
+  width: 25%;   /* Actions */
+  text-align: center;
+}
+
+/* .tabs {
   display: flex;
   gap: 10px;
   margin-bottom: 20px;
+  width: 300px;
+  height: 50px;
 }
 
 .active-tab {
@@ -13,11 +37,52 @@
   color: white;
   border: none;
   padding: 10px 20px;
+  width: 150px;
+  height: 50px;
+
+} */
+
+
+.tabs {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+  align-items: center;
+}
+
+.tabs button {
+  width: 170px;
+  height: 48px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #374151;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.tabs button:hover {
+  background: #f3f4f6;
+}
+
+.active-tab {
+  width: 170px;
+  height: 48px;
+  background: #ff6b35;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
 }
 
 .admin-table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed;
 }
 
 .admin-table th,
@@ -54,7 +119,7 @@
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
 }
 
-.edit-btn {
+/* .edit-btn {
   background: linear-gradient(
     135deg,
     #4f46e5,
@@ -77,7 +142,7 @@
     #4338ca,
     #6d28d9
   );
-}
+} */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -169,19 +234,97 @@
 
 .button-container {
   margin-top: 25px;
-  text-align: right;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
 }
 
-.save-btn {
-  background: #5b5ce2;
-  color: white;
+.create-employee-save-btn {
+  background:#ff6b35ef ;
+  color: #fff;
   border: none;
-  padding: 12px 25px;
+  padding: 12px 24px;
   border-radius: 8px;
   cursor: pointer;
+  font-size: 14px;
   font-weight: 600;
+  transition: 0.3s;
 }
 
-.save-btn:hover {
-  background: #4748c7;
+.create-employee-save-btn:hover {
+  background: #ff6b35;
+}
+
+.create-employee-cancel-btn {
+  background: rgba(255, 0, 0, 0.872);
+  color: white;
+  border: 1px solid #d1d5db;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+.create-employee-cancel-btn:hover {
+  background: red;
+}
+
+
+/* ================= ACTION BUTTONS ================= */
+
+.action-buttons{
+    display:flex;
+    flex-direction:row;
+    justify-content:center;
+    align-items:center;
+    gap:6px;
+    flex-wrap:nowrap !important;
+}
+
+.action-buttons button{
+    white-space:nowrap;
+    flex-shrink:0;
+}
+.assign-role-btn,
+.edit-user-btn,
+.delete-user-btn{
+    padding:5px 10px;
+    font-size:12px;
+    border-radius: 5px; 
+}
+
+/* Assign Role */
+
+.assign-role-btn{
+  background:#5b5ce2;
+  color:#fff;
+}
+
+.assign-role-btn:hover{
+  background:#4748c7;
+}
+
+/* Edit */
+
+.edit-user-btn{
+  background:#0d6efd;
+  color:#fff;
+}
+
+.edit-user-btn:hover{
+  background:#0b5ed7;
+}
+
+/* Delete */
+
+.delete-user-btn{
+  background:#dc3545;
+  color:#fff;
+}
+
+.delete-user-btn:hover{
+  background:#bb2d3b;
 }

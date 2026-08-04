@@ -103,10 +103,12 @@ case "Gift Cards":
       <div className="user-info">
         <strong>{role}</strong>
       </div>
-<div className="search-box">
-  <FiSearch className="search-icon" />
+<div className="sidebar-search-container">
+  <FiSearch className="sidebar-search-icon" />
+
   <input
     type="text"
+    className="sidebar-search-input"
     placeholder="Search Menu"
   />
 </div>

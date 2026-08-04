@@ -19,6 +19,7 @@ function Dashboard() {
   const [activePage, setActivePage] = useState("dashboard");
   const [refreshCategories, setRefreshCategories] = useState(0);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [selectedPlan, setSelectedPlan] = useState(null);
 
   const pageConfig = pageRegistry[activePage];
   const CurrentPage = pageConfig?.component;
@@ -101,6 +102,14 @@ function Dashboard() {
           pageConfig &&
           hasPermission(pageConfig.permission) && (
             <CurrentPage
+    setActivePage={setActivePage}
+    refreshCategories={refreshCategories}
+    setRefreshCategories={setRefreshCategories}
+    selectedProduct={selectedProduct}
+    setSelectedProduct={setSelectedProduct}
+    selectedPlan={selectedPlan}
+    setSelectedPlan={setSelectedPlan}
+/>
               setActivePage={setActivePage}
               refreshCategories={refreshCategories}
               setRefreshCategories={setRefreshCategories}

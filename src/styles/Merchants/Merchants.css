@@ -1,55 +1,59 @@
-.merchant-page {
+.merchant-list-page {
   padding: 30px;
   background: #f7f8fc;
   min-height: 100vh;
 }
 
-/* Header */
+/* ===========================
+   Header
+=========================== */
 
-.merchant-header {
+.merchant-list-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 35px;
 }
 
-.merchant-header h2 {
+.merchant-list-header h2 {
   font-size: 36px;
   font-weight: 700;
   color: #222;
 }
 
-.breadcrumb {
+.merchant-list-breadcrumb {
   color: #888;
   font-size: 15px;
 }
 
-/* Toolbar */
+/* ===========================
+   Toolbar
+=========================== */
 
-.merchant-toolbar {
+.merchant-list-toolbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 30px;
 }
 
-.merchant-title {
+.merchant-list-title {
   display: flex;
   align-items: center;
   gap: 15px;
 }
 
-.shop-icon {
+.merchant-list-shop-icon {
   font-size: 40px;
 }
 
-.merchant-title h2 {
+.merchant-list-title h2 {
   margin: 0;
   font-size: 36px;
   font-weight: 700;
 }
 
-.count-badge {
+.merchant-list-count-badge {
   margin-left: 12px;
   background: #ffe7de;
   color: #ff6433;
@@ -58,14 +62,16 @@
   font-size: 18px;
 }
 
-/* Filters */
+/* ===========================
+   Filters
+=========================== */
 
-.merchant-filters {
+.merchant-list-filters {
   display: flex;
   gap: 15px;
 }
 
-.merchant-filters select {
+.merchant-list-filters select {
   width: 180px;
   height: 48px;
   border: none;
@@ -77,529 +83,669 @@
   outline: none;
 }
 
-/* Statistics */
+/* ===========================
+   Statistics
+=========================== */
 
-.stats-row {
+.merchant-list-stats-row {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 20px;
 }
 
-.card {
+.merchant-list-stat-card {
   border-radius: 16px;
   padding: 28px;
   min-height: 140px;
-  box-shadow: 0 3px 10px rgba(0,0,0,.08);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, .08);
 }
 
-.card h1 {
+.merchant-list-stat-card h1 {
   margin: 0;
   font-size: 48px;
   font-weight: bold;
 }
 
-.card p {
+.merchant-list-stat-card p {
   margin-top: 15px;
   font-size: 20px;
 }
 
-/* Card Colors */
-
-.total {
+.merchant-list-total-card {
   background: #d9ecff;
 }
 
-.active {
+.merchant-list-active-card {
   background: #fff0cf;
 }
 
-.inactive {
+.merchant-list-inactive-card {
   background: #dff8df;
 }
 
-.new {
+.merchant-list-new-card {
   background: #ffe0e8;
 }
 
-/* Responsive */
+/* ===========================
+   Responsive
+=========================== */
 
 @media (max-width:1200px) {
 
-  .merchant-toolbar {
+  .merchant-list-toolbar {
     flex-direction: column;
     align-items: flex-start;
     gap: 20px;
   }
 
-  .merchant-filters {
+  .merchant-list-filters {
     flex-wrap: wrap;
   }
 
-  .stats-row {
-    grid-template-columns: repeat(2,1fr);
+  .merchant-list-stats-row {
+    grid-template-columns: repeat(2, 1fr);
   }
-}
-
-.bulk-import-card{
-    margin-top:35px;
-    background:#fff;
-    border-radius:20px;
-    padding:25px;
-    display:grid;
-    grid-template-columns:1.2fr .5fr 2fr;
-    gap:30px;
-    align-items:center;
-    box-shadow:0 3px 15px rgba(0,0,0,.08);
-}
-
-.bulk-left h2{
-    margin:0;
-    font-size:34px;
-    font-weight:700;
-}
-
-.bulk-left p{
-    margin-top:15px;
-    color:#777;
-    font-size:18px;
-}
-
-.bulk-middle{
-    display:flex;
-    justify-content:center;
-}
-
-.download-btn{
-    padding:14px 28px;
-    border:2px solid #ff6b35;
-    background:#fff;
-    color:#ff6b35;
-    border-radius:35px;
-    cursor:pointer;
-    font-size:16px;
-    font-weight:600;
-}
-
-.bulk-right{
-    display:flex;
-    flex-direction:column;
-}
-
-.bulk-right label{
-    font-size:18px;
-    font-weight:600;
-    margin-bottom:10px;
-}
-
-.bulk-file{
-    width:100%;
-    padding:12px;
-    border:1px solid #ddd;
-    border-radius:8px;
-}
-
-.bulk-right small{
-    margin-top:12px;
-    color:#777;
-    line-height:22px;
-}
-
-.bulk-update-btn{
-    margin-top:20px;
-    align-self:flex-end;
-    background:#ff6b35;
-    color:#fff;
-    border:none;
-    border-radius:10px;
-    padding:15px 35px;
-    cursor:pointer;
-    font-size:18px;
-    font-weight:600;
-}
-
-@media(max-width:1100px){
-
-.bulk-import-card{
-
-grid-template-columns:1fr;
 
 }
 
-.bulk-middle{
+/* ===========================
+   Bulk Import
+=========================== */
 
-justify-content:flex-start;
-
+.merchant-list-bulk-import-card {
+  margin-top: 35px;
+  background: #fff;
+  border-radius: 20px;
+  padding: 25px;
+  display: grid;
+  grid-template-columns: 1.2fr .5fr 2fr;
+  gap: 30px;
+  align-items: center;
+  box-shadow: 0 3px 15px rgba(0, 0, 0, .08);
 }
 
-.bulk-update-btn{
-
-align-self:flex-start;
-
+.merchant-list-bulk-left h2 {
+  margin: 0;
+  font-size: 34px;
+  font-weight: 700;
 }
 
+.merchant-list-bulk-left p {
+  margin-top: 15px;
+  color: #777;
+  font-size: 18px;
 }
+
+.merchant-list-bulk-middle {
+  display: flex;
+  justify-content: center;
+}
+
+.merchant-list-download-btn {
+  padding: 14px 28px;
+  border: 2px solid #ff6b35;
+  background: #fff;
+  color: #ff6b35;
+  border-radius: 35px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.merchant-list-bulk-right {
+  display: flex;
+  flex-direction: column;
+}
+
+.merchant-list-bulk-right label {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.merchant-list-file-input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.merchant-list-bulk-right small {
+  margin-top: 12px;
+  color: #777;
+  line-height: 22px;
+}
+
+.merchant-list-update-btn {
+  margin-top: 20px;
+  align-self: flex-end;
+  background: #ff6b35;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 15px 35px;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+@media (max-width:1100px) {
+
+  .merchant-list-bulk-import-card {
+    grid-template-columns: 1fr;
+  }
+
+  .merchant-list-bulk-middle {
+    justify-content: flex-start;
+  }
+
+  .merchant-list-update-btn {
+    align-self: flex-start;
+  }
+
+}
+/* ==========================================
+   Global Merchant Status
+========================================== */
+
+.merchant-list-global-status-card {
+  margin-top: 35px;
+  background: #fff;
+  border-radius: 20px;
+  padding: 25px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 3px 15px rgba(0, 0, 0, .08);
+}
+
+.merchant-list-status-left h3 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.merchant-list-status-left p {
+  margin-top: 8px;
+  color: #777;
+  font-size: 16px;
+}
+
+.merchant-list-status-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.merchant-list-status-open {
+  color: #00a651;
+  font-weight: 600;
+  font-size: 18px;
+}
+
+.merchant-list-apply-btn {
+  background: #ff6b35;
+  color: #fff;
+  border: none;
+  padding: 14px 25px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+}
+
 /* ==========================================
    Merchant List
 ========================================== */
 
-.merchant-list-card{
-    margin-top:35px;
-    background:#fff;
-    border-radius:20px;
-    padding:30px;
-    box-shadow:0 3px 15px rgba(0,0,0,.08);
+.merchant-list-container {
+  margin-top: 35px;
+  background: #fff;
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 3px 15px rgba(0, 0, 0, .08);
 }
 
-.merchant-list-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:30px;
+.merchant-list-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
 }
 
-.merchant-list-header h2{
-    margin:0;
-    font-size:34px;
-    font-weight:700;
+.merchant-list-heading h2 {
+  margin: 0;
+  font-size: 34px;
+  font-weight: 700;
 }
 
-.merchant-list-header p{
-    margin-top:8px;
-    color:#777;
-    font-size:18px;
+.merchant-list-heading p {
+  margin-top: 8px;
+  color: #777;
+  font-size: 18px;
 }
 
-.merchant-actions{
-    display:flex;
-    gap:15px;
+.merchant-list-actions {
+  display: flex;
+  gap: 15px;
 }
 
-.columns-btn{
-    padding:12px 28px;
-    border:1px solid #ccc;
-    background:#fff;
-    border-radius:30px;
-    cursor:pointer;
-    font-size:16px;
+.merchant-list-columns-btn {
+  padding: 12px 28px;
+  border: 1px solid #ccc;
+  background: #fff;
+  border-radius: 30px;
+  cursor: pointer;
+  font-size: 16px;
 }
 
-.create-btn{
-    background:#ff6b35;
-    color:#fff;
-    border:none;
-    border-radius:30px;
-    padding:14px 30px;
-    font-size:16px;
-    cursor:pointer;
-    font-weight:600;
+.merchant-list-create-btn {
+  background: #ff6b35;
+  color: #fff;
+  border: none;
+  border-radius: 30px;
+  padding: 14px 30px;
+  font-size: 16px;
+  cursor: pointer;
+  font-weight: 600;
 }
 
-.merchant-toolbar2{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:25px;
+.merchant-list-toolbar-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
 }
 
-.entries{
-    display:flex;
-    align-items:center;
-    gap:12px;
-    font-size:18px;
+.merchant-list-entries {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 18px;
 }
 
-.entries select{
-    padding:10px 20px;
-    border:none;
-    background:#f2f3f8;
-    border-radius:25px;
+.merchant-list-entries select {
+  padding: 10px 20px;
+  border: none;
+  background: #f2f3f8;
+  border-radius: 25px;
 }
 
-.search-export{
-    display:flex;
-    gap:15px;
+.merchant-list-search-export {
+  display: flex;
+  gap: 15px;
 }
 
-.search-box{
-    width:280px;
-    padding:12px 18px;
-    border:none;
-    border-radius:25px;
-    background:#f2f3f8;
-    outline:none;
+.merchant-list-search-box {
+  width: 280px;
+  padding: 12px 18px;
+  border: none;
+  border-radius: 25px;
+  background: #f2f3f8;
+  outline: none;
 }
 
-.export-btn{
-    padding:12px 25px;
-    border:none;
-    background:#eef3ff;
-    border-radius:25px;
-    cursor:pointer;
-    font-size:16px;
+.merchant-list-export-btn {
+  padding: 12px 25px;
+  border: none;
+  background: #eef3ff;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 16px;
 }
 
-.merchant-table{
-    width:100%;
-    border-collapse:collapse;
+/* .merchant-list-table {
+  width: 100%;
+  border-collapse: collapse;
+} */
+
+.merchant-list-table th {
+  background: #f5f5f5;
+  color: #333;
+  font-size: 18px;
+  font-weight: 600;
+  padding: 18px;
+  text-align: left;
+  border: 1px solid #e5e5e5;
 }
 
-.merchant-table th{
-    background:#f5f5f5;
-    color:#333;               
-    font-size:18px;
-    font-weight:600;
-    padding:18px;
-    text-align:left;
-    border:1px solid #e5e5e5;
+/* .merchant-list-table td {
+  padding: 18px;
+  border: 1px solid #ececec;
+} */
+
+.merchant-list-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
 }
 
-.merchant-table td{
-    padding:18px;
-    border:1px solid #ececec;
+.merchant-list-info img {
+  width: 70px;
+  height: 70px;
+  border-radius: 10px;
+  object-fit: cover;
 }
 
-.merchant-info{
-    display:flex;
-    align-items:center;
-    gap:15px;
+.merchant-list-zone-badge {
+  background: #ff6b35;
+  color: #fff;
+  padding: 8px 15px;
+  border-radius: 8px;
+  display: inline-block;
 }
 
-.merchant-info img{
-    width:70px;
-    height:70px;
-    border-radius:10px;
-    object-fit:cover;
-}
+@media (max-width:1000px) {
 
-.zone-badge{
-    background:#ff6b35;
-    color:#fff;
-    padding:8px 15px;
-    border-radius:8px;
-    display:inline-block;
-}
+  .merchant-list-heading,
+  .merchant-list-toolbar-bottom,
+  .merchant-list-global-status-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+  }
 
-@media(max-width:1000px){
+  .merchant-list-search-export {
+    width: 100%;
+    flex-direction: column;
+  }
 
-.merchant-list-header,
-.merchant-toolbar2{
-    flex-direction:column;
-    align-items:flex-start;
-    gap:20px;
-}
+  .merchant-list-search-box {
+    width: 100%;
+  }
 
-.search-export{
-    width:100%;
-    flex-direction:column;
-}
-
-.search-box{
-    width:100%;
-}
+  .merchant-list-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
 
 }
-.global-status-card{
-    margin-top:35px;
-    background:#fff;
-    border-radius:20px;
-    padding:25px 30px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    box-shadow:0 3px 15px rgba(0,0,0,.08);
-}
 
-.status-left h3{
-    margin:0;
-    font-size:28px;
-    font-weight:700;
-}
+/* ==========================================
+   Expand Button
+========================================== */
 
-.status-left p{
-    margin-top:8px;
-    color:#777;
-    font-size:16px;
-}
-
-.status-right{
-    display:flex;
-    align-items:center;
-    gap:20px;
-}
-
-.status-open{
-    color:#00a651;
-    font-weight:600;
-    font-size:18px;
-}
-
-.apply-btn{
-    background:#ff6b35;
-    color:#fff;
-    border:none;
-    padding:14px 25px;
-    border-radius:10px;
-    cursor:pointer;
-    font-size:16px;
-    font-weight:600;
-}
-@media(max-width:1000px){
-
-    .merchant-list-header,
-    .merchant-toolbar2,
-    .global-status-card{
-        flex-direction:column;
-        align-items:flex-start;
-        gap:20px;
-    }
-
-    .search-export{
-        width:100%;
-        flex-direction:column;
-    }
-
-    .search-box{
-        width:100%;
-    }
-
-    .merchant-actions{
-        width:100%;
-        justify-content:flex-start;
-    }
-}
-.expand-btn {
+.merchant-list-expand-btn {
   width: 28px;
   height: 28px;
   border: none;
   border-radius: 50%;
-  background: green;
-  color: white;
+  background: #16b516;
+  color: #fff;
   cursor: pointer;
-  margin-right: 8px;
+  font-size: 18px;
+  margin-right: 10px;
+  transition: 0.3s;
 }
 
-.expanded-row td {
-  background: #fafafa;
+.merchant-list-expand-btn:hover {
+  background: #0d980d;
 }
 
-.merchant-details {
-  padding: 20px;
+.merchant-list-expanded-row td {
+    padding: 20px !important;
+    background: #fafafa;
 }
 
-.detail-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 12px 0;
-  border-bottom: 1px solid #eee;
+/* ==========================================
+   Merchant Details Table
+========================================== */
+
+.merchant-list-details-table {
+  width: 100%;
+  border-collapse: collapse;
 }
 
-.action-icons {
-  display: flex;
-  gap: 12px;
-  font-size: 20px;
-}
-.expand-btn{
-    width:28px;
-    height:28px;
-    border:none;
-    border-radius:50%;
-    background:#16b516;
-    color:#fff;
-    cursor:pointer;
-    font-size:18px;
-    margin-right:10px;
+.merchant-list-details-table td {
+    padding: 14px 18px;
+    border-bottom: 1px solid #ececec;
+    vertical-align: middle;
 }
 
-.expand-btn:hover{
-    background:#0d980d;
+/* .merchant-list-details-table td:first-child {
+    width: 220px;
+    font-weight: 600;
+    color: #333;
 }
 
-.expanded-row td{
-    padding:0!important;
+.merchant-list-details-table td:last-child {
+  text-align: left;
+  padding-left: 30px;
+} */
+ .merchant-list-expand-container {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 40px;
+    padding: 25px 30px;
+    background: #fafafa;
 }
 
-.merchant-details-table{
-    width:100%;
-    border-collapse:collapse;
+.merchant-list-left {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
 }
 
-.merchant-details-table td{
-    padding:18px;
-    border-bottom:1px solid #ececec;
+.merchant-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #ececec;
 }
 
-.merchant-details-table td:first-child{
-    width:260px;
-    font-weight:600;
+.merchant-list-item span:first-child {
+    font-weight: 600;
+    color: #444;
+}
+.merchant-list-right {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.merchant-list-right h4 {
+    margin-bottom: 30px;
+    font-size: 22px;
+    font-weight: 700;
+    text-align: center;
 }
 
-.merchant-details-table td:last-child{
-    text-align:right;
+.merchant-list-action-icons {
+    display: grid;
+    grid-template-columns: repeat(4, 90px);
+    gap: 35px 25px;
+    justify-content: center;
+    align-items: center;
+}
+.merchant-list-action-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
 }
 
-.plan-badge{
-    background:#ff6b35;
-    color:#fff;
-    padding:8px 18px;
-    border-radius:6px;
+.merchant-list-action-item svg {
+    font-size: 34px;
+    transition: 0.25s;
 }
 
-.expired-badge{
-    background:#ef5350;
-    color:#fff;
-    padding:8px 18px;
-    border-radius:6px;
+.merchant-list-action-item span {
+    font-size: 15px;
+    font-weight: 500;
+    color: #444;
 }
 
-.action-icons{
-    display:flex;
-    justify-content:flex-end;
-    gap:18px;
-    font-size:22px;
+.merchant-list-action-item:hover svg {
+    transform: scale(1.15);
 }
 
-.action-icons svg:nth-child(1){color:#0b8d72;}
-.action-icons svg:nth-child(2){color:#ff6b35;}
-.action-icons svg:nth-child(3){color:#795548;}
-.action-icons svg:nth-child(4){color:#7b1fa2;}
-.action-icons svg:nth-child(5){color:#1e88e5;}
-.action-icons svg:nth-child(6){color:#1976d2;}
-.action-icons svg:nth-child(7){color:#f44336;}
-
-.switch{
-    position:relative;
-    display:inline-block;
-    width:48px;
-    height:24px;
+.merchant-list-action-icons svg {
+    cursor: pointer;
+    transition: .25s;
 }
 
-.switch input{
-    display:none;
+.merchant-list-action-icons svg:hover {
+    transform: scale(1.15);
 }
 
-.slider{
-    position:absolute;
-    inset:0;
-    background:#ccc;
-    border-radius:24px;
+@media (max-width: 900px) {
+
+    .merchant-list-expand-container {
+        grid-template-columns: 1fr;
+    }
+
 }
 
-.slider:before{
-    content:"";
-    position:absolute;
-    width:18px;
-    height:18px;
-    left:3px;
-    bottom:3px;
-    background:#fff;
-    border-radius:50%;
-    transition:.3s;
+.merchant-list-plan-badge {
+  background: #ff6b35;
+  color: #fff;
+  padding: 8px 18px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
 }
 
-.switch input:checked + .slider{
-    background:#0c9800;
+.merchant-list-expired-badge {
+  background: #ef5350;
+  color: #fff;
+  padding: 8px 18px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
 }
 
-.switch input:checked + .slider:before{
-    transform:translateX(24px);
+/* ==========================================
+   Action Icons
+========================================== */
+
+.merchant-list-action-icons {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+}
+
+.merchant-list-action-icons svg {
+  cursor: pointer;
+  transition: transform .25s ease;
+}
+
+.merchant-list-action-icons svg:hover {
+  transform: scale(1.15);
+}
+
+.merchant-list-action-icons svg:nth-child(1) {
+  color: #0b8d72;
+}
+
+.merchant-list-action-icons svg:nth-child(2) {
+  color: #ff6b35;
+}
+
+.merchant-list-action-icons svg:nth-child(3) {
+  color: #795548;
+}
+
+.merchant-list-action-icons svg:nth-child(4) {
+  color: #7b1fa2;
+}
+
+.merchant-list-action-icons svg:nth-child(5) {
+  color: #1e88e5;
+}
+
+.merchant-list-action-icons svg:nth-child(6) {
+  color: #1976d2;
+}
+
+.merchant-list-action-icons svg:nth-child(7) {
+  color: #f44336;
+}
+
+/* ==========================================
+   Toggle Switch
+========================================== */
+
+.merchant-list-switch {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 24px;
+}
+
+.merchant-list-switch input {
+  display: none;
+}
+
+.merchant-list-slider {
+  position: absolute;
+  inset: 0;
+  background: #ccc;
+  border-radius: 24px;
+  transition: .3s;
+}
+
+.merchant-list-slider::before {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  left: 3px;
+  bottom: 3px;
+  background: #fff;
+  border-radius: 50%;
+  transition: .3s;
+}
+
+.merchant-list-switch input:checked + .merchant-list-slider {
+  background: #0c9800;
+}
+
+.merchant-list-switch input:checked + .merchant-list-slider::before {
+  transform: translateX(24px);
+}
+
+/* ==========================================
+   Extra Responsive
+========================================== */
+
+@media (max-width: 768px) {
+
+  .merchant-list-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .merchant-list-details-table td:first-child {
+    width: 180px;
+  }
+
+  .merchant-list-action-icons {
+    gap: 12px;
+    font-size: 18px;
+  }
+
+  .merchant-list-expand-btn {
+    margin-right: 6px;
+  }
+
+ .merchant-list-plan-badge,
+.merchant-list-expired-badge {
+    display: inline-block;
+    min-width: 110px;
+    text-align: center;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+}
+.merchant-list-switch {
+    margin-left: 0;
+}
+
 }

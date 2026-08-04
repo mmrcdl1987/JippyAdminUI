@@ -3,7 +3,6 @@ import API from "../services/api";
 import "../styles/AdvertisementOutlets.css";
 
 function AdvertisementOutlets() {
-    const token = localStorage.getItem("token");
 
   const [pricingType, setPricingType] =
     useState("FLAT");
@@ -11,9 +10,7 @@ function AdvertisementOutlets() {
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
   const [areas, setAreas] = useState([]);
-
-const [outlets, setOutlets] = useState([]);
-const [selectedOutlet, setSelectedOutlet] = useState("");
+  const [outlets, setOutlets] = useState([]);
 
   const [selectedState, setSelectedState] =
     useState("");
@@ -24,105 +21,125 @@ const [selectedOutlet, setSelectedOutlet] = useState("");
   const [selectedArea, setSelectedArea] =
     useState("");
 
+  const [selectedOutlet, setSelectedOutlet] =
+    useState("");
+
   const [selectedPlan, setSelectedPlan] =
     useState(null);
+
+  const [startDate, setStartDate] =
+    useState("");
+
+  const [endDate, setEndDate] =
+    useState("");
+
+  const [amount, setAmount] =
+    useState("");
+
+  const [percentage, setPercentage] =
+    useState("");
+
+  const [maxAmount, setMaxAmount] =
+    useState("");
 
   useEffect(() => {
     fetchStates();
   }, []);
 
   const fetchStates = async () => {
+
     try {
-const token =
-  localStorage.getItem("token");
 
-const response = await API.get("/api/fm/location/fetchStates");
-console.log("States API Response:", response.data);
-setStates(response.data);
+      const response =
+        await API.get(
+          "/api/fm/location/fetchStates"
+        );
 
-console.log("States API Response:", response.data);
-     setStates(Array.isArray(response.data) ? response.data : []);
+      setStates(
+        Array.isArray(response.data)
+          ? response.data
+          : []
+      );
+
     } catch (error) {
 
       console.error(error);
 
     }
+
   };
 
   const handleStateChange = async (e) => {
 
-  const stateId = e.target.value;
+    const stateId = e.target.value;
 
-  setSelectedState(stateId);
-  setSelectedCity("");
-  setSelectedArea("");
-setCities([]);
-setAreas([]);
-  try {
+    setSelectedState(stateId);
+    setSelectedCity("");
+    setSelectedArea("");
+    setSelectedPlan(null);
 
-    const token =
-      localStorage.getItem("token");
+    setCities([]);
+    setAreas([]);
 
-   const response = await API.get(
-  `/api/fm/location/fetchCityInState?stateId=${stateId}`
-);
+    try {
 
-setCities(response.data);
+      const response =
+        await API.get(
+          `/api/fm/location/fetchCityInState?stateId=${stateId}`
+        );
 
-    console.log(response.data);
+      setCities(response.data);
 
-    setCities(response.data);
+    } catch (error) {
 
-  } catch (error) {
-    console.error(error);
-  }
-};
+      console.error(error);
 
- const handleCityChange = async (e) => {
+    }
 
-  const cityId = e.target.value;
+  };
 
-  setSelectedCity(cityId);
+  const handleCityChange = async (e) => {
 
-  try {
+    const cityId = e.target.value;
 
-    const token =
-      localStorage.getItem("token");
+    setSelectedCity(cityId);
 
-    const response = await API.get(
-  `/api/fm/location/fetchAreaInCity?cityId=${cityId}`
-);
+    try {
 
-setAreas(response.data);
+      const response =
+        await API.get(
+          `/api/fm/location/fetchAreaInCity?cityId=${cityId}`
+        );
 
-    console.log(response.data);
+      setAreas(response.data);
 
-    setAreas(response.data);
+    } catch (error) {
 
-  } catch (error) {
-    console.error(error);
-  }
-};
-const fetchOutlets = async () => {
-  try {
+      console.error(error);
 
-    const token =
-      localStorage.getItem("token");
+    }
 
-    const response = await API.get("/fm/api/outlets");
+  };
 
-setOutlets(response.data.data);
+  const fetchOutlets = async () => {
 
-    console.log("Outlets API", response.data);
+    try {
 
-    setOutlets(response.data.data);
+      const response =
+        await API.get("/fm/api/outlets");
 
-  } catch (error) {
-    console.error(error);
-  }
-};
+      setOutlets(response.data.data);
+
+    } catch (error) {
+
+      console.error(error);
+
+    }
+
+  };
 
   const plans = [
+
     {
       planName: "Basic",
       price: "Free",
@@ -132,6 +149,7 @@ setOutlets(response.data.data);
       whatsappBroadcast: "No",
       videoCredits: "No",
     },
+
     {
       planName: "Premium",
       price: "₹1299",
@@ -141,6 +159,7 @@ setOutlets(response.data.data);
       whatsappBroadcast: "Monthly 1 Time",
       videoCredits: "No",
     },
+
     {
       planName: "Ultra",
       price: "₹1999",
@@ -150,6 +169,7 @@ setOutlets(response.data.data);
       whatsappBroadcast: "Monthly 2 Times",
       videoCredits: "Yes",
     },
+
     {
       planName: "Ultra Premium",
       price: "₹2299",
@@ -159,6 +179,7 @@ setOutlets(response.data.data);
       whatsappBroadcast: "Weekly",
       videoCredits: "Yes",
     },
+
     {
       planName: "Advance",
       price: "₹3999",
@@ -168,312 +189,355 @@ setOutlets(response.data.data);
       whatsappBroadcast: "Unlimited",
       videoCredits: "Yes",
     },
+
   ];
 
-  return (
+ return (
 
-    <div className="advertisement-page">
+  <div className="advertisement-page">
 
-      <div className="page-header">
+    <div className="page-header">
+
+      <div>
+
         <h2>Advertisement Outlets</h2>
+
         <p>
           Manage advertisement plans for outlets
         </p>
+
       </div>
+
+    </div>
+
+    <div className="advertisement-card">
+
+      <h3>
+        Advertisement Outlet Registration
+      </h3>
+
+      <div className="form-grid">
+
+        <div className="form-group">
+
+          <label>
+            State
+            <span className="required-star">*</span>
+          </label>
+
+          <select
+            value={selectedState}
+            onChange={handleStateChange}
+          >
+
+            <option value="">
+              Select State
+            </option>
+
+            {states.map((state) => (
+
+              <option
+                key={state.stateId}
+                value={state.stateId}
+              >
+                {state.stateName}
+              </option>
+
+            ))}
+
+          </select>
+
+        </div>
+
+        <div className="form-group">
+
+          <label>
+            City
+            <span className="required-star">*</span>
+          </label>
+
+          <select
+            value={selectedCity}
+            onChange={handleCityChange}
+          >
+
+            <option value="">
+              Select City
+            </option>
+
+            {cities.map((city) => (
+
+              <option
+                key={city.cityId}
+                value={city.cityId}
+              >
+                {city.cityName}
+              </option>
+
+            ))}
+
+          </select>
+
+        </div>
+
+        <div className="form-group">
+
+          <label>
+            Area
+            <span className="required-star">*</span>
+          </label>
+
+          <select
+            value={selectedArea}
+            onChange={(e) => {
+
+              setSelectedArea(e.target.value);
+
+              setSelectedPlan(null);
+
+            }}
+          >
+
+            <option value="">
+              Select Area
+            </option>
+
+            {areas.map((area) => (
+
+              <option
+                key={area.areaId}
+                value={area.areaId}
+              >
+                {area.areaName}
+              </option>
+
+            ))}
+
+          </select>
+
+        </div>
+
+        <div className="form-group">
+
+          <label>
+            Outlet
+            <span className="required-star">*</span>
+          </label>
+
+          <select
+            value={selectedOutlet}
+            onFocus={fetchOutlets}
+            onChange={(e) =>
+              setSelectedOutlet(
+                e.target.value
+              )
+            }
+          >
+
+            <option value="">
+              Select Outlet
+            </option>
+
+            {outlets.map((outlet) => (
+
+              <option
+                key={outlet.outletId}
+                value={outlet.outletId}
+              >
+                {outlet.outletName}
+              </option>
+
+            ))}
+
+          </select>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    {selectedArea && (
 
       <div className="advertisement-card">
 
         <h3>
-          Advertisement Outlet Registration
+          Available Advertisement Plans
+        </h3>
+
+        <div className="plans-table-wrapper">
+
+          <table className="plans-table">
+
+            <thead>
+
+              <tr>
+
+                <th>Select</th>
+
+                <th>Plan Name</th>
+
+                <th>Price</th>
+
+                <th>Radius</th>
+
+                <th>Banner Days</th>
+
+                <th>Banner Slots</th>
+
+                <th>WhatsApp Broadcast</th>
+
+                <th>Video Credits</th>
+
+              </tr>
+
+            </thead>
+
+            <tbody>
+
+              {plans.map((plan) => (
+
+                <tr
+                  key={plan.planName}
+                  className={
+                    selectedPlan?.planName ===
+                    plan.planName
+                      ? "selected-plan-row"
+                      : ""
+                  }
+                >
+
+                  <td>
+
+                    <input
+                      type="radio"
+                      name="selectedPlan"
+                      checked={
+                        selectedPlan?.planName ===
+                        plan.planName
+                      }
+                      onChange={() =>
+                        setSelectedPlan(plan)
+                      }
+                    />
+
+                  </td>
+
+                  <td>
+                    {plan.planName}
+                  </td>
+
+                  <td className="plan-price">
+                    {plan.price}
+                  </td>
+
+                  <td>
+                    {plan.radius}
+                  </td>
+
+                  <td>
+                    {plan.bannerDays}
+                  </td>
+
+                  <td>
+                    {plan.bannerSlots}
+                  </td>
+
+                  <td>
+                    {plan.whatsappBroadcast}
+                  </td>
+
+                  <td>
+                    {plan.videoCredits}
+                  </td>
+
+                </tr>
+
+              ))}
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    )}
+
+    {selectedPlan && (
+
+  <>
+    <div className="advertisement-bottom-grid">
+
+
+
+      {/* Advertisement Dates */}
+
+      <div className="advertisement-card">
+
+        <h3>
+          Advertisement Dates
         </h3>
 
         <div className="form-grid">
 
           <div className="form-group">
-            <label>State *</label>
 
-            <select
-              value={selectedState}
-              onChange={handleStateChange}
-            >
-              <option value="">
-                Select State
-              </option>
+            <label>
+              Start Date
+              <span className="required-star">*</span>
+            </label>
 
-              {Array.isArray(states) &&
-  states.map((state) => (
-    <option key={state.stateId} value={state.stateId}>
-      {state.stateName}
-    </option>
-))}
-            </select>
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) =>
+                setStartDate(e.target.value)
+              }
+            />
+
           </div>
 
           <div className="form-group">
-            <label>City *</label>
 
-            <select
-              value={selectedCity}
-              onChange={handleCityChange}
-            >
-              <option value="">
-                Select City
-              </option>
+            <label>
+              End Date
+              <span className="required-star">*</span>
+            </label>
 
-              {cities.map((city) => (
-                <option
-                  key={city.cityId}
-                  value={city.cityId}
-                >
-                  {city.cityName}
-                </option>
-              ))}
-            </select>
+            <input
+              type="date"
+              value={endDate}
+              min={startDate}
+              onChange={(e) =>
+                setEndDate(e.target.value)
+              }
+            />
+
           </div>
-
-          <div className="form-group">
-            <label>Area *</label>
-
-            <select
-              value={selectedArea}
-              onChange={(e) => {
-                setSelectedArea(
-                  e.target.value
-                );
-                setSelectedPlan(null);
-              }}
-            >
-              <option value="">
-                Select Area
-              </option>
-
-              {areas.map((area) => (
-                <option
-                  key={area.areaId}
-                  value={area.areaId}
-                >
-                  {area.areaName}
-                </option>
-              ))}
-            </select>
-          </div>
-<div className="form-group">
-  <label>Outlet *</label>
-
-  <select
-  value={selectedOutlet}
-  onFocus={fetchOutlets}
-  onChange={(e) =>
-    setSelectedOutlet(e.target.value)
-  }
->
-    <option value="">
-      Select Outlet
-    </option>
-
-    {outlets.map((outlet) => (
-      <option
-        key={outlet.outletId}
-        value={outlet.outletId}
-      >
-        {outlet.outletName}
-      </option>
-    ))}
-  </select>
-</div>
 
         </div>
 
       </div>
 
-      {selectedArea && (
-
-        <div className="advertisement-card">
-
-          <h3>
-            Available Advertisement Plans
-          </h3>
-
-          <div className="plans-grid">
-
-            {plans.map((plan) => (
-
-              <div
-                key={plan.planName}
-                className="plan-card"
-              >
-
-                <h4>
-                  {plan.planName}
-                </h4>
-
-                <h2>
-                  {plan.price}
-                </h2>
-
-                <p>
-                  Radius :
-                  {plan.radius}
-                </p>
-
-                <button
-                  type="button"
-                  onClick={() =>
-                    setSelectedPlan(plan)
-                  }
-                >
-                  Select Plan
-                </button>
-
-              </div>
-
-            ))}
-
-          </div>
-
-        </div>
-
-      )}
-
-      {selectedPlan && (
-
-        <div className="advertisement-card">
-
-          <h3>
-            Selected Plan Details
-          </h3>
-
-          <div className="details-grid">
-
-            <div>Plan Name</div>
-            <div>{selectedPlan.planName}</div>
-
-            <div>Price</div>
-            <div>{selectedPlan.price}</div>
-
-            <div>Radius</div>
-            <div>{selectedPlan.radius}</div>
-
-            <div>Banner Days</div>
-            <div>{selectedPlan.bannerDays}</div>
-
-            <div>Banner Slots</div>
-            <div>{selectedPlan.bannerSlots}</div>
-
-            <div>WhatsApp Broadcast</div>
-            <div>{selectedPlan.whatsappBroadcast}</div>
-
-            <div>Video Credits</div>
-            <div>{selectedPlan.videoCredits}</div>
-
-          </div>
-
-        </div>
-
-      )}
-
-      {selectedPlan && (
-
-        <div className="advertisement-card">
-
-          <h3>
-            Advertisement Pricing
-          </h3>
-
-          <div className="form-grid">
-
-            <div className="form-group">
-
-              <label>
-                Pricing Type
-              </label>
-
-              <select
-                value={pricingType}
-                onChange={(e) =>
-                  setPricingType(
-                    e.target.value
-                  )
-                }
-              >
-                <option value="FLAT">
-                  Flat Amount
-                </option>
-
-                <option value="PERCENTAGE">
-                  Percentage
-                </option>
-              </select>
-
-            </div>
-
-            {pricingType === "FLAT" ? (
-
-              <div className="form-group">
-
-                <label>
-                  Amount
-                </label>
-
-                <input
-                  type="number"
-                  placeholder="Enter Amount"
-                />
-
-              </div>
-
-            ) : (
-
-              <>
-                <div className="form-group">
-
-                  <label>
-                    Percentage
-                  </label>
-
-                  <input
-                    type="number"
-                    placeholder="Enter Percentage"
-                  />
-
-                </div>
-
-                <div className="form-group">
-
-                  <label>
-                    Maximum Amount
-                  </label>
-
-                  <input
-                    type="number"
-                    placeholder="Enter Max Amount"
-                  />
-
-                </div>
-              </>
-
-            )}
-
-          </div>
-
-        </div>
-
-      )}
-
-      <div className="button-group">
-
-        <button className="cancel-btn">
-          Cancel
-        </button>
-
-        <button className="save-btn">
-          Save Advertisement
-        </button>
-
-      </div>
+      
 
     </div>
-  );
+
+    <div className="advertisement-buttons">
+    <button className="cancel-btn">Cancel</button>
+    <button className="save-btn">Save</button>
+</div>
+
+  </>
+
+)}
+
+</div>
+
+);
+
 }
 
 export default AdvertisementOutlets;

@@ -8,7 +8,7 @@ function CreateCategory({setActivePage, setRefreshCategories
 
   const [categoryName, setCategoryName] = useState("");
   const [description, setDescription] = useState("");
-  const [selectedImage, setSelectedImage] = useState(null);
+const [categoryImageUrl, setCategoryImageUrl] = useState("");
   const [publish, setPublish] = useState(true);
   const [showInHomepage, setShowInHomepage] = useState(false);
 
@@ -25,7 +25,10 @@ function CreateCategory({setActivePage, setRefreshCategories
   try {
 
     const response = await createCategory({
-  categoryName
+  categoryName,
+  categoryType: showInHomepage ? "HOME" : "ALL",
+  categoryImageUrl,
+  createdBy: 1073741824
 });
 
 console.log("Category Created:", response);
@@ -38,13 +41,13 @@ setRefreshCategories(prev => prev + 1);
 
 setActivePage("categories");
 
-  } catch (error) {
+  }  catch (error) {
+  console.error(error);
 
-    console.error(error);
+  console.log(error.response?.data);
 
-    alert("Failed to create category.");
-
-  }
+  alert(error.response?.data?.message || "Failed to create category.");
+}
 
 };
 
@@ -115,13 +118,14 @@ setActivePage("categories");
 
             <label>Image</label>
 
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) =>
-                setSelectedImage(e.target.files[0])
-              }
-            />
+           <input
+  type="text"
+  placeholder="Enter Image URL"
+  value={categoryImageUrl}
+  onChange={(e) =>
+    setCategoryImageUrl(e.target.value)
+  }
+/>
 
             <small>
               Insert image in SVG format

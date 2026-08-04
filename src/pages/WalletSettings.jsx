@@ -17,9 +17,9 @@ function WalletSettings() {
 
     streakMinDays: "",
 
-    createdBy: "",
+    // createdBy: "",
 
-    updatedBy: "",
+    // updatedBy: "",
 
   });
 
@@ -134,7 +134,7 @@ function WalletSettings() {
 
           </div>
 
-          <div className="wal-form-group">
+          {/* <div className="wal-form-group">
 
             <label className="wal-form-label">
               Created By
@@ -149,9 +149,9 @@ function WalletSettings() {
               placeholder="Enter User ID"
             />
 
-          </div>
+          </div> */}
 
-          <div className="wal-form-group">
+          {/* <div className="wal-form-group">
 
             <label className="wal-form-label">
               Updated By
@@ -166,7 +166,7 @@ function WalletSettings() {
               placeholder="Enter User ID"
             />
 
-          </div>
+          </div> */}
 
         </div>
 

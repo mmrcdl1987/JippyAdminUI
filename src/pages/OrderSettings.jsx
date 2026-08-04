@@ -10,21 +10,11 @@ function OrderSettings() {
   const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
-
     platformFee: "",
-
     surgeFee: "",
-
     packagingFee: "",
-
     deliveryFeeTax: "",
-
     foodTotalAmountTax: "",
-
-    createdBy: "",
-
-    updatedBy: "",
-
   });
 
   const handleChange = (e) => {
@@ -40,162 +30,186 @@ function OrderSettings() {
 
   const handleSave = async () => {
 
+    if (
+      formData.platformFee &&
+      Number(formData.platformFee) < 0
+    ) {
+      alert("Platform Fee cannot be negative.");
+      return;
+    }
+
+    if (
+      formData.surgeFee &&
+      Number(formData.surgeFee) < 0
+    ) {
+      alert("Surge Fee cannot be negative.");
+      return;
+    }
+
+    if (
+      formData.packagingFee &&
+      Number(formData.packagingFee) < 0
+    ) {
+      alert("Packaging Fee cannot be negative.");
+      return;
+    }
+
+    if (
+      formData.deliveryFeeTax &&
+      (
+        Number(formData.deliveryFeeTax) < 0 ||
+        Number(formData.deliveryFeeTax) > 100
+      )
+    ) {
+      alert("Delivery Fee Tax must be between 0 and 100.");
+      return;
+    }
+
+    if (
+      formData.foodTotalAmountTax &&
+      (
+        Number(formData.foodTotalAmountTax) < 0 ||
+        Number(formData.foodTotalAmountTax) > 100
+      )
+    ) {
+      alert("Food Total Amount Tax must be between 0 and 100.");
+      return;
+    }
+
     try {
 
-      setLoading(true);
+  setLoading(true);
 
-      const response =
-        await createOrderSettings(formData);
+  const payload = {
+    ...formData,
+    createdBy: 1,
+    updatedBy: 1,
+  };
 
-      console.log(response.data);
+  const response =
+    await createOrderSettings(payload);
 
-      alert("Order Settings Saved Successfully.");
+  console.log(response.data);
 
-    } catch (error) {
+  alert("Order Settings Saved Successfully.");
 
-      console.log(error);
+  setFormData({
+    platformFee: "",
+    surgeFee: "",
+    packagingFee: "",
+    deliveryFeeTax: "",
+    foodTotalAmountTax: "",
+  });
 
-      const message =
-        error.response?.data?.errorMessage;
+} catch (error) {
 
-      alert(message || "Unable to save settings.");
+  console.log(error);
 
-    } finally {
+  const message =
+    error.response?.data?.errorMessage;
 
-      setLoading(false);
+  alert(message || "Unable to save settings.");
 
-    }
+} finally {
+
+  setLoading(false);
+
+}
 
   };
 
   return (
-
     <div className="ord-page-wrapper">
 
-      <h2 className="ord-page-title">
+  <h2 className="ord-page-title">
+    Order Settings
+  </h2>
 
-        Order Settings
+  <div className="ord-settings-card">
 
+    <div className="ord-card-header">
+      ORDER SETTINGS
+    </div>
 
+    <div className="ord-form-grid">
 
-      </h2>
+      <div className="ord-form-group">
+        <label className="ord-form-label">
+          Platform Fee (₹)
+        </label>
 
-            <div className="ord-settings-card">
+        <input
+          type="number"
+          className="ord-form-input"
+          name="platformFee"
+          value={formData.platformFee}
+          onChange={handleChange}
+          placeholder="Enter Platform Fee"
+        />
+      </div>
 
-        <div className="ord-card-header">
-          ORDER SETTINGS
-        </div>
+      <div className="ord-form-group">
+        <label className="ord-form-label">
+          Surge Fee (₹)
+        </label>
 
-        <div className="ord-form-grid">
+        <input
+          type="number"
+          className="ord-form-input"
+          name="surgeFee"
+          value={formData.surgeFee}
+          onChange={handleChange}
+          placeholder="Enter Surge Fee"
+        />
+      </div>
 
-          <div className="ord-form-group">
-            <label className="ord-form-label">
-              Platform Fee (₹)
-            </label>
+      <div className="ord-form-group">
+        <label className="ord-form-label">
+          Packaging Fee (₹)
+        </label>
 
-            <input
-              type="number"
-              className="ord-form-input"
-              name="platformFee"
-              value={formData.platformFee}
-              onChange={handleChange}
-              placeholder="Enter Platform Fee"
-            />
-          </div>
+        <input
+          type="number"
+          className="ord-form-input"
+          name="packagingFee"
+          value={formData.packagingFee}
+          onChange={handleChange}
+          placeholder="Enter Packaging Fee"
+        />
+      </div>
 
-          <div className="ord-form-group">
-            <label className="ord-form-label">
-              Surge Fee (₹)
-            </label>
+      <div className="ord-form-group">
+        <label className="ord-form-label">
+          Delivery Fee Tax (%)
+        </label>
 
-            <input
-              type="number"
-              className="ord-form-input"
-              name="surgeFee"
-              value={formData.surgeFee}
-              onChange={handleChange}
-              placeholder="Enter Surge Fee"
-            />
-          </div>
+        <input
+          type="number"
+          className="ord-form-input"
+          name="deliveryFeeTax"
+          value={formData.deliveryFeeTax}
+          onChange={handleChange}
+          placeholder="Enter Delivery Fee Tax"
+        />
+      </div>
 
-          <div className="ord-form-group">
-            <label className="ord-form-label">
-              Packaging Fee (₹)
-            </label>
+      <div className="ord-form-group">
+        <label className="ord-form-label">
+          Food Total Amount Tax (%)
+        </label>
 
-            <input
-              type="number"
-              className="ord-form-input"
-              name="packagingFee"
-              value={formData.packagingFee}
-              onChange={handleChange}
-              placeholder="Enter Packaging Fee"
-            />
-          </div>
+        <input
+          type="number"
+          className="ord-form-input"
+          name="foodTotalAmountTax"
+          value={formData.foodTotalAmountTax}
+          onChange={handleChange}
+          placeholder="Enter Food Total Amount Tax"
+        />
+      </div>
 
-          <div className="ord-form-group">
-            <label className="ord-form-label">
-              Delivery Fee Tax (%)
-            </label>
-
-            <input
-              type="number"
-              className="ord-form-input"
-              name="deliveryFeeTax"
-              value={formData.deliveryFeeTax}
-              onChange={handleChange}
-              placeholder="Enter Delivery Fee Tax"
-            />
-          </div>
-
-          <div className="ord-form-group">
-            <label className="ord-form-label">
-              Food Total Amount Tax (%)
-            </label>
-
-            <input
-              type="number"
-              className="ord-form-input"
-              name="foodTotalAmountTax"
-              value={formData.foodTotalAmountTax}
-              onChange={handleChange}
-              placeholder="Enter Food Amount Tax"
-            />
-          </div>
-
-          <div className="ord-form-group">
-            <label className="ord-form-label">
-              Created By
-            </label>
-
-            <input
-              type="number"
-              className="ord-form-input"
-              name="createdBy"
-              value={formData.createdBy}
-              onChange={handleChange}
-              placeholder="Enter User ID"
-            />
-          </div>
-
-          <div className="ord-form-group">
-            <label className="ord-form-label">
-              Updated By
-            </label>
-
-            <input
-              type="number"
-              className="ord-form-input"
-              name="updatedBy"
-              value={formData.updatedBy}
-              onChange={handleChange}
-              placeholder="Enter User ID"
-            />
-          </div>
-
-        </div>
-
-        <div className="ord-button-wrapper">
+    </div>
+            <div className="ord-button-wrapper">
 
           <button
             className="ord-save-btn"

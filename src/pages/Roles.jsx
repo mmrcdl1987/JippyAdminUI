@@ -27,32 +27,64 @@ function Roles() {
     }
   };
 
-  const handleCreateRole = async () => {
-    if (!roleName.trim()) {
-      alert("Enter Role Name");
-      return;
-    }
+  // const handleCreateRole = async () => {
+    // if (!roleName.trim()) {
+    //   alert("Enter Role Name");
+    //   return;
+    // }
 
-    try {
-      const payload = {
-        roleName: roleName,
-      };
+ const handleCreateRole = async () => {
 
-      await API.post("/createRole", payload);
+  const trimmedRoleName = roleName.trim();
 
-      alert("Role Created Successfully");
+  if (!trimmedRoleName) {
+    alert("Enter Role Name");
+    return;
+  }
 
-      setRoleName("");
-      loadRoles();
-      setActiveTab("list");
-    } catch (error) {
-      console.error(error);
+  const roleNameRegex = /^[A-Za-z_]+$/;
+
+  if (!roleNameRegex.test(trimmedRoleName)) {
+    alert("Role Name should contain only letters (A-Z) and underscores (_).");
+    return;
+  }
+
+  if (trimmedRoleName.length > 25) {
+    alert("Role Name should not exceed 25 characters.");
+    return;
+  }
+
+  try {
+
+    const payload = {
+      roleName: trimmedRoleName,
+    };
+
+    await API.post("/createRole", payload);
+
+    alert("Role Created Successfully");
+
+    setRoleName("");
+    loadRoles();
+    setActiveTab("list");
+
+  } catch (error) {
+    console.error(error);
+
+    alert(
+      error.response?.data?.errorMessage ||
+      "Failed To Create Role"
+    );
+  }
+};
+
 
       alert(
         error.response?.data?.errorMessage || "Failed To Create Role"
       );
     }
   };
+
 
   const filteredRoles = roles.filter((role) =>
     role.roleName?.toLowerCase().includes(search.toLowerCase())
@@ -63,6 +95,19 @@ function Roles() {
     setSelectedPermissions([]);
     setShowPermissionModal(true);
   };
+
+  const togglePermission = (permission) => {
+    setSelectedPermissions((prev) =>
+      prev.includes(permission)
+        ? prev.filter((p) => p !== permission)
+        : [...prev, permission]
+    );
+  };
+
+  const handleSavePermissions = () => {
+    console.log("Role:", selectedRole?.roleName);
+    console.log("Permissions:", selectedPermissions);
+
 
   const togglePermission = (permission) => {
     setSelectedPermissions((prev) =>
@@ -177,6 +222,31 @@ function Roles() {
       {activeTab === "create" && (
         <div className="create-role-form">
           <h3>Create Role</h3>
+
+          {/* <input
+            type="text"
+            placeholder="Enter Role Name"
+            value={roleName}
+            onChange={(e) => setRoleName(e.target.value)}
+          /> */}
+          <input
+  type="text"
+  placeholder="Enter Role Name"
+  value={roleName}
+  maxLength={25}
+  onChange={(e) => {
+    const value = e.target.value;
+
+    if (/^[A-Za-z_]*$/.test(value)) {
+      setRoleName(value);
+    }
+  }}
+/>
+
+          <button onClick={handleCreateRole}>Save Role</button>
+        </div>
+      )}
+
 
           <input
             type="text"

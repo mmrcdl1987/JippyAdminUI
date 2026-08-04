@@ -70,6 +70,16 @@ const [password, setPassword] = useState("");
     }
   };
 
+
+  const handleCancel = () => {
+  setEmployeeName("");
+  setEmail("");
+  setMobileNumber("");
+  setUsername("");
+  setPassword("");
+
+  setActiveTab("list");   // Go back to Admin List
+};
   const openRoleModal = async (user) => {
 
     try {
@@ -140,33 +150,65 @@ const [password, setPassword] = useState("");
       );
     }
   };
-  const saveEmployee = async () => {
+//   const saveEmployee = async () => {
 
+//   try {
+
+//     await FM_API.post(
+//   "/api/fm/users/createEmployee",
+//       {
+//         employeeName,
+//         email,
+//         mobileNumber,
+//         username,
+//         password
+//       }
+//     );
+
+//     alert("Employee Created Successfully");
+   
+
+//     loadUsers();
+
+//       setActiveTab("list"); 
+
+//   } catch (error) {
+
+//     console.error(error);
+
+//     alert("Failed To Create Employee");
+//   }
+// };
+
+
+const saveEmployee = async () => {
   try {
-
-    await FM_API.post(
-  "/api/fm/users/createEmployee",
+    const response = await FM_API.post(
+      "/api/fm/users/createEmployee",
       {
         employeeName,
         email,
         mobileNumber,
         username,
-        password
+        password,
       }
     );
+
+   
 
     alert("Employee Created Successfully");
 
     loadUsers();
 
+    setActiveTab("list");
+
   } catch (error) {
-
     console.error(error);
+    
 
-    alert("Failed To Create Employee");
+    alert(error.response?.data || "Failed To Create Employee");
   }
 };
-
   const filteredUsers =
     Array.isArray(users)
       ? users.filter((user) =>
@@ -280,28 +322,36 @@ const [password, setPassword] = useState("");
                           "-"}
                       </td>
 
-                      <td>
+                     <td>
 
-                        {
-                          hasPermission(
-                            "ADMIN_USER_UPDATE"
-                          ) && (
+  <div className="action-buttons">
 
-                            <button
-                              className="edit-btn"
-                              onClick={() =>
-                                openRoleModal(
-                                  user
-                                )
-                              }
-                            >
-                              Assign Role
-                            </button>
+    {hasPermission("ADMIN_USER_UPDATE") && (
+      <button
+        className="assign-role-btn"
+        onClick={() => openRoleModal(user)}
+      >
+        Assign Role
+      </button>
+    )}
 
-                          )
-                        }
+    <button
+      className="edit-user-btn"
+      onClick={() => editUser(user)}
+    >
+      Edit
+    </button>
 
-                      </td>
+    <button
+      className="delete-user-btn"
+      onClick={() => deleteUser(user.usersId)}
+    >
+      Delete
+    </button>
+
+  </div>
+
+</td>
 
                     </tr>
 
@@ -411,12 +461,22 @@ const [password, setPassword] = useState("");
   </div>
 
   <div className="button-container">
+
+     <button
+      className="create-employee-cancel-btn"
+      onClick={handleCancel}
+    >
+      Cancel
+    </button>
+    
     <button
-      className="save-btn"
+      className="create-employee-save-btn"
       onClick={saveEmployee}
     >
       Create Employee
     </button>
+
+   
   </div>
 
 </div>
@@ -446,6 +506,7 @@ const [password, setPassword] = useState("");
               >
                 ✖
               </button>
+              
 
             </div>
 

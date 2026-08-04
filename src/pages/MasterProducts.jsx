@@ -26,7 +26,7 @@ function MasterProducts({
   setSelectedProduct,
 }) {
   
-  const [products, setProducts] = useState([]);
+const [products, setProducts] = useState([]);
 const [loading, setLoading] = useState(false);
 const totalProducts = products.length;
 
@@ -204,7 +204,7 @@ return (
     </div>
 
   </div>
-
+   
   {/* Statistics */}
 
 <div className="stats-container">

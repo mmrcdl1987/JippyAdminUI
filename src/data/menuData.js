@@ -79,7 +79,7 @@ export const menuData = [
             name: "Approved Vendors",
             permission: "VENDOR_READ",
           },
-          {
+          { 
             name: "Approval Pending Vendors",
             permission: "VENDOR_READ",
           },
@@ -101,6 +101,23 @@ export const menuData = [
     // {
     //   name: "Marts",
     //   permission: "RESTAURANT_READ",
+    // },
+    // {
+    //   name: "Drivers",
+    //   children: [
+    //     {
+    //       name: "All Drivers",
+    //       permission: "DRIVER_READ",
+    //     },
+    //     {
+    //       name: "Approved Drivers",
+    //       permission: "DRIVER_READ",
+    //     },
+    //     {
+    //       name: "Approval Pending Drivers",
+    //       permission: "DRIVER_READ",
+    //     },
+    //   ],
     // },
     {
       name: "Drivers",
@@ -396,6 +413,11 @@ export const menuData = [
         //   pageKey: "taxSettings",
         //   permission: "SETTINGS_READ",
         // },
+        {
+    name: "Driver Settings",
+    pageKey: "driverSettings",
+    permission: "SETTINGS_READ",
+},
         {
           name: "Delivery Charge",
           pageKey: "deliveryCharge",

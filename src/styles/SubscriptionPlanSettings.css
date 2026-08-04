@@ -11,6 +11,69 @@
     margin-bottom:30px;
 }
 
+.subscription-plan-settings-toolbar-container{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:20px;
+    flex-wrap:wrap;
+    margin-bottom:25px;
+}
+
+.subscription-plan-settings-create-button{
+    background:#ff6b35;
+    color:#fff;
+    border:none;
+    padding:12px 22px;
+    border-radius:6px;
+    cursor:pointer;
+    font-size:14px;
+    font-weight:600;
+    transition:.3s;
+}
+
+.subscription-plan-settings-create-button:hover{
+    background:#e65b28;
+}
+
+.subscription-plan-settings-search-container{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    flex-wrap:wrap;
+}
+
+.subscription-plan-settings-search-input{
+    width:220px;
+    height:42px;
+    border:1px solid #d8d8d8;
+    border-radius:6px;
+    padding:0 14px;
+    font-size:14px;
+    outline:none;
+    transition:.3s;
+}
+
+.subscription-plan-settings-search-input:focus{
+    border-color:#ff6b35;
+    box-shadow:0 0 5px rgba(255,107,53,.2);
+}
+
+.subscription-plan-settings-search-button{
+    background:#28a745;
+    color:#fff;
+    border:none;
+    padding:12px 20px;
+    border-radius:6px;
+    cursor:pointer;
+    font-weight:600;
+    transition:.3s;
+}
+
+.subscription-plan-settings-search-button:hover{
+    background:#218838;
+}
+
 .sub-card{
     position:relative;
     background:#fff;
@@ -32,65 +95,6 @@
     font-size:13px;
     font-weight:600;
     letter-spacing:.5px;
-}
-
-.sub-form-grid{
-    display:grid;
-    grid-template-columns:repeat(2,1fr);
-    gap:22px;
-}
-
-.sub-form-group{
-    display:flex;
-    flex-direction:column;
-}
-
-.sub-form-label{
-    font-size:14px;
-    font-weight:600;
-    margin-bottom:8px;
-    color:#444;
-}
-
-.sub-form-input{
-    height:44px;
-    border:1px solid #d8d8d8;
-    border-radius:6px;
-    padding:0 14px;
-    font-size:14px;
-    outline:none;
-    transition:.3s;
-}
-
-.sub-form-input:focus{
-    border-color:#ff6b35;
-    box-shadow:0 0 5px rgba(255,107,53,.2);
-}
-
-.sub-button-wrapper{
-    margin-top:30px;
-    display:flex;
-    justify-content:center;
-}
-
-.sub-save-btn{
-    background:#ff6b35;
-    color:#fff;
-    border:none;
-    padding:12px 30px;
-    border-radius:6px;
-    cursor:pointer;
-    font-weight:600;
-    transition:.3s;
-}
-
-.sub-save-btn:hover{
-    background:#e65b28;
-}
-
-.sub-save-btn:disabled{
-    background:#bdbdbd;
-    cursor:not-allowed;
 }
 
 .sub-table-wrapper{
@@ -128,6 +132,10 @@
     background:#fff4ef;
 }
 
+.subscription-plan-settings-action-column{
+    white-space:nowrap;
+}
+
 .sub-view-btn{
     background:#2196f3;
     color:#fff;
@@ -137,10 +145,27 @@
     cursor:pointer;
     margin-right:8px;
     font-size:13px;
+    transition:.3s;
 }
 
 .sub-view-btn:hover{
     background:#1976d2;
+}
+
+.sub-edit-btn{
+    background:#ff9800;
+    color:#fff;
+    border:none;
+    padding:8px 14px;
+    border-radius:5px;
+    cursor:pointer;
+    margin-right:8px;
+    font-size:13px;
+    transition:.3s;
+}
+
+.sub-edit-btn:hover{
+    background:#f57c00;
 }
 
 .sub-delete-btn{
@@ -151,45 +176,11 @@
     border-radius:5px;
     cursor:pointer;
     font-size:13px;
+    transition:.3s;
 }
 
 .sub-delete-btn:hover{
     background:#c62828;
-}
-
-.sub-search-btn{
-    background:#28a745;
-    color:#fff;
-    border:none;
-    padding:12px 20px;
-    border-radius:6px;
-    cursor:pointer;
-    font-weight:600;
-}
-
-.sub-search-btn:hover{
-    background:#218838;
-}
-
-.sub-details-grid{
-    display:grid;
-    grid-template-columns:repeat(2,1fr);
-    gap:18px;
-    margin-top:10px;
-}
-
-.sub-details-grid div{
-    background:#fafafa;
-    padding:12px;
-    border-radius:6px;
-    border:1px solid #ececec;
-}
-
-.sub-area-search{
-    display:flex;
-    gap:15px;
-    align-items:center;
-    margin-bottom:20px;
 }
 
 .sub-empty-row{
@@ -198,34 +189,99 @@
     color:#888;
 }
 
+
+.subscription-plan-settings-expand-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:#f8f8f8;
+    border:1px solid #e5e5e5;
+    border-radius:6px;
+    padding:14px 18px;
+    cursor:pointer;
+    margin-top:15px;
+    font-weight:600;
+}
+
+.subscription-plan-settings-expand-button{
+    background:none;
+    border:none;
+    font-size:18px;
+    cursor:pointer;
+    color:#ff6b35;
+}
+
 @media(max-width:768px){
-
-.sub-form-grid{
-    grid-template-columns:1fr;
-}
-
-.sub-details-grid{
-    grid-template-columns:1fr;
-}
-
-.sub-area-search{
-    flex-direction:column;
-    align-items:stretch;
-}
-
-.sub-save-btn,
-.sub-search-btn{
-    width:100%;
-}
-
-.sub-view-btn,
-.sub-delete-btn{
-    width:100%;
-    margin:4px 0;
-}
 
 .sub-page-title{
     font-size:24px;
 }
 
+.subscription-plan-settings-toolbar-container{
+    flex-direction:column;
+    align-items:stretch;
+}
+
+.subscription-plan-settings-search-container{
+    flex-direction:column;
+}
+
+.subscription-plan-settings-create-button,
+.subscription-plan-settings-search-select,
+.subscription-plan-settings-search-button{
+    width:100%;
+}
+
+.subscription-plan-settings-search-select{
+    box-sizing:border-box;
+}
+
+.subscription-plan-settings-action-column{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+}
+
+.sub-view-btn,
+.sub-edit-btn,
+.sub-delete-btn{
+    width:100%;
+    margin-right:0;
+}
+
+}
+
+
+
+
+.subscription-plan-settings-search-select{
+    width:200px;
+    height:42px;
+    border:1px solid #d8d8d8;
+    border-radius:6px;
+    padding:0 14px;
+    background:#fff;
+    color:#333;
+    font-size:14px;
+    outline:none;
+    cursor:pointer;
+    transition:.3s;
+    appearance:none;
+    -webkit-appearance:none;
+    -moz-appearance:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' fill='%23666' viewBox='0 0 16 16'%3E%3Cpath d='M1.5 5.5 8 12l6.5-6.5' stroke='%23666' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;
+    background-position:right 12px center;
+    padding-right:40px;
+}
+
+.subscription-plan-settings-search-select:focus{
+    border-color:#ff6b35;
+    box-shadow:0 0 5px rgba(255,107,53,.2);
+}
+
+.subscription-plan-settings-search-select:disabled{
+    background:#f5f5f5;
+    color:#999;
+    cursor:not-allowed;
 }

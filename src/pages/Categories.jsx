@@ -186,15 +186,7 @@ function Categories({
 
             <thead>
 
-              {/* <tr>
-
-                <th style={{ width: "80px" }}>ID</th>
-               <th style={{ width: "250px" }}>Category Name</th>
-               <th style={{ width: "100px" }}>Type</th>
-               <th style={{ width: "80px" }}>Image</th>
-               <th style={{ width: "100px" }}>Actions</th>
-
-              </tr> */}
+             <tr>
               <th>ID</th>
 
 <th>Category Name</th>
@@ -204,10 +196,11 @@ function Categories({
 <th>Image</th>
 
 <th>Actions</th>
-
+</tr>
             </thead>
 
-            <tbody>              {filteredCategories.length > 0 ? (
+            <tbody>             
+              {filteredCategories.length > 0 ? (
 
                 filteredCategories
                   .slice(0, entries)
