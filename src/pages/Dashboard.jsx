@@ -102,19 +102,13 @@ function Dashboard() {
           pageConfig &&
           hasPermission(pageConfig.permission) && (
             <CurrentPage
-    setActivePage={setActivePage}
-    refreshCategories={refreshCategories}
-    setRefreshCategories={setRefreshCategories}
-    selectedProduct={selectedProduct}
-    setSelectedProduct={setSelectedProduct}
-    selectedPlan={selectedPlan}
-    setSelectedPlan={setSelectedPlan}
-/>
               setActivePage={setActivePage}
               refreshCategories={refreshCategories}
               setRefreshCategories={setRefreshCategories}
               selectedProduct={selectedProduct}
               setSelectedProduct={setSelectedProduct}
+              selectedPlan={selectedPlan}
+              setSelectedPlan={setSelectedPlan}
             />
           )}
 
