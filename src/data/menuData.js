@@ -89,6 +89,7 @@ export const menuData = [
   },
 
 
+
   {
     title: "MERCHANT & DRIVER MANAGEMENT",
     permission: "RESTAURANT_READ",
@@ -149,6 +150,20 @@ export const menuData = [
       },
     ],
   },
+
+// {
+//   title: "MERCHANT & DRIVER MANAGEMENT",
+//   permission: "RESTAURANT_READ",
+//   items: [
+//     {
+//       name: "Merchants",
+//       pageKey: "outlets",   // Opens Outlets.jsx
+//       permission: "RESTAURANT_READ",
+//     },
+    
+//   ],
+// },
+
 
   {
     title: "RESTAURANT & DRIVER MANAGEMENT",

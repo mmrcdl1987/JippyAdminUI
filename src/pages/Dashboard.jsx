@@ -97,6 +97,7 @@ function Dashboard() {
           </>
         )}
 
+
         {/* Dynamic Page Rendering with Explicit Fallback Rendering */}
         {activePage !== "dashboard" && pageConfig && (
           !pageConfig.permission || hasPermission(pageConfig.permission) ? (
@@ -125,6 +126,9 @@ function Dashboard() {
             </div>
           )
         )}
+
+        
+
 
         {/* Standalone Page Fallback */}
         {activePage === "addToOutletProducts" && !pageConfig && (
