@@ -24,7 +24,7 @@ function CampaignLocation({ campaignData, setCampaignData }) {
     loadStates();
   }, []);
 
-  // Fetch slots whenever Location, Start Date, or End Date change
+  // Fetch available slots whenever Location, Location Type, Dates, OR Selected Outlets change
   useEffect(() => {
     if (campaignData.startDate && campaignData.endDate && campaignData.locationId) {
       loadDynamicMealSlots();
@@ -36,6 +36,7 @@ function CampaignLocation({ campaignData, setCampaignData }) {
     campaignData.endDate,
     campaignData.locationId,
     campaignData.locationType,
+    campaignData.selectedOutlets, // Re-fetch slot availability when outlets selection updates
   ]);
 
   const loadStates = async () => {
@@ -54,12 +55,31 @@ function CampaignLocation({ campaignData, setCampaignData }) {
       const requestPayload = {
         locationId: parseInt(campaignData.locationId, 10),
         locationType: campaignData.locationType || "STATE",
+        outletIds: campaignData.selectedOutlets || [], // Pass selected outlets for outlet-level checking
         promotionFromDate: `${campaignData.startDate}T00:00:00`,
         promotionToDate: `${campaignData.endDate}T23:59:59`,
       };
 
       const response = await fetchAvailableMealSlots(requestPayload);
-      setMealSlots(Array.isArray(response) ? response : []);
+      const slotsData = Array.isArray(response) ? response : [];
+      setMealSlots(slotsData);
+
+      // Automatically deselect any previously selected slots that are now unavailable
+      const unavailableIds = new Set(
+        slotsData.filter((slot) => !slot.available).map((slot) => slot.mealTypeTimingsId)
+      );
+
+      if (campaignData.mealTypeSlotIds && campaignData.mealTypeSlotIds.length > 0) {
+        const filteredSelected = campaignData.mealTypeSlotIds.filter(
+          (id) => !unavailableIds.has(id)
+        );
+        if (filteredSelected.length !== campaignData.mealTypeSlotIds.length) {
+          setCampaignData((prev) => ({
+            ...prev,
+            mealTypeSlotIds: filteredSelected,
+          }));
+        }
+      }
     } catch (error) {
       console.error("Failed to fetch available meal slots:", error);
       setMealSlots([]);
@@ -189,7 +209,7 @@ function CampaignLocation({ campaignData, setCampaignData }) {
         ...prev,
         startDate: value,
         endDate: "",
-        mealTypeSlotIds: [], // Reset selected slots
+        mealTypeSlotIds: [],
       }));
       return;
     }
@@ -197,17 +217,17 @@ function CampaignLocation({ campaignData, setCampaignData }) {
     setCampaignData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // MULTI-SELECT HANDLER
+  // MULTI-SELECT SLOT HANDLER
   const handleSlotSelect = (slot) => {
-    if (!slot.available) return;
+    if (!slot.available) return; // Block selection if slot is booked
 
     setCampaignData((prev) => {
       const currentSlotIds = prev.mealTypeSlotIds || [];
       const isSelected = currentSlotIds.includes(slot.mealTypeTimingsId);
 
       const updatedSlots = isSelected
-        ? currentSlotIds.filter((id) => id !== slot.mealTypeTimingsId) // Remove if already selected
-        : [...currentSlotIds, slot.mealTypeTimingsId]; // Add if not selected
+        ? currentSlotIds.filter((id) => id !== slot.mealTypeTimingsId)
+        : [...currentSlotIds, slot.mealTypeTimingsId];
 
       return {
         ...prev,
@@ -315,7 +335,7 @@ function CampaignLocation({ campaignData, setCampaignData }) {
               <h3 className="sub-heading">⏰ Meal Time Slots</h3>
               <p className="sub-description">
                 {loadingSlots
-                  ? "Fetching slots from backend..."
+                  ? "Fetching available slots from backend..."
                   : "Select one or more available time slots for your campaign:"}
               </p>
 
@@ -340,7 +360,7 @@ function CampaignLocation({ campaignData, setCampaignData }) {
                         {slot.fromTime} - {slot.toTime}
                       </span>
                       {!slot.available && (
-                        <span className="booked-badge">{slot.message}</span>
+                        <span className="booked-badge">{slot.message || "Already Booked"}</span>
                       )}
                     </div>
                   );

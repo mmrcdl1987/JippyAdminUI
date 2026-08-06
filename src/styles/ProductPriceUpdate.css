@@ -452,6 +452,78 @@
 }
 
 /* ===========================
+   Bulk Adjustment Bar (Increase By)
+=========================== */
+
+.bottom-bulk-adjustment-container {
+  display: flex;
+  justify-content: flex-end;
+  padding: 12px 16px;
+  background: #ffffff;
+  border-top: 1px solid #e5e7eb;
+}
+
+.bulk-adjustment-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: #374151;
+  font-weight: 500;
+}
+
+.bulk-adjustment-bar label {
+  font-weight: 600;
+  color: #374151;
+}
+
+.bulk-adjustment-bar select,
+.bulk-adjustment-bar input {
+  height: 34px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 0 10px;
+  font-size: 13px;
+  background-color: #ffffff;
+  color: #374151;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.bulk-adjustment-bar select:focus,
+.bulk-adjustment-bar input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+}
+
+.bulk-adjustment-bar input {
+  width: 90px;
+  text-align: center;
+}
+
+.apply-bulk-btn {
+  height: 34px;
+  padding: 0 16px;
+  background-color: #2563eb;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.apply-bulk-btn:hover:not(:disabled) {
+  background-color: #1d4ed8;
+}
+
+.apply-bulk-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ===========================
    Responsive Layout
 =========================== */
 
@@ -490,16 +562,19 @@
     width: 100%;
     justify-content: space-between;
   }
-}
-/* Container for bottom-right alignment of Increase By controls below pagination */
-.bottom-bulk-adjustment-container {
-  display: flex;
-  justify-content: flex-end;
-  padding: 12px 16px;
-  background: #ffffff;
-  border-top: 1px solid #e5e7eb;
-}
 
-.bottom-bulk-adjustment-container .bulk-adjustment-bar {
-  margin-bottom: 0;
+  .bottom-bulk-adjustment-container {
+    justify-content: stretch;
+  }
+
+  .bulk-adjustment-bar {
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  .bulk-adjustment-bar select,
+  .bulk-adjustment-bar input,
+  .apply-bulk-btn {
+    flex: 1;
+  }
 }

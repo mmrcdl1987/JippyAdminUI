@@ -47,6 +47,15 @@ function CampaignRules({ campaignData, setCampaignData }) {
       return;
     }
 
+    if (name === "discountType") {
+      setCampaignData((prev) => ({
+        ...prev,
+        discountType: value,
+        priceModelId: value === "FLAT" ? 2 : 1, // 1 = PERCENTAGE, 2 = FLAT
+      }));
+      return;
+    }
+
     setCampaignData((prev) => ({
       ...prev,
       [name]: value,

@@ -20,13 +20,47 @@ function PlanCampaign() {
 
     campaignType: "",
     couponId: null,
+    discountType: "PERCENTAGE",
     priceModelId: null,
     priceDropValue: null,
   });
 
   const [loading, setLoading] = useState(false);
 
+  // Function to get the current logged-in user's ID
+  const getLoggedInUserId = () => {
+    // 1. Try reading user object from localStorage
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        if (parsedUser.id || parsedUser.userId) {
+          return parseInt(parsedUser.id || parsedUser.userId, 10);
+        }
+      } catch (e) {
+        console.error("Failed to parse stored user object:", e);
+      }
+    }
+
+    // 2. Alternatively check direct item key if stored separately
+    const directUserId = localStorage.getItem("userId");
+    if (directUserId) {
+      return parseInt(directUserId, 10);
+    }
+
+    // 3. Fallback default ID if not found
+    return 1;
+  };
+
   const buildPayload = () => {
+    const userId = getLoggedInUserId();
+
+    // Map Discount Type to priceModelId (1 = PERCENTAGE, 2 = FLAT) if not explicitly set
+    let resolvedPriceModelId = campaignData.priceModelId;
+    if (campaignData.campaignType === "PRICE_DROP" && !resolvedPriceModelId) {
+      resolvedPriceModelId = campaignData.discountType === "FLAT" ? 2 : 1;
+    }
+
     return {
       campainType: campaignData.campaignType,
       locationId: parseInt(campaignData.locationId, 10),
@@ -36,9 +70,9 @@ function PlanCampaign() {
       promotionToDate: `${campaignData.endDate}T23:59:59`,
       outletIds: campaignData.selectedOutlets,
       couponId: campaignData.couponId ? parseInt(campaignData.couponId, 10) : null,
-      priceModelId: campaignData.priceModelId ? parseInt(campaignData.priceModelId, 10) : null,
+      priceModelId: resolvedPriceModelId ? parseInt(resolvedPriceModelId, 10) : null,
       priceDropValue: campaignData.priceDropValue ? parseFloat(campaignData.priceDropValue) : null,
-      createdBy: "Admin",
+      createdBy: userId,
     };
   };
 

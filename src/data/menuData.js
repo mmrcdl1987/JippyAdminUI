@@ -28,10 +28,10 @@ export const menuData = [
         name: "Zone Management",
         children: [
           {
-  name: "Zone Management",
-  pageKey: "zones",
-  permission: "ZONE_READ",
-},
+            name: "Zone Management",
+            pageKey: "zones",
+            permission: "ZONE_READ",
+          },
         ],
       },
     ],
@@ -44,16 +44,16 @@ export const menuData = [
       {
         name: "Access Control",
         children: [
-        {
-  name: "Roles",
-  pageKey: "roles",
-  permission: "ROLE_READ",
-},
-        {
-  name: "Admin Users",
-  pageKey: "adminUsers",
-  permission: "ADMIN_USER_READ",
-},
+          {
+            name: "Roles",
+            pageKey: "roles",
+            permission: "ROLE_READ",
+          },
+          {
+            name: "Admin Users",
+            pageKey: "adminUsers",
+            permission: "ADMIN_USER_READ",
+          },
         ],
       },
     ],
@@ -63,11 +63,11 @@ export const menuData = [
     title: "CUSTOMER & VENDOR MANAGEMENT",
     permission: "CUSTOMER_READ",
     items: [
-   {
-  name: "Users / Customers",
-  pageKey: "usersCustomers",
-  permission: "CUSTOMER_READ",
-},
+      {
+        name: "Users / Customers",
+        pageKey: "usersCustomers",
+        permission: "CUSTOMER_READ",
+      },
       {
         name: "Owners / Vendors",
         children: [
@@ -89,62 +89,73 @@ export const menuData = [
   },
 
 
-{
-  title: "MERCHANT & DRIVER MANAGEMENT",
-  permission: "RESTAURANT_READ",
-  items: [
-    {
-      name: "Merchants",
-      pageKey: "outlets",   // Opens Outlets.jsx
-      permission: "RESTAURANT_READ",
-    },
-    // {
-    //   name: "Marts",
-    //   permission: "RESTAURANT_READ",
-    // },
-    // {
-    //   name: "Drivers",
-    //   children: [
-    //     {
-    //       name: "All Drivers",
-    //       permission: "DRIVER_READ",
-    //     },
-    //     {
-    //       name: "Approved Drivers",
-    //       permission: "DRIVER_READ",
-    //     },
-    //     {
-    //       name: "Approval Pending Drivers",
-    //       permission: "DRIVER_READ",
-    //     },
-    //   ],
-    // },
-    {
-      name: "Drivers",
-      children: [
-        {
-          name: "All Drivers",
-          permission: "DRIVER_READ",
-        },
-        {
-          name: "Approved Drivers",
-          permission: "DRIVER_READ",
-        },
-        {
-          name: "Approval Pending Drivers",
-          permission: "DRIVER_READ",
-        },
-      ],
-    },
-  ],
-},
+  {
+    title: "MERCHANT & DRIVER MANAGEMENT",
+    permission: "RESTAURANT_READ",
+    items: [
+      {
+        name: "Merchants",
+        permission: "RESTAURANT_READ",
+        children: [
+          {
+            name: "All Merchants",
+            pageKey: "outlets",
+            permission: "RESTAURANT_READ",
+          },
+          {
+            name: "Add Variants",
+            pageKey: "merchantAddVariants",
+            permission: "RESTAURANT_READ",
+          },
+        ],
+      },
+      // {
+      //   name: "Marts",
+      //   permission: "RESTAURANT_READ",
+      // },
+      // {
+      //   name: "Drivers",
+      //   children: [
+      //     {
+      //       name: "All Drivers",
+      //       permission: "DRIVER_READ",
+      //     },
+      //     {
+      //       name: "Approved Drivers",
+      //       permission: "DRIVER_READ",
+      //     },
+      //     {
+      //       name: "Approval Pending Drivers",
+      //       permission: "DRIVER_READ",
+      //     },
+      //   ],
+      // },
+      {
+        name: "Drivers",
+        children: [
+          {
+            name: "All Drivers",
+            permission: "DRIVER_READ",
+          },
+          {
+            name: "Approved Drivers",
+            permission: "DRIVER_READ",
+          },
+          {
+            name: "Approval Pending Drivers",
+            permission: "DRIVER_READ",
+          },
+        ],
+      },
+    ],
+  },
 
   {
     title: "RESTAURANT & DRIVER MANAGEMENT",
     permission: "RESTAURANT_READ",
     items: [
       {
-        name: "Restaurants",
+        name: "OUTLETS",
         permission: "RESTAURANT_READ",
       },
       // {
@@ -157,8 +168,8 @@ export const menuData = [
           {
             name: "All Drivers",
             pageKey: "allDrivers",
-              permission: "DRIVER_READ",
-},
+            permission: "DRIVER_READ",
+          },
           {
             name: "Approved Drivers",
             permission: "DRIVER_READ",
@@ -182,24 +193,24 @@ export const menuData = [
       //   permission: "RESTAURANT_READ",
       // },
       {
-  name: "Categories",
-  pageKey: "categories",
-  permission: "CATEGORY_READ",
-},
+        name: "Categories",
+        pageKey: "categories",
+        permission: "CATEGORY_READ",
+      },
       {
         name: "Foods",
         permission: "RESTAURANT_READ",
       },
       {
-  name: "Master Products",
-  pageKey: "masterProducts",
-  permission: "RESTAURANT_READ",
-},
-// {
-//   name: "Compare File",
-//   pageKey: "compareFile",
-//   permission: "RESTAURANT_READ",
-// },
+        name: "Master Products",
+        pageKey: "masterProducts",
+        permission: "RESTAURANT_READ",
+      },
+      // {
+      //   name: "Compare File",
+      //   pageKey: "compareFile",
+      //   permission: "RESTAURANT_READ",
+      // },
       // {
       //   name: "Mart Categories",
       //   permission: "RESTAURANT_READ",
@@ -228,52 +239,52 @@ export const menuData = [
     ],
   },
   {
-  title: "PROMOTIONS & OFFERS",
-  permission: "PROMOTION_READ",
-  items: [
-    {
-      name: "Promotions",
-      children: [
-       {
-  name: "Advertisement Outlets",
-  pageKey: "advertisementOutlets",
-  permission: "PROMOTION_READ",
-},
-{
-  name: "Banner Designer",
-  pageKey: "bannerDesigner",
-  permission: "PROMOTION_READ",
-},
-{
-  name: "Plan Campaign",
-  pageKey: "planCampaign",
-  permission: "PROMOTION_READ",
-},
-      ],
-    },
-    {
-  name: "Gift Cards",
-  pageKey: "giftCards",
-  permission: "PROMOTION_READ",
-},
-  ],
-},
-{
-  title: "PRICE MANAGEMENT",
-  permission: "PROMOTION_READ",
-  items: [
-    {
-      name: "Price Updates",
-      children: [
-        {
-          name: "Product Price Update",
-          pageKey: "productPriceUpdate",
-          permission: "PROMOTION_READ",
-        }
-      ]
-    }
-  ]
-},
+    title: "PROMOTIONS & OFFERS",
+    permission: "PROMOTION_READ",
+    items: [
+      {
+        name: "Promotions",
+        children: [
+          {
+            name: "Advertisement Outlets",
+            pageKey: "advertisementOutlets",
+            permission: "PROMOTION_READ",
+          },
+          {
+            name: "Banner Designer",
+            pageKey: "bannerDesigner",
+            permission: "PROMOTION_READ",
+          },
+          {
+            name: "Plan Campaign",
+            pageKey: "planCampaign",
+            permission: "PROMOTION_READ",
+          },
+        ],
+      },
+      {
+        name: "Gift Cards",
+        pageKey: "giftCards",
+        permission: "PROMOTION_READ",
+      },
+    ],
+  },
+  {
+    title: "PRICE MANAGEMENT",
+    permission: "PROMOTION_READ",
+    items: [
+      {
+        name: "Price Updates",
+        children: [
+          {
+            name: "Product Price Update",
+            pageKey: "productPriceUpdate",
+            permission: "PROMOTION_READ",
+          }
+        ]
+      }
+    ]
+  },
 
   {
     title: "BUSINESS SETUP",
@@ -372,143 +383,143 @@ export const menuData = [
   },
 
   {
-  title: "SETTINGS & CONFIGURATIONS",
-  permission: "SETTINGS_READ",
-  items: [
-    {
-      name: "Settings",
-      children: [
-        // {
-        //   name: "Global Settings",
-        //   pageKey: "globalSettings",
-        //   permission: "SETTINGS_READ",
-        // },
-        // {
-        //   name: "Currencies Settings",
-        //   pageKey: "currenciesSettings",
-        //   permission: "SETTINGS_READ",
-        // },
-        // {
-        //   name: "Payment Methods",
-        //   pageKey: "paymentMethods",
-        //   permission: "SETTINGS_READ",
-        // },
-        // {
-        //   name: "Business Model Settings",
-        //   pageKey: "businessModelSettings",
-        //   permission: "SETTINGS_READ",
-        // },
-        // {
-        //   name: "Radius Configuration",
-        //   pageKey: "radiusConfiguration",
-        //   permission: "SETTINGS_READ",
-        // },
-        // {
-        //   name: "DINE IN Feature Settings",
-        //   pageKey: "dineInFeatureSettings",
-        //   permission: "SETTINGS_READ",
-        // },
-        // {
-        //   name: "Tax Settings",
-        //   pageKey: "taxSettings",
-        //   permission: "SETTINGS_READ",
-        // },
-        {
-    name: "Driver Settings",
-    pageKey: "driverSettings",
+    title: "SETTINGS & CONFIGURATIONS",
     permission: "SETTINGS_READ",
-},
-        {
-          name: "Delivery Charge",
-          pageKey: "deliveryCharge",
-          permission: "SETTINGS_READ",
-        },
+    items: [
+      {
+        name: "Settings",
+        children: [
+          // {
+          //   name: "Global Settings",
+          //   pageKey: "globalSettings",
+          //   permission: "SETTINGS_READ",
+          // },
+          // {
+          //   name: "Currencies Settings",
+          //   pageKey: "currenciesSettings",
+          //   permission: "SETTINGS_READ",
+          // },
+          // {
+          //   name: "Payment Methods",
+          //   pageKey: "paymentMethods",
+          //   permission: "SETTINGS_READ",
+          // },
+          // {
+          //   name: "Business Model Settings",
+          //   pageKey: "businessModelSettings",
+          //   permission: "SETTINGS_READ",
+          // },
+          // {
+          //   name: "Radius Configuration",
+          //   pageKey: "radiusConfiguration",
+          //   permission: "SETTINGS_READ",
+          // },
+          // {
+          //   name: "DINE IN Feature Settings",
+          //   pageKey: "dineInFeatureSettings",
+          //   permission: "SETTINGS_READ",
+          // },
+          // {
+          //   name: "Tax Settings",
+          //   pageKey: "taxSettings",
+          //   permission: "SETTINGS_READ",
+          // },
+          {
+            name: "Driver Settings",
+            pageKey: "driverSettings",
+            permission: "SETTINGS_READ",
+          },
+          {
+            name: "Delivery Charge",
+            pageKey: "deliveryCharge",
+            permission: "SETTINGS_READ",
+          },
 
-        // NEW SETTINGS
-        {
-          name: "Incentives",
-          pageKey: "incentives",
-          permission: "SETTINGS_READ",
-        },
-        // {
-        //   name: "Delivery Charges",
-        //   pageKey: "deliveryCharges",
-        //   permission: "SETTINGS_READ",
-        // },
-        {
-          name: "Wallet Settings",
-          pageKey: "walletSettings",
-          permission: "SETTINGS_READ",
-        },
-        {
-          name: "Order Settings",
-          pageKey: "orderSettings",
-          permission: "SETTINGS_READ",
-        },
-        {
-          name: "Subscription Plan Settings",
-          pageKey: "subscriptionPlanSettings",
-          permission: "SETTINGS_READ",
-        },
+          // NEW SETTINGS
+          {
+            name: "Incentives",
+            pageKey: "incentives",
+            permission: "SETTINGS_READ",
+          },
+          // {
+          //   name: "Delivery Charges",
+          //   pageKey: "deliveryCharges",
+          //   permission: "SETTINGS_READ",
+          // },
+          {
+            name: "Wallet Settings",
+            pageKey: "walletSettings",
+            permission: "SETTINGS_READ",
+          },
+          {
+            name: "Order Settings",
+            pageKey: "orderSettings",
+            permission: "SETTINGS_READ",
+          },
+          {
+            name: "Subscription Plan Settings",
+            pageKey: "subscriptionPlanSettings",
+            permission: "SETTINGS_READ",
+          },
 
-        // {
-        //   name: "Mart Settings",
-        //   pageKey: "martSettings",
-        //   permission: "SETTINGS_READ",
-        // },
-        // {
-        //   name: "Surge Rules",
-        //   pageKey: "surgeRules",
-        //   permission: "SETTINGS_READ",
-        // },
-        // {
-        //   name: "Coins Settings",
-        //   pageKey: "coinsSettings",
-        //   permission: "SETTINGS_READ",
-        // },
-        // {
-        //   name: "App Settings",
-        //   pageKey: "appSettings",
-        //   permission: "SETTINGS_READ",
-        // },
-        // {
-        //   name: "Document Verification",
-        //   pageKey: "documentVerification",
-        //   permission: "SETTINGS_READ",
-        // },
-        // {
-        //   name: "Languages",
-        //   pageKey: "languages",
-        //   permission: "SETTINGS_READ",
-        // },
-        // {
-        //   name: "Special Offer",
-        //   pageKey: "specialOffer",
-        //   permission: "SETTINGS_READ",
-        // },
-        // {
-        //   name: "Terms and Conditions",
-        //   pageKey: "termsAndConditions",
-        //   permission: "SETTINGS_READ",
-        // },
-        // {
-        //   name: "Privacy Policy",
-        //   pageKey: "privacyPolicy",
-        //   permission: "SETTINGS_READ",
-        // },
-        // {
-        //   name: "Landing Page Template",
-        //   pageKey: "landingPageTemplate",
-        //   permission: "SETTINGS_READ",
-        // },
-        // {
-        //   name: "Footer Template",
-        //   pageKey: "footerTemplate",
-        //   permission: "SETTINGS_READ",
-        // },
-      ],
-    },
-  ],
-},
+          // {
+          //   name: "Mart Settings",
+          //   pageKey: "martSettings",
+          //   permission: "SETTINGS_READ",
+          // },
+          // {
+          //   name: "Surge Rules",
+          //   pageKey: "surgeRules",
+          //   permission: "SETTINGS_READ",
+          // },
+          // {
+          //   name: "Coins Settings",
+          //   pageKey: "coinsSettings",
+          //   permission: "SETTINGS_READ",
+          // },
+          // {
+          //   name: "App Settings",
+          //   pageKey: "appSettings",
+          //   permission: "SETTINGS_READ",
+          // },
+          // {
+          //   name: "Document Verification",
+          //   pageKey: "documentVerification",
+          //   permission: "SETTINGS_READ",
+          // },
+          // {
+          //   name: "Languages",
+          //   pageKey: "languages",
+          //   permission: "SETTINGS_READ",
+          // },
+          // {
+          //   name: "Special Offer",
+          //   pageKey: "specialOffer",
+          //   permission: "SETTINGS_READ",
+          // },
+          // {
+          //   name: "Terms and Conditions",
+          //   pageKey: "termsAndConditions",
+          //   permission: "SETTINGS_READ",
+          // },
+          // {
+          //   name: "Privacy Policy",
+          //   pageKey: "privacyPolicy",
+          //   permission: "SETTINGS_READ",
+          // },
+          // {
+          //   name: "Landing Page Template",
+          //   pageKey: "landingPageTemplate",
+          //   permission: "SETTINGS_READ",
+          // },
+          // {
+          //   name: "Footer Template",
+          //   pageKey: "footerTemplate",
+          //   permission: "SETTINGS_READ",
+          // },
+        ],
+      },
+    ],
+  },
 
 ];

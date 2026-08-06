@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import API from "../services/api";
 import { FM_API } from "../services/api";
 import { menuData } from "../data/menuData";
 import "../styles/Roles.css";
@@ -27,64 +26,48 @@ function Roles() {
     }
   };
 
-  // const handleCreateRole = async () => {
-    // if (!roleName.trim()) {
-    //   alert("Enter Role Name");
-    //   return;
-    // }
+  const handleCreateRole = async () => {
+    const trimmedRoleName = roleName.trim();
 
- const handleCreateRole = async () => {
+    if (!trimmedRoleName) {
+      alert("Enter Role Name");
+      return;
+    }
 
-  const trimmedRoleName = roleName.trim();
+    const roleNameRegex = /^[A-Za-z-]+$/;
 
-  if (!trimmedRoleName) {
-    alert("Enter Role Name");
-    return;
-  }
+    if (!roleNameRegex.test(trimmedRoleName)) {
+      alert("Role name should contain only letters (A-Z, a-z) and hyphens (-).");
+      return;
+    }
 
-  const roleNameRegex = /^[A-Za-z_]+$/;
+    if (trimmedRoleName.length > 50) {
+      alert("Role name must not exceed 50 characters.");
+      return;
+    }
 
-  if (!roleNameRegex.test(trimmedRoleName)) {
-    alert("Role Name should contain only letters (A-Z) and underscores (_).");
-    return;
-  }
+    try {
+      const payload = {
+        roleName: trimmedRoleName,
+      };
 
-  if (trimmedRoleName.length > 25) {
-    alert("Role Name should not exceed 25 characters.");
-    return;
-  }
+      await FM_API.post("/fm/roles", payload);
 
-  try {
+      alert("Role Created Successfully");
 
-    const payload = {
-      roleName: trimmedRoleName,
-    };
-
-    await API.post("/createRole", payload);
-
-    alert("Role Created Successfully");
-
-    setRoleName("");
-    loadRoles();
-    setActiveTab("list");
-
-  } catch (error) {
-    console.error(error);
-
-    alert(
-      error.response?.data?.errorMessage ||
-      "Failed To Create Role"
-    );
-  }
-};
-
+      setRoleName("");
+      loadRoles();
+      setActiveTab("list");
+    } catch (error) {
+      console.error(error);
 
       alert(
-        error.response?.data?.errorMessage || "Failed To Create Role"
+        error.response?.data?.errorMessage ||
+        error.response?.data?.roleName ||
+        "Failed To Create Role"
       );
     }
   };
-
 
   const filteredRoles = roles.filter((role) =>
     role.roleName?.toLowerCase().includes(search.toLowerCase())
@@ -95,19 +78,6 @@ function Roles() {
     setSelectedPermissions([]);
     setShowPermissionModal(true);
   };
-
-  const togglePermission = (permission) => {
-    setSelectedPermissions((prev) =>
-      prev.includes(permission)
-        ? prev.filter((p) => p !== permission)
-        : [...prev, permission]
-    );
-  };
-
-  const handleSavePermissions = () => {
-    console.log("Role:", selectedRole?.roleName);
-    console.log("Permissions:", selectedPermissions);
-
 
   const togglePermission = (permission) => {
     setSelectedPermissions((prev) =>
@@ -223,36 +193,18 @@ function Roles() {
         <div className="create-role-form">
           <h3>Create Role</h3>
 
-          {/* <input
-            type="text"
-            placeholder="Enter Role Name"
-            value={roleName}
-            onChange={(e) => setRoleName(e.target.value)}
-          /> */}
-          <input
-  type="text"
-  placeholder="Enter Role Name"
-  value={roleName}
-  maxLength={25}
-  onChange={(e) => {
-    const value = e.target.value;
-
-    if (/^[A-Za-z_]*$/.test(value)) {
-      setRoleName(value);
-    }
-  }}
-/>
-
-          <button onClick={handleCreateRole}>Save Role</button>
-        </div>
-      )}
-
-
           <input
             type="text"
             placeholder="Enter Role Name"
             value={roleName}
-            onChange={(e) => setRoleName(e.target.value)}
+            maxLength={50}
+            onChange={(e) => {
+              const value = e.target.value;
+
+              if (/^[A-Za-z-]*$/.test(value)) {
+                setRoleName(value);
+              }
+            }}
           />
 
           <button onClick={handleCreateRole}>Save Role</button>

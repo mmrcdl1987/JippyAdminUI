@@ -33,15 +33,24 @@ export const fetchOutletDetailsById = async (outletId) => {
 };
 
 /**
+ * Fetch Outlet Products for Price Update (GET)
+ * Hits endpoint: /api/fm/products/outlets/{outletId}
+ */
+export const fetchOutletProductsForUpdate = async (outletId) => {
+  const response = await FM_API.get(`/api/fm/products/outlets/${outletId}`);
+  return response.data;
+};
+
+/**
  * Update Outlet Products
+ * Hits endpoint: /api/fm/products/outlets/{outletId}
  */
 export const updateOutletProducts = async (outletId, payload, userType = "MERCHANT") => {
   const response = await FM_API.put(
-    "/api/fm/outlets/editAndUpdateOutletProducts",
+    `/api/fm/products/outlets/${outletId}`,
     payload,
     {
       params: {
-        outletId,
         userType,
       },
     }

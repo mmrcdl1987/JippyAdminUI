@@ -32,7 +32,7 @@ function Dashboard() {
       <Sidebar setActivePage={setActivePage} />
 
       <div className="dashboard-content">
-        {/* Dashboard Cards */}
+        {/* Dashboard Analytics View */}
         {activePage === "dashboard" && (
           <>
             <h2 className="dashboard-title">Business Analytics</h2>
@@ -97,30 +97,51 @@ function Dashboard() {
           </>
         )}
 
-        {/* Dynamic Page Rendering */}
-        {activePage !== "dashboard" &&
-          pageConfig &&
-          hasPermission(pageConfig.permission) && (
-            <CurrentPage
-              setActivePage={setActivePage}
-              refreshCategories={refreshCategories}
-              setRefreshCategories={setRefreshCategories}
-              selectedProduct={selectedProduct}
-              setSelectedProduct={setSelectedProduct}
-              selectedPlan={selectedPlan}
-              setSelectedPlan={setSelectedPlan}
-            />
-          )}
+        {/* Dynamic Page Rendering with Explicit Fallback Rendering */}
+        {activePage !== "dashboard" && pageConfig && (
+          !pageConfig.permission || hasPermission(pageConfig.permission) ? (
+            CurrentPage ? (
+              <CurrentPage
+                setActivePage={setActivePage}
+                refreshCategories={refreshCategories}
+                setRefreshCategories={setRefreshCategories}
+                selectedProduct={selectedProduct}
+                setSelectedProduct={setSelectedProduct}
+                selectedPlan={selectedPlan}
+                setSelectedPlan={setSelectedPlan}
+              />
+            ) : (
+              <div style={{ padding: "40px", backgroundColor: "#fff", borderRadius: "8px", color: "#333" }}>
+                <h2>Component Failed to Render</h2>
+                <p>Target component key: <strong>{activePage}</strong></p>
+              </div>
+            )
+          ) : (
+            <div style={{ padding: "40px", backgroundColor: "#fff", borderRadius: "8px", color: "#d9534f" }}>
+              <h2>Access Denied</h2>
+              <p>
+                You lack the permission <strong>"{pageConfig.permission}"</strong> to view this page.
+              </p>
+            </div>
+          )
+        )}
 
-        {/* Access Denied (Handles all registered pages dynamically) */}
-        {activePage !== "dashboard" &&
-          pageConfig &&
-          !hasPermission(pageConfig.permission) && <h2>Access Denied</h2>}
-
-        {/* Special/Standalone Page Handling */}
-        {activePage === "addToOutletProducts" && (
+        {/* Standalone Page Fallback */}
+        {activePage === "addToOutletProducts" && !pageConfig && (
           <AddToOutletProducts setActivePage={setActivePage} />
         )}
+
+        {/* Page Not Found Fallback */}
+        {activePage !== "dashboard" &&
+          activePage !== "addToOutletProducts" &&
+          !pageConfig && (
+            <div style={{ padding: "40px", backgroundColor: "#fff", borderRadius: "8px", color: "#333" }}>
+              <h2>404 - Page Not Found</h2>
+              <p>
+                The page key <strong>"{activePage}"</strong> was not found in <code>pageRegistry.js</code>.
+              </p>
+            </div>
+          )}
       </div>
     </div>
   );

@@ -36,6 +36,7 @@ import SubscriptionPlanSettings from "../pages/SubscriptionPlanSettings";
 import CreateSubscriptionPlan from "../pages/CreateSubscriptionPlan";
 import EditSubscriptionPlan from "../pages/EditSubscriptionPlan";
 import ViewSubscriptionPlan from "../pages/ViewSubscriptionPlan";
+import MerchantAddVariants from "../pages/MerchantAddVariants";
 
 import DriverSettings from "../pages/DriverSettings";
 
@@ -216,6 +217,11 @@ driverSettings: {
     component: DriverSettings,
     permission: "SETTINGS_READ",
 },
+
+merchantAddVariants: {
+    component: MerchantAddVariants,
+    permission: "RESTAURANT_READ", // Change to null if permission issues persist
+  },
 
 
 };
