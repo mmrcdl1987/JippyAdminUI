@@ -270,9 +270,12 @@ function Merchants({ setActivePage }) {
               Columns ▼
             </button>
 
-            <button className="merchant-list-create-btn">
-              + Create Merchant
-            </button>
+            <button
+    className="merchant-list-create-btn"
+    onClick={() => setActivePage("createMerchant")}
+>
+    + Create Merchant
+</button>
 
           </div>
 

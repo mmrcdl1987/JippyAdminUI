@@ -1,17 +1,31 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { FiArrowLeft } from "react-icons/fi";
 import "../../styles/Merchants/EditMerchant.css";
-import { getOutletsByMerchant } from "../../services/outletService";
+import {
+  getOutletsByMerchant,
+  getStates,
+  getCitiesByState,
+  getAreasByCity,
+    updateOutlet,
+} from "../../services/outletService";
 
 
 
-const EditMerchant = () => {
-  const navigate = useNavigate();
-  const { id } = useParams();
+const EditMerchant = ({ setActivePage }) => {
+ 
   const merchantId = localStorage.getItem("merchantId");
 
+  
+
   const [outlets, setOutlets] = useState([]);
+  const [states, setStates] = useState([]);
+const [cities, setCities] = useState([]);
+const [areas, setAreas] = useState([]);
+
+const [selectedState, setSelectedState] = useState("");
+const [selectedCity, setSelectedCity] = useState("");
+
+const [loading, setLoading] = useState(false);
 
   const [merchant, setMerchant] = useState({
   
@@ -41,9 +55,60 @@ const EditMerchant = () => {
   });
 
   useEffect(() => {
-    fetchOutlets();
+  fetchOutlets();
+  loadStates();
 }, []);
+const loadStates = async () => {
 
+  try {
+
+    const response = await getStates();
+
+    setStates(response.data);
+
+  } catch (error) {
+
+    console.log(error);
+
+  }
+
+};
+
+const loadCities = async (stateId) => {
+
+  try {
+
+    const response =
+      await getCitiesByState(stateId);
+
+    setCities(response.data);
+
+    setAreas([]);
+
+  } catch (error) {
+
+    console.log(error);
+
+  }
+
+};
+
+const loadAreas = async (cityId) => {
+
+  try {
+
+    const response =
+      await getAreasByCity(cityId);
+
+    setAreas(response.data);
+
+  } catch (error) {
+
+    console.log(error);
+
+  }
+
+};
 const fetchOutlets = async () => {
     try {
 
@@ -51,13 +116,79 @@ const fetchOutlets = async () => {
 
         console.log("Outlets:", response);
 
-        setOutlets(response);
+    setOutlets(response);
+
+if (response.length > 0) {
+
+  setMerchant((prev) => ({
+
+    ...prev,
+
+    outletId: response[0].outletId,
+
+    outletName: response[0].outletName,
+
+  }));
+
+}
 
     } catch (error) {
 
         console.error("Error fetching outlets:", error);
 
     }
+};
+
+const handleUpdate = async () => {
+
+  try {
+
+    setLoading(true);
+
+    const payload = {
+
+      ...merchant,
+
+      stateId: Number(selectedState),
+
+      cityId: Number(selectedCity),
+
+      areaId: Number(merchant.area),
+
+    };
+
+    console.log("Merchant:", merchant);
+
+console.log("Outlet Id:", merchant.outletId);
+
+console.log("Payload:", payload); 
+
+    await updateOutlet(
+      merchant.outletId,
+      "merchant",
+      payload
+    );
+
+    alert("Outlet updated successfully.");
+
+    setActivePage("outlets");
+
+  } catch (error) {
+
+    console.log(error);
+
+    alert(
+      error.response?.data?.errorMessage ||
+      error.response?.data?.message ||
+      "Unable to update outlet."
+    );
+
+  } finally {
+
+    setLoading(false);
+
+  }
+
 };
 
   const handleChange = (e) => {
@@ -76,7 +207,7 @@ const fetchOutlets = async () => {
 
         <button
           className="edit-merchant-back-btn"
-          onClick={() => navigate("/merchants")}
+          onClick={() => setActivePage("outlets")}
         >
           <FiArrowLeft />
           Back
@@ -101,7 +232,20 @@ const fetchOutlets = async () => {
               <select
     name="outletId"
     value={merchant.outletId}
-    onChange={handleChange}
+   onChange={(e) => {
+
+  const outlet = outlets.find(
+    (item) => item.outletId === Number(e.target.value)
+  );
+
+  setMerchant((prev) => ({
+    ...prev,
+    outletId: outlet.outletId,
+    outletName: outlet.outletName,
+    phone: outlet.outletPhone,
+  }));
+
+}}
 >
     <option value="">Select Outlet</option>
 
@@ -250,29 +394,78 @@ const fetchOutlets = async () => {
             <div className="edit-merchant-field">
               <label>State</label>
 
-              <select
-                name="state"
-                value={merchant.state}
-                onChange={handleChange}
-              >
-                <option>Select State</option>
-                <option>Telangana</option>
-                <option>Andhra Pradesh</option>
-              </select>
+<select
+  name="state"
+  value={selectedState}
+  onChange={(e) => {
 
-            </div>
+    const value = e.target.value;
+
+    setSelectedState(value);
+
+    setSelectedCity("");
+
+    setMerchant((prev) => ({
+      ...prev,
+      state: value,
+      city: "",
+      area: "",
+    }));
+
+    loadCities(value);
+
+  }}
+>
+
+  <option value="">
+    Select State
+  </option>
+
+  {states.map((state) => (
+
+    <option
+      key={state.stateId}
+      value={state.stateId}
+    >
+      {state.stateName}
+    </option>
+
+  ))}
+
+</select>
+</div>
 
             <div className="edit-merchant-field">
               <label>City</label>
 
               <select
                 name="city"
-                value={merchant.city}
-                onChange={handleChange}
+                value={selectedCity}
+                onChange={(e) => {
+
+                  const value = e.target.value;
+
+                  setSelectedCity(value);
+
+                  setMerchant((prev) => ({
+                    ...prev,
+                    city: value,
+                    area: "",
+                  }));
+
+                  loadAreas(value);
+
+                }}
               >
                 <option>Select City</option>
-                <option>Hyderabad</option>
-                <option>Warangal</option>
+                {cities.map((city) => (
+                  <option
+                    key={city.cityId}
+                    value={city.cityId}
+                  >
+                    {city.cityName}
+                  </option>
+                ))}
               </select>
 
             </div>
@@ -280,16 +473,32 @@ const fetchOutlets = async () => {
             <div className="edit-merchant-field">
               <label>Area</label>
 
-              <select
-                name="area"
-                value={merchant.area}
-                onChange={handleChange}
-              >
-                <option>Select Area</option>
-                <option>Kukatpally</option>
-                <option>Madhapur</option>
-                <option>Gachibowli</option>
-              </select>
+             <select
+  value={merchant.area}
+  onChange={(e) =>
+    setMerchant((prev) => ({
+      ...prev,
+      area: e.target.value,
+    }))
+  }
+>
+
+  <option value="">
+    Select Area
+  </option>
+
+  {areas.map((area) => (
+
+    <option
+      key={area.areaId}
+      value={area.areaId}
+    >
+      {area.areaName}
+    </option>
+
+  ))}
+
+</select>
 
             </div>
 
@@ -626,16 +835,18 @@ const fetchOutlets = async () => {
 
           <button
             className="edit-merchant-cancel-btn"
-            onClick={() => navigate(Merchants)}
+            onClick={() => setActivePage("outlets")}
           >
             Cancel
           </button>
 
           <button
-            className="edit-merchant-update-btn"
-          >
-            Update Outlet
-          </button>
+  className="edit-merchant-save-btn"
+  onClick={handleUpdate}
+  disabled={loading}
+>
+  {loading ? "Updating..." : "Update"}
+</button>
 
         </div>
 

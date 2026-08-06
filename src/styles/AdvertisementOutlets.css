@@ -83,6 +83,18 @@
     outline:none;
     transition:.25s;
     box-sizing:border-box;
+    overflow:hidden;
+    white-space:nowrap;
+    text-overflow:ellipsis;
+}
+
+
+.form-group select{
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding-right: 40px;
+    cursor: pointer;
 }
 
 .form-group select:hover,
@@ -384,4 +396,11 @@
         max-width:320px;
     }
 
+}
+
+
+
+.form-group option{
+    white-space: normal;
+    word-break: break-word;
 }

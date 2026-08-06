@@ -39,6 +39,7 @@ import ViewSubscriptionPlan from "../pages/ViewSubscriptionPlan";
 import MerchantAddVariants from "../pages/MerchantAddVariants";
 
 import DriverSettings from "../pages/DriverSettings";
+import CreateMerchant from "../pages/Merchants/CreateMerchant";
 
 
 
@@ -218,10 +219,17 @@ driverSettings: {
     permission: "SETTINGS_READ",
 },
 
+
 merchantAddVariants: {
     component: MerchantAddVariants,
     permission: "RESTAURANT_READ", // Change to null if permission issues persist
   },
+
+
+createMerchant: {
+  component: CreateMerchant,
+  permission: "VENDOR_READ",
+},
 
 
 };

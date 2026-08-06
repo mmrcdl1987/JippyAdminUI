@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import Select from "react-select";
 import API from "../services/api";
 import "../styles/AdvertisementOutlets.css";
 
@@ -12,6 +13,8 @@ function AdvertisementOutlets() {
   const [areas, setAreas] = useState([]);
   const [outlets, setOutlets] = useState([]);
 
+  const [plans, setPlans] = useState([]);
+
   const [selectedState, setSelectedState] =
     useState("");
 
@@ -21,8 +24,8 @@ function AdvertisementOutlets() {
   const [selectedArea, setSelectedArea] =
     useState("");
 
-  const [selectedOutlet, setSelectedOutlet] =
-    useState("");
+const [selectedOutlet, setSelectedOutlet] =
+  useState(null);   
 
   const [selectedPlan, setSelectedPlan] =
     useState(null);
@@ -42,9 +45,15 @@ function AdvertisementOutlets() {
   const [maxAmount, setMaxAmount] =
     useState("");
 
+    const today = new Date().toISOString().split("T")[0];
+
   useEffect(() => {
-    fetchStates();
-  }, []);
+
+  fetchStates();
+
+  
+
+}, []);
 
   const fetchStates = async () => {
 
@@ -121,76 +130,120 @@ function AdvertisementOutlets() {
 
   };
 
+  
+
   const fetchOutlets = async () => {
 
-    try {
+  try {
 
-      const response =
-        await API.get("/fm/api/outlets");
+    const response =
+      await API.get("/api/fm/outlets"); 
 
-      setOutlets(response.data.data);
+    setOutlets(response.data.data);
 
-    } catch (error) {
+  } catch (error) {
 
-      console.error(error);
+    console.error(error);
 
-    }
+  }
 
-  };
+};
+const fetchSubscriptionPlans = async (areaId) => {
 
-  const plans = [
+  try {
 
-    {
-      planName: "Basic",
-      price: "Free",
-      radius: "3 Km",
-      bannerDays: "0",
-      bannerSlots: "-",
-      whatsappBroadcast: "No",
-      videoCredits: "No",
-    },
+    const response = await API.get(
+      `/api/fm/subscription-plans/area/${areaId}`
+    );
 
-    {
-      planName: "Premium",
-      price: "₹1299",
-      radius: "5 Km",
-      bannerDays: "10",
-      bannerSlots: "4 & 5 Position",
-      whatsappBroadcast: "Monthly 1 Time",
-      videoCredits: "No",
-    },
+    setPlans(response.data.data);
 
-    {
-      planName: "Ultra",
-      price: "₹1999",
-      radius: "7 Km",
-      bannerDays: "15",
-      bannerSlots: "2 & 3 Position",
-      whatsappBroadcast: "Monthly 2 Times",
-      videoCredits: "Yes",
-    },
+  } catch (error) {
 
-    {
-      planName: "Ultra Premium",
-      price: "₹2299",
-      radius: "9 Km",
-      bannerDays: "20",
-      bannerSlots: "Top Position",
-      whatsappBroadcast: "Weekly",
-      videoCredits: "Yes",
-    },
+    console.error(error);
 
-    {
-      planName: "Advance",
-      price: "₹3999",
-      radius: "9+ Km",
-      bannerDays: "30",
-      bannerSlots: "1st Position",
-      whatsappBroadcast: "Unlimited",
-      videoCredits: "Yes",
-    },
+    setPlans([]);
 
-  ];
+  }
+
+};
+
+const handleSave = async () => {
+
+  try {
+
+    const payload = {
+
+      outletId: Number(selectedOutlet),
+
+      subscriptionPlanId:
+        selectedPlan.subscriptionPlanId,
+
+      subscriptionFromDate:
+        startDate,
+
+      subscriptionToDate:
+        endDate,
+
+      bannerSlotDaysId:
+        selectedPlan.bannerDurationInDays,
+
+      bannerFromDate:
+        startDate,
+
+      bannerToDate:
+        endDate,
+
+      mealTypeTimingsIds: [],
+
+      priceModelType: "FLAT",
+
+      offerAmount: 0,
+
+     userId: JSON.parse(
+  localStorage.getItem("userData")
+).userId
+
+    };
+
+    console.log(payload);
+    console.log(
+  JSON.stringify(payload, null, 2)
+);
+
+console.log("========== PAYLOAD ==========");
+console.log(JSON.stringify(payload, null, 2));
+console.log("=============================");
+
+    const response = await API.post(
+      "/api/fm/outlet-subscription-plans",
+      payload
+    );
+
+    alert(response.data.message);
+
+  } catch (error) {
+
+  console.log(error);
+
+  console.log(error.response);
+
+  console.log(error.response?.data);
+
+  alert(
+    error.response?.data?.message ||
+    "Unable to save."
+  );
+
+}
+};
+
+const outletOptions = outlets.map((outlet) => ({
+  value: outlet.outletId,
+  label: outlet.outletName,
+}));
+
+  
 
  return (
 
@@ -291,14 +344,18 @@ function AdvertisementOutlets() {
             value={selectedArea}
             onChange={(e) => {
 
-              setSelectedArea(e.target.value);
+  const areaId = e.target.value;
 
-              setSelectedPlan(null);
+  setSelectedArea(areaId);
 
-            }}
+  setSelectedPlan(null);
+
+  fetchSubscriptionPlans(areaId);
+
+}}
           >
 
-            <option value="">
+            <option value="" disabled>
               Select Area
             </option>
 
@@ -324,32 +381,20 @@ function AdvertisementOutlets() {
             <span className="required-star">*</span>
           </label>
 
-          <select
-            value={selectedOutlet}
-            onFocus={fetchOutlets}
-            onChange={(e) =>
-              setSelectedOutlet(
-                e.target.value
-              )
-            }
-          >
-
-            <option value="">
-              Select Outlet
-            </option>
-
-            {outlets.map((outlet) => (
-
-              <option
-                key={outlet.outletId}
-                value={outlet.outletId}
-              >
-                {outlet.outletName}
-              </option>
-
-            ))}
-
-          </select>
+          <Select
+  options={outletOptions}
+  placeholder="Select Outlet"
+  value={
+    outletOptions.find(
+      (option) => option.value === selectedOutlet
+    ) || null
+  }
+  onMenuOpen={fetchOutlets}
+  onChange={(selectedOption) =>
+    setSelectedOutlet(selectedOption?.value || "")
+  }
+  isSearchable
+/>
 
         </div>
 
@@ -374,20 +419,16 @@ function AdvertisementOutlets() {
               <tr>
 
                 <th>Select</th>
-
-                <th>Plan Name</th>
-
-                <th>Price</th>
-
-                <th>Radius</th>
-
-                <th>Banner Days</th>
-
-                <th>Banner Slots</th>
-
-                <th>WhatsApp Broadcast</th>
-
-                <th>Video Credits</th>
+<th>Plan Name</th>
+<th>Price</th>
+<th>Duration (Days)</th>
+<th>Radius (KM)</th>
+<th>Banner Duration Days</th>
+<th>Banner Slots</th>
+<th>Best Restaurant Slot</th>
+<th>Deals Slot</th>
+<th>WhatsApp Broadcast</th>
+<th>Video Credits</th>
 
               </tr>
 
@@ -398,60 +439,51 @@ function AdvertisementOutlets() {
               {plans.map((plan) => (
 
                 <tr
-                  key={plan.planName}
-                  className={
-                    selectedPlan?.planName ===
-                    plan.planName
-                      ? "selected-plan-row"
-                      : ""
-                  }
-                >
+  key={plan.subscriptionPlanId}
+  className={
+    selectedPlan?.subscriptionPlanId ===
+    plan.subscriptionPlanId
+      ? "selected-plan-row"
+      : ""
+  }
+>
 
-                  <td>
+  <td>
+    <input
+      type="radio"
+      name="selectedPlan"
+      checked={
+        selectedPlan?.subscriptionPlanId ===
+        plan.subscriptionPlanId
+      }
+      onChange={() => {
+  console.log("Selected Plan:", plan);
+  setSelectedPlan(plan);
+}}
+    />
+  </td>
 
-                    <input
-                      type="radio"
-                      name="selectedPlan"
-                      checked={
-                        selectedPlan?.planName ===
-                        plan.planName
-                      }
-                      onChange={() =>
-                        setSelectedPlan(plan)
-                      }
-                    />
+  <td>{plan.planName}</td>
 
-                  </td>
+  <td>{plan.price}</td>
 
-                  <td>
-                    {plan.planName}
-                  </td>
+  <td>{plan.durationInDays}</td>
 
-                  <td className="plan-price">
-                    {plan.price}
-                  </td>
+  <td>{plan.radiusInKms}</td>
 
-                  <td>
-                    {plan.radius}
-                  </td>
+  <td>{plan.bannerDurationInDays}</td>
 
-                  <td>
-                    {plan.bannerDays}
-                  </td>
+  <td>{plan.bannerSlot}</td>
 
-                  <td>
-                    {plan.bannerSlots}
-                  </td>
+  <td>{plan.bestRestaurantSlot}</td>
 
-                  <td>
-                    {plan.whatsappBroadcast}
-                  </td>
+  <td>{plan.dealsSlot}</td>
 
-                  <td>
-                    {plan.videoCredits}
-                  </td>
+  <td>{plan.whatsappBroadcast}</td>
 
-                </tr>
+  <td>{plan.videoCredits}</td>
+
+</tr>
 
               ))}
 
@@ -490,12 +522,35 @@ function AdvertisementOutlets() {
             </label>
 
             <input
-              type="date"
-              value={startDate}
-              onChange={(e) =>
-                setStartDate(e.target.value)
-              }
-            />
+  type="date"
+  value={startDate}
+  min={today}
+  onChange={(e) => {
+
+  const selectedDate = e.target.value;
+
+  setStartDate(selectedDate);
+
+  if (
+    selectedPlan &&
+    selectedPlan.bannerDurationInDays
+  ) {
+
+    const date = new Date(selectedDate);
+
+    date.setDate(
+      date.getDate() +
+      selectedPlan.bannerDurationInDays
+    );
+
+    setEndDate(
+      date.toISOString().split("T")[0]
+    );
+
+  }
+
+}}
+/>
 
           </div>
 
@@ -507,13 +562,13 @@ function AdvertisementOutlets() {
             </label>
 
             <input
-              type="date"
-              value={endDate}
-              min={startDate}
-              onChange={(e) =>
-                setEndDate(e.target.value)
-              }
-            />
+  type="date"
+  value={endDate}
+  min={startDate || today}
+  onChange={(e) =>
+    setEndDate(e.target.value)
+  }
+/>
 
           </div>
 
@@ -527,7 +582,13 @@ function AdvertisementOutlets() {
 
     <div className="advertisement-buttons">
     <button className="cancel-btn">Cancel</button>
-    <button className="save-btn">Save</button>
+<button
+  className="save-btn"
+  onClick={handleSave}
+>
+  Save
+</button>
+
 </div>
 
   </>
