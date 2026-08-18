@@ -386,6 +386,7 @@ export const menuData = [
           },
           {
             name: "Wallet Transactions",
+            pageKey: "WalletTransactions",
             permission: "PAYMENT_READ",
           },
           {
@@ -464,6 +465,11 @@ export const menuData = [
           {
             name: "Wallet Settings",
             pageKey: "walletSettings",
+            permission: "SETTINGS_READ",
+          },
+          {
+            name: "Customer Wallet",
+            pageKey: "CustomerWallet",
             permission: "SETTINGS_READ",
           },
           {

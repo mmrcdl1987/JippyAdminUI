@@ -32,6 +32,8 @@ import DeliveryCharge from "../pages/DeliveryCharge";
 import Incentives from "../pages/Incentives";
 import OrderSettings from "../pages/OrderSettings";
 import WalletSettings from "../pages/WalletSettings";
+import CustomerWallet from "../pages/CustomerWallet.jsx";
+import WalletTransactions from "../pages/WalletTransactions.jsx";
 import SubscriptionPlanSettings from "../pages/SubscriptionPlanSettings";
 import CreateSubscriptionPlan from "../pages/CreateSubscriptionPlan";
 import EditSubscriptionPlan from "../pages/EditSubscriptionPlan";
@@ -189,6 +191,16 @@ orderSettings: {
 
 walletSettings: {
   component: WalletSettings,
+  permission: "SETTINGS_READ",
+},
+
+CustomerWallet: {
+  component: CustomerWallet,
+  permission: "SETTINGS_READ",
+},
+
+WalletTransactions: {
+  component: WalletTransactions,
   permission: "SETTINGS_READ",
 },
 
