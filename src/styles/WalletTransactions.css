@@ -242,6 +242,12 @@
   border: 1px solid #fca5a5;
 }
 
+.tx-badge-neutral {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+}
+
 .tx-pts-credit {
   color: #16a34a;
   font-weight: 700;

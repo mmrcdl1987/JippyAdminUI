@@ -83,13 +83,13 @@ const CustomerWallet = () => {
     }
 
     const pointsNum = points !== "" ? Number(points) : 0;
-    const amountNum = balanceAmount !== "" ? Number(balanceAmount) : Number(wallet.balanceAmount || 0);
+    const amountNum = balanceAmount !== "" ? Number(balanceAmount) : 0;
 
     if (points === "" && balanceAmount === "") {
       setNotification({
         type: "error",
         title: "Validation Error",
-        message: "Please enter points or wallet balance to update"
+        message: "Please enter points or amount to update"
       });
       return;
     }
@@ -97,9 +97,10 @@ const CustomerWallet = () => {
     try {
       setUpdating(true);
 
-      // Calculate new total points according to transaction type (CREDIT / DEBIT)
       const currentPoints = Number(wallet.balancePoints || 0);
-      
+      const currentAmount = Number(wallet.balanceAmount || 0);
+
+      // Calculate new total points according to transaction type (CREDIT / DEBIT)
       let newPoints = currentPoints;
       if (points !== "" && pointsNum > 0) {
         if (pointsType === "CREDIT") {
@@ -109,10 +110,21 @@ const CustomerWallet = () => {
         }
       }
 
-      // Backend updateByCustomerId expects CoCustomerWallet payload: { balancePoints, balanceAmount, updatedBy }
+      // Calculate new total balance amount according to transaction type (CREDIT / DEBIT)
+      let newAmount = currentAmount;
+      if (balanceAmount !== "" && amountNum > 0) {
+        if (pointsType === "CREDIT") {
+          newAmount = currentAmount + amountNum;
+        } else {
+          newAmount = Math.max(0, currentAmount - amountNum);
+        }
+      }
+
+      // Backend updateByCustomerId expects CoCustomerWallet payload: { balancePoints, balanceAmount, createdBy, updatedBy }
       const payload = {
         balancePoints: newPoints,
-        balanceAmount: amountNum,
+        balanceAmount: newAmount,
+        createdBy: 2,
         updatedBy: 2
       };
 
@@ -121,13 +133,13 @@ const CustomerWallet = () => {
       // Re-fetch updated wallet response DTO to get complete customer details
       const refreshedWallet = await getWalletByCustomerId(customerId.trim());
       setWallet(refreshedWallet);
-      setBalanceAmount(refreshedWallet.balanceAmount ?? "");
-
+      setBalanceAmount("");
       setPoints("");
+
       setNotification({
         type: "success",
         title: "Success",
-        message: "Wallet updated successfully! (New Balance: " + newPoints + " points, ₹" + amountNum + ")"
+        message: `Wallet updated successfully! (New Balance: ${newPoints} points, ₹${newAmount})`
       });
     } catch (err) {
       const is500 = err.response?.status === 500 || err.status === 500;
@@ -264,14 +276,14 @@ const CustomerWallet = () => {
             </div>
 
             <div className="cust-form-group">
-              <label className="cust-form-label">Wallet Balance (₹)</label>
+              <label className="cust-form-label">Amount (₹)</label>
               <input
                 type="number"
                 step="0.01"
                 min="0"
                 value={balanceAmount}
                 onChange={(e) => setBalanceAmount(e.target.value)}
-                placeholder="Enter wallet balance"
+                placeholder="Enter amount to credit/debit"
                 className="cust-form-input"
               />
             </div>

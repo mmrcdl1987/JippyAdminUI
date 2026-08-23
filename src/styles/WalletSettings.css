@@ -1,117 +1,408 @@
-.wal-page-wrapper{
-    padding:24px;
-    background:#f5f7fb;
-    min-height:100vh;
+.wal-page-wrapper {
+  padding: 24px;
+  background: #f5f7fb;
+  min-height: 100vh;
 }
 
-.wal-page-title{
-    font-size:28px;
-    font-weight:600;
-    color:#333;
-    margin-bottom:30px;
+.wal-header-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
 }
 
-.wal-settings-card{
-    position:relative;
-    background:#ffffff;
-    border:1px solid #e4e4e4;
-    border-radius:8px;
-    padding:35px 25px 25px;
-    box-shadow:0 2px 8px rgba(0,0,0,0.05);
+.wal-page-title {
+  font-size: 28px;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
 }
 
-.wal-card-header{
-    position:absolute;
-    top:-14px;
-    left:20px;
-    background:#ff6b35;
-    color:#ffffff;
-    padding:8px 18px;
-    border-radius:5px;
-    font-size:13px;
-    font-weight:600;
-    letter-spacing:.5px;
+.wal-refresh-btn {
+  background: #ffffff;
+  border: 1px solid #d5d5d5;
+  color: #333;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.wal-form-grid{
-    display:grid;
-    grid-template-columns:repeat(2,1fr);
-    gap:22px;
+.wal-refresh-btn:hover {
+  background: #f0f0f0;
+  border-color: #bbb;
 }
 
-.wal-form-group{
-    display:flex;
-    flex-direction:column;
+.wal-refresh-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
-.wal-form-label{
-    font-size:14px;
-    font-weight:600;
-    color:#444;
-    margin-bottom:8px;
+.wal-settings-card {
+  position: relative;
+  background: #ffffff;
+  border: 1px solid #e4e4e4;
+  border-radius: 8px;
+  padding: 35px 25px 25px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  margin-bottom: 30px;
+}
+
+.wal-card-header {
+  position: absolute;
+  top: -14px;
+  left: 20px;
+  background: #ff6b35;
+  color: #ffffff;
+  padding: 8px 18px;
+  border-radius: 5px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.wal-form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+}
+
+.wal-form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.wal-form-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #444;
+  margin-bottom: 8px;
+}
+
+.wal-required {
+  color: #e53e3e;
+  margin-left: 3px;
 }
 
 .wal-form-input,
-.wal-form-select{
-    height:44px;
-    border:1px solid #d5d5d5;
-    border-radius:6px;
-    padding:0 14px;
-    font-size:14px;
-    outline:none;
-    background:#ffffff;
-    transition:.3s;
+.wal-form-select {
+  height: 44px;
+  border: 1px solid #d5d5d5;
+  border-radius: 6px;
+  padding: 0 14px;
+  font-size: 14px;
+  outline: none;
+  background: #ffffff;
+  transition: 0.3s;
 }
 
 .wal-form-input:focus,
-.wal-form-select:focus{
-    border-color:#ff6b35;
-    box-shadow:0 0 5px rgba(255,107,53,.2);
+.wal-form-select:focus {
+  border-color: #ff6b35;
+  box-shadow: 0 0 5px rgba(255, 107, 53, 0.2);
 }
 
-.wal-button-wrapper{
-    display:flex;
-    justify-content:center;
-    margin-top:30px;
+.wal-button-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 24px;
 }
 
-.wal-save-btn{
-    background:#ff6b35;
-    color:#fff;
-    border:none;
-    border-radius:6px;
-    padding:12px 28px;
-    cursor:pointer;
-    font-size:14px;
-    font-weight:600;
-    transition:.3s;
+.wal-save-btn {
+  background: #ff6b35;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 12px 28px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: 0.3s;
 }
 
-.wal-save-btn:hover{
-    background:#e55c28;
+.wal-save-btn:hover {
+  background: #e55c28;
 }
 
-.wal-save-btn:disabled{
-    background:#bfbfbf;
-    cursor:not-allowed;
+.wal-save-btn:disabled {
+  background: #bfbfbf;
+  cursor: not-allowed;
 }
 
-@media(max-width:768px){
-
-.wal-form-grid{
-    grid-template-columns:1fr;
+/* Table styling */
+.wal-table-card {
+  padding-top: 35px;
 }
 
-.wal-page-title{
-    font-size:24px;
+.wal-table-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
 }
 
-.wal-settings-card{
-    padding:30px 18px 20px;
+.wal-search-box input {
+  height: 40px;
+  width: 320px;
+  border: 1px solid #d5d5d5;
+  border-radius: 6px;
+  padding: 0 14px;
+  font-size: 14px;
+  outline: none;
 }
 
-.wal-save-btn{
-    width:100%;
+.wal-search-box input:focus {
+  border-color: #ff6b35;
 }
 
+.wal-count-badge {
+  font-size: 13px;
+  font-weight: 600;
+  color: #666;
+  background: #edf2f7;
+  padding: 6px 14px;
+  border-radius: 20px;
 }
+
+.wal-table-wrapper {
+  overflow-x: auto;
+  border: 1px solid #e8e8e8;
+  border-radius: 6px;
+}
+
+.wal-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 14px;
+}
+
+.wal-table th {
+  background: #f8f9fa;
+  color: #333;
+  font-weight: 600;
+  padding: 14px 16px;
+  border-bottom: 2px solid #e8e8e8;
+  white-space: nowrap;
+}
+
+.wal-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #eeeeee;
+  color: #555;
+  vertical-align: middle;
+}
+
+.wal-table tbody tr:hover {
+  background: #fcfcfc;
+}
+
+.wal-id-tag {
+  font-weight: 600;
+  color: #2b6cb0;
+  background: #ebf8ff;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.wal-type-badge {
+  font-weight: 600;
+  color: #dd6b20;
+  background: #fffaf0;
+  border: 1px solid #feebc8;
+  padding: 4px 10px;
+  border-radius: 4px;
+  display: inline-block;
+  font-size: 12px;
+}
+
+.wal-value-cell {
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.wal-actions-cell {
+  display: flex;
+  gap: 8px;
+}
+
+.wal-action-edit-btn {
+  background: #ebf8ff;
+  color: #2b6cb0;
+  border: 1px solid #bee3f8;
+  padding: 6px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+.wal-action-edit-btn:hover {
+  background: #3182ce;
+  color: #ffffff;
+  border-color: #3182ce;
+}
+
+.wal-action-delete-btn {
+  background: #fff5f5;
+  color: #c53030;
+  border: 1px solid #fed7d7;
+  padding: 6px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+.wal-action-delete-btn:hover {
+  background: #e53e3e;
+  color: #ffffff;
+  border-color: #e53e3e;
+}
+
+.wal-empty-row {
+  text-align: center;
+  padding: 30px !important;
+  color: #888;
+  font-style: italic;
+}
+
+/* Modal styling */
+.wal-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(2px);
+}
+
+.wal-modal {
+  background: #ffffff;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  animation: walModalFadeIn 0.25s ease-out;
+  overflow: hidden;
+}
+
+@keyframes walModalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.wal-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 22px;
+  background: #ff6b35;
+  color: #ffffff;
+}
+
+.wal-modal-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.wal-modal-close {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.wal-modal-body {
+  padding: 22px;
+}
+
+.wal-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 22px;
+  background: #f8f9fa;
+  border-top: 1px solid #eeeeee;
+}
+
+.wal-modal-cancel-btn {
+  background: #e2e8f0;
+  color: #4a5568;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.wal-modal-cancel-btn:hover {
+  background: #cbd5e0;
+}
+
+.wal-modal-save-btn {
+  background: #ff6b35;
+  color: #ffffff;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.wal-modal-save-btn:hover {
+  background: #e55c28;
+}
+
+.wal-modal-save-btn:disabled {
+  background: #cbd5e0;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .wal-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .wal-page-title {
+    font-size: 24px;
+  }
+
+  .wal-settings-card {
+    padding: 30px 18px 20px;
+  }
+
+  .wal-save-btn {
+    width: 100%;
+  }
+
+  .wal-search-box input {
+    width: 100%;
+  }
+
+  .wal-table-toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+}

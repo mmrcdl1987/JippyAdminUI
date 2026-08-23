@@ -102,18 +102,22 @@ function WalletTransactions() {
       }
 
       // Type Filter
-      if (typeFilter !== "ALL" && tx.pointsType?.toUpperCase() !== typeFilter) {
-        return false;
+      if (typeFilter !== "ALL") {
+        const txType = (tx.transactionType || tx.pointsType || "").toUpperCase();
+        if (txType !== typeFilter) {
+          return false;
+        }
       }
 
-      // Keyword Search Query (transaction ID, wallet ID, createdBy)
+      // Keyword Search Query (transaction ID, wallet ID, createdBy, transactionType)
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
         const txIdMatch = String(tx.transactionId || tx.id || "").toLowerCase().includes(q);
         const walletIdMatch = String(tx.walletId || "").toLowerCase().includes(q);
         const createdByMatch = String(tx.createdBy || "").toLowerCase().includes(q);
+        const typeMatch = String(tx.transactionType || tx.pointsType || "").toLowerCase().includes(q);
 
-        if (!txIdMatch && !walletIdMatch && !createdByMatch) {
+        if (!txIdMatch && !walletIdMatch && !createdByMatch && !typeMatch) {
           return false;
         }
       }
@@ -124,22 +128,8 @@ function WalletTransactions() {
 
   // Statistics Summary
   const stats = useMemo(() => {
-    let creditSum = 0;
-    let debitSum = 0;
-
-    filteredTransactions.forEach((tx) => {
-      const pts = Number(tx.points || 0);
-      if (tx.pointsType?.toUpperCase() === "CREDIT") {
-        creditSum += pts;
-      } else if (tx.pointsType?.toUpperCase() === "DEBIT") {
-        debitSum += pts;
-      }
-    });
-
     return {
-      totalCount: filteredTransactions.length,
-      totalCredits: creditSum,
-      totalDebits: debitSum
+      totalCount: filteredTransactions.length
     };
   }, [filteredTransactions]);
 
@@ -167,36 +157,18 @@ function WalletTransactions() {
         <p className="tx-subtitle">View and monitor all customer wallet transaction logs</p>
       </div>
 
-      {/* Summary Stat Cards */}
-      <div className="tx-stats-grid">
-        <div className="tx-stat-card">
-          <div className="tx-stat-icon total">📜</div>
-          <div>
-            <div className="tx-stat-label">Total Transactions</div>
-            <div className="tx-stat-val">{stats.totalCount}</div>
-          </div>
-        </div>
-
-        <div className="tx-stat-card">
-          <div className="tx-stat-icon credit">➕</div>
-          <div>
-            <div className="tx-stat-label">Total Points Credited</div>
-            <div className="tx-stat-val" style={{ color: "#16a34a" }}>
-              +{stats.totalCredits}
+      {/* Summary Stat Card - Only shown when searching a specific Customer ID or Wallet ID */}
+      {(activeCustomerId || activeWalletId) && (
+        <div className="tx-stats-grid">
+          <div className="tx-stat-card">
+            <div className="tx-stat-icon total">📜</div>
+            <div>
+              <div className="tx-stat-label">Total Transactions</div>
+              <div className="tx-stat-val">{stats.totalCount}</div>
             </div>
           </div>
         </div>
-
-        <div className="tx-stat-card">
-          <div className="tx-stat-icon debit">➖</div>
-          <div>
-            <div className="tx-stat-label">Total Points Debited</div>
-            <div className="tx-stat-val" style={{ color: "#dc2626" }}>
-              -{stats.totalDebits}
-            </div>
-          </div>
-        </div>
-      </div>
+      )}
 
       {/* Main Content Card */}
       <div className="tx-card">
@@ -207,7 +179,7 @@ function WalletTransactions() {
             <form onSubmit={handleSearchCustomer} style={{ display: "flex", gap: "8px" }}>
               <input
                 type="number"
-                placeholder="Search Customer ID"
+                placeholder="Search by Customer ID"
                 value={customerIdInput}
                 onChange={(e) => setCustomerIdInput(e.target.value)}
                 className="tx-input"
@@ -222,7 +194,7 @@ function WalletTransactions() {
             <form onSubmit={handleSearchWallet} style={{ display: "flex", gap: "8px" }}>
               <input
                 type="number"
-                placeholder="Search Wallet ID"
+                placeholder="Search by Wallet ID"
                 value={walletIdInput}
                 onChange={(e) => setWalletIdInput(e.target.value)}
                 className="tx-input"
@@ -320,13 +292,17 @@ function WalletTransactions() {
                   <th>Wallet ID</th>
                   <th>Type</th>
                   <th>Points</th>
-                  <th>Created By</th>
+                  <th>Amount</th>
                   <th>Created At</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredTransactions.map((tx, idx) => {
-                  const isCredit = tx.pointsType?.toUpperCase() === "CREDIT";
+                  const rawType = (tx.transactionType || tx.pointsType || "").toString().trim();
+                  const typeUpper = rawType.toUpperCase();
+                  const isCredit = typeUpper === "CREDIT";
+                  const isDebit = typeUpper === "DEBIT";
+
                   return (
                     <tr key={tx.transactionId || tx.id || idx}>
                       <td style={{ fontWeight: "600" }}>
@@ -334,14 +310,18 @@ function WalletTransactions() {
                       </td>
                       <td>#{tx.walletId}</td>
                       <td>
-                        <span className={`tx-badge ${isCredit ? "tx-badge-credit" : "tx-badge-debit"}`}>
-                          {isCredit ? "▲ CREDIT" : "▼ DEBIT"}
+                        <span className={`tx-badge ${isCredit ? "tx-badge-credit" : isDebit ? "tx-badge-debit" : "tx-badge-neutral"}`}>
+                          {isCredit && "▲ "}
+                          {isDebit && "▼ "}
+                          {rawType ? typeUpper : "-"}
                         </span>
                       </td>
-                      <td className={isCredit ? "tx-pts-credit" : "tx-pts-debit"}>
-                        {isCredit ? `+${tx.points}` : `-${tx.points}`}
+                      <td className={isCredit ? "tx-pts-credit" : isDebit ? "tx-pts-debit" : ""}>
+                        {isCredit ? `+${tx.points}` : isDebit ? `-${tx.points}` : tx.points}
                       </td>
-                      <td>{tx.createdBy || "System"}</td>
+                      <td className={isCredit ? "tx-pts-credit" : isDebit ? "tx-pts-debit" : ""}>
+                        {isCredit ? `+${tx.amount}` : isDebit ? `-${tx.amount}` : tx.amount}
+                      </td>
                       <td>{formatDate(tx.createdAt)}</td>
                     </tr>
                   );
