@@ -91,7 +91,7 @@ export const menuData = [
 
 
   {
-    title: "MERCHANT & DRIVER MANAGEMENT",
+    title: "MERCHANT  MANAGEMENT",
     permission: "RESTAURANT_READ",
     items: [
       {
@@ -110,10 +110,7 @@ export const menuData = [
           },
         ],
       },
-      // {
-      //   name: "Marts",
-      //   permission: "RESTAURANT_READ",
-      // },
+      
       // {
       //   name: "Drivers",
       //   children: [
@@ -131,23 +128,6 @@ export const menuData = [
       //     },
       //   ],
       // },
-      {
-        name: "Drivers",
-        children: [
-          {
-            name: "All Drivers",
-            permission: "DRIVER_READ",
-          },
-          {
-            name: "Approved Drivers",
-            permission: "DRIVER_READ",
-          },
-          {
-            name: "Approval Pending Drivers",
-            permission: "DRIVER_READ",
-          },
-        ],
-      },
     ],
   },
 
@@ -170,9 +150,10 @@ export const menuData = [
     permission: "RESTAURANT_READ",
     items: [
       {
-        name: "OUTLETS",
-        permission: "RESTAURANT_READ",
-      },
+    name: "Outlets",
+    pageKey: "allOutletsList",
+    permission: "RESTAURANT_READ",
+},
       // {
       //   name: "Marts",
       //   permission: "RESTAURANT_READ",

@@ -1,0 +1,1021 @@
+/* =========================================================
+   OUTLET PROFILE DETAILS
+   ========================================================= */
+
+.jippy-outlet-profile-page {
+  width: 100%;
+  min-height: 100vh;
+  padding: 30px 34px 55px;
+  background: #f7f8fa;
+  box-sizing: border-box;
+  color: #1f1f1f;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.jippy-outlet-profile-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 22px;
+}
+
+.jippy-outlet-profile-title-area {
+  min-width: 0;
+}
+
+.jippy-outlet-profile-title-row {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.jippy-outlet-profile-home-icon {
+  font-size: 25px;
+  color: #222;
+}
+
+.jippy-outlet-profile-title-row h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: #181818;
+}
+
+.jippy-outlet-profile-breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-top: 10px;
+  font-size: 15px;
+  color: #777;
+}
+
+.jippy-outlet-profile-breadcrumb span:first-child {
+  color: #ff6422;
+  font-weight: 600;
+}
+
+.jippy-outlet-profile-breadcrumb strong {
+  font-weight: 500;
+  color: #777;
+}
+
+.jippy-outlet-profile-wallet-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: none;
+  background: #ff6422;
+  color: #fff;
+  border-radius: 24px;
+  padding: 13px 21px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 4px 10px rgba(255, 100, 34, 0.18);
+  transition: all 0.2s ease;
+}
+
+.jippy-outlet-profile-wallet-btn:hover {
+  background: #eb5718;
+  transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   TABS
+   ========================================================= */
+
+.jippy-outlet-profile-tabs {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 25px;
+  border-bottom: 1px solid #dedede;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.jippy-outlet-profile-tab {
+  position: relative;
+  border: none;
+  background: transparent;
+  padding: 15px 18px;
+  color: #333;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.jippy-outlet-profile-tab:hover {
+  color: #ff6422;
+}
+
+.jippy-outlet-profile-tab-active {
+  color: #ff6422;
+  font-weight: 600;
+}
+
+.jippy-outlet-profile-tab-active::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 12px;
+  right: 12px;
+  height: 3px;
+  border-radius: 3px 3px 0 0;
+  background: #ff6422;
+}
+
+
+/* =========================================================
+   SUMMARY CARDS
+   ========================================================= */
+
+.jippy-outlet-profile-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+  margin-bottom: 28px;
+}
+
+.jippy-outlet-profile-summary-card {
+  min-height: 105px;
+  padding: 22px 23px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  border-radius: 14px;
+
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.045);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.jippy-outlet-profile-summary-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.07);
+}
+
+.jippy-outlet-profile-summary-card strong {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 25px;
+  line-height: 1.1;
+  font-weight: 700;
+  color: #181818;
+}
+
+.jippy-outlet-profile-summary-card span {
+  display: block;
+  font-size: 14px;
+  color: #555;
+  font-weight: 500;
+}
+
+.jippy-outlet-profile-summary-card svg {
+  font-size: 34px;
+  opacity: 0.8;
+}
+
+.jippy-outlet-profile-summary-card.blue {
+  background: #e1f1ff;
+}
+
+.jippy-outlet-profile-summary-card.green {
+  background: #e2f6ed;
+}
+
+.jippy-outlet-profile-summary-card.pink {
+  background: #ffeaee;
+}
+
+.jippy-outlet-profile-summary-card.cream {
+  background: #fff3e7;
+}
+
+
+/* =========================================================
+   SECTION
+   ========================================================= */
+
+.jippy-outlet-profile-section {
+  margin-bottom: 28px;
+}
+
+.jippy-outlet-profile-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 15px;
+}
+
+.jippy-outlet-profile-section-header h2 {
+  margin: 0;
+  font-size: 21px;
+  font-weight: 700;
+  color: #1c1c1c;
+}
+
+
+/* =========================================================
+   INFO CARDS
+   ========================================================= */
+
+.jippy-outlet-profile-info-card {
+  min-height: 94px;
+  padding: 21px 22px;
+  box-sizing: border-box;
+  border-radius: 13px;
+  border: 1px solid rgba(0, 0, 0, 0.035);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.035);
+}
+
+.jippy-outlet-profile-info-card strong {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 21px;
+  line-height: 1.2;
+  font-weight: 700;
+  color: #222;
+}
+
+.jippy-outlet-profile-info-card span {
+  font-size: 14px;
+  color: #555;
+}
+
+.jippy-outlet-profile-info-card.light-blue {
+  background: #e5f5ff;
+}
+
+.jippy-outlet-profile-info-card.light-cream {
+  background: #fff5e9;
+}
+
+.jippy-outlet-profile-info-card.light-red {
+  background: #ffe0e0;
+}
+
+.jippy-outlet-profile-info-card.light-purple {
+  background: #f5e7fa;
+}
+
+
+/* =========================================================
+   ORANGE BUTTON
+   ========================================================= */
+
+.jippy-outlet-profile-orange-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  border: none;
+  border-radius: 22px;
+
+  padding: 11px 18px;
+
+  background: #ff6422;
+  color: #fff;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  box-shadow: 0 3px 8px rgba(255, 100, 34, 0.15);
+
+  transition: all 0.2s ease;
+}
+
+.jippy-outlet-profile-orange-btn:hover {
+  background: #eb5718;
+  transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   MAIN CARDS
+   ========================================================= */
+
+.jippy-outlet-profile-main-card {
+  width: 100%;
+  margin-bottom: 24px;
+
+  background: #fff;
+
+  border: 1px solid #e4e6e9;
+  border-radius: 15px;
+
+  overflow: hidden;
+  box-sizing: border-box;
+
+  box-shadow: 0 3px 14px rgba(0, 0, 0, 0.045);
+}
+
+.jippy-outlet-profile-card-heading {
+  padding: 17px 20px;
+
+  border-bottom: 1px solid #e8e8e8;
+
+  background: #fff;
+
+  font-size: 17px;
+  font-weight: 700;
+  color: #202020;
+}
+
+
+/* =========================================================
+   RESTAURANT DETAILS
+   ========================================================= */
+
+.jippy-outlet-profile-restaurant-layout {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 27px;
+  padding: 23px;
+}
+
+.jippy-outlet-profile-restaurant-info {
+  min-width: 0;
+}
+
+.jippy-outlet-profile-outlet-name {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.jippy-outlet-profile-outlet-name strong {
+  font-size: 19px;
+  font-weight: 700;
+  color: #181818;
+}
+
+.jippy-outlet-profile-outlet-name span {
+  display: inline-flex;
+  align-items: center;
+
+  background: #ffd029;
+  color: #222;
+
+  border-radius: 16px;
+
+  padding: 5px 11px;
+
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.jippy-outlet-profile-detail-line {
+  display: grid;
+  grid-template-columns: 105px 1fr;
+  gap: 15px;
+
+  margin-bottom: 15px;
+
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.jippy-outlet-profile-detail-line strong {
+  font-weight: 700;
+  color: #333;
+}
+
+.jippy-outlet-profile-detail-line span {
+  color: #555;
+  word-break: break-word;
+}
+
+.jippy-outlet-profile-detail-columns {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+
+  margin-top: 28px;
+  padding-top: 20px;
+
+  border-top: 1px solid #eeeeee;
+}
+
+.jippy-outlet-profile-detail-columns div {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.jippy-outlet-profile-detail-columns strong {
+  font-size: 13px;
+  font-weight: 700;
+  color: #333;
+}
+
+.jippy-outlet-profile-detail-columns span {
+  font-size: 14px;
+  color: #777;
+  line-height: 1.4;
+}
+
+
+/* =========================================================
+   MAP
+   ========================================================= */
+
+.jippy-outlet-profile-map {
+  position: relative;
+
+  min-height: 220px;
+
+  border-radius: 12px;
+
+  overflow: hidden;
+
+  background:
+    linear-gradient(
+      135deg,
+      #dff3ed 0%,
+      #e8f7f4 40%,
+      #d8ebf5 100%
+    );
+
+  border: 1px solid #d8e1e5;
+}
+
+.jippy-outlet-profile-map::before {
+  content: "";
+
+  position: absolute;
+
+  width: 160%;
+  height: 2px;
+
+  background: rgba(255, 255, 255, 0.95);
+
+  transform: rotate(-24deg);
+
+  top: 55%;
+  left: -20%;
+}
+
+.jippy-outlet-profile-map::after {
+  content: "";
+
+  position: absolute;
+
+  width: 160%;
+  height: 2px;
+
+  background: rgba(255, 255, 255, 0.95);
+
+  transform: rotate(18deg);
+
+  top: 35%;
+  left: -20%;
+}
+
+.jippy-outlet-profile-map-overlay {
+  position: absolute;
+
+  top: 13px;
+  left: 13px;
+
+  z-index: 2;
+
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  background: #fff;
+
+  padding: 9px 12px;
+
+  border-radius: 7px;
+
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.jippy-outlet-profile-map-overlay svg {
+  color: #ff6422;
+  font-size: 16px;
+}
+
+.jippy-outlet-profile-map-text {
+  position: absolute;
+
+  left: 50%;
+  top: 50%;
+
+  z-index: 3;
+
+  transform: translate(-50%, -50%);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  min-width: 160px;
+
+  text-align: center;
+
+  background: rgba(255, 255, 255, 0.94);
+
+  padding: 13px 18px;
+
+  border-radius: 9px;
+
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+}
+
+.jippy-outlet-profile-map-text strong {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.jippy-outlet-profile-map-text span {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #666;
+}
+
+
+/* =========================================================
+   TWO COLUMN
+   ========================================================= */
+
+.jippy-outlet-profile-two-column {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 24px;
+  align-items: start;
+}
+
+
+/* =========================================================
+   VENDOR
+   ========================================================= */
+
+.jippy-outlet-profile-vendor-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+
+  gap: 23px 28px;
+
+  padding: 23px;
+}
+
+.jippy-outlet-profile-vendor-grid div {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.jippy-outlet-profile-vendor-grid span {
+  font-size: 13px;
+  color: #666;
+  font-weight: 500;
+}
+
+.jippy-outlet-profile-vendor-grid strong {
+  font-size: 14px;
+  font-weight: 600;
+  color: #222;
+}
+
+.jippy-outlet-status-open {
+  color: #16a34a !important;
+  font-weight: 700 !important;
+}
+
+
+/* =========================================================
+   GALLERY
+   ========================================================= */
+
+.jippy-outlet-profile-gallery-empty {
+  min-height: 170px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #999;
+
+  font-size: 14px;
+}
+
+
+/* =========================================================
+   WORKING HOURS
+   ========================================================= */
+
+.jippy-outlet-profile-working-hours {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+
+  gap: 22px 28px;
+
+  padding: 23px;
+}
+
+.jippy-outlet-profile-day {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.jippy-outlet-profile-day strong {
+  font-size: 14px;
+  font-weight: 700;
+  color: #333;
+}
+
+.jippy-outlet-profile-day span {
+  font-size: 13px;
+  color: #777;
+}
+
+
+/* =========================================================
+   SERVICES
+   ========================================================= */
+
+.jippy-outlet-profile-services-empty {
+  min-height: 170px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #999;
+
+  font-size: 14px;
+}
+
+
+/* =========================================================
+   SUBSCRIPTION
+   ========================================================= */
+
+.jippy-outlet-profile-subscription-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+
+  gap: 25px 38px;
+
+  padding: 23px;
+}
+
+.jippy-outlet-profile-subscription-grid > div {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.jippy-outlet-profile-subscription-grid span {
+  font-size: 13px;
+  color: #666;
+  font-weight: 500;
+}
+
+.jippy-outlet-profile-subscription-grid strong {
+  font-size: 14px;
+  color: #222;
+  font-weight: 600;
+}
+
+
+/* =========================================================
+   EMPTY TAB
+   ========================================================= */
+
+.jippy-outlet-profile-empty-tab {
+  min-height: 390px;
+
+  background: #fff;
+
+  border: 1px solid #e4e6e9;
+  border-radius: 15px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+
+  text-align: center;
+
+  padding: 35px;
+
+  box-shadow: 0 3px 14px rgba(0, 0, 0, 0.045);
+}
+
+.jippy-outlet-profile-empty-icon {
+  width: 64px;
+  height: 64px;
+
+  border-radius: 50%;
+
+  background: #fff0e9;
+  color: #ff6422;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 27px;
+
+  margin-bottom: 17px;
+}
+
+.jippy-outlet-profile-empty-tab h3 {
+  margin: 0 0 9px;
+
+  font-size: 20px;
+  font-weight: 700;
+  color: #222;
+}
+
+.jippy-outlet-profile-empty-tab p {
+  margin: 0 0 8px;
+
+  font-size: 14px;
+  color: #555;
+}
+
+.jippy-outlet-profile-empty-tab span {
+  max-width: 550px;
+
+  font-size: 13px;
+  line-height: 1.5;
+
+  color: #999;
+}
+
+
+/* =========================================================
+   BACK BUTTON
+   ========================================================= */
+
+.jippy-outlet-profile-bottom-actions {
+  display: flex;
+  justify-content: flex-start;
+
+  margin-top: 10px;
+}
+
+.jippy-outlet-profile-back-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+
+  border: 1px solid #ff6422;
+
+  background: #fff;
+  color: #ff6422;
+
+  border-radius: 8px;
+
+  padding: 11px 18px;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+}
+
+.jippy-outlet-profile-back-btn:hover {
+  background: #fff3ed;
+  transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   LOADING
+   ========================================================= */
+
+.jippy-outlet-profile-loading {
+  min-height: 450px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-direction: column;
+
+  gap: 16px;
+
+  color: #555;
+
+  font-size: 15px;
+}
+
+
+/* =========================================================
+   RESPONSIVE - 1200px
+   ========================================================= */
+
+@media (max-width: 1200px) {
+
+  .jippy-outlet-profile-page {
+    padding: 26px 25px 45px;
+  }
+
+  .jippy-outlet-profile-summary-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .jippy-outlet-profile-restaurant-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .jippy-outlet-profile-two-column {
+    grid-template-columns: 1fr;
+  }
+
+  .jippy-outlet-profile-working-hours {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+
+/* =========================================================
+   RESPONSIVE - 768px
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+  .jippy-outlet-profile-page {
+    padding: 22px 16px 40px;
+  }
+
+  .jippy-outlet-profile-header {
+    flex-direction: column;
+  }
+
+  .jippy-outlet-profile-title-row h1 {
+    font-size: 23px;
+  }
+
+  .jippy-outlet-profile-breadcrumb {
+    font-size: 13px;
+  }
+
+  .jippy-outlet-profile-wallet-btn {
+    width: fit-content;
+  }
+
+  .jippy-outlet-profile-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .jippy-outlet-profile-detail-columns {
+    grid-template-columns: 1fr;
+  }
+
+  .jippy-outlet-profile-vendor-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .jippy-outlet-profile-working-hours {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .jippy-outlet-profile-subscription-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .jippy-outlet-profile-restaurant-layout {
+    padding: 18px;
+  }
+
+  .jippy-outlet-profile-card-heading {
+    font-size: 16px;
+  }
+
+  .jippy-outlet-profile-tab {
+    font-size: 13px;
+    padding: 13px 14px;
+  }
+}
+
+
+/* =========================================================
+   RESPONSIVE - 480px
+   ========================================================= */
+
+@media (max-width: 480px) {
+
+  .jippy-outlet-profile-page {
+    padding: 18px 12px 30px;
+  }
+
+  .jippy-outlet-profile-title-row {
+    gap: 9px;
+  }
+
+  .jippy-outlet-profile-home-icon {
+    font-size: 21px;
+  }
+
+  .jippy-outlet-profile-title-row h1 {
+    font-size: 20px;
+  }
+
+  .jippy-outlet-profile-breadcrumb {
+    font-size: 12px;
+    gap: 6px;
+  }
+
+  .jippy-outlet-profile-wallet-btn {
+    width: 100%;
+    font-size: 13px;
+  }
+
+  .jippy-outlet-profile-summary-card {
+    min-height: 95px;
+    padding: 18px;
+  }
+
+  .jippy-outlet-profile-summary-card strong {
+    font-size: 22px;
+  }
+
+  .jippy-outlet-profile-summary-card span {
+    font-size: 13px;
+  }
+
+  .jippy-outlet-profile-section-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .jippy-outlet-profile-section-header h2 {
+    font-size: 19px;
+  }
+
+  .jippy-outlet-profile-vendor-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .jippy-outlet-profile-working-hours {
+    grid-template-columns: 1fr;
+  }
+
+  .jippy-outlet-profile-detail-columns {
+    grid-template-columns: 1fr;
+  }
+
+  .jippy-outlet-profile-restaurant-layout {
+    padding: 15px;
+  }
+
+  .jippy-outlet-profile-detail-line {
+    grid-template-columns: 90px 1fr;
+    font-size: 13px;
+  }
+
+  .jippy-outlet-profile-outlet-name strong {
+    font-size: 17px;
+  }
+
+  .jippy-outlet-profile-main-card {
+    border-radius: 12px;
+  }
+
+  .jippy-outlet-profile-subscription-grid {
+    padding: 18px;
+  }
+
+  .jippy-outlet-profile-empty-tab {
+    min-height: 320px;
+    padding: 25px 18px;
+  }
+}

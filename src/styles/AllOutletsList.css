@@ -1,0 +1,1305 @@
+/* =========================================================
+   JIPPYMART - ALL OUTLETS LIST
+   Theme: #ff6b00
+   ========================================================= */
+
+.jippy-all-outlets-page {
+    min-height: 100vh;
+    padding: 32px 40px 70px;
+    box-sizing: border-box;
+    background: #f5f7fb;
+    color: #222;
+}
+
+
+/* =========================================================
+   PAGE HEADER
+   ========================================================= */
+
+.jippy-all-outlets-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 22px;
+}
+
+.jippy-all-outlets-page-header h1 {
+    margin: 0;
+    font-size: 30px;
+    line-height: 1.2;
+    font-weight: 700;
+    color: #222;
+}
+
+.jippy-all-outlets-page-header p {
+    margin: 7px 0 0;
+    color: #777;
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   TITLE
+   ========================================================= */
+
+.jippy-all-outlets-title-row {
+    margin-bottom: 18px;
+}
+
+.jippy-all-outlets-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.jippy-all-outlets-title h2 {
+    margin: 0;
+    font-size: 23px;
+    font-weight: 700;
+}
+
+.jippy-all-outlets-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 28px;
+    padding: 0 9px;
+    box-sizing: border-box;
+    border-radius: 20px;
+    background: #fff0e7;
+    color: #ff6b00;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   FILTERS
+   ========================================================= */
+
+.jippy-all-outlets-filter-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.jippy-all-outlets-select {
+    width: 180px;
+}
+
+.jippy-all-outlets-select__control {
+    min-height: 40px !important;
+    height: 40px;
+    border: none !important;
+    border-radius: 20px !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+    cursor: pointer !important;
+}
+
+.jippy-all-outlets-select__control:hover {
+    border: none !important;
+}
+
+.jippy-all-outlets-select__placeholder {
+    color: #333 !important;
+    font-size: 13px !important;
+}
+
+.jippy-all-outlets-select__single-value {
+    color: #333 !important;
+    font-size: 13px !important;
+}
+
+.jippy-all-outlets-select__menu {
+    z-index: 1000 !important;
+    font-size: 13px;
+}
+
+.jippy-all-outlets-select__option--is-focused {
+    background: #fff3eb !important;
+    color: #222 !important;
+}
+
+.jippy-all-outlets-select__option--is-selected {
+    background: #ff6b00 !important;
+    color: #fff !important;
+}
+
+
+/* =========================================================
+   SUMMARY CARDS
+   ========================================================= */
+
+.jippy-all-outlets-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+}
+
+.jippy-all-outlets-summary-card {
+    min-height: 105px;
+    padding: 20px;
+    box-sizing: border-box;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.jippy-all-outlets-summary-card strong {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 28px;
+    line-height: 1;
+    font-weight: 700;
+    color: #111;
+}
+
+.jippy-all-outlets-summary-card span {
+    font-size: 14px;
+    color: #222;
+}
+
+.jippy-all-outlets-total-card {
+    background: #dbeeff;
+}
+
+.jippy-all-outlets-active-card {
+    background: #fff0cc;
+}
+
+.jippy-all-outlets-inactive-card {
+    background: #dff6df;
+}
+
+.jippy-all-outlets-menu-card {
+    background: #ffe0e8;
+}
+
+
+/* =========================================================
+   BULK IMPORT
+   ========================================================= */
+
+.jippy-all-outlets-bulk-card {
+    display: grid;
+    grid-template-columns: 42% 58%;
+    gap: 30px;
+    align-items: center;
+    margin-bottom: 24px;
+    padding: 26px 30px;
+    box-sizing: border-box;
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 3px 14px rgba(0, 0, 0, 0.07);
+}
+
+.jippy-all-outlets-bulk-info h2,
+.jippy-all-outlets-global-card h2,
+.jippy-all-outlets-table-header h2 {
+    margin: 0;
+    color: #111;
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.jippy-all-outlets-bulk-info p,
+.jippy-all-outlets-global-card p,
+.jippy-all-outlets-table-header p {
+    margin: 8px 0 18px;
+    color: #777;
+    font-size: 13px;
+}
+
+.jippy-all-outlets-template-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    height: 40px;
+    padding: 0 18px;
+    border: 1px solid #ff6b00;
+    border-radius: 22px;
+    background: #ffffff;
+    color: #ff6b00;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.jippy-all-outlets-template-btn:hover {
+    background: #fff4ed;
+}
+
+.jippy-all-outlets-upload-area {
+    display: flex;
+    flex-direction: column;
+}
+
+.jippy-all-outlets-upload-area label {
+    margin-bottom: 8px;
+    color: #222;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.jippy-all-outlets-upload-area input[type="file"] {
+    width: 100%;
+    height: 42px;
+    padding: 7px 10px;
+    box-sizing: border-box;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: #fff;
+    font-size: 12px;
+}
+
+.jippy-all-outlets-upload-area small {
+    margin-top: 9px;
+    color: #777;
+    font-size: 11px;
+}
+
+.jippy-all-outlets-bulk-btn {
+    align-self: flex-end;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    height: 40px;
+    margin-top: 20px;
+    padding: 0 20px;
+    border: none;
+    border-radius: 8px;
+    background: #ff6b00;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.jippy-all-outlets-bulk-btn:hover {
+    background: #e85f00;
+}
+
+
+/* =========================================================
+   GLOBAL STATUS
+   ========================================================= */
+
+.jippy-all-outlets-global-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 25px;
+    margin-bottom: 24px;
+    padding: 22px 25px;
+    box-sizing: border-box;
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 3px 14px rgba(0, 0, 0, 0.07);
+}
+
+.jippy-all-outlets-global-card p {
+    margin-bottom: 0;
+}
+
+.jippy-all-outlets-global-actions {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.jippy-all-outlets-status-option {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    border: none;
+    background: transparent;
+    color: #555;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.jippy-all-outlets-status-selected {
+    color: #222;
+}
+
+.jippy-all-outlets-status-dot {
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.jippy-all-outlets-status-dot-open {
+    background: #22b84b;
+}
+
+.jippy-all-outlets-status-dot-closed {
+    background: #e53935;
+}
+
+.jippy-all-outlets-apply-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    height: 40px;
+    padding: 0 18px;
+    border: none;
+    border-radius: 8px;
+    background: #ff6b00;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.jippy-all-outlets-apply-btn:hover {
+    background: #e85f00;
+}
+
+
+/* =========================================================
+   TABLE CARD
+   ========================================================= */
+
+.jippy-all-outlets-table-card {
+    width: 100%;
+    box-sizing: border-box;
+    background: #ffffff;
+    border-radius: 14px;
+    overflow: visible;
+    box-shadow: 0 3px 14px rgba(0, 0, 0, 0.07);
+}
+
+.jippy-all-outlets-table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 22px 16px;
+}
+
+.jippy-all-outlets-table-header p {
+    margin-bottom: 0;
+}
+
+
+/* =========================================================
+   TOOLBAR
+   ========================================================= */
+
+.jippy-all-outlets-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    border-top: 1px solid #eeeeee;
+    border-bottom: 1px solid #eeeeee;
+}
+
+.jippy-all-outlets-entries {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #444;
+    font-size: 13px;
+}
+
+.jippy-all-outlets-entries select {
+    width: 55px;
+    height: 32px;
+    padding: 0 7px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: #fff;
+    outline: none;
+    cursor: pointer;
+}
+
+.jippy-all-outlets-toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.jippy-all-outlets-search {
+    position: relative;
+    width: 220px;
+}
+
+.jippy-all-outlets-search input {
+    width: 100%;
+    height: 36px;
+    padding: 0 38px 0 12px;
+    box-sizing: border-box;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    outline: none;
+    font-size: 12px;
+}
+
+.jippy-all-outlets-search input:focus {
+    border-color: #ff6b00;
+}
+
+.jippy-all-outlets-search svg {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #777;
+    font-size: 15px;
+}
+
+.jippy-all-outlets-export-wrapper {
+    position: relative;
+}
+
+.jippy-all-outlets-export-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    height: 36px;
+    padding: 0 14px;
+    border: none;
+    border-radius: 20px;
+    background: #fff4ed;
+    color: #ff6b00;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.jippy-all-outlets-export-btn:hover {
+    background: #ffe8d9;
+}
+
+.jippy-all-outlets-export-menu {
+    position: absolute;
+    top: 42px;
+    right: 0;
+    z-index: 2000;
+    width: 150px;
+    padding: 6px;
+    border: 1px solid #eeeeee;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.jippy-all-outlets-export-menu button {
+    display: block;
+    width: 100%;
+    padding: 9px 10px;
+    border: none;
+    border-radius: 5px;
+    background: transparent;
+    text-align: left;
+    color: #333;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.jippy-all-outlets-export-menu button:hover {
+    background: #fff3eb;
+    color: #ff6b00;
+}
+
+
+/* =========================================================
+   TABLE
+   ========================================================= */
+
+.jippy-all-outlets-table-scroll {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.jippy-all-outlets-table {
+    width: 100%;
+    min-width: 1150px;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.jippy-all-outlets-table th {
+    height: 45px;
+    padding: 0 12px;
+    box-sizing: border-box;
+    background: #ff6b00;
+    color: #ffffff;
+    border: none;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.jippy-all-outlets-table td {
+    height: 52px;
+    padding: 9px 12px;
+    box-sizing: border-box;
+    border-bottom: 1px solid #eeeeee;
+    color: #333;
+    font-size: 15px;
+    vertical-align: middle;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.jippy-all-outlets-table tbody tr:hover {
+    background: #fffaf7;
+}
+
+.jippy-all-outlets-table th:nth-child(1),
+.jippy-all-outlets-table td:nth-child(1) {
+    width: 8%;
+}
+
+.jippy-all-outlets-table th:nth-child(2),
+.jippy-all-outlets-table td:nth-child(2) {
+    width: 15%;
+}
+
+.jippy-all-outlets-table th:nth-child(3),
+.jippy-all-outlets-table td:nth-child(3) {
+    width: 10%;
+}
+
+.jippy-all-outlets-table th:nth-child(4),
+.jippy-all-outlets-table td:nth-child(4) {
+    width: 11%;
+}
+
+.jippy-all-outlets-table th:nth-child(5),
+.jippy-all-outlets-table td:nth-child(5) {
+    width: 12%;
+}
+
+.jippy-all-outlets-table th:nth-child(6),
+.jippy-all-outlets-table td:nth-child(6) {
+    width: 9%;
+}
+
+.jippy-all-outlets-table th:nth-child(7),
+.jippy-all-outlets-table td:nth-child(7) {
+    width: 10%;
+}
+
+.jippy-all-outlets-table th:nth-child(8),
+.jippy-all-outlets-table td:nth-child(8) {
+    width: 15%;
+}
+
+.jippy-all-outlets-table th:nth-child(9),
+.jippy-all-outlets-table td:nth-child(9) {
+    width: 5%;
+}
+
+.jippy-all-outlets-table th:nth-child(10),
+.jippy-all-outlets-table td:nth-child(10) {
+    width: 5%;
+}
+
+
+/* =========================================================
+   TABLE CONTENT
+   ========================================================= */
+
+.jippy-all-outlets-name {
+    font-weight: 600;
+    color: #222 !important;
+}
+
+.jippy-all-outlets-address {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.jippy-all-outlets-status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 62px;
+    height: 25px;
+    padding: 0 8px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.jippy-all-outlets-active {
+    background: #e7f8eb;
+    color: #16883a;
+}
+
+.jippy-all-outlets-inactive {
+    background: #ffe8e8;
+    color: #d93030;
+}
+
+.jippy-all-outlets-message {
+    height: 100px !important;
+    text-align: center !important;
+    color: #777 !important;
+    font-size: 13px !important;
+}
+
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.jippy-all-outlets-table-footer {
+    padding: 12px 20px;
+    color: #777;
+    font-size: 11px;
+    border-top: 1px solid #eeeeee;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1100px) {
+
+    .jippy-all-outlets-page {
+        padding: 25px 25px 60px;
+    }
+
+    .jippy-all-outlets-summary-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .jippy-all-outlets-bulk-card {
+        grid-template-columns: 1fr;
+    }
+
+    .jippy-all-outlets-global-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .jippy-all-outlets-global-actions {
+        width: 100%;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+    }
+}
+
+
+@media (max-width: 768px) {
+
+    .jippy-all-outlets-page {
+        padding: 20px 16px 50px;
+    }
+
+    .jippy-all-outlets-page-header h1 {
+        font-size: 25px;
+    }
+
+    .jippy-all-outlets-title h2 {
+        font-size: 20px;
+    }
+
+    .jippy-all-outlets-filter-row {
+        flex-wrap: wrap;
+    }
+
+    .jippy-all-outlets-select {
+        width: 170px;
+    }
+
+    .jippy-all-outlets-summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .jippy-all-outlets-toolbar {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .jippy-all-outlets-toolbar-right {
+        width: 100%;
+    }
+
+    .jippy-all-outlets-search {
+        flex: 1;
+        width: auto;
+    }
+
+    .jippy-all-outlets-global-actions {
+        justify-content: flex-start;
+    }
+}
+
+
+@media (max-width: 500px) {
+
+    .jippy-all-outlets-filter-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .jippy-all-outlets-select {
+        width: 100%;
+    }
+
+    .jippy-all-outlets-bulk-card {
+        padding: 20px;
+    }
+
+    .jippy-all-outlets-global-card {
+        padding: 20px;
+    }
+
+    .jippy-all-outlets-global-actions {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .jippy-all-outlets-bulk-btn {
+        align-self: stretch;
+        justify-content: center;
+    }
+}
+
+
+
+.jippy-all-outlets-create-btn {
+    height: 40px;
+
+    padding: 0 18px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    background: #ff6b00;
+
+    color: #ffffff;
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: 0.2s ease;
+}
+
+.jippy-all-outlets-create-btn:hover {
+    background: #e85f00;
+}
+
+
+.jippy-all-outlets-name-button {
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  color: #171717;
+  font-size: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+}
+
+.jippy-all-outlets-name-button:hover {
+  color: #ff6422;
+  text-decoration: underline;
+}
+
+
+
+
+/* =========================================================
+   OUTLET ACTIONS
+   ========================================================= */
+
+.jippy-all-outlets-actions-header {
+  text-align: center !important;
+  min-width: 120px;
+}
+
+.jippy-all-outlets-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 110px;
+}
+
+/* Edit Button */
+
+.jippy-all-outlets-edit-btn,
+.jippy-all-outlets-delete-btn {
+  width: 36px;
+  height: 36px;
+
+  border-radius: 8px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+
+  font-size: 17px;
+
+  background: #ffffff;
+
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+/* Edit */
+
+.jippy-all-outlets-edit-btn {
+  border: 1px solid #ff6b35;
+  color: #ff6b35;
+}
+
+.jippy-all-outlets-edit-btn:hover {
+  background: #ff6b35;
+  color: #ffffff;
+
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 4px 10px rgba(255, 107, 53, 0.22);
+}
+
+/* Delete */
+
+.jippy-all-outlets-delete-btn {
+  border: 1px solid #ef4444;
+  color: #ef4444;
+}
+
+.jippy-all-outlets-delete-btn:hover {
+  background: #ef4444;
+  color: #ffffff;
+
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 4px 10px rgba(239, 68, 68, 0.22);
+}
+
+/* Click effect */
+
+.jippy-all-outlets-edit-btn:active,
+.jippy-all-outlets-delete-btn:active {
+  transform: scale(0.95);
+}
+
+/* =========================================================
+   ACTION ICONS
+   ========================================================= */
+
+.jippy-all-outlets-edit-btn svg,
+.jippy-all-outlets-delete-btn svg {
+  width: 17px;
+  height: 17px;
+  stroke-width: 2;
+}
+
+/* =========================================================
+   ACTION COLUMN ALIGNMENT
+   ========================================================= */
+
+.jippy-all-outlets-table td:last-child {
+  text-align: center;
+  vertical-align: middle;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1200px) {
+  .jippy-all-outlets-actions {
+    gap: 6px;
+  }
+
+  .jippy-all-outlets-edit-btn,
+  .jippy-all-outlets-delete-btn {
+    width: 34px;
+    height: 34px;
+  }
+}
+
+@media (max-width: 768px) {
+  .jippy-all-outlets-actions {
+    gap: 5px;
+  }
+
+  .jippy-all-outlets-edit-btn,
+  .jippy-all-outlets-delete-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 15px;
+  }
+}
+
+
+/* =========================================================
+   OUTLET TABLE - ACTION COLUMN
+   ========================================================= */
+
+.jippy-all-outlets-table-scroll {
+  width: 100%;
+  overflow-x: auto !important;
+  overflow-y: hidden;
+}
+
+.jippy-all-outlets-table {
+  min-width: 1500px;
+}
+
+/* Keep action column visible while scrolling */
+.jippy-all-outlets-actions-header,
+.jippy-all-outlets-table td:last-child {
+  min-width: 120px;
+  width: 120px;
+  text-align: center !important;
+  white-space: nowrap;
+}
+
+/* Action buttons */
+.jippy-all-outlets-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.jippy-all-outlets-edit-btn,
+.jippy-all-outlets-delete-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+  background: #fff;
+
+  transition: all 0.2s ease;
+}
+
+/* Edit */
+.jippy-all-outlets-edit-btn {
+  border: 1px solid #ff6b35;
+  color: #ff6b35;
+}
+
+.jippy-all-outlets-edit-btn:hover {
+  background: #ff6b35;
+  color: #fff;
+}
+
+/* Delete */
+.jippy-all-outlets-delete-btn {
+  border: 1px solid #ef4444;
+  color: #ef4444;
+}
+
+.jippy-all-outlets-delete-btn:hover {
+  background: #ef4444;
+  color: #fff;
+}
+
+/* Icons */
+.jippy-all-outlets-edit-btn svg,
+.jippy-all-outlets-delete-btn svg {
+  width: 17px;
+  height: 17px;
+}
+
+
+/* =====================================================
+   FRONTEND PAGINATION
+   ===================================================== */
+
+.jippy-all-outlets-table-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 18px 20px;
+  border-top: 1px solid #eeeeee;
+  background: #ffffff;
+}
+
+.jippy-all-outlets-showing-text {
+  font-size: 13px;
+  color: #666;
+}
+
+.jippy-all-outlets-pagination {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.jippy-all-outlets-page-btn {
+  min-width: 36px;
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid #dddddd;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #444;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.jippy-all-outlets-page-btn:hover:not(:disabled) {
+  border-color: #ff6422;
+  color: #ff6422;
+}
+
+.jippy-all-outlets-page-btn-active {
+  background: #ff6422;
+  border-color: #ff6422;
+  color: #ffffff;
+}
+
+.jippy-all-outlets-page-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+@media (max-width: 700px) {
+  .jippy-all-outlets-table-footer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .jippy-all-outlets-pagination {
+    width: 100%;
+    overflow-x: auto;
+  }
+}
+
+/* =====================================================
+   COLUMNS + CREATE BUTTON
+   ===================================================== */
+
+.jippy-all-outlets-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* COLUMNS WRAPPER */
+
+.jippy-all-outlets-columns-wrapper {
+  position: relative;
+}
+
+/* COLUMNS BUTTON */
+
+.jippy-all-outlets-columns-btn {
+  height: 40px;
+  padding: 0 18px;
+
+  border: 1px solid #d5d5d5;
+  border-radius: 20px;
+
+  background: #ffffff;
+  color: #444;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.jippy-all-outlets-columns-btn:hover {
+  border-color: #ff6422;
+  color: #ff6422;
+}
+
+/* DROPDOWN */
+
+.jippy-all-outlets-columns-menu {
+  position: absolute;
+  top: 46px;
+  right: 0;
+
+  width: 245px;
+  max-height: 430px;
+
+  overflow-y: auto;
+
+  padding: 10px;
+
+  background: #ffffff;
+
+  border: 1px solid #dddddd;
+  border-radius: 10px;
+
+  box-shadow:
+    0 8px 25px rgba(0, 0, 0, 0.15);
+
+  z-index: 9999;
+}
+
+/* TITLE */
+
+.jippy-all-outlets-columns-title {
+  padding: 8px 10px 12px;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  color: #8a9aa5;
+}
+
+/* CHECKBOX */
+
+.jippy-all-outlets-column-option {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  padding: 9px 10px;
+
+  border-radius: 6px;
+
+  cursor: pointer;
+
+  font-size: 13px;
+  color: #333;
+
+  transition: 0.15s ease;
+}
+
+.jippy-all-outlets-column-option:hover {
+  background: #f5f5f5;
+}
+
+.jippy-all-outlets-column-option input {
+  width: 16px;
+  height: 16px;
+
+  accent-color: #20bfa9;
+
+  cursor: pointer;
+}
+
+/* DIVIDER */
+
+.jippy-all-outlets-columns-divider {
+  height: 1px;
+
+  margin: 8px 0;
+
+  background: #eeeeee;
+}
+
+/* SHOW ALL */
+
+.jippy-all-outlets-show-all-columns {
+  width: 100%;
+
+  padding: 10px;
+
+  border: none;
+  border-radius: 6px;
+
+  background: #f6f6f6;
+
+  color: #555;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.jippy-all-outlets-show-all-columns:hover {
+  background: #eeeeee;
+}
+
+/* MOBILE */
+
+@media (max-width: 700px) {
+  .jippy-all-outlets-header-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .jippy-all-outlets-columns-menu {
+    right: 0;
+    width: 220px;
+  }
+}
+
+/* COLUMNS POPUP HEADER */
+
+.jippy-all-outlets-columns-menu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 8px 10px 12px;
+
+  border-bottom: 1px solid #eeeeee;
+
+  font-size: 14px;
+  font-weight: 700;
+  color: #333;
+}
+
+/* CLOSE X */
+
+.jippy-all-outlets-columns-close {
+  width: 28px;
+  height: 28px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+  border-radius: 50%;
+
+  background: transparent;
+  color: #777;
+
+  font-size: 22px;
+  line-height: 1;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.jippy-all-outlets-columns-close:hover {
+  background: #f2f2f2;
+  color: #ff6422;
+}

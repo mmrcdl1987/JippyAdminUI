@@ -1,201 +1,186 @@
-.all-drivers-container{
-    padding:30px;
-    max-width:1450px;
-    margin:auto;
+.jippy-all-drivers-page {
+  width: 100%;
+  min-height: 100vh;
+  padding: 28px 30px 60px;
+  box-sizing: border-box;
+  background: #f5f7fb;
 }
 
-/* Page Heading */
-
-.drivers-header{
-    margin-bottom:24px;
+.jippy-all-drivers-header {
+  margin-bottom: 20px;
 }
 
-.drivers-header h3{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    margin:0;
-    font-size:28px;
-    font-weight:600;
+.jippy-all-drivers-header h2 {
+  margin: 0;
+  color: #222222;
+  font-size: 28px;
+  font-weight: 700;
 }
 
-.drivers-count{
-    width:34px;
-    height:34px;
-    border-radius:50%;
-    background:#ffe8df;
-    color:#ff6b00;
-
-    display:flex;
-    align-items:center;
-    justify-content:center;
-
-    font-size:14px;
-    font-weight:600;
+.jippy-drivers-title-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
 }
 
-/* Filters */
-
-.driver-filters-row{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:20px;
-    margin:25px 0;
-    flex-wrap:wrap;
+.jippy-drivers-title-section h3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  color: #222222;
+  font-size: 20px;
 }
 
-.driver-filter-group{
-    display:flex;
-    gap:15px;
-    flex-wrap:wrap;
+.jippy-drivers-count {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #fff0e6;
+  color: #ff6b00;
+  font-size: 13px;
+  font-weight: 600;
 }
 
-.driver-filter{
-    width:220px;
-    height:44px;
-
-    border:1px solid #ddd;
-    border-radius:20px;
-
-    padding:0 14px;
-
-    outline:none;
-    background:#fff;
-    cursor:pointer;
+.jippy-drivers-filter-section {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 22px;
+  flex-wrap: wrap;
 }
 
-.driver-filter:focus{
-    border-color:#ff6b00;
+.jippy-driver-filter-wrapper {
+  width: 220px;
 }
 
-/* Date Range */
-
-.driver-range-picker{
-    position:relative;
+.jippy-driver-select__control {
+  min-height: 42px !important;
+  border: 1px solid #dddddd !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
 }
 
-.driver-range-input{
-    width:220px;
-    height:44px;
-
-    border:1px solid #ddd;
-    border-radius:12px;
-
-    display:flex;
-    align-items:center;
-
-    padding:0 14px;
-
-    cursor:pointer;
-
-    background:#fff;
+.jippy-driver-select__control:hover {
+  border-color: #ff6b00 !important;
 }
 
-.driver-calendar-popup{
-
-    position:absolute;
-
-    top:50px;
-    right:0;
-
-    background:#fff;
-
-    border-radius:14px;
-
-    overflow:hidden;
-
-    box-shadow:0 10px 30px rgba(0,0,0,.15);
-
-    z-index:1000;
+.jippy-driver-select__control--is-focused {
+  border-color: #ff6b00 !important;
+  box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1) !important;
 }
 
-.driver-range-actions{
-
-    display:flex;
-
-    justify-content:flex-end;
-
-    gap:10px;
-
-    padding:12px;
-
-    border-top:1px solid #eee;
-
-    background:#fff;
-
+.jippy-driver-select__option--is-focused {
+  background: #fff0e6 !important;
+  color: #ff6b00 !important;
 }
 
-.driver-range-actions button{
-
-    padding:8px 18px;
-
-    border:none;
-
-    border-radius:8px;
-
-    cursor:pointer;
-
+.jippy-driver-select__option--is-selected {
+  background: #ff6b00 !important;
+  color: #ffffff !important;
 }
 
-.driver-range-actions button:first-child{
-
-    background:#f3f4f6;
-
+.jippy-driver-date-wrapper {
+  position: relative;
 }
 
-.driver-range-actions button:last-child{
-
-    background:#ff6b00;
-
-    color:#fff;
-
+.jippy-driver-date-button {
+  width: 220px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+  border: 1px solid #dddddd;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #555555;
+  font-size: 13px;
+  cursor: pointer;
 }
 
-/* Responsive */
-
-@media(max-width:992px){
-
-.driver-filters-row{
-
-    flex-direction:column;
-
-    align-items:flex-start;
-
+.jippy-driver-date-button:hover {
+  border-color: #ff6b00;
+  color: #ff6b00;
 }
 
-.driver-filter-group{
-
-    width:100%;
-
+.jippy-driver-date-arrow {
+  color: #ff6b00;
+  font-size: 10px;
 }
 
-.driver-filter{
-
-    width:100%;
-
+.jippy-driver-calendar-popup {
+  position: absolute;
+  top: 50px;
+  right: 0;
+  z-index: 5000;
+  background: #ffffff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.18);
 }
 
-.driver-range-input{
-
-    width:100%;
-
+.jippy-driver-calendar-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 12px;
+  border-top: 1px solid #eeeeee;
 }
 
+.jippy-driver-calendar-actions button {
+  height: 35px;
+  padding: 0 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
 }
 
-@media(max-width:768px){
-
-.all-drivers-container{
-
-    padding:18px;
-
+.jippy-driver-calendar-actions button:first-child {
+  border: 1px solid #dddddd;
+  background: #ffffff;
+  color: #555555;
 }
 
-.drivers-header h3{
-
-    font-size:24px;
-
+.jippy-driver-calendar-actions button:last-child {
+  border: none;
+  background: #ff6b00;
+  color: #ffffff;
 }
+
+.jippy-driver-calendar-actions button:last-child:hover {
+  background: #e85f00;
+}
+
+.jippy-drivers-table-section {
+  width: 100%;
+  max-width: none;
+}
+
+@media (max-width: 768px) {
+
+  .jippy-all-drivers-page {
+    padding: 20px 16px 50px;
+  }
+
+  .jippy-driver-filter-wrapper,
+  .jippy-driver-date-button {
+    width: 100%;
+  }
+
+  .jippy-drivers-filter-section {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .jippy-driver-calendar-popup {
+    left: 0;
+    right: auto;
+  }
 
 }
