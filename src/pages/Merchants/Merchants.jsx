@@ -182,10 +182,13 @@ function Merchants() {
           </small>
           <button className="merchant-list-update-btn">⬆ Bulk Update</button>
         </div>
-      </div>
+
+      </div> 
 
       {/* Global Merchant Status */}
-      <div className="merchant-list-global-status-card">
+
+      {/* <div className="merchant-list-global-status-card">
+
         <div className="merchant-list-status-left">
           <h3>Global Merchant Status</h3>
           <p>Override all merchants open / closed status.</p>

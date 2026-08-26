@@ -42,6 +42,13 @@ import MerchantAddVariants from "../pages/MerchantAddVariants";
 import DriverSettings from "../pages/DriverSettings";
 import CreateMerchant from "../pages/Merchants/CreateMerchant";
 
+import CreateDriver from "../pages/CreateDriver";
+import AllOutletsList from "../pages/AllOutletsList";
+import OutletCreate from "../pages/OutletCreate";
+import OutletProfileDetails from "../pages/OutletProfileDetails";
+
+import OutletEdit from "../pages/OutletEdit";
+
 export const pageRegistry = {
   zones: {
     component: ZoneManagement,
@@ -248,6 +255,30 @@ createMerchant: {
   permission: "VENDOR_READ",
 },
 
+createDriver: {
+  component: CreateDriver,
+  permission: "DRIVER_CREATE",
+},
+
+allOutletsList: {
+    component: AllOutletsList,
+    permission: "OUTLET_READ"
+},
+
+createOutletNew: {
+  component: OutletCreate,
+  permission: "OUTLET_CREATE",
+},
+
+outletProfileDetails: {
+  component: OutletProfileDetails,
+  permission: "OUTLET_READ",
+},
+
+outletEdit: {
+  component: OutletEdit,
+  permission: "OUTLET_UPDATE",
+},
 
 
 

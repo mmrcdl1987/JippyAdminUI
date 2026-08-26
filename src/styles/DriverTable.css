@@ -1,256 +1,973 @@
-.driver-table-container{
-    margin-top:30px;
-    background:#fff;
-    border:1px solid #ececec;
-    border-radius:16px;
-    overflow-x:auto;
-    box-shadow:0 2px 10px rgba(0,0,0,.05);
+/* =========================================================
+   MAIN TABLE CONTAINER
+   ========================================================= */
+
+.jippy-driver-table-container {
+    width: 100%;
+    max-width: 100%;
+
+    margin: 0;
+    padding: 0;
+
+    box-sizing: border-box;
+
+    background: #ffffff;
+
+    border: 1px solid #e8e8e8;
+    border-radius: 10px;
+
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+
+    overflow: hidden;
 }
 
-.driver-table-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    padding:24px;
-    border-bottom:1px solid #ececec;
+
+/* =========================================================
+   TABLE HEADER
+   ========================================================= */
+
+.jippy-driver-table-header {
+    width: 100%;
+
+    min-height: 70px;
+
+    padding: 16px 20px;
+
+    box-sizing: border-box;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    background: #ffffff;
+
+    border-bottom: 1px solid #eeeeee;
 }
 
-.driver-table-header h3{
-    margin:0;
-    font-size:28px;
-    font-weight:600;
+.jippy-driver-table-header h3 {
+    margin: 0;
+
+    color: #222222;
+
+    font-size: 20px;
+    font-weight: 700;
 }
 
-.driver-table-header p{
-    margin-top:6px;
-    color:#777;
-    font-size:14px;
+.jippy-driver-table-header p {
+    margin: 4px 0 0;
+
+    color: #777777;
+
+    font-size: 12px;
 }
 
-.create-driver-btn{
-    background:#ff6b00;
-    color:#fff;
-    border:none;
-    border-radius:30px;
-    padding:12px 24px;
-    font-size:15px;
-    font-weight:600;
-    cursor:pointer;
-    transition:.3s;
+
+/* =========================================================
+   CREATE DRIVER BUTTON
+   ========================================================= */
+
+.jippy-driver-create-btn {
+    height: 38px;
+
+    padding: 0 17px;
+
+    border: none;
+    border-radius: 8px;
+
+    background: #ff6b00;
+    color: #ffffff;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: 0.2s ease;
 }
 
-.create-driver-btn:hover{
-    background:#e55f00;
+.jippy-driver-create-btn:hover {
+    background: #e85f00;
 }
 
-.driver-toolbar{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    padding:20px 24px;
+
+/* =========================================================
+   TOOLBAR
+   ========================================================= */
+
+.jippy-driver-toolbar {
+    width: 100%;
+
+    min-height: 58px;
+
+    padding: 10px 20px;
+
+    box-sizing: border-box;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    background: #ffffff;
 }
 
-.driver-entries-section{
-    display:flex;
-    align-items:center;
-    gap:10px;
+.jippy-driver-entries {
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    color: #444444;
+
+    font-size: 13px;
 }
 
-.driver-entries-section select{
-    width:70px;
-    height:38px;
-    border:1px solid #ddd;
-    border-radius:20px;
-    outline:none;
-    padding:0 10px;
+.jippy-driver-entries select {
+    height: 32px;
+
+    min-width: 52px;
+
+    padding: 0 7px;
+
+    border: 1px solid #d8d8d8;
+
+    border-radius: 6px;
+
+    background: #ffffff;
+
+    color: #333333;
+
+    font-size: 13px;
+
+    outline: none;
+
+    cursor: pointer;
 }
 
-.driver-toolbar-right{
-    display:flex;
-    align-items:center;
-    gap:15px;
+
+/* =========================================================
+   TOOLBAR RIGHT
+   ========================================================= */
+
+.jippy-driver-toolbar-right {
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
 }
 
-.driver-search-wrapper{
-    position:relative;
+
+/* =========================================================
+   SEARCH
+   ========================================================= */
+
+.jippy-driver-search-wrapper {
+    position: relative;
+
+    width: 180px;
 }
 
-.driver-search-box{
-    width:240px;
-    height:42px;
-    border:1px solid #ddd;
-    border-radius:24px;
-    outline:none;
-    padding:0 42px 0 18px;
-    font-size:14px;
+.jippy-driver-search-input {
+    width: 100%;
+
+    height: 34px;
+
+    padding: 0 35px 0 12px;
+
+    box-sizing: border-box;
+
+    border: 1px solid #d8d8d8;
+
+    border-radius: 6px;
+
+    outline: none;
+
+    background: #ffffff;
+
+    color: #333333;
+
+    font-size: 12px;
 }
 
-.driver-search-icon{
-    position:absolute;
-    right:15px;
-    top:50%;
-    transform:translateY(-50%);
-    color:#777;
-    font-size:18px;
+.jippy-driver-search-input:focus {
+    border-color: #ff6b00;
+
+    box-shadow:
+        0 0 0 2px rgba(255, 107, 0, 0.10);
 }
 
-.driver-export-wrapper{
-    position:relative;
+.jippy-driver-search-icon {
+    position: absolute;
+
+    top: 50%;
+    right: 11px;
+
+    transform: translateY(-50%);
+
+    color: #888888;
+
+    font-size: 15px;
+
+    pointer-events: none;
 }
 
-.driver-export-btn{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:8px;
-    width:130px;
-    height:42px;
-    border:none;
-    border-radius:24px;
-    background:#eef3fb;
-    cursor:pointer;
-    font-size:14px;
-    transition:.3s;
+
+/* =========================================================
+   EXPORT
+   ========================================================= */
+
+.jippy-driver-export-wrapper {
+    position: relative;
 }
 
-.driver-export-btn:hover{
-    background:#dde9fb;
+.jippy-driver-export-btn {
+    height: 34px;
+
+    padding: 0 13px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 6px;
+
+    border: 1px solid #eeeeee;
+
+    border-radius: 17px;
+
+    background: #fff7f0;
+
+    color: #ff6b00;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    cursor: pointer;
 }
 
-.driver-export-menu{
-    position:absolute;
-    top:50px;
-    right:0;
-    width:170px;
-    background:#fff;
-    border-radius:12px;
-    overflow:hidden;
-    box-shadow:0 8px 20px rgba(0,0,0,.15);
-    z-index:100;
+.jippy-driver-export-btn:hover {
+    background: #ffefe4;
 }
 
-.driver-export-menu div{
-    padding:14px 18px;
-    cursor:pointer;
-    transition:.2s;
+.jippy-driver-export-menu {
+    position: absolute;
+
+    top: 40px;
+    right: 0;
+
+    z-index: 1000;
+
+    min-width: 145px;
+
+    padding: 5px;
+
+    border: 1px solid #eeeeee;
+
+    border-radius: 8px;
+
+    background: #ffffff;
+
+    box-shadow:
+        0 6px 20px rgba(0, 0, 0, 0.12);
 }
 
-.driver-export-menu div:hover{
-    background:#f5f5f5;
+.jippy-driver-export-menu button {
+    width: 100%;
+
+    padding: 9px 10px;
+
+    border: none;
+
+    border-radius: 5px;
+
+    background: transparent;
+
+    color: #333333;
+
+    text-align: left;
+
+    font-size: 12px;
+
+    cursor: pointer;
 }
 
-.driver-table{
-    width:100%;
-    border-collapse:collapse;
-    min-width:1200px;
+.jippy-driver-export-menu button:hover {
+    background: #fff4ec;
+
+    color: #ff6b00;
 }
 
-.driver-table thead{
-    background:#f8f8f8;
+
+/* =========================================================
+   TABLE SCROLL
+   ========================================================= */
+
+.jippy-driver-table-scroll {
+    width: 100%;
+
+    box-sizing: border-box;
+
+    overflow-x: auto;
+    overflow-y: visible;
 }
 
-.driver-table th{
-    padding:16px;
-    text-align:left;
-    font-size:14px;
-    font-weight:600;
-    color:#ff6b00;
-    border-bottom:1px solid #ececec;
-    white-space:nowrap;
+
+/* =========================================================
+   MAIN TABLE
+   ========================================================= */
+
+.jippy-driver-table {
+    width: 100%;
+
+    min-width: 1180px;
+
+    margin: 0;
+    padding: 0;
+
+    border-collapse: collapse;
+    border-spacing: 0;
+
+    table-layout: fixed;
+
+    box-sizing: border-box;
+
+    color: #222222;
 }
 
-.driver-table td{
-    padding:16px;
-    border-bottom:1px solid #f2f2f2;
-    white-space:nowrap;
-    vertical-align:middle;
+
+/* =========================================================
+   TABLE HEADER
+   ========================================================= */
+
+.jippy-driver-table thead {
+    width: 100%;
 }
 
-.driver-table tbody tr:hover{
-    background:#fafafa;
+.jippy-driver-table thead tr {
+    width: 100%;
 }
 
-.driver-profile{
-    width:46px;
-    height:46px;
-    border-radius:50%;
-    object-fit:cover;
-    border:2px solid #f3f3f3;
+.jippy-driver-table thead th {
+    height: 44px;
+
+    padding: 0 12px;
+
+    box-sizing: border-box;
+
+    background: #ff6b00;
+
+    color: #ffffff;
+
+    border: none;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    text-align: left;
+
+    vertical-align: middle;
+
+    white-space: nowrap;
 }
 
-.driver-expand-btn,
-.driver-collapse-btn{
-    width:30px;
-    height:30px;
-    border:none;
-    border-radius:50%;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    cursor:pointer;
-    color:#fff;
-    font-size:18px;
-    transition:.3s;
+
+/* =========================================================
+   COLUMN WIDTHS
+   ========================================================= */
+
+.jippy-driver-table th:nth-child(1),
+.jippy-driver-table td:nth-child(1) {
+    width: 48px;
 }
 
-.driver-expand-btn{
-    background:#22c55e;
+.jippy-driver-table th:nth-child(2),
+.jippy-driver-table td:nth-child(2) {
+    width: 80px;
 }
 
-.driver-expand-btn:hover{
-    background:#16a34a;
+.jippy-driver-table th:nth-child(3),
+.jippy-driver-table td:nth-child(3) {
+    width: 115px;
 }
 
-.driver-collapse-btn{
-    background:#ef4444;
+.jippy-driver-table th:nth-child(4),
+.jippy-driver-table td:nth-child(4) {
+    width: 115px;
 }
 
-.driver-collapse-btn:hover{
-    background:#dc2626;
+.jippy-driver-table th:nth-child(5),
+.jippy-driver-table td:nth-child(5) {
+    width: 175px;
 }
 
-.driver-expand-btn svg,
-.driver-collapse-btn svg{
-    width:18px;
-    height:18px;
+.jippy-driver-table th:nth-child(6),
+.jippy-driver-table td:nth-child(6) {
+    width: 145px;
 }
 
-.driver-expand-row{
-    background:#fafafa;
+.jippy-driver-table th:nth-child(7),
+.jippy-driver-table td:nth-child(7) {
+    width: 135px;
 }
 
-.driver-details{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-    gap:18px;
-    padding:20px;
+.jippy-driver-table th:nth-child(8),
+.jippy-driver-table td:nth-child(8) {
+    width: 135px;
 }
 
-.driver-detail-card{
-    background:#fff;
-    border:1px solid #ececec;
-    border-left:4px solid #ff6b00;
-    border-radius:10px;
-    padding:16px;
+.jippy-driver-table th:nth-child(9),
+.jippy-driver-table td:nth-child(9) {
+    width: 115px;
 }
 
-.driver-detail-card span{
-    display:block;
-    color:#888;
-    font-size:13px;
-    margin-bottom:6px;
+.jippy-driver-table th:nth-child(10),
+.jippy-driver-table td:nth-child(10) {
+    width: 100px;
 }
 
-.driver-detail-card p{
-    margin:0;
-    font-size:15px;
-    font-weight:600;
-    color:#333;
+
+/* =========================================================
+   ALL TABLE CELLS
+   ========================================================= */
+
+.jippy-driver-table th,
+.jippy-driver-table td {
+    box-sizing: border-box;
+
+    min-width: 0;
 }
 
-.driver-no-result{
-    text-align:center;
-    padding:40px;
-    color:#888;
-    font-size:15px;
+
+/* =========================================================
+   MAIN DRIVER ROW
+   ========================================================= */
+
+.jippy-driver-main-row {
+    width: 100%;
+
+    background: #ffffff;
+}
+
+.jippy-driver-main-row td {
+    height: 54px;
+
+    padding: 7px 12px;
+
+    box-sizing: border-box;
+
+    border-bottom: 1px solid #eeeeee;
+
+    color: #333333;
+
+    font-size: 15px;
+    font-weight: 500;
+
+    text-align: left;
+
+    vertical-align: middle;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+}
+
+.jippy-driver-main-row:hover {
+    background: #fffaf6;
+}
+
+
+/* =========================================================
+   EXPAND BUTTON
+   ========================================================= */
+
+.jippy-driver-expand-cell {
+    text-align: center !important;
+}
+
+.jippy-driver-expand-btn {
+    width: 20px;
+    height: 20px;
+
+    padding: 0;
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border: 1.5px solid #ff6b00;
+
+    border-radius: 50%;
+
+    background: #ffffff;
+
+    color: #ff6b00;
+
+    font-size: 12px;
+
+    cursor: pointer;
+
+    transition: 0.2s ease;
+}
+
+.jippy-driver-expand-btn:hover {
+    background: #ff6b00;
+
+    color: #ffffff;
+}
+
+.jippy-driver-expand-btn-open {
+    background: #ff6b00;
+
+    color: #ffffff;
+}
+
+
+/* =========================================================
+   PROFILE PICTURE
+   ========================================================= */
+
+.jippy-driver-profile-cell {
+    text-align: center !important;
+}
+
+.jippy-driver-profile-image {
+    width: 34px;
+    height: 34px;
+
+    display: inline-block;
+
+    object-fit: cover;
+
+    border-radius: 6px;
+
+    border: 1px solid #dddddd;
+}
+
+.jippy-driver-no-image {
+    color: #777777;
+
+    font-size: 11px;
+}
+
+
+/* =========================================================
+   ACTIONS
+   ========================================================= */
+
+.jippy-driver-actions-cell {
+    text-align: center !important;
+
+    white-space: nowrap !important;
+
+    overflow: visible !important;
+}
+
+.jippy-driver-edit-icon-btn,
+.jippy-driver-delete-icon-btn {
+    width: 28px;
+    height: 28px;
+
+    margin: 0 3px;
+
+    padding: 0;
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 6px;
+
+    background: #ffffff;
+
+    font-size: 14px;
+
+    cursor: pointer;
+
+    transition: 0.2s ease;
+}
+
+.jippy-driver-edit-icon-btn {
+    border: 1px solid #ff6b00;
+
+    color: #ff6b00;
+}
+
+.jippy-driver-edit-icon-btn:hover {
+    background: #ff6b00;
+
+    color: #ffffff;
+}
+
+.jippy-driver-delete-icon-btn {
+    border: 1px solid #e53935;
+
+    color: #e53935;
+}
+
+.jippy-driver-delete-icon-btn:hover {
+    background: #e53935;
+
+    color: #ffffff;
+}
+
+
+/* =========================================================
+   EXPANDED ROW
+   ========================================================= */
+
+.jippy-driver-expanded-row {
+    width: 100%;
+
+    display: table-row;
+
+    background: #fffaf6;
+}
+
+.jippy-driver-expanded-cell {
+    width: 100% !important;
+
+    max-width: 0;
+
+    padding: 0 !important;
+
+    border: none !important;
+
+    border-bottom: 1px solid #eeeeee !important;
+
+    box-sizing: border-box;
+
+    vertical-align: top;
+
+    overflow: hidden;
+}
+
+
+/* =========================================================
+   EXPANDED CONTENT
+   ========================================================= */
+
+.jippy-driver-expanded-content {
+    width: 100% !important;
+
+    max-width: 100% !important;
+
+    margin: 0 !important;
+
+    padding: 16px 12px 18px !important;
+
+    box-sizing: border-box;
+
+    background: #fffaf6;
+
+    overflow: hidden;
+}
+
+
+/* =========================================================
+   EXPANDED TITLE
+   ========================================================= */
+
+.jippy-driver-expanded-title {
+    width: 100%;
+
+    margin: 0 0 12px;
+
+    box-sizing: border-box;
+}
+
+.jippy-driver-expanded-title h4 {
+    margin: 0;
+
+    color: #222222;
+
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.jippy-driver-expanded-title p {
+    margin: 3px 0 0;
+
+    color: #777777;
+
+    font-size: 11px;
+}
+
+
+/* =========================================================
+   DETAIL CARDS
+   ========================================================= */
+
+.jippy-driver-detail-cards {
+    width: 100% !important;
+
+    max-width: 100% !important;
+
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1.35fr)
+        minmax(0, 1fr)
+        minmax(0, 1.25fr)
+        minmax(150px, 0.75fr);
+
+    gap: 10px;
+
+    box-sizing: border-box;
+
+    overflow: hidden;
+}
+
+
+/* =========================================================
+   DETAIL CARD
+   ========================================================= */
+
+.jippy-driver-detail-card {
+    width: 100% !important;
+
+    min-width: 0 !important;
+
+    min-height: 215px;
+
+    padding: 13px;
+
+    box-sizing: border-box;
+
+    background: #ffffff;
+
+    border: 1px solid #e5e5e5;
+
+    border-radius: 8px;
+
+    overflow: hidden;
+}
+
+
+/* =========================================================
+   DETAIL CARD HEADING
+   ========================================================= */
+
+.jippy-driver-detail-card h4 {
+    margin: 0 0 12px;
+
+    padding-bottom: 8px;
+
+    border-bottom: 1px solid #eeeeee;
+
+    color: #ff6b00;
+
+    font-size: 13px;
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   DETAIL ITEMS
+   ========================================================= */
+
+.jippy-driver-detail-item {
+    width: 100%;
+
+    min-width: 0;
+
+    margin-bottom: 9px;
+
+    box-sizing: border-box;
+}
+
+.jippy-driver-detail-item:last-child {
+    margin-bottom: 0;
+}
+
+.jippy-driver-detail-item span {
+    display: block;
+
+    margin-bottom: 3px;
+
+    color: #888888;
+
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.jippy-driver-detail-item strong {
+    display: block;
+
+    min-width: 0;
+
+    color: #222222;
+
+    font-size: 15px;
+    font-weight: 600;
+
+    white-space: normal;
+
+    overflow-wrap: anywhere;
+
+    word-break: break-word;
+}
+
+
+/* =========================================================
+   VERIFIED STATUS
+   ========================================================= */
+
+.jippy-driver-verified {
+    color: #2e9d50 !important;
+}
+
+.jippy-driver-not-verified {
+    color: #e53935 !important;
+}
+
+
+/* =========================================================
+   PROFILE DETAIL CARD
+   ========================================================= */
+
+.jippy-driver-profile-detail-card {
+    width: 100%;
+
+    min-width: 0 !important;
+
+    display: flex;
+
+    flex-direction: column;
+}
+
+.jippy-driver-profile-preview {
+    width: 100%;
+
+    min-height: 145px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    box-sizing: border-box;
+}
+
+.jippy-driver-profile-preview img {
+    max-width: 130px;
+    max-height: 130px;
+
+    object-fit: contain;
+
+    border-radius: 8px;
+
+    border: 1px solid #dddddd;
+}
+
+.jippy-driver-profile-no-image {
+    width: 76px;
+    height: 76px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    box-sizing: border-box;
+
+    border: 1px dashed #cccccc;
+
+    border-radius: 8px;
+
+    color: #888888;
+
+    font-size: 11px;
+
+    text-align: center;
+}
+
+
+/* =========================================================
+   NO RESULTS
+   ========================================================= */
+
+.jippy-driver-no-result {
+    height: 80px;
+
+    color: #777777;
+
+    text-align: center !important;
+
+    font-size: 13px !important;
+}
+
+
+/* =========================================================
+   TABLE FOOTER
+   ========================================================= */
+
+.jippy-driver-table-footer {
+    padding: 12px 20px;
+
+    border-top: 1px solid #eeeeee;
+
+    background: #ffffff;
+
+    color: #777777;
+
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1200px) {
+
+    .jippy-driver-detail-cards {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+}
+
+
+@media (max-width: 768px) {
+
+    .jippy-driver-table-header {
+        align-items: flex-start;
+
+        flex-direction: column;
+
+        gap: 12px;
+    }
+
+    .jippy-driver-toolbar {
+        align-items: flex-start;
+
+        flex-direction: column;
+
+        gap: 12px;
+    }
+
+    .jippy-driver-toolbar-right {
+        width: 100%;
+    }
+
+    .jippy-driver-search-wrapper {
+        flex: 1;
+
+        width: auto;
+    }
+
+    .jippy-driver-detail-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .jippy-driver-expanded-content {
+        padding: 12px !important;
+    }
+
 }

@@ -1,0 +1,711 @@
+/* =========================================================
+   JIPPYMART ADMIN
+   OUTLET CREATE PAGE
+   Theme: #ff6b00
+   ========================================================= */
+
+.jippy-outlet-create-page {
+    min-height: 100vh;
+    padding: 30px 35px 80px;
+    box-sizing: border-box;
+    background: #f5f7fb;
+}
+
+
+/* =========================================================
+   NOTIFICATION
+   ========================================================= */
+
+.jippy-outlet-create-notification {
+    position: fixed;
+    top: 24px;
+    right: 25px;
+    z-index: 10000;
+
+    min-width: 330px;
+    max-width: 450px;
+
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    padding: 14px 16px;
+    box-sizing: border-box;
+
+    border-radius: 10px;
+    background: #ffffff;
+
+    box-shadow:
+        0 8px 30px rgba(0, 0, 0, 0.15);
+
+    animation: jippyOutletNotificationIn 0.3s ease;
+}
+
+@keyframes jippyOutletNotificationIn {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.jippy-outlet-create-notification-success {
+    border-left: 5px solid #2e9d50;
+}
+
+.jippy-outlet-create-notification-error {
+    border-left: 5px solid #e53935;
+}
+
+.jippy-outlet-create-notification-icon {
+    width: 30px;
+    height: 30px;
+    min-width: 30px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #ff6b00;
+    color: #ffffff;
+
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.jippy-outlet-create-notification-error
+.jippy-outlet-create-notification-icon {
+    background: #e53935;
+}
+
+.jippy-outlet-create-notification-content {
+    flex: 1;
+
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.jippy-outlet-create-notification-content strong {
+    color: #222;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.jippy-outlet-create-notification-content span {
+    color: #666;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.jippy-outlet-create-notification > button {
+    border: none;
+    background: transparent;
+
+    color: #777;
+
+    font-size: 21px;
+    line-height: 1;
+
+    cursor: pointer;
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.jippy-outlet-create-header {
+    width: 100%;
+    max-width: 1250px;
+    margin: 0 auto 25px;
+}
+
+.jippy-outlet-create-back-btn {
+    height: 40px;
+    padding: 0 17px;
+
+    margin-bottom: 18px;
+
+    border: none;
+    border-radius: 7px;
+
+    background: #ff6b00;
+    color: #ffffff;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: 0.2s ease;
+}
+
+.jippy-outlet-create-back-btn:hover {
+    background: #e85f00;
+}
+
+.jippy-outlet-create-header h1 {
+    margin: 0;
+
+    color: #222;
+
+    font-size: 30px;
+    line-height: 1.2;
+    font-weight: 700;
+}
+
+.jippy-outlet-create-header p {
+    margin: 7px 0 0;
+
+    color: #777;
+
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   MAIN FORM
+   ========================================================= */
+
+.jippy-outlet-create-form {
+    width: 100%;
+    max-width: 1250px;
+
+    margin: 0 auto;
+
+    padding: 30px;
+
+    box-sizing: border-box;
+
+    background: #ffffff;
+
+    border: 1px solid #eeeeee;
+    border-radius: 14px;
+
+    box-shadow:
+        0 3px 14px rgba(0, 0, 0, 0.07);
+}
+
+
+/* =========================================================
+   SECTION
+   ========================================================= */
+
+.jippy-outlet-create-section {
+    margin-bottom: 32px;
+}
+
+.jippy-outlet-create-section:last-of-type {
+    margin-bottom: 0;
+}
+
+.jippy-outlet-create-section h2 {
+    margin: 0 0 20px;
+
+    padding-bottom: 11px;
+
+    border-bottom: 2px solid #eeeeee;
+
+    color: #ff6b00;
+
+    font-size: 19px;
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   FORM GRID
+   ========================================================= */
+
+.jippy-outlet-create-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 21px 25px;
+}
+
+
+/* =========================================================
+   FIELD
+   ========================================================= */
+
+.jippy-outlet-create-field {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.jippy-outlet-create-field label {
+    margin-bottom: 8px;
+
+    color: #444;
+
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.jippy-outlet-create-field label span {
+    margin-left: 3px;
+    color: #e53935;
+}
+
+
+/* =========================================================
+   INPUT
+   ========================================================= */
+
+.jippy-outlet-create-field input {
+    width: 100%;
+    height: 45px;
+
+    padding: 0 13px;
+
+    box-sizing: border-box;
+
+    border: 1px solid #d8d8d8;
+    border-radius: 8px;
+
+    outline: none;
+
+    background: #ffffff;
+    color: #222;
+
+    font-size: 13px;
+
+    transition: 0.2s ease;
+}
+
+.jippy-outlet-create-field input:hover {
+    border-color: #bdbdbd;
+}
+
+.jippy-outlet-create-field input:focus {
+    border-color: #ff6b00;
+
+    box-shadow:
+        0 0 0 3px rgba(255, 107, 0, 0.11);
+}
+
+.jippy-outlet-create-field input::placeholder {
+    color: #aaa;
+}
+
+
+/* =========================================================
+   REACT SELECT
+   ========================================================= */
+/* =========================================================
+   CUSTOM REACT SELECT
+   ========================================================= */
+
+.jippy-outlet-create-select {
+    width: 100%;
+}
+
+.jippy-outlet-create-select__control {
+    min-height: 45px !important;
+
+    border: 1px solid #d8d8d8 !important;
+    border-radius: 8px !important;
+
+    background: #ffffff !important;
+
+    box-shadow: none !important;
+
+    cursor: pointer !important;
+
+    transition: 0.2s ease;
+}
+
+.jippy-outlet-create-select__control:hover {
+    border-color: #bdbdbd !important;
+}
+
+.jippy-outlet-create-select__control--is-focused {
+    border-color: #ff6b00 !important;
+
+    box-shadow:
+        0 0 0 3px rgba(255, 107, 0, 0.11) !important;
+}
+
+.jippy-outlet-create-select__placeholder {
+    color: #999 !important;
+    font-size: 13px;
+}
+
+.jippy-outlet-create-select__single-value {
+    color: #222 !important;
+    font-size: 13px;
+}
+
+.jippy-outlet-create-select__menu {
+    z-index: 5000 !important;
+
+    border-radius: 8px !important;
+
+    overflow: hidden;
+
+    font-size: 13px;
+}
+
+.jippy-outlet-create-select__option {
+    cursor: pointer;
+}
+
+.jippy-outlet-create-select__option--is-focused {
+    background: #fff3eb !important;
+    color: #222 !important;
+}
+
+.jippy-outlet-create-select__option--is-selected {
+    background: #ff6b00 !important;
+    color: #ffffff !important;
+}
+
+.jippy-outlet-create-select__indicator-separator {
+    background: #eeeeee;
+}
+
+.jippy-outlet-create-select__dropdown-indicator {
+    color: #777;
+}
+
+.jippy-outlet-create-select__clear-indicator {
+    color: #777;
+}
+
+.jippy-outlet-create-select__clear-indicator:hover {
+    color: #e53935;
+}
+
+
+/* =========================================================
+   VALIDATION ERROR
+   ========================================================= */
+
+.jippy-outlet-create-input-error {
+    border-color: #e53935 !important;
+
+    background: #fff9f9 !important;
+}
+
+.jippy-outlet-create-field small {
+    margin-top: 6px;
+
+    color: #e53935;
+
+    font-size: 11px;
+    font-weight: 500;
+
+    line-height: 1.4;
+}
+
+
+/* =========================================================
+   OPERATING DAYS
+   ========================================================= */
+
+.jippy-outlet-create-days {
+    width: 100%;
+
+    border: 1px solid #eeeeee;
+    border-radius: 10px;
+
+    overflow: hidden;
+}
+
+.jippy-outlet-create-day-row {
+    display: grid;
+
+    grid-template-columns:
+        160px
+        110px
+        minmax(170px, 1fr)
+        minmax(170px, 1fr);
+
+    align-items: center;
+
+    gap: 18px;
+
+    min-height: 68px;
+
+    padding: 11px 18px;
+
+    box-sizing: border-box;
+
+    border-bottom: 1px solid #eeeeee;
+}
+
+.jippy-outlet-create-day-row:last-child {
+    border-bottom: none;
+}
+
+.jippy-outlet-create-day-row:hover {
+    background: #fffaf7;
+}
+
+.jippy-outlet-create-day-name {
+    color: #333;
+
+    font-size: 13px;
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   OPEN / CLOSED TOGGLE
+   ========================================================= */
+
+.jippy-outlet-create-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    cursor: pointer;
+
+    color: #555;
+
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.jippy-outlet-create-toggle input {
+    width: 17px;
+    height: 17px;
+
+    margin: 0;
+
+    accent-color: #ff6b00;
+
+    cursor: pointer;
+}
+
+
+/* =========================================================
+   TIME
+   ========================================================= */
+
+.jippy-outlet-create-time {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.jippy-outlet-create-time label {
+    min-width: 58px;
+
+    color: #777;
+
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.jippy-outlet-create-time input {
+    width: 120px;
+    height: 38px;
+
+    padding: 0 9px;
+
+    border: 1px solid #d8d8d8;
+    border-radius: 7px;
+
+    outline: none;
+
+    color: #333;
+    background: #ffffff;
+
+    font-size: 12px;
+}
+
+.jippy-outlet-create-time input:focus {
+    border-color: #ff6b00;
+
+    box-shadow:
+        0 0 0 3px rgba(255, 107, 0, 0.10);
+}
+
+.jippy-outlet-create-time input:disabled {
+    background: #f3f3f3;
+    color: #aaa;
+
+    cursor: not-allowed;
+}
+
+
+/* =========================================================
+   ACTIONS
+   ========================================================= */
+
+.jippy-outlet-create-actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    gap: 18px;
+
+    margin-top: 35px;
+    padding-top: 25px;
+
+    border-top: 1px solid #eeeeee;
+}
+
+.jippy-outlet-create-cancel-btn,
+.jippy-outlet-create-submit-btn {
+    width: 180px;
+    height: 45px;
+
+    border-radius: 8px;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: 0.2s ease;
+}
+
+
+/* Cancel */
+
+.jippy-outlet-create-cancel-btn {
+    border: 1px solid #d5d5d5;
+
+    background: #ffffff;
+    color: #555;
+}
+
+.jippy-outlet-create-cancel-btn:hover {
+    background: #f5f5f5;
+}
+
+
+/* Submit */
+
+.jippy-outlet-create-submit-btn {
+    border: none;
+
+    background: #ff6b00;
+    color: #ffffff;
+}
+
+.jippy-outlet-create-submit-btn:hover {
+    background: #e85f00;
+}
+
+
+/* Disabled */
+
+.jippy-outlet-create-cancel-btn:disabled,
+.jippy-outlet-create-submit-btn:disabled {
+    opacity: 0.6;
+
+    cursor: not-allowed;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1000px) {
+
+    .jippy-outlet-create-day-row {
+        grid-template-columns:
+            130px
+            100px
+            1fr
+            1fr;
+    }
+
+    .jippy-outlet-create-time {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+
+    .jippy-outlet-create-time input {
+        width: 100%;
+    }
+}
+
+
+@media (max-width: 768px) {
+
+    .jippy-outlet-create-page {
+        padding: 20px 16px 60px;
+    }
+
+    .jippy-outlet-create-form {
+        padding: 22px 18px 35px;
+    }
+
+    .jippy-outlet-create-grid {
+        grid-template-columns: 1fr;
+        gap: 18px;
+    }
+
+    .jippy-outlet-create-header h1 {
+        font-size: 25px;
+    }
+
+    .jippy-outlet-create-day-row {
+        grid-template-columns: 1fr 1fr;
+
+        gap: 12px;
+
+        padding: 15px;
+    }
+
+    .jippy-outlet-create-day-name {
+        grid-column: 1 / -1;
+    }
+
+    .jippy-outlet-create-actions {
+        flex-direction: column;
+    }
+
+    .jippy-outlet-create-cancel-btn,
+    .jippy-outlet-create-submit-btn {
+        width: 100%;
+        max-width: 320px;
+    }
+
+    .jippy-outlet-create-notification {
+        top: 15px;
+        right: 15px;
+        left: 15px;
+
+        min-width: auto;
+        max-width: none;
+    }
+}
+
+
+@media (max-width: 500px) {
+
+    .jippy-outlet-create-day-row {
+        grid-template-columns: 1fr;
+    }
+
+    .jippy-outlet-create-day-name {
+        grid-column: auto;
+    }
+
+    .jippy-outlet-create-time {
+        width: 100%;
+    }
+
+    .jippy-outlet-create-time input {
+        width: 100%;
+    }
+}
