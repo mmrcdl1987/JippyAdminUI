@@ -2,10 +2,6 @@ import { FM_API } from "./api";
 
 /**
  * Campaign Location API
- * Query Parameters:
- * - stateId (Required)
- * - cityId (Optional)
- * - areaId (Optional)
  */
 export const fetchCampaignLocations = async (stateId, cityId = null, areaId = null) => {
   const params = { stateId };
@@ -25,34 +21,37 @@ export const fetchStates = async () => {
 };
 
 /**
- * Fetch Outlet Details
- */
-export const fetchOutletDetailsById = async (outletId) => {
-  const response = await FM_API.get(`/api/fm/outlets/getOutletById/${outletId}`);
-  return response.data;
-};
-
-/**
- * Fetch Outlet Products for Price Update (GET)
- * Hits endpoint: /api/fm/products/outlets/{outletId}
+ * Fetch Outlet Products Pricing (GET)
  */
 export const fetchOutletProductsForUpdate = async (outletId) => {
-  const response = await FM_API.get(`/api/fm/products/outlets/${outletId}`);
+  const response = await FM_API.get(`/api/fm/products/outlets/${outletId}/pricing`);
   return response.data;
 };
 
 /**
- * Update Outlet Products
- * Hits endpoint: /api/fm/products/outlets/{outletId}
+ * Single/Changed Products Update API (POST)
  */
-export const updateOutletProducts = async (outletId, payload, userType = "MERCHANT") => {
-  const response = await FM_API.put(
-    `/api/fm/products/outlets/${outletId}`,
+export const updateOutletPricing = async (payload, isApproved = true) => {
+  const response = await FM_API.post(
+    `/api/fm/pricing/update`,
     payload,
     {
-      params: {
-        userType,
-      },
+      params: { isApproved },
+    }
+  );
+  return response.data;
+};
+
+/**
+ * Bulk Outlet Pricing Update API (POST)
+ * Hits endpoint: /api/fm/pricing/bulk-update?isApproved=true
+ */
+export const bulkUpdateOutletPricing = async (payload, isApproved = true) => {
+  const response = await FM_API.post(
+    `/api/fm/pricing/bulk-update`,
+    payload,
+    {
+      params: { isApproved },
     }
   );
   return response.data;

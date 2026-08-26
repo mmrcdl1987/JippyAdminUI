@@ -1,8 +1,9 @@
 import "../styles/CompareFile.css";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import PropTypes from "prop-types";
 import { FiEdit2 } from "react-icons/fi";
 import AddToOutletProducts from "./AddToOutletProducts";
-
 
 import {
   compareMasterProductsFile,
@@ -10,6 +11,7 @@ import {
 } from "../services/masterProductsService";
 
 function CompareFile({ setActivePage }) {
+  const navigate = useNavigate();
 
   const [selectedFile, setSelectedFile] = useState(null);
   const [compareResult, setCompareResult] = useState(null);
@@ -22,130 +24,106 @@ function CompareFile({ setActivePage }) {
   const [selectedOutletProducts, setSelectedOutletProducts] = useState([]);
 
   const [showConfirmPopup, setShowConfirmPopup] = useState(false);
-const [confirmType, setConfirmType] = useState("");
+  const [confirmType, setConfirmType] = useState("");
+
+  // Safe navigation handler supporting both props and router routing
+  const handleNavigation = () => {
+    if (typeof setActivePage === "function") {
+      setActivePage("masterProducts");
+    } else {
+      navigate("/dashboard/masterProducts");
+    }
+  };
 
   // ================= File Selection =================
 
   const handleFileChange = (e) => {
-
     const file = e.target.files[0];
-
     if (!file) return;
-
     setSelectedFile(file);
-
   };
 
   // ================= Compare API =================
 
   const handleCompare = async () => {
-
     if (!selectedFile) {
-
       alert("Please select a file.");
-
       return;
-
     }
 
     try {
-
       setLoading(true);
-
       const response = await compareMasterProductsFile(selectedFile);
-
       console.log(response.data);
-
       setCompareResult(response.data);
-
       setActiveTab("duplicates");
-
       setSelectedProducts([]);
-
     } catch (error) {
-
       console.error(error);
-
     } finally {
-
       setLoading(false);
-
     }
-
   };
-
 
   // ================= Add Selected Products =================
 
-const handleAddToMasterProducts = async () => {
+  const handleAddToMasterProducts = async () => {
+    if (selectedProducts.length === 0) {
+      alert("Please select at least one product.");
+      return;
+    }
 
-  if (selectedProducts.length === 0) {
+    try {
+      const payload = currentProducts
+        .filter((_, index) => selectedProducts.includes(index))
+        .map((product) => ({
+          masterProductName: product.masterProductName,
+          description: product.description,
+          shortDescription: product.shortDescription,
 
-    alert("Please select at least one product.");
+          photo: product.photo,
+          photos: product.photos,
+          thumbnail: product.thumbnail,
 
-    return;
+          categoryId: product.categoryId,
+          categoryName: product.categoryName,
 
-  }
+          subCategoryId: product.subCategoryId,
+          subCategoryName: product.subCategoryName,
 
-  try {
+          veg: product.veg,
+          nonVeg: product.nonVeg,
 
-    const payload = currentProducts
-      .filter((_, index) => selectedProducts.includes(index))
-      .map(product => ({
+          foodType: product.foodType,
+          cuisineType: product.cuisineType,
 
-        masterProductName: product.masterProductName,
-        description: product.description,
-        shortDescription: product.shortDescription,
+          hasOptions: product.hasOptions,
+          optionsEnabled: product.optionsEnabled,
+          options: product.options,
 
-        photo: product.photo,
-        photos: product.photos,
-        thumbnail: product.thumbnail,
+          calories: product.calories,
+          protein: product.protein,
+          fats: product.fats,
+          carbs: product.carbs,
+          grams: product.grams,
 
-        categoryId: product.categoryId,
-        categoryName: product.categoryName,
+          publish: product.publish,
 
-        subCategoryId: product.subCategoryId,
-        subCategoryName: product.subCategoryName,
+          createdBy: 1,
+          updatedBy: 1,
+        }));
 
-        veg: product.veg,
-        nonVeg: product.nonVeg,
+      console.log("Payload:", payload);
 
-        foodType: product.foodType,
-        cuisineType: product.cuisineType,
+      const response = await addNewItemsToMasterProducts(payload);
 
-        hasOptions: product.hasOptions,
-        optionsEnabled: product.optionsEnabled,
-        options: product.options,
+      console.log(response.data);
+      alert("Products added successfully!");
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
-        calories: product.calories,
-        protein: product.protein,
-        fats: product.fats,
-        carbs: product.carbs,
-        grams: product.grams,
-
-        publish: product.publish,
-
-        createdBy: 1,
-        updatedBy: 1,
-
-      }));
-
-    console.log("Payload:", payload);
-
-    const response =
-      await addNewItemsToMasterProducts(payload);
-
-    console.log(response.data);
-
-    alert("Products added successfully!");
-
-  } catch (error) {
-
-    console.error(error);
-
-  }
-
-};
   // ================= Current Table Data =================
 
   const currentProducts =
@@ -154,55 +132,42 @@ const handleAddToMasterProducts = async () => {
       : compareResult?.newProducts || [];
 
   return (
-
     <div className="compare-page">
-
       <div className="compare-card">
-
         {/* Header */}
 
         <div className="compare-header">
-
           <h2>Compare File with Catalogue</h2>
 
           <button
+            type="button"
             className="close-btn"
-            onClick={() => setActivePage("masterProducts")}
+            onClick={handleNavigation}
           >
             ✕
           </button>
-
         </div>
 
         {/* Info */}
 
         <div className="info-card">
-
-          <div className="info-icon">
-            🔎
-          </div>
+          <div className="info-icon">🔎</div>
 
           <div>
-
             <h3>Detect duplicates before importing</h3>
 
             <p>
-              Upload an Excel or CSV file. The system compares the
-              products against the Master Catalogue and separates
-              Duplicate Products and New Products.
+              Upload an Excel or CSV file. The system compares the products
+              against the Master Catalogue and separates Duplicate Products and
+              New Products.
             </p>
-
           </div>
-
         </div>
 
         {/* Upload */}
 
         <div className="upload-area">
-
-          <div className="upload-icon">
-            📂
-          </div>
+          <div className="upload-icon">📂</div>
 
           <h3>Drop your file here</h3>
 
@@ -215,207 +180,142 @@ const handleAddToMasterProducts = async () => {
             onChange={handleFileChange}
           />
 
-          <label
-            htmlFor="compareFile"
-            className="browse-btn"
-          >
+          <label htmlFor="compareFile" className="browse-btn">
             Browse File
           </label>
 
-          {selectedFile && (
-
-            <p className="selected-file">
-
-              {selectedFile.name}
-
-            </p>
-
-          )}
-
+          {selectedFile && <p className="selected-file">{selectedFile.name}</p>}
         </div>
 
-        
-
         {compareResult && (
-
           <>
-
             {/* Statistics */}
 
             <div className="compare-stats">
-
               <div className="compare-stat-card">
-
                 <h2>{compareResult.totalInFile}</h2>
 
                 <p>Total Products</p>
-
               </div>
 
               <div className="compare-stat-card">
-
                 <h2>{compareResult.newCount}</h2>
 
                 <p>New Products</p>
-
               </div>
 
               <div className="compare-stat-card">
-
                 <h2>{compareResult.duplicateCount}</h2>
 
                 <p>Duplicates</p>
-
               </div>
 
               <div className="compare-stat-card">
-
                 <h2>{compareResult.skippedCount}</h2>
 
                 <p>Skipped</p>
-
               </div>
-
             </div>
 
             {/* Tabs */}
 
             <div className="result-tabs">
-
               <button
+                type="button"
                 className={`tab-btn ${
-                  activeTab === "duplicates"
-                    ? "active"
-                    : ""
+                  activeTab === "duplicates" ? "active" : ""
                 }`}
                 onClick={() => {
-
                   setActiveTab("duplicates");
-
                   setSelectedProducts([]);
-
                 }}
               >
-
                 Duplicates ({compareResult.duplicateCount})
-
               </button>
 
               <button
-                className={`tab-btn ${
-                  activeTab === "new"
-                    ? "active"
-                    : ""
-                }`}
+                type="button"
+                className={`tab-btn ${activeTab === "new" ? "active" : ""}`}
                 onClick={() => {
-
                   setActiveTab("new");
-
                   setSelectedProducts([]);
-
                 }}
               >
-
                 New Products ({compareResult.newCount})
-
               </button>
-
             </div>
 
             <div className="table-toolbar">
+              {activeTab === "new" && (
+                <button
+                  type="button"
+                  className="bulk-add-btn"
+                  onClick={() => {
+                    if (selectedProducts.length === 0) {
+                      alert("Please select at least one product.");
+                      return;
+                    }
 
-  {activeTab === "new" && (
+                    setConfirmType("master");
+                    setShowConfirmPopup(true);
+                  }}
+                >
+                  + Add to Master Products
+                </button>
+              )}
 
-    <button
-  className="bulk-add-btn"
- onClick={() => {
+              {activeTab === "duplicates" && (
+                <button
+                  type="button"
+                  className="bulk-add-btn"
+                  onClick={() => {
+                    if (selectedProducts.length === 0) {
+                      alert("Please select at least one product.");
+                      return;
+                    }
 
-  if (selectedProducts.length === 0) {
-    alert("Please select at least one product.");
-    return;
-  }
+                    const products = selectedProducts.map(
+                      (index) => currentProducts[index]
+                    );
 
-  setConfirmType("master");
-  setShowConfirmPopup(true);
+                    setSelectedOutletProducts(products);
 
-}}
->
-  + Add to Master Products
-</button>
-
-  )}
-
-  {activeTab === "duplicates" && (
-
-  <button
-    className="bulk-add-btn"
-    onClick={() => {
-
-  if (selectedProducts.length === 0) {
-    alert("Please select at least one product.");
-    return;
-  }
-
-  const products = selectedProducts.map(
-    (index) => currentProducts[index]
-  );
-
-  setSelectedOutletProducts(products);
-
-  setConfirmType("outlet");
-  setShowConfirmPopup(true);
-
-}}
-  >
-    + Add to Outlet Products
-  </button>
-
-)}
-
-</div>
+                    setConfirmType("outlet");
+                    setShowConfirmPopup(true);
+                  }}
+                >
+                  + Add to Outlet Products
+                </button>
+              )}
+            </div>
 
             {/* TABLE STARTS HERE */}
 
             <div className="compare-table-container">
-
               <table className="compare-table">
-
                 <thead>
-
                   <tr>
-
-                   <th>
-
-  <label className="select-all-label">
-
-    <input
-      type="checkbox"
-      checked={
-        currentProducts.length > 0 &&
-        selectedProducts.length === currentProducts.length
-      }
-      onChange={(e) => {
-
-        if (e.target.checked) {
-
-          setSelectedProducts(
-            currentProducts.map((_, index) => index)
-          );
-
-        } else {
-
-          setSelectedProducts([]);
-
-        }
-
-      }}
-    />
-
-    Select All
-
-  </label>
-
-</th>
+                    <th>
+                      <label className="select-all-label">
+                        <input
+                          type="checkbox"
+                          checked={
+                            currentProducts.length > 0 &&
+                            selectedProducts.length === currentProducts.length
+                          }
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedProducts(
+                                currentProducts.map((_, index) => index)
+                              );
+                            } else {
+                              setSelectedProducts([]);
+                            }
+                          }}
+                        />
+                        Select All
+                      </label>
+                    </th>
 
                     <th>Photo</th>
 
@@ -438,280 +338,196 @@ const handleAddToMasterProducts = async () => {
                     <th>Status</th>
 
                     <th>Edit</th>
-
-                  
-
                   </tr>
-
                 </thead>
 
                 <tbody>
-
                   {currentProducts.map((product, index) => (
+                    <tr
+                      key={
+                        product.masterProductId ??
+                        `${product.masterProductName}-${index}`
+                      }
+                    >
+                      {/* Checkbox */}
 
-<tr
-  key={
-    product.masterProductId ??
-    `${product.masterProductName}-${index}`
-  }
->
-  {/* Checkbox */}
+                      <td>
+                        <input
+                          type="checkbox"
+                          checked={selectedProducts.includes(index)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedProducts([
+                                ...selectedProducts,
+                                index,
+                              ]);
+                            } else {
+                              setSelectedProducts(
+                                selectedProducts.filter((id) => id !== index)
+                              );
+                            }
+                          }}
+                        />
+                      </td>
 
-  <td>
+                      {/* Photo */}
 
-    <input
-      type="checkbox"
-     checked={selectedProducts.includes(index)}
-      onChange={(e) => {
+                      <td>
+                        <img
+                          src={product.photo || "/no-image.png"}
+                          alt=""
+                          className="product-photo"
+                        />
+                      </td>
 
-        if (e.target.checked) {
+                      {/* Product */}
 
-          setSelectedProducts([
-          ...selectedProducts,
-          index,
-]);
+                      <td>
+                        <div className="product-info">
+                          <strong>{product.masterProductName}</strong>
 
-        } else {
+                          <div className="product-sub">{product.foodType}</div>
+                        </div>
+                      </td>
 
-          setSelectedProducts(
-            selectedProducts.filter(
-              (id)=>id!==index
-            )
-          );
+                      {/* Category */}
 
-        }
+                      <td>
+                        <div>
+                          <strong>{product.categoryName}</strong>
 
-      }}
-    />
+                          <div className="product-sub">
+                            {product.subCategoryName}
+                          </div>
+                        </div>
+                      </td>
 
-  </td>
+                      {/* Nutrition */}
 
-  {/* Photo */}
+                      <td>{product.calories}</td>
 
-  <td>
+                      <td>{product.protein}</td>
 
-    <img
-  src={product.photo || "/no-image.png"}
-  alt=""
-  className="product-photo"
-/>
+                      <td>{product.fats}</td>
 
-  </td>
+                      <td>{product.carbs}</td>
 
-  {/* Product */}
+                      <td>{product.grams}</td>
 
-  <td>
+                      {/* Options */}
 
-    <div className="product-info">
+                      <td>
+                        <span
+                          className={
+                            product.hasOptions ? "yes-tag" : "no-tag"
+                          }
+                        >
+                          {product.hasOptions ? "Yes" : "No"}
+                        </span>
+                      </td>
 
-      <strong>{product.masterProductName}</strong>
+                      {/* Publish */}
 
-      <div className="product-sub">
+                      <td>
+                        <span
+                          className={
+                            product.publish === 1
+                              ? "published-tag"
+                              : "draft-tag"
+                          }
+                        >
+                          {product.publish === 1 ? "Published" : "Draft"}
+                        </span>
+                      </td>
 
-        {product.foodType}
+                      {/* Edit */}
 
+                      <td>
+                        <button type="button" className="edit-small-btn">
+                          <FiEdit2 />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
+
+        {showConfirmPopup && (
+          <div className="confirm-popup-overlay">
+            <div className="confirm-popup">
+              <h3>Confirmation</h3>
+
+              <p>
+                {confirmType === "master"
+                  ? "Are you sure you want to add the selected products to Master Products?"
+                  : "Are you sure you want to add the selected products to Outlet Products?"}
+              </p>
+
+              <div className="confirm-buttons">
+                <button
+                  type="button"
+                  className="cancel-popup-btn"
+                  onClick={() => setShowConfirmPopup(false)}
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="button"
+                  className="confirm-popup-btn"
+                  onClick={() => {
+                    setShowConfirmPopup(false);
+
+                    if (confirmType === "master") {
+                      handleAddToMasterProducts();
+                    } else {
+                      setShowOutletPopup(true);
+                    }
+                  }}
+                >
+                  Yes
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Footer */}
+
+        <div className="compare-footer">
+          <button
+            type="button"
+            className="cancel-btn"
+            onClick={handleNavigation}
+          >
+            Close
+          </button>
+
+          <button
+            type="button"
+            className="compare-button"
+            onClick={handleCompare}
+          >
+            {loading ? "Comparing..." : "Compare"}
+          </button>
+        </div>
       </div>
 
+      {showOutletPopup && (
+        <AddToOutletProducts
+          setShowOutletPopup={setShowOutletPopup}
+          selectedProducts={selectedOutletProducts}
+        />
+      )}
     </div>
-
-  </td>
-
-  {/* Category */}
-
-  <td>
-
-    <div>
-
-      <strong>{product.categoryName}</strong>
-
-      <div className="product-sub">
-
-        {product.subCategoryName}
-
-      </div>
-
-    </div>
-
-  </td>
-
-  {/* Nutrition */}
-
-  <td>{product.calories}</td>
-
-  <td>{product.protein}</td>
-
-  <td>{product.fats}</td>
-
-  <td>{product.carbs}</td>
-
-  <td>{product.grams}</td>
-
-  {/* Options */}
-
-  <td>
-
-    <span
-      className={
-        product.hasOptions
-          ? "yes-tag"
-          : "no-tag"
-      }
-    >
-
-      {product.hasOptions ? "Yes" : "No"}
-
-    </span>
-
-  </td>
-
-  {/* Publish */}
-
-  <td>
-
-    <span
-      className={
-        product.publish === 1
-          ? "published-tag"
-          : "draft-tag"
-      }
-    >
-
-      {product.publish === 1
-        ? "Published"
-        : "Draft"}
-
-    </span>
-
-  </td>
-
-  {/* Edit */}
-
-  <td>
-
-    <button className="edit-small-btn">
-  <FiEdit2 />
-</button>
-
-  </td>
-
-  {/* Add to Outlet */}
-
-  {/* <td>
-
-    <button className="add-outlet-btn">
-
-      Add
-
-    </button>
-
-  </td> */}
-
-</tr>
-
-))}
-
-</tbody>
-
-</table>
-
-</div>
-
-</>
-
-)}
-
-{showConfirmPopup && (
-
-<div className="confirm-popup-overlay">
-
-  <div className="confirm-popup">
-
-    <h3>Confirmation</h3>
-
-    <p>
-
-      {confirmType === "master"
-        ? "Are you sure you want to add the selected products to Master Products?"
-        : "Are you sure you want to add the selected products to Outlet Products?"}
-
-    </p>
-
-    <div className="confirm-buttons">
-
-      <button
-        className="cancel-popup-btn"
-        onClick={() => setShowConfirmPopup(false)}
-      >
-        Cancel
-      </button>
-
-      <button
-        className="confirm-popup-btn"
-        onClick={() => {
-
-  setShowConfirmPopup(false);
-
-  if (confirmType === "master") {
-
-    handleAddToMasterProducts();
-
-  } else {
-
-    setShowOutletPopup(true);
-
-  }
-
-}}
-      >
-        Yes
-      </button>
-
-    </div>
-
-  </div>
-
-</div>
-
-)}
-{/* Footer */}
-
-<div className="compare-footer">
-
-<button
-className="cancel-btn"
-onClick={() => setActivePage("masterProducts")}
->
-
-Close
-
-</button>
-
-<button
-className="compare-button"
-onClick={handleCompare}
->
-
-{loading ? "Comparing..." : "Compare"}
-
-</button>
-
-</div>
-
-</div>
-
-{showOutletPopup && (
-
-<AddToOutletProducts
-setShowOutletPopup={setShowOutletPopup}
-selectedProducts={selectedOutletProducts}
-/>
-
-)}
-
-</div>
-
-);
-
+  );
 }
+
+CompareFile.propTypes = {
+  setActivePage: PropTypes.func,
+};
 
 export default CompareFile;

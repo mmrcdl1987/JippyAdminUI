@@ -1,18 +1,23 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
+import { useNavigate } from "react-router-dom";
 import {
   updateMasterProduct,
+  getMasterProductById,
   getAllCategories,
 } from "../services/masterProductsService";
 import "../styles/EditMasterProduct.css";
 
-function EditMasterProduct({ selectedProduct, setActivePage }) {
+function EditMasterProduct({ selectedProduct, setSelectedProduct, setActivePage }) {
+  const navigate = useNavigate();
+
   // Loading & Error States
   const [categories, setCategories] = useState([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
   const [categoriesError, setCategoriesError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
+  const [fetchingProduct, setFetchingProduct] = useState(false);
 
   // Form Fields State
   const [productName, setProductName] = useState("");
@@ -52,6 +57,42 @@ function EditMasterProduct({ selectedProduct, setActivePage }) {
   const [csvMerchantPrice, setCsvMerchantPrice] = useState("");
   const [csvTiming, setCsvTiming] = useState("");
   const [csvDayOfWeek, setCsvDayOfWeek] = useState("");
+
+  // Helper navigation fallback handler supporting absolute dashboard path
+  const handleBackNavigation = () => {
+    localStorage.removeItem("selectedMasterProductId");
+    if (typeof setActivePage === "function") {
+      setActivePage("masterProducts");
+    } else {
+      navigate("/dashboard/masterProducts"); // FIXED: Absolute routing path
+    }
+  };
+
+  // Handle page refresh persistence using localStorage
+  useEffect(() => {
+    const fetchProductOnReload = async () => {
+      const storedId = localStorage.getItem("selectedMasterProductId");
+      if (!selectedProduct && storedId) {
+        try {
+          setFetchingProduct(true);
+          const response = await getMasterProductById(storedId);
+          if (response?.data && typeof setSelectedProduct === "function") {
+            setSelectedProduct(response.data);
+          }
+        } catch (error) {
+          console.error("Failed to recover product on refresh:", error);
+        } finally {
+          setFetchingProduct(false);
+        }
+      }
+    };
+
+    if (!selectedProduct) {
+      fetchProductOnReload();
+    } else {
+      localStorage.setItem("selectedMasterProductId", selectedProduct.masterProductId);
+    }
+  }, [selectedProduct, setSelectedProduct]);
 
   // Sync state when selectedProduct is updated
   useEffect(() => {
@@ -194,11 +235,13 @@ function EditMasterProduct({ selectedProduct, setActivePage }) {
   const availableSubCategories =
     currentCategory?.subCategories || currentCategory?.subCategoryList || [];
 
-  // Submit Handler: Only builds required and provided fields
+  // Submit Handler
   const handleUpdate = async (e) => {
     e.preventDefault();
 
-    if (!selectedProduct?.masterProductId) {
+    const currentProductId = selectedProduct?.masterProductId || localStorage.getItem("selectedMasterProductId");
+
+    if (!currentProductId) {
       alert("Invalid product ID");
       return;
     }
@@ -211,7 +254,6 @@ function EditMasterProduct({ selectedProduct, setActivePage }) {
     setIsSubmitting(true);
     setSubmitError(null);
 
-    // Dynamic Category construction
     const finalCategoryId = isOtherCategory
       ? null
       : categoryId
@@ -230,7 +272,6 @@ function EditMasterProduct({ selectedProduct, setActivePage }) {
         ? null
         : subCategoryName.trim();
 
-    // Clean JSON Options handling
     let sanitizedOptions = null;
     if (options && options.trim()) {
       try {
@@ -241,21 +282,18 @@ function EditMasterProduct({ selectedProduct, setActivePage }) {
       }
     }
 
-    // Dynamic payload - sends explicit values for provided inputs and NULL for missing values
     const payload = {
-      masterProductId: selectedProduct.masterProductId,
+      masterProductId: Number(currentProductId),
       masterProductName: productName.trim(),
       categoryName: finalCategoryName,
       categoryId: finalCategoryId,
       subCategoryId: finalSubCategoryId,
       subCategoryName: finalSubCategoryName,
 
-      // Include options if explicitly marked or typed
       hasOptions: Number(hasOptions),
       optionsEnabled: Number(optionsEnabled),
       options: sanitizedOptions,
 
-      // Other fields (null if empty string to prevent DB type errors)
       description: description.trim() || null,
       shortDescription: shortDescription.trim() || null,
       photo: photo.trim() || null,
@@ -279,14 +317,11 @@ function EditMasterProduct({ selectedProduct, setActivePage }) {
     };
 
     try {
-      const response = await updateMasterProduct(
-        selectedProduct.masterProductId,
-        payload
-      );
+      const response = await updateMasterProduct(currentProductId, payload);
 
       if (response?.status === 200 || response?.status === 204) {
         alert("✅ Product updated successfully!");
-        setActivePage("masterProducts");
+        handleBackNavigation();
       }
     } catch (error) {
       console.error("Update failed:", error);
@@ -300,12 +335,34 @@ function EditMasterProduct({ selectedProduct, setActivePage }) {
     }
   };
 
+  if (fetchingProduct) {
+    return <h3>Loading product details...</h3>;
+  }
+
+  if (!selectedProduct && !localStorage.getItem("selectedMasterProductId")) {
+    return (
+      <div className="edit-product-page">
+        <button
+          type="button"
+          className="back-btn"
+          onClick={handleBackNavigation}
+        >
+          ← Back
+        </button>
+        <h1>Edit Master Product</h1>
+        <div className="alert-banner error-banner" style={{ marginTop: "20px" }}>
+          ⚠️ No product selected for editing. Please select a product from the list view.
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="edit-product-page">
       <button
         type="button"
         className="back-btn"
-        onClick={() => setActivePage("masterProducts")}
+        onClick={handleBackNavigation}
         disabled={isSubmitting}
       >
         ← Back
@@ -647,49 +704,12 @@ function EditMasterProduct({ selectedProduct, setActivePage }) {
           </div>
         </div>
 
-        {/* ================= CSV DETAILS ================= */}
-        <div className="form-card">
-          <h2>📄 CSV Details</h2>
-
-          <div className="form-grid">
-            <div className="form-group">
-              <label htmlFor="csvMerchantPrice">CSV Merchant Price</label>
-              <input
-                id="csvMerchantPrice"
-                type="number"
-                value={csvMerchantPrice}
-                onChange={(e) => setCsvMerchantPrice(e.target.value)}
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="csvTiming">CSV Timing</label>
-              <input
-                id="csvTiming"
-                type="text"
-                value={csvTiming}
-                onChange={(e) => setCsvTiming(e.target.value)}
-              />
-            </div>
-
-            <div className="form-group full-width">
-              <label htmlFor="csvDayOfWeek">CSV Day Of Week</label>
-              <input
-                id="csvDayOfWeek"
-                type="text"
-                value={csvDayOfWeek}
-                onChange={(e) => setCsvDayOfWeek(e.target.value)}
-              />
-            </div>
-          </div>
-        </div>
-
         {/* ================= BUTTONS ================= */}
         <div className="button-group">
           <button
             type="button"
             className="cancel-btn"
-            onClick={() => setActivePage("masterProducts")}
+            onClick={handleBackNavigation}
             disabled={isSubmitting}
           >
             Cancel
@@ -706,7 +726,8 @@ function EditMasterProduct({ selectedProduct, setActivePage }) {
 
 EditMasterProduct.propTypes = {
   selectedProduct: PropTypes.object,
-  setActivePage: PropTypes.func.isRequired,
+  setSelectedProduct: PropTypes.func,
+  setActivePage: PropTypes.func,
 };
 
 export default EditMasterProduct;

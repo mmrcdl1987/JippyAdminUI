@@ -1,6 +1,8 @@
 import "../styles/MasterProducts.css";
 import MasterProductsTable from "../components/masterProducts/MasterProductsTable";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import PropTypes from "prop-types";
 
 import {
   getAllMasterProducts,
@@ -11,9 +13,9 @@ import {
 } from "../services/masterProductsService";
 
 function MasterProducts({
-  setActivePage,
   setSelectedProduct,
 }) {
+  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -117,12 +119,13 @@ function MasterProducts({
     }
   };
 
-  // Edit Product Handler
+  // Edit Product Handler (Fixed with absolute routing path and localStorage persistence)
   const handleEdit = async (masterProductId) => {
     try {
       const response = await getMasterProductById(masterProductId);
       setSelectedProduct(response.data);
-      setActivePage("editMasterProduct");
+      localStorage.setItem("selectedMasterProductId", masterProductId);
+      navigate("/dashboard/editMasterProduct"); // FIXED: Absolute path navigation
     } catch (error) {
       console.error("Failed to fetch product:", error);
     }
@@ -155,13 +158,13 @@ function MasterProducts({
         <div className="master-right">
           <button
             className="compare-btn"
-            onClick={() => setActivePage("compareFile")}
+            onClick={() => navigate("/dashboard/compareFile")}
           >
             🔍 Compare File
           </button>
           <button
             className="add-product-btn"
-            onClick={() => setActivePage("createMasterProduct")}
+            onClick={() => navigate("/dashboard/createMasterProduct")}
           >
             + Add Product
           </button>
@@ -307,5 +310,9 @@ function MasterProducts({
     </div>
   );
 }
+
+MasterProducts.propTypes = {
+  setSelectedProduct: PropTypes.func.isRequired,
+};
 
 export default MasterProducts;

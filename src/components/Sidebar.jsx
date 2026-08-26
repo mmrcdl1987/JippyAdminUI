@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { menuData } from "../data/menuData";
 import "../styles/Sidebar.css";
 import { hasPermission } from "../utils/permissionUtils";
@@ -12,8 +12,9 @@ import {
   FiLogOut
 } from "react-icons/fi";
 
-function Sidebar({ setActivePage }) {
+function Sidebar() {
   const navigate = useNavigate();
+  const location = useLocation();
   const role = getRole();
 
   const [openMenus, setOpenMenus] = useState({});
@@ -29,8 +30,8 @@ function Sidebar({ setActivePage }) {
     if (item.children) {
       toggleMenu(item.name);
     } else if (item.pageKey) {
-      console.log("Clicked:", item.pageKey);
-      setActivePage(item.pageKey);
+      console.log("Navigating to:", item.pageKey);
+      navigate(`/dashboard/${item.pageKey}`);
     }
   };
 
@@ -38,6 +39,8 @@ function Sidebar({ setActivePage }) {
     localStorage.clear();
     navigate("/login");
   };
+
+  const isDashboardActive = location.pathname === "/dashboard" || location.pathname === "/dashboard/";
 
   return (
     <div className="sidebar">
@@ -60,8 +63,8 @@ function Sidebar({ setActivePage }) {
       </div>
 
       <div
-        className="menu active"
-        onClick={() => setActivePage("dashboard")}
+        className={`menu ${isDashboardActive ? "active" : ""}`}
+        onClick={() => navigate("/dashboard")}
       >
         <FiHome className="menu-icon" />
         <span>Dashboard</span>
@@ -80,53 +83,59 @@ function Sidebar({ setActivePage }) {
                 }
                 return hasPermission(item.permission);
               })
-              .map((item) => (
-                <div key={item.name}>
-                  <div
-                    className="menu-item"
-                    onClick={() => handleMenuClick(item)}
-                  >
-                    <span>{item.name}</span>
+              .map((item) => {
+                const isItemActive = item.pageKey && location.pathname === `/dashboard/${item.pageKey}`;
+                return (
+                  <div key={item.name}>
+                    <div
+                      className={`menu-item ${isItemActive ? "active" : ""}`}
+                      onClick={() => handleMenuClick(item)}
+                    >
+                      <span>{item.name}</span>
 
-                    {item.children && (
-                      <span className="arrow">
-                        {openMenus[item.name] ? (
-                          <FiChevronDown />
-                        ) : (
-                          <FiChevronRight />
-                        )}
-                      </span>
-                    )}
+                      {item.children && (
+                        <span className="arrow">
+                          {openMenus[item.name] ? (
+                            <FiChevronDown />
+                          ) : (
+                            <FiChevronRight />
+                          )}
+                        </span>
+                      )}
+                    </div>
+
+                    {openMenus[item.name] &&
+                      item.children &&
+                      item.children.some((child) =>
+                        hasPermission(child.permission)
+                      ) && (
+                        <div className="submenu">
+                          {item.children
+                            .filter((child) =>
+                              hasPermission(child.permission)
+                            )
+                            .map((child) => {
+                              const isChildActive = child.pageKey && location.pathname === `/dashboard/${child.pageKey}`;
+                              return (
+                                <div
+                                  key={child.name}
+                                  className={`submenu-item ${isChildActive ? "active" : ""}`}
+                                  onClick={() => {
+                                    console.log("Navigating to subpage:", child.pageKey);
+                                    if (child.pageKey) {
+                                      navigate(`/dashboard/${child.pageKey}`);
+                                    }
+                                  }}
+                                >
+                                  • {child.name}
+                                </div>
+                              );
+                            })}
+                        </div>
+                      )}
                   </div>
-
-                  {openMenus[item.name] &&
-                    item.children &&
-                    item.children.some((child) =>
-                      hasPermission(child.permission)
-                    ) && (
-                      <div className="submenu">
-                        {item.children
-                          .filter((child) =>
-                            hasPermission(child.permission)
-                          )
-                          .map((child) => (
-                            <div
-                              key={child.name}
-                              className="submenu-item"
-                              onClick={() => {
-                                console.log("Clicked:", child.pageKey);
-                                if (child.pageKey) {
-                                  setActivePage(child.pageKey);
-                                }
-                              }}
-                            >
-                              • {child.name}
-                            </div>
-                          ))}
-                      </div>
-                    )}
-                </div>
-              ))}
+                );
+              })}
           </div>
         ))}
 
