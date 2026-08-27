@@ -1303,3 +1303,25 @@
   background: #f2f2f2;
   color: #ff6422;
 }
+
+
+.jippy-all-outlets-page {
+  position: relative;
+  z-index: 1;
+}
+
+.jippy-all-outlets-create-btn,
+.jippy-all-outlets-edit-btn,
+.jippy-all-outlets-delete-btn {
+  position: relative;
+  z-index: 9999;
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
+
+.jippy-all-outlets-header-actions,
+.jippy-all-outlets-actions {
+  position: relative;
+  z-index: 9999;
+  pointer-events: auto !important;
+}
