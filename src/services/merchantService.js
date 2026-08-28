@@ -51,3 +51,5 @@ export const uploadMerchants = async (file) => {
 
   return response.data;
 };
+
+

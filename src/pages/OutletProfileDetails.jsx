@@ -1852,7 +1852,7 @@ function OutletProfileDetails({ setActivePage }) {
 
       <div className="jippy-outlet-profile-bottom-actions">
 
-        <button
+        {/* <button
           className="jippy-outlet-profile-back-btn"
           onClick={handleBack}
         >
@@ -1861,7 +1861,7 @@ function OutletProfileDetails({ setActivePage }) {
 
           Back to Outlets
 
-        </button>
+        </button> */}
 
       </div>
 
