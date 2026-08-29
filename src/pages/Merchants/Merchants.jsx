@@ -2,9 +2,9 @@ import "../../styles/Merchants/Merchants.css";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FM_API } from "../../services/api";
+import { uploadMerchants } from "../../services/merchantService";
 import { FaStore } from "react-icons/fa";
 
-  import { uploadMerchants } from "../../services/merchantService";
 
 function Merchants() {
   const navigate = useNavigate();
@@ -17,7 +17,6 @@ function Merchants() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(30);
 
-
   useEffect(() => {
     fetchMerchants();
   }, []);
@@ -27,7 +26,8 @@ function Merchants() {
 // ============================================================
 
 const [selectedFile, setSelectedFile] = useState(null);
-const [bulkUploading, setBulkUploading] = useState(false);
+const [bulkUploadLoading, setBulkUploadLoading] = useState(false);
+const [bulkUploadResult, setBulkUploadResult] = useState(null);
 const [showColumnsMenu, setShowColumnsMenu] = useState(false);
 
 const [visibleColumns, setVisibleColumns] = useState({
@@ -70,69 +70,112 @@ const [visibleColumns, setVisibleColumns] = useState({
     }
   };
 
- const handleBulkFileChange = (e) => {
-  const file = e.target.files?.[0];
+  // ============================================================
+  // BULK MERCHANT FILE SELECTION
+  // ============================================================
+  const handleBulkFileChange = (event) => {
+    const file = event.target.files?.[0];
 
-  if (!file) return;
-
-  const fileName = file.name.toLowerCase();
-
-  if (
-    !fileName.endsWith(".csv") &&
-    !fileName.endsWith(".xlsx") &&
-    !fileName.endsWith(".xls")
-  ) {
-    alert("Please select a CSV or Excel file.");
-    e.target.value = "";
-    return;
-  }
-
-  setBulkFile(file);
-};
-
-const handleBulkUpload = async () => {
-  if (!bulkFile) {
-    alert("Please select a CSV file");
-    return;
-  }
-
-  try {
-    setBulkUploading(true);
-
-    const formData = new FormData();
-    formData.append("file", bulkFile);
-
-    const response = await api.post(
-      "/api/fm/merchants/upload",
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
-
-    console.log("Bulk upload response:", response.data);
-
-    alert(response.data?.message || "Upload completed");
-
-    setBulkFile(null);
-
-    if (bulkFileInputRef.current) {
-      bulkFileInputRef.current.value = "";
+    if (!file) {
+      setSelectedFile(null);
+      setBulkUploadResult(null);
+      return;
     }
 
-    fetchMerchants();
-  } catch (error) {
-    console.error("Bulk upload failed:", error);
-    alert(
-      error.response?.data?.message ||
-      "Bulk upload failed"
-    );
-  } finally {
-    setBulkUploading(false);
-  }
-};
+    const fileName = file.name.toLowerCase();
+    const isValidFile =
+      fileName.endsWith(".csv") ||
+      fileName.endsWith(".xlsx") ||
+      fileName.endsWith(".xls");
+
+    if (!isValidFile) {
+      alert("Please select a CSV or Excel file (.csv, .xlsx, .xls).");
+      event.target.value = "";
+      setSelectedFile(null);
+      setBulkUploadResult(null);
+      return;
+    }
+
+    if (file.size === 0) {
+      alert("The selected file is empty.");
+      event.target.value = "";
+      setSelectedFile(null);
+      setBulkUploadResult(null);
+      return;
+    }
+
+    setSelectedFile(file);
+    setBulkUploadResult(null);
+  };
+
+  // ============================================================
+  // BULK MERCHANT UPLOAD
+  // ============================================================
+  const handleBulkUpdate = async () => {
+    if (!selectedFile) {
+      alert("Please select a CSV or Excel file first.");
+      return;
+    }
+
+    try {
+      setBulkUploadLoading(true);
+      setBulkUploadResult(null);
+
+      console.log("[MERCHANT BULK] Uploading:", selectedFile.name);
+
+      const response = await uploadMerchants(selectedFile);
+
+      console.log("[MERCHANT BULK] API response:", response);
+
+      const resultData = response?.data || response;
+      const success = response?.success !== false;
+
+      setBulkUploadResult({
+        success,
+        message:
+          response?.message ||
+          (success
+            ? "Merchants uploaded successfully."
+            : "Merchant upload failed."),
+        data: resultData,
+      });
+
+      // Refresh merchant list after API call
+      if (success) {
+        await fetchMerchants();
+      }
+
+      // Clear selected file after successful request
+      if (success) {
+        setSelectedFile(null);
+
+        const fileInput = document.getElementById(
+          "merchant-bulk-file"
+        );
+
+        if (fileInput) {
+          fileInput.value = "";
+        }
+      }
+    } catch (error) {
+      console.error("[MERCHANT BULK] Upload failed:", error);
+
+      const errorData = error?.response?.data;
+
+      setBulkUploadResult({
+        success: false,
+        message:
+          errorData?.message ||
+          errorData?.error ||
+          error?.message ||
+          "Merchant bulk upload failed.",
+        data: errorData?.data || errorData || null,
+      });
+    } finally {
+      setBulkUploadLoading(false);
+    }
+  };
+
 const filteredMerchants = merchants.filter((merchant) => {
   const keyword = search.toLowerCase();
 
@@ -290,60 +333,173 @@ const showAllMerchantColumns = () => {
         </div>
 
         <div className="merchant-list-bulk-middle">
-          <button className="merchant-list-download-btn">
+          <button
+            type="button"
+            className="merchant-list-download-btn"
+          >
             ⬇ Download Template
           </button>
         </div>
 
-     <div className="merchant-list-bulk-right">
-  <label htmlFor="merchant-bulk-file">
-    Select File (.csv / .xls / .xlsx)
-  </label>
+        <div className="merchant-list-bulk-right">
+          <label htmlFor="merchant-bulk-file">
+            Select File (.csv / .xls / .xlsx)
+          </label>
 
-<input
-  type="file"
-  accept=".csv,text/csv,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-  onChange={handleBulkFileChange}
-/>
+          <input
+            id="merchant-bulk-file"
+            type="file"
+            className="merchant-list-file-input"
+            accept=".csv,.xlsx,.xls"
+            onChange={handleBulkFileChange}
+            disabled={bulkUploadLoading}
+          />
 
-  {selectedFile && (
-    <small className="merchant-list-selected-file">
-      Selected: {selectedFile.name}
-    </small>
-  )}
+          <small>
+            File should contain Merchant Name, Email, Mobile, Address, Area,
+            City, State, Business Model, Merchant Type and Merchant Id (for updates).
+          </small>
 
-  <small>
-    File should contain the required merchant fields.
-  </small>
+          {selectedFile && (
+            <div
+              style={{
+                marginTop: "8px",
+                fontSize: "12px",
+                color: "#333",
+              }}
+            >
+              Selected File: <strong>{selectedFile.name}</strong>
+            </div>
+          )}
 
-  <button
-    type="button"
-    className="merchant-list-update-btn"
-    onClick={handleBulkUpload}
-    disabled={bulkUploading || !selectedFile}
-  >
-    {bulkUploading ? "Uploading..." : "⬆ Bulk Upload"}
-  </button>
-</div>
+          <button
+            type="button"
+            className="merchant-list-update-btn"
+            onClick={handleBulkUpdate}
+            disabled={bulkUploadLoading || !selectedFile}
+          >
+            {bulkUploadLoading ? "⏳ Uploading..." : "⬆ Bulk Update"}
+          </button>
+
+          {bulkUploadResult && (
+            <div
+              className={
+                bulkUploadResult.success
+                  ? "upload-result upload-success"
+                  : "upload-result upload-error"
+              }
+              style={{
+                marginTop: "12px",
+                padding: "12px",
+                borderRadius: "8px",
+                backgroundColor: bulkUploadResult.success
+                  ? "#e8f5e9"
+                  : "#ffebee",
+                border: bulkUploadResult.success
+                  ? "1px solid #81c784"
+                  : "1px solid #ef9a9a",
+              }}
+            >
+              <h4 style={{ margin: "0 0 8px 0" }}>
+                {bulkUploadResult.success ? "✓ " : "✕ "}
+                {bulkUploadResult.message}
+              </h4>
+
+              {bulkUploadResult.data && (
+                <div className="upload-result-details">
+                  {bulkUploadResult.data.totalRows !== undefined && (
+                    <p>
+                      <strong>Total Rows:</strong>{" "}
+                      {bulkUploadResult.data.totalRows}
+                    </p>
+                  )}
+
+                  {bulkUploadResult.data.successCount !== undefined && (
+                    <p>
+                      <strong>Success:</strong>{" "}
+                      {bulkUploadResult.data.successCount}
+                    </p>
+                  )}
+
+                  {bulkUploadResult.data.failureCount !== undefined && (
+                    <p>
+                      <strong>Failed:</strong>{" "}
+                      {bulkUploadResult.data.failureCount}
+                    </p>
+                  )}
+
+                  {bulkUploadResult.data.errors?.length > 0 && (
+                    <div style={{ marginTop: "10px" }}>
+                      <strong>Upload Errors:</strong>
+
+                      <div style={{ marginTop: "6px" }}>
+                        {bulkUploadResult.data.errors.map((error, index) => {
+                          if (typeof error === "string") {
+                            return (
+                              <div
+                                key={index}
+                                style={{
+                                  marginBottom: "6px",
+                                  padding: "8px 10px",
+                                  background: "#fff",
+                                  border: "1px solid #ddd",
+                                  borderRadius: "5px",
+                                  fontSize: "14px",
+                                  color: "#000",
+                                }}
+                              >
+                                {error}
+                              </div>
+                            );
+                          }
+
+                          const rowNum =
+                            error.rowNumber ??
+                            error.row ??
+                            error.line ??
+                            index + 1;
+
+                          const fieldName =
+                            error.field ??
+                            error.column ??
+                            error.key ??
+                            "";
+
+                          const errorMsg =
+                            error.reason ??
+                            error.message ??
+                            error.error ??
+                            JSON.stringify(error);
+
+                          return (
+                            <div
+                              key={index}
+                              style={{
+                                marginBottom: "6px",
+                                padding: "8px 10px",
+                                background: "#fff",
+                                border: "1px solid #ddd",
+                                borderRadius: "5px",
+                                fontSize: "14px",
+                                color: "#000",
+                              }}
+                            >
+                              <strong>Row {rowNum}</strong>
+                              {fieldName && <span>{` - ${fieldName}`}</span>}
+                              {errorMsg && <span>{`: ${errorMsg}`}</span>}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
 
       </div> 
-
-      {/* Global Merchant Status */}
-
-      {/* <div className="merchant-list-global-status-card">
-
-        <div className="merchant-list-status-left">
-          <h3>Global Merchant Status</h3>
-          <p>Override all merchants open / closed status.</p>
-        </div>
-
-        <div className="merchant-list-status-right">
-          <span className="merchant-list-status-open">🟢 All Open</span>
-          <button className="merchant-list-apply-btn">
-            ✔ Apply to All Merchants
-          </button>
-        </div>
-      </div>
 
       {/* Merchant List */}
       <div className="merchant-list-container">
@@ -598,21 +754,13 @@ const showAllMerchantColumns = () => {
       : "-"}
   </td>
 )}
-                    <td>{merchant.state || "N/A"}</td>
-                    <td>{merchant.status || "N/A"}</td>
-                    <td>{merchant.isApproved ? "Yes" : "No"}</td>
 
-                    <td>
-                      {merchant.createdAt ? new Date(merchant.createdAt).toLocaleDateString() : "N/A"}
-                    </td>
                   </tr>
 
-                  {/* Expanded Row showing full dynamic details & single View All Outlets button */}
                   {expandedRow === merchant.merchantId && (
                     <tr className="merchant-list-expanded-row">
                       <td colSpan="7">
                         <div className="merchant-list-expand-container">
-                          {/* Left Panel: All Dynamic Merchant Details */}
                           <div className="merchant-list-left" style={{ flex: 1 }}>
                             <div className="merchant-list-item">
                               <span>Merchant ID</span>
@@ -686,7 +834,6 @@ const showAllMerchantColumns = () => {
                             </div>
                           </div>
 
-                          {/* Right Panel: Single View All Outlets Button */}
                           <div
                             className="merchant-list-right"
                             style={{

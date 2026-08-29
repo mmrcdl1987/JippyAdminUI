@@ -6,8 +6,9 @@ import {
   getAllOutlets,
   getOutletById,
   updateOutletDetailsByMerchant,
-    createOutlet,
-   getOutletCount,
+  createOutlet,
+  getOutletCount,
+  uploadOutletsBulk,
 } from "../services/outletListService";
 
 import {
@@ -35,6 +36,12 @@ function AllOutletsList({ setActivePage }) {
 
   const [showExportMenu, setShowExportMenu] = useState(false);
   const [globalStatus, setGlobalStatus] = useState("OPEN");
+
+  // DRAG AND DROP & BULK UPLOAD STATE
+  const [isDragging, setIsDragging] = useState(false);
+  const [bulkFile, setBulkFile] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadResult, setUploadResult] = useState(null); // <-- Added state for upload results/errors
 
   // =========================================================
   // COLUMNS
@@ -77,41 +84,38 @@ function AllOutletsList({ setActivePage }) {
     });
   };
 
-  // const API_BASE_URL =
-  //   "http://srv1617582.hstgr.cloud:8084";
-
   // =========================================================
   // FETCH OUTLET COUNT
   // =========================================================
 
- const fetchOutletCount = async () => {
-  try {
-    const count = await getOutletCount();
-    setOutletCount(count);
-  } catch (error) {
-    console.error("Failed to fetch outlet count:", error);
-    setOutletCount(0);
-  }
-};
+  const fetchOutletCount = async () => {
+    try {
+      const count = await getOutletCount();
+      setOutletCount(count);
+    } catch (error) {
+      console.error("Failed to fetch outlet count:", error);
+      setOutletCount(0);
+    }
+  };
 
   // =========================================================
   // FETCH ALL OUTLETS
   // =========================================================
 
-const fetchOutlets = async () => {
-  try {
-    setLoading(true);
+  const fetchOutlets = async () => {
+    try {
+      setLoading(true);
 
-    const data = await getAllOutlets();
+      const data = await getAllOutlets();
 
-    setOutlets(Array.isArray(data) ? data : []);
-  } catch (error) {
-    console.error("Failed to fetch outlets:", error);
-    setOutlets([]);
-  } finally {
-    setLoading(false);
-  }
-};
+      setOutlets(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("Failed to fetch outlets:", error);
+      setOutlets([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // =========================================================
   // INITIAL LOAD
@@ -257,68 +261,62 @@ const fetchOutlets = async () => {
   // EDIT OUTLET
   // =========================================================
 
-const handleEditOutlet = (outlet) => {
-  console.log(
-    "================================"
-  );
-
-  console.log(
-    "EDIT OUTLET CLICKED"
-  );
-
-  console.log(
-    "FULL OUTLET:",
-    outlet
-  );
-
-  const outletId =
-    outlet?.outletId ??
-    outlet?.id;
-
-  if (!outletId) {
-    alert(
-      "Outlet ID not found."
+  const handleEditOutlet = (outlet) => {
+    console.log(
+      "================================"
     );
-    return;
-  }
 
-  /*
-   * Store the COMPLETE table row.
-   *
-   * This is important because if the detailed
-   * GET API doesn't return merchantId, the
-   * Edit page can still get merchantId from here.
-   */
-  sessionStorage.setItem(
-    "selectedOutlet",
-    JSON.stringify(outlet)
-  );
-
-  sessionStorage.setItem(
-    "editOutletId",
-    String(outletId)
-  );
-
-  console.log(
-    "EDIT OUTLET ID:",
-    outletId
-  );
-
-  console.log(
-    "MERCHANT ID FROM TABLE:",
-    outlet?.merchantId
-  );
-
-  console.log(
-    "================================"
-  );
-
-  if (setActivePage) {
-    setActivePage(
-      "outletEdit"
+    console.log(
+      "EDIT OUTLET CLICKED"
     );
-  }
-};
+
+    console.log(
+      "FULL OUTLET:",
+      outlet
+    );
+
+    const outletId =
+      outlet?.outletId ??
+      outlet?.id;
+
+    if (!outletId) {
+      alert(
+        "Outlet ID not found."
+      );
+      return;
+    }
+
+    sessionStorage.setItem(
+      "selectedOutlet",
+      JSON.stringify(outlet)
+    );
+
+    sessionStorage.setItem(
+      "editOutletId",
+      String(outletId)
+    );
+
+    console.log(
+      "EDIT OUTLET ID:",
+      outletId
+    );
+
+    console.log(
+      "MERCHANT ID FROM TABLE:",
+      outlet?.merchantId
+    );
+
+    console.log(
+      "================================"
+    );
+
+    if (setActivePage) {
+      setActivePage(
+        "outletEdit"
+      );
+    }
+  };
+
   // =========================================================
   // DELETE OUTLET
   // =========================================================
@@ -433,7 +431,7 @@ const handleEditOutlet = (outlet) => {
   };
 
   // =========================================================
-  // BULK UPLOAD
+  // BULK UPLOAD & DRAG DROP (Supports Excel + CSV)
   // =========================================================
 
   const handleBulkUpload = (event) => {
@@ -444,10 +442,68 @@ const handleEditOutlet = (outlet) => {
       return;
     }
 
+    setBulkFile(file);
     console.log(
       "Selected outlet bulk upload file:",
       file
     );
+  };
+
+  const submitBulkUpload = async () => {
+    if (!bulkFile) {
+      alert("Please select an Excel or CSV file first.");
+      return;
+    }
+
+    try {
+      setUploading(true);
+      setUploadResult(null); // Clear previous results
+
+      const response = await uploadOutletsBulk(bulkFile);
+      console.log("Bulk upload response:", response);
+
+      // Save full response object to display stats and validation/duplicate errors
+      setUploadResult(response);
+
+      if (response?.data?.successCount > 0 && response?.data?.failureCount === 0) {
+        alert("Outlets uploaded/updated successfully!");
+        setBulkFile(null);
+        const fileInput = document.getElementById("outlet-file-input");
+        if (fileInput) fileInput.value = "";
+      }
+
+      // Refresh outlets and counts
+      fetchOutlets();
+      fetchOutletCount();
+    } catch (error) {
+      console.error("Bulk upload error:", error);
+      alert(`Failed to upload file: ${error.response?.data?.message || error.message}`);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) {
+      handleBulkUpload({ target: { files } });
+    }
   };
 
   // =========================================================
@@ -509,32 +565,6 @@ const handleEditOutlet = (outlet) => {
         </div>
       </div>
 
-      {/* FILTERS */}
-
-      {/* <div className="jippy-all-outlets-filter-row">
-
-        <Select
-          className="jippy-all-outlets-select"
-          classNamePrefix="jippy-all-outlets-select"
-          placeholder="Outlet Type"
-          isClearable
-          options={outletTypeOptions}
-          value={outletType}
-          onChange={setOutletType}
-        />
-
-        <Select
-          className="jippy-all-outlets-select"
-          classNamePrefix="jippy-all-outlets-select"
-          placeholder="Outlet Status"
-          isClearable
-          options={statusOptions}
-          value={outletStatus}
-          onChange={setOutletStatus}
-        />
-
-      </div> */}
-
       {/* SUMMARY CARDS */}
 
       <div className="jippy-all-outlets-summary-grid">
@@ -582,7 +612,7 @@ const handleEditOutlet = (outlet) => {
           </h2>
 
           <p>
-            Upload an Excel file to import or
+            Upload an Excel or CSV file to import or
             update multiple outlets at once.
           </p>
 
@@ -596,40 +626,199 @@ const handleEditOutlet = (outlet) => {
 
         </div>
 
-        <div className="jippy-all-outlets-upload-area">
+        <div 
+          className={`jippy-all-outlets-upload-area ${isDragging ? "jippy-drag-active" : ""}`}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+        >
 
-          <label>
-            Select Excel File (.xls/.xlsx)
+          <label htmlFor="outlet-file-input">
+            Select Excel/CSV File or Drag & Drop here
           </label>
 
           <input
+            id="outlet-file-input"
             type="file"
-            accept=".xls,.xlsx"
+            accept=".xls,.xlsx,.csv"
             onChange={handleBulkUpload}
           />
 
           <small>
-            File should contain Outlet Name,
-            Phone, Address, Merchant ID,
-            Status and Outlet ID for updates.
+            {bulkFile ? `Selected: ${bulkFile.name}` : "File should contain Outlet Name, Phone, Address, Merchant ID, Status and Outlet ID for updates."}
           </small>
 
           <button
             type="button"
             className="jippy-all-outlets-bulk-btn"
-            onClick={() =>
-              console.log(
-                "Bulk update clicked"
-              )
-            }
+            onClick={submitBulkUpload}
+            disabled={uploading}
           >
             <FiUpload />
-            Bulk Update
+            {uploading ? "Uploading..." : "Bulk Update"}
           </button>
 
         </div>
 
       </div>
+
+      {/* =========================================================
+          BULK UPLOAD RESULT / DUPLICATE DETAILS
+      ========================================================= */}
+
+      {uploadResult && (
+        <div
+          className={`jippy-upload-feedback-card ${
+            uploadResult.data?.failureCount > 0
+              ? "jippy-upload-has-errors"
+              : "jippy-upload-success"
+          }`}
+          style={{
+            padding: "16px",
+            margin: "15px 0",
+            borderRadius: "8px",
+            background:
+              uploadResult.data?.failureCount > 0
+                ? "#fff5f5"
+                : "#f0fff4",
+            border:
+              uploadResult.data?.failureCount > 0
+                ? "1px solid #feb2b2"
+                : "1px solid #9ae6b4",
+          }}
+        >
+          {/* SUMMARY */}
+          <h3
+            style={{
+              margin: "0 0 8px 0",
+              color:
+                uploadResult.data?.failureCount > 0
+                  ? "#c53030"
+                  : "#22543d",
+            }}
+          >
+            {uploadResult.data?.failureCount > 0
+              ? "Upload Completed with Errors"
+              : "Upload Successful"}
+          </h3>
+
+          <p
+            style={{
+              margin: "0 0 12px 0",
+              fontSize: "14px",
+            }}
+          >
+            {uploadResult.message || "Upload Summary"}
+          </p>
+
+          {/* COUNTS */}
+          <div
+            style={{
+              display: "flex",
+              gap: "20px",
+              marginBottom: "15px",
+              fontSize: "14px",
+              flexWrap: "wrap",
+            }}
+          >
+            <span>
+              Total Rows:{" "}
+              <strong>
+                {uploadResult.data?.totalRows ?? 0}
+              </strong>
+            </span>
+
+            <span style={{ color: "#15803d" }}>
+              Success:{" "}
+              <strong>
+                {uploadResult.data?.successCount ?? 0}
+              </strong>
+            </span>
+
+            <span style={{ color: "#dc2626" }}>
+              Failed:{" "}
+              <strong>
+                {uploadResult.data?.failureCount ?? 0}
+              </strong>
+            </span>
+          </div>
+
+          {/* DUPLICATE / FAILURE DETAILS */}
+          {uploadResult.data?.errors?.length > 0 && (
+            <div
+              className="jippy-upload-error-list"
+              style={{
+                marginTop: "10px",
+                padding: "12px",
+                background: "#ffffff",
+                border: "1px solid #f5c2c7",
+                borderRadius: "6px",
+              }}
+            >
+              <h4
+                style={{
+                  margin: "0 0 10px 0",
+                  color: "#b91c1c",
+                  fontSize: "15px",
+                }}
+              >
+                Duplicate / Failed Rows
+              </h4>
+
+              {uploadResult.data.errors.map((err, idx) => (
+                <div
+                  key={idx}
+                  style={{
+                    padding: "10px",
+                    marginBottom:
+                      idx < uploadResult.data.errors.length - 1
+                        ? "8px"
+                        : "0",
+                    background: "#fff7f7",
+                    border: "1px solid #fecaca",
+                    borderRadius: "5px",
+                  }}
+                >
+                  <div
+                    style={{
+                      fontWeight: "600",
+                      color: "#991b1b",
+                      marginBottom: "5px",
+                    }}
+                  >
+                    ❌ Duplicate / Failed Row
+                  </div>
+
+                  <div
+                    style={{
+                      fontSize: "13px",
+                      color: "#374151",
+                      lineHeight: "1.6",
+                    }}
+                  >
+                    <div>
+                      <strong>Excel Row:</strong>{" "}
+                      {err.rowNumber ?? "-"}
+                    </div>
+
+                    <div>
+                      <strong>Outlet Name:</strong>{" "}
+                      {err.outletName ?? "-"}
+                    </div>
+
+                    <div>
+                      <strong>Reason:</strong>{" "}
+                      <span style={{ color: "#b91c1c" }}>
+                        {err.reason ?? "Unknown error"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* GLOBAL OUTLET STATUS */}
 
@@ -720,70 +909,69 @@ const handleEditOutlet = (outlet) => {
 
             {/* COLUMNS */}
 
-           {/* COLUMNS */}
+            <div className="jippy-all-outlets-columns-wrapper">
 
-<div className="jippy-all-outlets-columns-wrapper">
+              <button
+                type="button"
+                className="jippy-all-outlets-columns-btn"
+                onClick={() =>
+                  setShowColumnsMenu((prev) => !prev)
+                }
+              >
+                Columns ▾
+              </button>
 
-  <button
-    type="button"
-    className="jippy-all-outlets-columns-btn"
-    onClick={() =>
-      setShowColumnsMenu((prev) => !prev)
-    }
-  >
-    Columns ▾
-  </button>
+              {showColumnsMenu && (
+                <div className="jippy-all-outlets-columns-menu">
 
-  {showColumnsMenu && (
-    <div className="jippy-all-outlets-columns-menu">
+                  {/* HEADER */}
+                  <div className="jippy-all-outlets-columns-menu-header">
+                    <span>Choose Columns</span>
 
-      {/* HEADER */}
-      <div className="jippy-all-outlets-columns-menu-header">
-        <span>Choose Columns</span>
+                    <button
+                      type="button"
+                      className="jippy-all-outlets-columns-close"
+                      onClick={() => setShowColumnsMenu(false)}
+                      aria-label="Close columns"
+                    >
+                      ×
+                    </button>
+                  </div>
 
-        <button
-          type="button"
-          className="jippy-all-outlets-columns-close"
-          onClick={() => setShowColumnsMenu(false)}
-          aria-label="Close columns"
-        >
-          ×
-        </button>
-      </div>
+                  <div className="jippy-all-outlets-columns-title">
+                    General
+                  </div>
 
-      <div className="jippy-all-outlets-columns-title">
-        General
-      </div>
+                  {columnOptions.map(([key, label]) => (
+                    <label
+                      key={key}
+                      className="jippy-all-outlets-column-option"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={visibleColumns[key]}
+                        onChange={() => toggleColumn(key)}
+                      />
 
-      {columnOptions.map(([key, label]) => (
-        <label
-          key={key}
-          className="jippy-all-outlets-column-option"
-        >
-          <input
-            type="checkbox"
-            checked={visibleColumns[key]}
-            onChange={() => toggleColumn(key)}
-          />
+                      <span>{label}</span>
+                    </label>
+                  ))}
 
-          <span>{label}</span>
-        </label>
-      ))}
+                  <div className="jippy-all-outlets-columns-divider" />
 
-      <div className="jippy-all-outlets-columns-divider" />
+                  <button
+                    type="button"
+                    className="jippy-all-outlets-show-all-columns"
+                    onClick={showAllColumns}
+                  >
+                    Show All
+                  </button>
 
-      <button
-        type="button"
-        className="jippy-all-outlets-show-all-columns"
-        onClick={showAllColumns}
-      >
-        Show All
-      </button>
+                </div>
+              )}
 
-    </div>
-  )}
+            </div>
 
-</div>
             {/* CREATE OUTLET */}
 
             <button
@@ -968,8 +1156,6 @@ const handleEditOutlet = (outlet) => {
                   <th>State ID</th>
                 )}
 
-                {/* ALWAYS VISIBLE */}
-
                 <th className="jippy-all-outlets-actions-header">
                   Actions
                 </th>
@@ -1017,16 +1203,12 @@ const handleEditOutlet = (outlet) => {
                       }
                     >
 
-                      {/* OUTLET ID */}
-
                       {visibleColumns.outletId && (
                         <td>
                           {outlet.outletId ??
                             "-"}
                         </td>
                       )}
-
-                      {/* OUTLET NAME */}
 
                       {visibleColumns.outletName && (
                         <td className="jippy-all-outlets-name">
@@ -1056,16 +1238,12 @@ const handleEditOutlet = (outlet) => {
                         </td>
                       )}
 
-                      {/* MERCHANT */}
-
                       {visibleColumns.merchantId && (
                         <td>
                           {outlet.merchantId ??
                             "-"}
                         </td>
                       )}
-
-                      {/* CUISINE */}
 
                       {visibleColumns.cuisineType && (
                         <td>
@@ -1080,16 +1258,12 @@ const handleEditOutlet = (outlet) => {
                         </td>
                       )}
 
-                      {/* PHONE */}
-
                       {visibleColumns.outletPhone && (
                         <td>
                           {outlet.outletPhone ||
                             "-"}
                         </td>
                       )}
-
-                      {/* STATUS */}
 
                       {visibleColumns.status && (
                         <td>
@@ -1111,16 +1285,12 @@ const handleEditOutlet = (outlet) => {
                         </td>
                       )}
 
-                      {/* MENU ITEMS */}
-
                       {visibleColumns.menuItemCount && (
                         <td>
                           {outlet.menuItemCount ??
                             0}
                         </td>
                       )}
-
-                      {/* ADDRESS */}
 
                       {visibleColumns.address && (
                         <td className="jippy-all-outlets-address">
@@ -1137,16 +1307,12 @@ const handleEditOutlet = (outlet) => {
                         </td>
                       )}
 
-                      {/* AREA */}
-
                       {visibleColumns.areaId && (
                         <td>
                           {outlet.areaId ??
                             "-"}
                         </td>
                       )}
-
-                      {/* STATE */}
 
                       {visibleColumns.stateId && (
                         <td>
@@ -1155,21 +1321,19 @@ const handleEditOutlet = (outlet) => {
                         </td>
                       )}
 
-                      {/* ACTIONS - ALWAYS VISIBLE */}
-
                       <td>
 
                         <div className="jippy-all-outlets-actions">
 
-                           <button
-    type="button"
-    className="jippy-all-outlets-edit-btn"
-    title="Edit Outlet"
-    aria-label="Edit Outlet"
-    onClick={() => handleEditOutlet(outlet)}
-  >
-    <FiEdit2 />
-  </button>
+                          <button
+                            type="button"
+                            className="jippy-all-outlets-edit-btn"
+                            title="Edit Outlet"
+                            aria-label="Edit Outlet"
+                            onClick={() => handleEditOutlet(outlet)}
+                          >
+                            <FiEdit2 />
+                          </button>
 
                           <button
                             type="button"

@@ -3,16 +3,6 @@ import api from "./api";
 // ============================================================
 // GET ALL OUTLETS
 // ============================================================
-// export const getAllOutlets = async () => {
-//   try {
-//     const response = await api.get("/api/fm/outlets");
-//     return response.data?.data || [];
-//   } catch (error) {
-//     console.error("Failed to fetch outlets:", error);
-//     throw error;
-//   }
-// };
-
 export const getAllOutlets = async () => {
   try {
     const response = await api.get("/api/fm/outlets");
@@ -47,7 +37,6 @@ export const getOutletById = async (outletId) => {
 // GET COMPLETE OUTLET DETAILS
 // BASIC + FOODS
 // ============================================================
-
 
 const unwrapOutletPayload = (body) => {
   if (!body || typeof body !== "object") {
@@ -100,6 +89,7 @@ export const getOutletDetails = async (outletId) => {
     throw error;
   }
 };
+
 // ============================================================
 // GET OUTLET LOCATION
 // ============================================================
@@ -142,9 +132,6 @@ export const getOutletSubscriptionStatus = async (outletId) => {
 };
 
 // ============================================================
-// UPDATE OUTLET
-// ============================================================
-// ============================================================
 // UPDATE OUTLET DETAILS - ADMIN / MERCHANT
 // ============================================================
 export const updateOutletDetailsByMerchant = async (
@@ -175,6 +162,7 @@ export const updateOutletDetailsByMerchant = async (
     throw error;
   }
 };
+
 // ============================================================
 // CREATE OUTLET
 // ============================================================
@@ -239,6 +227,36 @@ export const getAreasByCity = async (cityId) => {
       error.response?.data || error.message
     );
 
+    throw error;
+  }
+};
+
+// ============================================================
+// BULK UPLOAD OUTLETS
+// ============================================================
+export const uploadOutletsBulk = async (file) => {
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await api.post(
+      "/api/fm/outlets/upload",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    console.log("BULK UPLOAD RESPONSE:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error(
+      "BULK UPLOAD ERROR:",
+      error.response?.status,
+      error.response?.data || error.message
+    );
     throw error;
   }
 };

@@ -107,13 +107,31 @@ function CompareFile({ setActivePage }) {
           carbs: product.carbs,
           grams: product.grams,
 
+          // IMPORTANT: preserve product_type from the compare response
+          // and send it to the backend for persistence.
+          productType:
+            product.productType != null
+              ? String(product.productType).trim()
+              : null,
+
           publish: product.publish,
 
           createdBy: 1,
           updatedBy: 1,
         }));
 
-      console.log("Payload:", payload);
+      console.log(
+        "[MASTER PRODUCT] Add New Items Payload:",
+        JSON.stringify(payload, null, 2)
+      );
+
+      console.log(
+        "[MASTER PRODUCT] Product types being sent:",
+        payload.map((product) => ({
+          masterProductName: product.masterProductName,
+          productType: product.productType,
+        }))
+      );
 
       const response = await addNewItemsToMasterProducts(payload);
 
@@ -321,6 +339,8 @@ function CompareFile({ setActivePage }) {
 
                     <th>Product</th>
 
+                    <th>Product Type</th>
+
                     <th>Category</th>
 
                     <th>Calories</th>
@@ -388,6 +408,14 @@ function CompareFile({ setActivePage }) {
 
                           <div className="product-sub">{product.foodType}</div>
                         </div>
+                      </td>
+
+                      {/* Product Type */}
+
+                      <td>
+                        <span className="product-sub">
+                          {product.productType || "-"}
+                        </span>
                       </td>
 
                       {/* Category */}
