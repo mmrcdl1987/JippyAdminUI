@@ -68,27 +68,31 @@ const unwrapOutletPayload = (body) => {
   return body;
 };
 
-export const getOutletDetails = async (outletId, userType = "merchant") => {
+// ============================================================
+// GET COMPLETE OUTLET DETAILS - ADMIN
+// BASIC + FOODS
+// ============================================================
+
+export const getOutletDetails = async (outletId) => {
   try {
     const response = await api.get(
-      "/api/fm/outlets/getOutletDetails",
+      "/api/fm/outlets/admin/outlet-details",
       {
         params: {
           outletId: Number(outletId),
-          userType: userType,
         },
       }
     );
 
     console.log(
-      "GET OUTLET DETAILS RESPONSE:",
+      "ADMIN OUTLET DETAILS RESPONSE:",
       response.data
     );
 
-    return unwrapOutletPayload(response.data);
+    return response.data;
   } catch (error) {
     console.error(
-      "GET OUTLET DETAILS ERROR:",
+      "ADMIN OUTLET DETAILS ERROR:",
       error.response?.status,
       error.response?.data || error.message
     );
@@ -96,7 +100,6 @@ export const getOutletDetails = async (outletId, userType = "merchant") => {
     throw error;
   }
 };
-
 // ============================================================
 // GET OUTLET LOCATION
 // ============================================================
@@ -141,38 +144,59 @@ export const getOutletSubscriptionStatus = async (outletId) => {
 // ============================================================
 // UPDATE OUTLET
 // ============================================================
-export const updateOutlet = async (
+// ============================================================
+// UPDATE OUTLET DETAILS - ADMIN / MERCHANT
+// ============================================================
+export const updateOutletDetailsByMerchant = async (
   outletId,
-  userType,
   payload
 ) => {
-  const response = await api.put(
-    "/api/fm/outlets/editAndUpdateOutletProducts",
-    payload,
-    {
-      params: {
-        outletId: Number(outletId),
-        userType: userType || "customer",
-      },
-    }
-  );
+  try {
+    const response = await api.put(
+      `/api/fm/outlets/updateOutletDetailsByMerchant/${Number(
+        outletId
+      )}`,
+      payload
+    );
 
-  return response.data;
+    console.log(
+      "UPDATE OUTLET DETAILS RESPONSE:",
+      response.data
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error(
+      "UPDATE OUTLET DETAILS ERROR:",
+      error.response?.status,
+      error.response?.data || error.message
+    );
+
+    throw error;
+  }
 };
-
 // ============================================================
 // CREATE OUTLET
 // ============================================================
 export const createOutlet = async (payload) => {
   try {
+    console.log("CREATE OUTLET PAYLOAD:", payload);
+
     const response = await api.post(
-      "/api/fm/outlets/create",
+      "/api/fm/outlets/createOutlet",
       payload
     );
 
+    console.log("CREATE OUTLET RESPONSE:", response.data);
+
     return response.data;
   } catch (error) {
-    console.error("Failed to create outlet:", error);
+    console.error(
+      "CREATE OUTLET ERROR:",
+      error.response?.status,
+      error.response?.data || error.message
+    );
+
     throw error;
   }
 };
@@ -192,6 +216,29 @@ export const getOutletCount = async () => {
       "Failed to fetch outlet count:",
       error
     );
+    throw error;
+  }
+};
+
+// ============================================================
+// GET AREAS BY CITY
+// ============================================================
+export const getAreasByCity = async (cityId) => {
+  try {
+    const response = await api.get(
+      `/api/fm/outlets/areas/by-city/${Number(cityId)}`
+    );
+
+    console.log("AREAS BY CITY RESPONSE:", response.data);
+
+    return response.data?.data || response.data || [];
+  } catch (error) {
+    console.error(
+      "GET AREAS BY CITY ERROR:",
+      error.response?.status,
+      error.response?.data || error.message
+    );
+
     throw error;
   }
 };

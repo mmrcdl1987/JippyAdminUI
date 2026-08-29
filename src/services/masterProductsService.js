@@ -107,7 +107,7 @@ export const getAreasByCity = async (cityId) => {
 // Create Outlet
 export const createOutlet = async (payload) => {
   console.log(JSON.stringify(payload, null, 2));
-  return await FM_API.post("/api/fm/outlets/create", payload);
+  return await FM_API.post("/api/fm/outlets/createOutlet", payload);
 };
 
 // Update Outlet

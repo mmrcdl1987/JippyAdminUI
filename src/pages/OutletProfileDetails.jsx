@@ -5,6 +5,7 @@ import {
   getOutletById,
   getOutletDetails,
   getOutletLocation,
+    getOutletSubscriptionStatus,
 } from "../services/outletListService";
 
 import OutletFoods from "./OutletFoods";
@@ -125,48 +126,48 @@ function OutletProfileDetails({ setActivePage }) {
         // some outlets. Fall back to getOutletById / list row.
         // ======================================================
 
-        let details = null;
+    let details = null;
 
-        try {
-          const detailsResponse =
-            await getOutletDetails(
-              outletId
-            );
+try {
+  const detailsResponse = await getOutletDetails(outletId);
 
-          console.log(
-            "OUTLET DETAILS RESPONSE:",
-            detailsResponse
-          );
+  console.log(
+    "OUTLET DETAILS RESPONSE:",
+    detailsResponse
+  );
 
-        details = detailsResponse || null;
-        } catch (detailsError) {
-          console.warn(
-            "getOutletDetails failed, using getOutletById:",
-            detailsError?.response?.status
-          );
+  details = detailsResponse || null;
+} catch (detailsError) {
+  console.warn(
+    "getOutletDetails failed:",
+    detailsError?.response?.status
+  );
 
-          try {
-            const byIdResponse =
-              await getOutletById(
-                outletId
-              );
+  try {
+    const byIdResponse = await getOutletById(outletId);
 
-            console.log(
-              "GET OUTLET BY ID RESPONSE:",
-              byIdResponse
-            );
+    console.log(
+      "GET OUTLET BY ID RESPONSE:",
+      byIdResponse
+    );
 
-            details =
-              byIdResponse?.data ??
-              byIdResponse ??
-              null;
-          } catch (byIdError) {
-            console.warn(
-              "getOutletById failed, using selectedOutlet:",
-              byIdError?.response?.status
-            );
-          }
-        }
+    details =
+      byIdResponse?.data ??
+      byIdResponse ??
+      null;
+  } catch (byIdError) {
+    console.warn(
+      "getOutletById failed:",
+      byIdError?.response?.status
+    );
+  }
+}
+
+if (details) {
+  setOutlet(details);
+}
+
+      
 
         if (storedOutlet) {
           details = {
