@@ -1,470 +1,712 @@
-/* =========================================================
-   JIPPY ADMIN - OUTLET EDIT
-   ========================================================= */
+/* ============================================================
+   JIPPY OUTLET EDIT V2
+   Completely isolated CSS
+   ============================================================ */
 
-.jippy-outlet-edit-page {
+.jippy-outlet-edit-v2-page {
   width: 100%;
   min-height: 100vh;
-  padding: 30px 36px 55px;
-  background: #f6f7f9;
+  background: #f7f8fc;
+  padding: 28px 32px 50px;
   box-sizing: border-box;
 }
 
-/* =========================================================
-   HEADER
-   ========================================================= */
-
-.jippy-outlet-edit-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 25px;
-  margin-bottom: 28px;
-}
-
-.jippy-outlet-edit-header-content {
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-}
-
-.jippy-outlet-edit-title {
-  margin: 0;
-  color: #171717;
-  font-size: 30px;
-  line-height: 1.2;
-  font-weight: 700;
-}
-
-.jippy-outlet-edit-subtitle {
-  margin: 0;
-  color: #777;
-  font-size: 15px;
-  line-height: 1.5;
-}
-
-/* =========================================================
-   BACK BUTTON
-   ========================================================= */
-
-.jippy-outlet-edit-back-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 9px;
-
-  min-height: 44px;
-  padding: 10px 18px;
-
-  border: 1px solid #d9d9d9;
-  border-radius: 8px;
-
-  background: #ffffff;
-  color: #333333;
-
-  font-size: 14px;
-  font-weight: 600;
-
-  cursor: pointer;
-
-  transition:
-    border-color 0.2s ease,
-    color 0.2s ease,
-    background 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-.jippy-outlet-edit-back-btn:hover {
-  border-color: #ff6422;
-  color: #ff6422;
-  background: #fffaf7;
-  box-shadow: 0 3px 10px rgba(255, 100, 34, 0.08);
-}
-
-.jippy-outlet-edit-back-icon {
-  font-size: 18px;
-  line-height: 1;
-}
-
-/* =========================================================
-   CARDS
-   ========================================================= */
-
-.jippy-outlet-edit-card {
+.jippy-outlet-edit-v2-container {
   width: 100%;
-  margin-bottom: 22px;
-  padding: 27px 29px;
-
-  box-sizing: border-box;
-
-  background: #ffffff;
-
-  border: 1px solid #e5e7eb;
-  border-radius: 14px;
-
-  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.035);
+  max-width: 1450px;
+  margin: 0 auto;
 }
 
-/* =========================================================
-   CARD HEADER
-   ========================================================= */
+/* ============================================================
+   HEADER
+   ============================================================ */
 
-.jippy-outlet-edit-card-header {
+.jippy-outlet-edit-v2-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-
-  margin-bottom: 24px;
-  padding-bottom: 17px;
-
-  border-bottom: 1px solid #eeeeee;
+  margin-bottom: 26px;
 }
 
-.jippy-outlet-edit-card-header h2 {
-  margin: 0 0 5px;
-
-  color: #1b1b1b;
-
-  font-size: 21px;
-  line-height: 1.3;
-  font-weight: 700;
+.jippy-outlet-edit-v2-header-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
 }
 
-.jippy-outlet-edit-card-header p {
+.jippy-outlet-edit-v2-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.jippy-outlet-edit-v2-header h1 {
   margin: 0;
-
-  color: #777;
-
-  font-size: 13px;
-  line-height: 1.5;
+  font-size: 28px;
+  font-weight: 750;
+  color: #20242c;
 }
 
-.jippy-outlet-edit-section-badge {
-  flex-shrink: 0;
+.jippy-outlet-edit-v2-header p {
+  margin: 0;
+  color: #777d89;
+  font-size: 14px;
+}
 
-  padding: 7px 12px;
+.jippy-outlet-edit-v2-outlet-id {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 11px 16px;
+  background: #ffffff;
+  border: 1px solid #e4e6ec;
+  border-radius: 10px;
+  color: #777d89;
+  font-size: 13px;
+}
 
+.jippy-outlet-edit-v2-outlet-id strong {
+  color: #252a34;
+  font-size: 15px;
+}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+
+.jippy-outlet-edit-v2-back-button {
+  border: 1px solid #e1e4eb;
+  background: #ffffff;
+  color: #343944;
+  height: 42px;
+  padding: 0 16px;
+  border-radius: 9px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: 0.2s ease;
+}
+
+.jippy-outlet-edit-v2-back-button:hover {
+  border-color: #ff6b00;
+  color: #ff6b00;
+}
+
+.jippy-outlet-edit-v2-back-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ============================================================
+   FORM
+   ============================================================ */
+
+.jippy-outlet-edit-v2-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ============================================================
+   SECTIONS
+   ============================================================ */
+
+.jippy-outlet-edit-v2-section {
+  background: #ffffff;
+  border: 1px solid #e7e9ee;
+  border-radius: 14px;
+  padding: 25px;
+  box-shadow: 0 2px 10px rgba(20, 30, 50, 0.035);
+}
+
+.jippy-outlet-edit-v2-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 22px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #eceef2;
+}
+
+.jippy-outlet-edit-v2-section-header h2 {
+  margin: 0 0 5px;
+  font-size: 18px;
+  color: #222630;
+}
+
+.jippy-outlet-edit-v2-section-header p {
+  margin: 0;
+  font-size: 13px;
+  color: #858b96;
+}
+
+/* ============================================================
+   GRID
+   ============================================================ */
+
+.jippy-outlet-edit-v2-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+/* ============================================================
+   FIELD
+   ============================================================ */
+
+.jippy-outlet-edit-v2-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.jippy-outlet-edit-v2-field label {
+  font-size: 13px;
+  font-weight: 650;
+  color: #353a44;
+}
+
+.jippy-outlet-edit-v2-field label span {
+  color: #e53935;
+  margin-left: 3px;
+}
+
+.jippy-outlet-edit-v2-field input {
+  width: 100%;
+  height: 44px;
+  padding: 0 13px;
+  box-sizing: border-box;
+  border: 1px solid #dfe2e8;
+  border-radius: 8px;
+  outline: none;
+  background: #ffffff;
+  color: #272b34;
+  font-size: 14px;
+  transition: 0.2s ease;
+}
+
+.jippy-outlet-edit-v2-field input:focus {
+  border-color: #ff6b00;
+  box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.08);
+}
+
+.jippy-outlet-edit-v2-field small {
+  color: #9297a1;
+  font-size: 11px;
+}
+
+.jippy-outlet-edit-v2-readonly {
+  background: #f4f5f7 !important;
+  color: #656b75 !important;
+  cursor: not-allowed;
+}
+
+/* ============================================================
+   CUISINE
+   ============================================================ */
+
+.jippy-outlet-edit-v2-cuisine-box {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.jippy-outlet-edit-v2-cuisine-box select {
+  width: 100%;
+  min-height: 125px;
+  padding: 10px;
+  border: 1px solid #dfe2e8;
+  border-radius: 8px;
+  outline: none;
+  font-size: 14px;
+  background: #ffffff;
+}
+
+.jippy-outlet-edit-v2-cuisine-box select:focus {
+  border-color: #ff6b00;
+}
+
+.jippy-outlet-edit-v2-cuisine-box small {
+  font-size: 11px;
+  color: #8c929d;
+}
+
+.jippy-outlet-edit-v2-selected-cuisines {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 30px;
+}
+
+.jippy-outlet-edit-v2-selected-cuisines > span:first-child {
+  color: #898f99;
+  font-size: 13px;
+}
+
+.jippy-outlet-edit-v2-cuisine-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  background: #fff3e9;
+  color: #e95e00;
   border-radius: 20px;
-
-  background: #fff2eb;
-  color: #e95719;
-
   font-size: 12px;
   font-weight: 600;
 }
 
-/* =========================================================
-   FORM GRID
-   ========================================================= */
+/* ============================================================
+   GST
+   ============================================================ */
 
-.jippy-outlet-edit-grid {
-  display: grid;
-
-  grid-template-columns:
-    repeat(2, minmax(0, 1fr));
-
-  gap: 21px 25px;
+.jippy-outlet-edit-v2-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: #343943;
 }
 
-/* =========================================================
-   FORM FIELD
-   ========================================================= */
+.jippy-outlet-edit-v2-checkbox input {
+  width: 18px;
+  height: 18px;
+  accent-color: #ff6b00;
+  cursor: pointer;
+}
 
-.jippy-outlet-edit-field {
+/* ============================================================
+   OPERATING DAYS
+   ============================================================ */
+
+.jippy-outlet-edit-v2-days {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-
-  min-width: 0;
+  gap: 10px;
 }
 
-.jippy-outlet-edit-field label {
-  color: #303030;
-
-  font-size: 14px;
-  line-height: 1.4;
-  font-weight: 600;
+.jippy-outlet-edit-v2-day-row {
+  display: grid;
+  grid-template-columns: 190px 58px 80px minmax(135px, 1fr) minmax(135px, 1fr) 135px;
+  align-items: center;
+  gap: 15px;
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid #e7e9ed;
+  background: #fafbfc;
 }
 
-.jippy-outlet-edit-full-width {
-  grid-column: 1 / -1;
+.jippy-outlet-edit-v2-day-open {
+  background: #f9fffb;
+  border-color: #dfeee4;
 }
 
-/* =========================================================
-   INPUT
-   ========================================================= */
-
-.jippy-outlet-edit-input {
-  width: 100%;
-  min-height: 47px;
-
-  box-sizing: border-box;
-
-  padding: 11px 14px;
-
-  border: 1px solid #d5d7da;
-  border-radius: 8px;
-
-  background: #ffffff;
-  color: #222222;
-
-  font-family: inherit;
-  font-size: 15px;
-  font-weight: 400;
-
-  outline: none;
-
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease,
-    background 0.2s ease;
+.jippy-outlet-edit-v2-day-closed {
+  background: #fafafa;
 }
 
-.jippy-outlet-edit-input:hover {
-  border-color: #bdbdbd;
-}
-
-.jippy-outlet-edit-input:focus {
-  border-color: #ff6422;
-
-  box-shadow:
-    0 0 0 3px rgba(255, 100, 34, 0.1);
-}
-
-.jippy-outlet-edit-input::placeholder {
-  color: #9a9a9a;
-  font-size: 14px;
-}
-
-/* =========================================================
-   NUMBER INPUT
-   ========================================================= */
-
-.jippy-outlet-edit-input[type="number"] {
-  appearance: textfield;
-}
-
-.jippy-outlet-edit-input[type="number"]::-webkit-inner-spin-button,
-.jippy-outlet-edit-input[type="number"]::-webkit-outer-spin-button {
-  opacity: 1;
-}
-
-/* =========================================================
-   ACTION BUTTONS
-   ========================================================= */
-
-.jippy-outlet-edit-actions {
+.jippy-outlet-edit-v2-day-name {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: 13px;
-
-  width: 100%;
-  margin-top: 8px;
+  gap: 11px;
 }
 
-/* Cancel */
-
-.jippy-outlet-edit-cancel {
-  min-width: 125px;
-  min-height: 45px;
-
-  padding: 10px 21px;
-
-  border: 1px solid #d3d3d3;
-  border-radius: 8px;
-
-  background: #ffffff;
-  color: #444444;
-
-  font-family: inherit;
-  font-size: 14px;
-  font-weight: 600;
-
-  cursor: pointer;
-
-  transition: all 0.2s ease;
-}
-
-.jippy-outlet-edit-cancel:hover {
-  background: #f5f5f5;
-  border-color: #bdbdbd;
-}
-
-/* Save */
-
-.jippy-outlet-edit-save {
-  min-width: 145px;
-  min-height: 45px;
-
-  padding: 10px 22px;
-
-  border: 1px solid #ff6422;
-  border-radius: 8px;
-
-  background: #ff6422;
-  color: #ffffff;
-
-  font-family: inherit;
-  font-size: 14px;
-  font-weight: 600;
-
-  cursor: pointer;
-
-  transition:
-    background 0.2s ease,
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-.jippy-outlet-edit-save:hover {
-  background: #e95517;
-  border-color: #e95517;
-
-  box-shadow: 0 4px 12px rgba(255, 100, 34, 0.2);
-}
-
-/* =========================================================
-   LOADING
-   ========================================================= */
-
-.jippy-outlet-edit-loading {
-  width: 100%;
-  min-height: 450px;
-
+.jippy-outlet-edit-v2-day-name span {
+  width: 34px;
+  height: 34px;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 14px;
-
-  background: #f6f7f9;
-
-  color: #666;
-
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.jippy-outlet-edit-spinner {
-  width: 30px;
-  height: 30px;
-
-  border: 3px solid #e8e8e8;
-  border-top-color: #ff6422;
-
   border-radius: 50%;
-
-  animation: jippyOutletEditSpin 0.8s linear infinite;
+  background: #eeeeff;
+  color: #5654a4;
+  font-size: 11px;
+  font-weight: 750;
 }
 
-@keyframes jippyOutletEditSpin {
+.jippy-outlet-edit-v2-day-name strong {
+  color: #333842;
+  font-size: 14px;
+}
+
+/* ============================================================
+   TOGGLE
+   ============================================================ */
+
+.jippy-outlet-edit-v2-toggle {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  display: inline-block;
+}
+
+.jippy-outlet-edit-v2-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.jippy-outlet-edit-v2-toggle span {
+  position: absolute;
+  inset: 0;
+  background: #d4d7dc;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.jippy-outlet-edit-v2-toggle span::before {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  left: 3px;
+  top: 3px;
+  background: #ffffff;
+  border-radius: 50%;
+  transition: 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+}
+
+.jippy-outlet-edit-v2-toggle input:checked + span {
+  background: #2dbb68;
+}
+
+.jippy-outlet-edit-v2-toggle input:checked + span::before {
+  transform: translateX(20px);
+}
+
+.jippy-outlet-edit-v2-day-status {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.jippy-outlet-edit-v2-status-open {
+  color: #249c58;
+}
+
+.jippy-outlet-edit-v2-status-closed {
+  color: #a1a5ad;
+}
+
+.jippy-outlet-edit-v2-time-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.jippy-outlet-edit-v2-time-box label {
+  font-size: 10px;
+  color: #898e98;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.jippy-outlet-edit-v2-time-box input,
+.jippy-outlet-edit-v2-day-row > select {
+  width: 100%;
+  height: 40px;
+  border: 1px solid #dfe2e8;
+  border-radius: 7px;
+  background: #ffffff;
+  padding: 0 9px;
+  outline: none;
+  font-size: 13px;
+}
+
+.jippy-outlet-edit-v2-time-box input:focus,
+.jippy-outlet-edit-v2-day-row > select:focus {
+  border-color: #ff6b00;
+}
+
+.jippy-outlet-edit-v2-time-box input:disabled,
+.jippy-outlet-edit-v2-day-row > select:disabled {
+  background: #f0f1f3;
+  cursor: not-allowed;
+  color: #9da1a8;
+}
+
+/* ============================================================
+   ACTIONS
+   ============================================================ */
+
+.jippy-outlet-edit-v2-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 5px 0 20px;
+}
+
+.jippy-outlet-edit-v2-cancel-button {
+  height: 46px;
+  padding: 0 22px;
+  border: 1px solid #dfe2e7;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #454a54;
+  font-size: 14px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.jippy-outlet-edit-v2-cancel-button:hover {
+  background: #f6f7f8;
+}
+
+.jippy-outlet-edit-v2-update-button {
+  min-width: 170px;
+  height: 46px;
+  padding: 0 22px;
+  border: none;
+  border-radius: 8px;
+  background: #ff6b00;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.jippy-outlet-edit-v2-update-button:hover {
+  background: #e95e00;
+  transform: translateY(-1px);
+}
+
+.jippy-outlet-edit-v2-update-button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ============================================================
+   SPINNERS
+   ============================================================ */
+
+.jippy-outlet-edit-v2-button-spinner,
+.jippy-outlet-edit-v2-spinner {
+  display: inline-block;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #ffffff;
+  animation: jippyOutletEditV2Spin 0.8s linear infinite;
+}
+
+.jippy-outlet-edit-v2-button-spinner {
+  width: 14px;
+  height: 14px;
+  margin-right: 8px;
+}
+
+.jippy-outlet-edit-v2-spinner {
+  width: 38px;
+  height: 38px;
+  border-color: #ffe0ca;
+  border-top-color: #ff6b00;
+}
+
+@keyframes jippyOutletEditV2Spin {
   to {
     transform: rotate(360deg);
   }
 }
 
-/* =========================================================
-   RESPONSIVE - TABLET
-   ========================================================= */
+/* ============================================================
+   LOADING / ERROR
+   ============================================================ */
 
-@media (max-width: 1000px) {
-
-  .jippy-outlet-edit-page {
-    padding: 25px;
-  }
-
-  .jippy-outlet-edit-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-
+.jippy-outlet-edit-v2-loading-card,
+.jippy-outlet-edit-v2-error-card {
+  width: min(500px, 100%);
+  margin: 120px auto;
+  background: #ffffff;
+  border: 1px solid #e7e9ee;
+  border-radius: 15px;
+  padding: 40px;
+  text-align: center;
+  box-shadow: 0 8px 30px rgba(20, 30, 50, 0.06);
 }
 
-/* =========================================================
-   RESPONSIVE - MOBILE
-   ========================================================= */
+.jippy-outlet-edit-v2-loading-card h2,
+.jippy-outlet-edit-v2-error-card h2 {
+  margin: 18px 0 7px;
+  font-size: 20px;
+  color: #282c35;
+}
 
-@media (max-width: 700px) {
+.jippy-outlet-edit-v2-loading-card p,
+.jippy-outlet-edit-v2-error-card p {
+  margin: 0 0 20px;
+  color: #858b96;
+  font-size: 13px;
+  line-height: 1.6;
+}
 
-  .jippy-outlet-edit-page {
-    padding: 20px 16px 40px;
+.jippy-outlet-edit-v2-error-symbol {
+  width: 50px;
+  height: 50px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #fff0f0;
+  color: #df3e3e;
+  font-size: 24px;
+  font-weight: 750;
+}
+
+/* ============================================================
+   POPUP
+   ============================================================ */
+
+.jippy-outlet-edit-v2-popup-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(17, 21, 29, 0.55);
+  backdrop-filter: blur(3px);
+}
+
+.jippy-outlet-edit-v2-popup {
+  width: min(430px, 100%);
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 34px;
+  text-align: center;
+  box-shadow: 0 20px 70px rgba(0, 0, 0, 0.2);
+  animation: jippyOutletEditV2PopupIn 0.2s ease;
+}
+
+@keyframes jippyOutletEditV2PopupIn {
+  from {
+    opacity: 0;
+    transform: scale(0.94) translateY(10px);
   }
 
-  .jippy-outlet-edit-header {
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.jippy-outlet-edit-v2-popup-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 17px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 29px;
+  font-weight: 800;
+}
+
+.jippy-outlet-edit-v2-success-icon {
+  background: #e8f9ef;
+  color: #1da257;
+}
+
+.jippy-outlet-edit-v2-error-icon {
+  background: #fff0f0;
+  color: #df3e3e;
+}
+
+.jippy-outlet-edit-v2-popup h2 {
+  margin: 0 0 10px;
+  color: #252932;
+  font-size: 20px;
+}
+
+.jippy-outlet-edit-v2-popup p {
+  margin: 0 0 25px;
+  color: #777d88;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.jippy-outlet-edit-v2-popup-success-button,
+.jippy-outlet-edit-v2-popup-error-button {
+  width: 100%;
+  height: 45px;
+  border: none;
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.jippy-outlet-edit-v2-popup-success-button {
+  background: #ff6b00;
+}
+
+.jippy-outlet-edit-v2-popup-success-button:hover {
+  background: #e95e00;
+}
+
+.jippy-outlet-edit-v2-popup-error-button {
+  background: #454a54;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 1100px) {
+  .jippy-outlet-edit-v2-day-row {
+    grid-template-columns:
+      170px 50px 70px
+      1fr 1fr;
+  }
+
+  .jippy-outlet-edit-v2-day-row > select {
+    grid-column: 4 / -1;
+  }
+}
+
+@media (max-width: 760px) {
+  .jippy-outlet-edit-v2-page {
+    padding: 18px 14px 35px;
+  }
+
+  .jippy-outlet-edit-v2-header {
     flex-direction: column;
-    align-items: stretch;
-  }
-
-  .jippy-outlet-edit-title {
-    font-size: 26px;
-  }
-
-  .jippy-outlet-edit-back-btn {
-    width: 100%;
-  }
-
-  .jippy-outlet-edit-card {
-    padding: 21px 18px;
-    border-radius: 12px;
-  }
-
-  .jippy-outlet-edit-card-header {
     align-items: flex-start;
-    flex-direction: column;
-    gap: 12px;
   }
 
-  .jippy-outlet-edit-section-badge {
-    align-self: flex-start;
+  .jippy-outlet-edit-v2-header-left {
+    width: 100%;
+    align-items: flex-start;
   }
 
-  .jippy-outlet-edit-grid {
+  .jippy-outlet-edit-v2-grid {
     grid-template-columns: 1fr;
-    gap: 18px;
   }
 
-  .jippy-outlet-edit-full-width {
-    grid-column: auto;
+  .jippy-outlet-edit-v2-section {
+    padding: 18px;
   }
 
-  .jippy-outlet-edit-actions {
+  .jippy-outlet-edit-v2-day-row {
+    grid-template-columns: 1fr 50px 70px;
+  }
+
+  .jippy-outlet-edit-v2-time-box,
+  .jippy-outlet-edit-v2-day-row > select {
+    grid-column: 1 / -1;
+  }
+
+  .jippy-outlet-edit-v2-actions {
     flex-direction: column-reverse;
-    align-items: stretch;
   }
 
-  .jippy-outlet-edit-cancel,
-  .jippy-outlet-edit-save {
+  .jippy-outlet-edit-v2-cancel-button,
+  .jippy-outlet-edit-v2-update-button {
     width: 100%;
   }
-
-}
-
-/* =========================================================
-   SMALL MOBILE
-   ========================================================= */
-
-@media (max-width: 420px) {
-
-  .jippy-outlet-edit-page {
-    padding: 16px 12px 30px;
-  }
-
-  .jippy-outlet-edit-card {
-    padding: 18px 15px;
-  }
-
-  .jippy-outlet-edit-title {
-    font-size: 23px;
-  }
-
-  .jippy-outlet-edit-card-header h2 {
-    font-size: 19px;
-  }
-
-  .jippy-outlet-edit-input {
-    min-height: 45px;
-    font-size: 14px;
-  }
-
 }

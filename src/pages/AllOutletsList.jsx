@@ -5,8 +5,8 @@ import Select from "react-select";
 import {
   getAllOutlets,
   getOutletById,
-  updateOutlet,
-  createOutlet,
+  updateOutletDetailsByMerchant,
+    createOutlet,
    getOutletCount,
 } from "../services/outletListService";
 
@@ -257,25 +257,68 @@ const fetchOutlets = async () => {
   // EDIT OUTLET
   // =========================================================
 
-  const handleEditOutlet = (outlet) => {
-    if (!outlet?.outletId) {
-      alert("Outlet ID not available.");
-      return;
-    }
+const handleEditOutlet = (outlet) => {
+  console.log(
+    "================================"
+  );
 
-    sessionStorage.setItem(
-      "editOutletId",
-      String(outlet.outletId)
+  console.log(
+    "EDIT OUTLET CLICKED"
+  );
+
+  console.log(
+    "FULL OUTLET:",
+    outlet
+  );
+
+  const outletId =
+    outlet?.outletId ??
+    outlet?.id;
+
+  if (!outletId) {
+    alert(
+      "Outlet ID not found."
     );
+    return;
+  }
 
-    sessionStorage.setItem(
-      "selectedOutlet",
-      JSON.stringify(outlet)
+  /*
+   * Store the COMPLETE table row.
+   *
+   * This is important because if the detailed
+   * GET API doesn't return merchantId, the
+   * Edit page can still get merchantId from here.
+   */
+  sessionStorage.setItem(
+    "selectedOutlet",
+    JSON.stringify(outlet)
+  );
+
+  sessionStorage.setItem(
+    "editOutletId",
+    String(outletId)
+  );
+
+  console.log(
+    "EDIT OUTLET ID:",
+    outletId
+  );
+
+  console.log(
+    "MERCHANT ID FROM TABLE:",
+    outlet?.merchantId
+  );
+
+  console.log(
+    "================================"
+  );
+
+  if (setActivePage) {
+    setActivePage(
+      "outletEdit"
     );
-
-    setActivePage("outletEdit");
-  };
-
+  }
+};
   // =========================================================
   // DELETE OUTLET
   // =========================================================
@@ -1118,19 +1161,15 @@ const fetchOutlets = async () => {
 
                         <div className="jippy-all-outlets-actions">
 
-                          <button
-                            type="button"
-                            className="jippy-all-outlets-edit-btn"
-                            title="Edit Outlet"
-                            aria-label="Edit Outlet"
-                            onClick={() =>
-                              handleEditOutlet(
-                                outlet
-                              )
-                            }
-                          >
-                            <FiEdit2 />
-                          </button>
+                           <button
+    type="button"
+    className="jippy-all-outlets-edit-btn"
+    title="Edit Outlet"
+    aria-label="Edit Outlet"
+    onClick={() => handleEditOutlet(outlet)}
+  >
+    <FiEdit2 />
+  </button>
 
                           <button
                             type="button"

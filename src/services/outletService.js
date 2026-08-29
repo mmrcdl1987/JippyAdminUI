@@ -44,15 +44,11 @@ export const getAreasByCity = async (cityId) => {
   );
 };
 
-
-
-
 export const updateOutlet = async (
   outletId,
   userType,
   payload
 ) => {
-
   const response = await FM_API.put(
     "/api/fm/outlets/editAndUpdateOutletProducts",
     payload,
@@ -65,13 +61,11 @@ export const updateOutlet = async (
   );
 
   return response.data;
-
 };
-
 
 export const createOutlet = async (payload) => {
   const response = await FM_API.post(
-    "/api/fm/outlets/create",
+    "/api/fm/outlets/createOutlet",
     payload
   );
 
