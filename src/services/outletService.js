@@ -70,15 +70,10 @@ export const updateOutlet = async (
 
 
 export const createOutlet = async (payload) => {
-  try {
-    const response = await FM_API.post(
-      "/api/fm/outlets/create",
-      payload
-    ); 
+  const response = await FM_API.post(
+    "/api/fm/outlets/create",
+    payload
+  );
 
-    return response.data;
-  } catch (error) {
-    console.error("Error creating outlet:", error);
-    throw error;
-  }
+  return response.data;
 };

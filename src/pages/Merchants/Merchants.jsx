@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { FM_API } from "../../services/api";
 import { FaStore } from "react-icons/fa";
 
+  import { uploadMerchants } from "../../services/merchantService";
+
 function Merchants() {
   const navigate = useNavigate();
   const [merchants, setMerchants] = useState([]);
@@ -15,9 +17,27 @@ function Merchants() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(30);
 
+
   useEffect(() => {
     fetchMerchants();
   }, []);
+
+  // ============================================================
+// MERCHANT TABLE COLUMNS
+// ============================================================
+
+const [selectedFile, setSelectedFile] = useState(null);
+const [bulkUploading, setBulkUploading] = useState(false);
+const [showColumnsMenu, setShowColumnsMenu] = useState(false);
+
+const [visibleColumns, setVisibleColumns] = useState({
+  merchantInfo: true,
+  ownerInfo: true,
+  zone: true,
+  status: true,
+  adminCommission: true,
+  date: true,
+});
 
   const openOutlets = (merchant) => {
     console.log("Saving merchantId to localStorage:", merchant.merchantId);
@@ -28,8 +48,8 @@ function Merchants() {
   };
 
   const handleCreateMerchant = () => {
-    navigate("/dashboard/create-merchant"); // Make sure this matches your router path
-  };
+  navigate("/dashboard/createMerchant");
+};
 
   const fetchMerchants = async () => {
     try {
@@ -50,23 +70,125 @@ function Merchants() {
     }
   };
 
-  const filteredMerchants = merchants.filter((merchant) => {
-    const keyword = search.toLowerCase();
+ const handleBulkFileChange = (e) => {
+  const file = e.target.files?.[0];
 
-    return (
-      merchant.merchantName?.toLowerCase().includes(keyword) ||
-      merchant.firstName?.toLowerCase().includes(keyword) ||
-      merchant.lastName?.toLowerCase().includes(keyword) ||
-      merchant.merchantEmail?.toLowerCase().includes(keyword) ||
-      merchant.merchantPhone?.toLowerCase().includes(keyword) ||
-      merchant.area?.toLowerCase().includes(keyword) ||
-      merchant.city?.toLowerCase().includes(keyword) ||
-      merchant.state?.toLowerCase().includes(keyword) ||
-      merchant.merchantBusinessType?.toLowerCase().includes(keyword) ||
-      merchant.status?.toLowerCase().includes(keyword)
+  if (!file) return;
+
+  const fileName = file.name.toLowerCase();
+
+  if (
+    !fileName.endsWith(".csv") &&
+    !fileName.endsWith(".xlsx") &&
+    !fileName.endsWith(".xls")
+  ) {
+    alert("Please select a CSV or Excel file.");
+    e.target.value = "";
+    return;
+  }
+
+  setBulkFile(file);
+};
+
+const handleBulkUpload = async () => {
+  if (!bulkFile) {
+    alert("Please select a CSV file");
+    return;
+  }
+
+  try {
+    setBulkUploading(true);
+
+    const formData = new FormData();
+    formData.append("file", bulkFile);
+
+    const response = await api.post(
+      "/api/fm/merchants/upload",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
     );
+
+    console.log("Bulk upload response:", response.data);
+
+    alert(response.data?.message || "Upload completed");
+
+    setBulkFile(null);
+
+    if (bulkFileInputRef.current) {
+      bulkFileInputRef.current.value = "";
+    }
+
+    fetchMerchants();
+  } catch (error) {
+    console.error("Bulk upload failed:", error);
+    alert(
+      error.response?.data?.message ||
+      "Bulk upload failed"
+    );
+  } finally {
+    setBulkUploading(false);
+  }
+};
+const filteredMerchants = merchants.filter((merchant) => {
+  const keyword = search.toLowerCase();
+
+  return (
+    merchant.merchantName?.toLowerCase().includes(keyword) ||
+    merchant.firstName?.toLowerCase().includes(keyword) ||
+    merchant.lastName?.toLowerCase().includes(keyword) ||
+    merchant.merchantEmail?.toLowerCase().includes(keyword) ||
+    merchant.merchantPhone?.toLowerCase().includes(keyword) ||
+    merchant.area?.toLowerCase().includes(keyword) ||
+    merchant.city?.toLowerCase().includes(keyword) ||
+    merchant.state?.toLowerCase().includes(keyword) ||
+    merchant.merchantBusinessType?.toLowerCase().includes(keyword) ||
+    merchant.status?.toLowerCase().includes(keyword)
+  );
+});
+    
+
+
+  // ============================================================
+// COLUMN OPTIONS
+// ============================================================
+
+const merchantColumnOptions = [
+  ["merchantInfo", "Merchant Info"],
+  ["ownerInfo", "Owner Info"],
+  ["zone", "Zone"],
+  ["status", "Status"],
+  ["adminCommission", "Admin Commission"],
+  ["date", "Date"],
+];
+
+// ============================================================
+// TOGGLE COLUMN
+// ============================================================
+
+const toggleMerchantColumn = (columnKey) => {
+  setVisibleColumns((prev) => ({
+    ...prev,
+    [columnKey]: !prev[columnKey],
+  }));
+};
+
+// ============================================================
+// SHOW ALL COLUMNS
+// ============================================================
+
+const showAllMerchantColumns = () => {
+  const allColumns = {};
+
+  merchantColumnOptions.forEach(([key]) => {
+    allColumns[key] = true;
   });
 
+  setVisibleColumns(allColumns);
+};
   // Pagination calculations
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -163,7 +285,7 @@ function Merchants() {
         <div className="merchant-list-bulk-left">
           <h2>Bulk Import / Update Merchants</h2>
           <p>
-            Upload Excel file to import or update multiple merchants at once
+          Upload CSV or Excel file to import or update multiple merchants at once
           </p>
         </div>
 
@@ -173,15 +295,36 @@ function Merchants() {
           </button>
         </div>
 
-        <div className="merchant-list-bulk-right">
-          <label>Select Excel File (.xls/.xlsx)</label>
-          <input type="file" className="merchant-list-file-input" />
-          <small>
-            File should contain Merchant Name, Email, Mobile, Address, Area,
-            City, State, Business Model, Merchant Type and Merchant Id (for updates).
-          </small>
-          <button className="merchant-list-update-btn">⬆ Bulk Update</button>
-        </div>
+     <div className="merchant-list-bulk-right">
+  <label htmlFor="merchant-bulk-file">
+    Select File (.csv / .xls / .xlsx)
+  </label>
+
+<input
+  type="file"
+  accept=".csv,text/csv,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  onChange={handleBulkFileChange}
+/>
+
+  {selectedFile && (
+    <small className="merchant-list-selected-file">
+      Selected: {selectedFile.name}
+    </small>
+  )}
+
+  <small>
+    File should contain the required merchant fields.
+  </small>
+
+  <button
+    type="button"
+    className="merchant-list-update-btn"
+    onClick={handleBulkUpload}
+    disabled={bulkUploading || !selectedFile}
+  >
+    {bulkUploading ? "Uploading..." : "⬆ Bulk Upload"}
+  </button>
+</div>
 
       </div> 
 
@@ -211,7 +354,78 @@ function Merchants() {
           </div>
 
           <div className="merchant-list-actions">
-            <button className="merchant-list-columns-btn">Columns ▼</button>
+           <div className="merchant-list-columns-wrapper">
+
+  <button
+    type="button"
+    className="merchant-list-columns-btn"
+    onClick={() =>
+      setShowColumnsMenu((prev) => !prev)
+    }
+  >
+    Columns ▾
+  </button>
+
+  {showColumnsMenu && (
+    <div className="merchant-list-columns-menu">
+
+      {/* HEADER */}
+      <div className="merchant-list-columns-menu-header">
+
+        <span>Choose Columns</span>
+
+        <button
+          type="button"
+          className="merchant-list-columns-close"
+          onClick={() => setShowColumnsMenu(false)}
+        >
+          ×
+        </button>
+
+      </div>
+
+      {/* CATEGORY */}
+      <div className="merchant-list-columns-title">
+        General
+      </div>
+
+      {/* CHECKBOXES */}
+      {merchantColumnOptions.map(
+        ([key, label]) => (
+          <label
+            key={key}
+            className="merchant-list-column-option"
+          >
+
+            <input
+              type="checkbox"
+              checked={visibleColumns[key]}
+              onChange={() =>
+                toggleMerchantColumn(key)
+              }
+            />
+
+            <span>{label}</span>
+
+          </label>
+        )
+      )}
+
+      <div className="merchant-list-columns-divider" />
+
+      {/* SHOW ALL */}
+      <button
+        type="button"
+        className="merchant-list-show-all-columns"
+        onClick={showAllMerchantColumns}
+      >
+        Show All
+      </button>
+
+    </div>
+  )}
+
+</div>
             <button 
               className="merchant-list-create-btn"
               onClick={handleCreateMerchant}
@@ -246,19 +460,42 @@ function Merchants() {
         </div>
 
         <table className="merchant-list-table">
-          <thead>
-            <tr>
-              <th>
-                <input type="checkbox" />
-              </th>
-              <th>Merchant Info</th>
-              <th>Owner Info</th>
-              <th>State</th>
-              <th>Status</th>
-              <th>Approved</th>
-              <th>Date</th>
-            </tr>
-          </thead>
+     
+
+<thead>
+  <tr>
+    <th>
+      <input type="checkbox" />
+    </th>
+
+    {visibleColumns.merchantInfo && (
+      <th>Merchant Info</th>
+    )}
+
+    {visibleColumns.ownerInfo && (
+      <th>Owner Info</th>
+    )}
+
+    {visibleColumns.zone && (
+      <th>Zone</th>
+    )}
+
+    {visibleColumns.status && (
+      <th>Status</th>
+    )}
+
+    {visibleColumns.adminCommission && (
+      <th>Admin Commission</th>
+    )}
+
+    {visibleColumns.date && (
+      <th>Date</th>
+    )}
+
+    <th>Actions</th>
+  </tr>
+</thead>
+         
 
           <tbody>
             {loading ? (
@@ -293,28 +530,74 @@ function Merchants() {
                       <input type="checkbox" />
                     </td>
 
-                    <td>
-                      <div className="merchant-list-info">
-                        <img
-                          src={merchant.profilePicUrl || "/default-shop.png"}
-                          alt={merchant.merchantName}
-                        />
-                        <div>
-                          <strong>{merchant.merchantName}</strong>
-                          <br />
-                          <small>{merchant.merchantBusinessType}</small>
-                        </div>
-                      </div>
-                    </td>
+                    {visibleColumns.merchantInfo && (
+  <td>
 
-                    <td>
-                      {merchant.firstName} {merchant.lastName}
-                      <br />
-                      {merchant.merchantPhone}
-                      <br />
-                      <small>{merchant.merchantEmail}</small>
-                    </td>
+    <div className="merchant-list-info">
 
+      <img
+        src={
+          merchant.profilePicUrl ||
+          "/default-shop.png"
+        }
+        alt={merchant.merchantName}
+      />
+
+      <div>
+
+        <strong>
+          {merchant.merchantName}
+        </strong>
+
+        <br />
+
+        <small>
+          {merchant.merchantBusinessType}
+        </small>
+
+      </div>
+
+    </div>
+
+  </td>
+)}
+
+                    {visibleColumns.ownerInfo && (
+  <td>
+
+    {merchant.firstName} {merchant.lastName}
+
+    <br />
+
+    {merchant.merchantPhone}
+
+    <br />
+
+    <small>
+      {merchant.merchantEmail}
+    </small>
+
+  </td>
+)}
+{visibleColumns.zone && (
+  <td>{merchant.state || "-"}</td>
+)}
+
+{visibleColumns.status && (
+  <td>{merchant.status || "-"}</td>
+)}
+
+{visibleColumns.adminCommission && (
+  <td>{merchant.adminCommission ?? "-"}</td>
+)}
+
+{visibleColumns.date && (
+  <td>
+    {merchant.createdAt
+      ? new Date(merchant.createdAt).toLocaleDateString()
+      : "-"}
+  </td>
+)}
                     <td>{merchant.state || "N/A"}</td>
                     <td>{merchant.status || "N/A"}</td>
                     <td>{merchant.isApproved ? "Yes" : "No"}</td>

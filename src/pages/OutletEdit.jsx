@@ -59,58 +59,63 @@ const OutletEdit = ({ setActivePage }) => {
     }
 
     const payload = {
-      outletId: Number(outletId),
+  outletId: Number(outletId),
 
-      outletName: formData.outletName,
-      outletEmail: formData.outletEmail,
-      outletPhone: formData.outletPhone,
-      alternateOutletPhone: formData.alternateOutletPhone || null,
+  outletName: formData.outletName || "",
+  outletEmail: formData.outletEmail || "",
+  outletPhone: formData.outletPhone || "",
+  alternateOutletPhone: formData.alternateOutletPhone || null,
 
-      latitude:
-        formData.latitude !== null &&
-        formData.latitude !== undefined
-          ? Number(formData.latitude)
-          : null,
+  latitude:
+    formData.latitude !== null &&
+    formData.latitude !== undefined &&
+    formData.latitude !== ""
+      ? Number(formData.latitude)
+      : null,
 
-      longitude:
-        formData.longitude !== null &&
-        formData.longitude !== undefined
-          ? Number(formData.longitude)
-          : null,
+  longitude:
+    formData.longitude !== null &&
+    formData.longitude !== undefined &&
+    formData.longitude !== ""
+      ? Number(formData.longitude)
+      : null,
 
-      accountNumber: formData.accountNumber || null,
-      ifscCode: formData.ifscCode || null,
-      bankName: formData.bankName || null,
-      accountHolderName: formData.accountHolderName || null,
+  accountNumber: formData.accountNumber || null,
+  ifscCode: formData.ifscCode || null,
+  bankName: formData.bankName || null,
+  accountHolderName: formData.accountHolderName || null,
 
-      buildingNumber: formData.buildingNumber || null,
-      road: formData.road || null,
-      landmark: formData.landmark || null,
+  buildingNumber: formData.buildingNumber || null,
+  road: formData.road || null,
+  landmark: formData.landmark || null,
 
-      cityId: formData.cityId || null,
-      cityName: formData.cityName || null,
+  cityId: formData.cityId ? Number(formData.cityId) : null,
+  stateId: formData.stateId ? Number(formData.stateId) : null,
+  areaId: formData.areaId ? Number(formData.areaId) : null,
 
-      stateId: formData.stateId || null,
-      stateName: formData.stateName || null,
+  cuisineTypes: Array.isArray(formData.cuisineTypes)
+    ? formData.cuisineTypes.map((cuisine) => ({
+        cuisineTypeId: Number(cuisine.cuisineTypeId),
+        cuisineTypeName: cuisine.cuisineTypeName || "",
+      }))
+    : [],
 
-      areaId: formData.areaId || null,
-      areaName: formData.areaName || null,
+  outletTimings: Array.isArray(formData.outletTimings)
+    ? formData.outletTimings.map((timing) => ({
+        day: String(timing.day),
+        isOpen: Boolean(timing.isOpen),
+        openingTime: timing.openingTime,
+        closingTime: timing.closingTime,
+      }))
+    : [],
 
-      // Keep cuisineTypes from the GET response
-      cuisineTypes: formData.cuisineTypes || [],
+  categories: Array.isArray(formData.categories)
+    ? formData.categories
+    : [],
 
-      // Keep outlet timings from GET response
-      outletTimings: formData.outletTimings || [],
-
-      // Keep existing categories/products
-      categories: formData.categories || [],
-
-      // Keep active discount if returned
-      activeDiscounts: formData.activeDiscounts || null,
-
-      isFavourite: formData.isFavourite ?? false,
-      isAvailable: formData.isAvailable ?? true,
-    };
+  isFavourite: formData.isFavourite ?? false,
+  isAvailable: formData.isAvailable ?? true,
+};
 
     console.log(
       "========== FINAL UPDATE PAYLOAD =========="

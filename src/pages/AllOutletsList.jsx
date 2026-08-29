@@ -7,6 +7,7 @@ import {
   getOutletById,
   updateOutlet,
   createOutlet,
+   getOutletCount,
 } from "../services/outletListService";
 
 import {
@@ -83,39 +84,15 @@ function AllOutletsList({ setActivePage }) {
   // FETCH OUTLET COUNT
   // =========================================================
 
-  const fetchOutletCount = async () => {
-    try {
-      const token = localStorage.getItem("token");
-
-      const response = await fetch(
-        `${API_BASE_URL}/api/fm/outlets/count`,
-        {
-          method: "GET",
-          headers: {
-            Accept: "*/*",
-            Authorization: token ? token : "",
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(
-          `Failed to fetch outlet count: ${response.status}`
-        );
-      }
-
-      const result = await response.json();
-
-      if (result?.success) {
-        setOutletCount(Number(result.data || 0));
-      }
-    } catch (error) {
-      console.error(
-        "Failed to fetch outlet count:",
-        error
-      );
-    }
-  };
+ const fetchOutletCount = async () => {
+  try {
+    const count = await getOutletCount();
+    setOutletCount(count);
+  } catch (error) {
+    console.error("Failed to fetch outlet count:", error);
+    setOutletCount(0);
+  }
+};
 
   // =========================================================
   // FETCH ALL OUTLETS

@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useNavigate } from "react-router-dom";
+
 import Sidebar from "../components/Sidebar";
 import { hasPermission } from "../utils/permissionUtils";
 import { pageRegistry } from "../config/pageRegistry";
@@ -22,18 +23,25 @@ function Dashboard() {
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
 
+  const navigate = useNavigate();
+
+const setActivePage = (page) => {
+  navigate(`/dashboard/${page}`);
+};
+
   return (
     <div className="dashboard-layout">
       <Sidebar />
 
       <div className="dashboard-content">
         <Routes>
-          {/* Main Dashboard Analytics Home */}
+          {/* Main Dashboard */}
           <Route
             path="/"
             element={
               <>
                 <h2 className="dashboard-title">Business Analytics</h2>
+
                 <div className="cards-grid">
                   <div className="dashboard-card green">
                     <div>
@@ -95,18 +103,22 @@ function Dashboard() {
             }
           />
 
-          {/* Dynamically map all registry components to their respective URL paths */}
+          {/* All registered pages */}
           {Object.entries(pageRegistry).map(([pageKey, config]) => {
             const CurrentComponent = config.component;
-            
-            // Bypass permission check specifically for editMasterProduct if permissions are blocking it
-            const isEditProductPage = pageKey === "editMasterProduct";
-            const hasAccess = isEditProductPage || !config.permission || hasPermission(config.permission);
+
+            const isEditProductPage =
+              pageKey === "editMasterProduct";
+
+            const hasAccess =
+              isEditProductPage ||
+              !config.permission ||
+              hasPermission(config.permission);
 
             return (
-              <Route
-                key={pageKey}
-                path={`/${pageKey}`}
+             <Route
+  key={pageKey}
+  path={pageKey}
                 element={
                   hasAccess ? (
                     <CurrentComponent
@@ -118,11 +130,23 @@ function Dashboard() {
                       setSelectedPlan={setSelectedPlan}
                       selectedCategory={selectedCategory}
                       setSelectedCategory={setSelectedCategory}
+                      setActivePage={setActivePage}
                     />
                   ) : (
-                    <div style={{ padding: "40px", backgroundColor: "#fff", borderRadius: "8px", color: "#d9534f" }}>
+                    <div
+                      style={{
+                        padding: "40px",
+                        backgroundColor: "#fff",
+                        borderRadius: "8px",
+                        color: "#d9534f",
+                      }}
+                    >
                       <h2>Access Denied</h2>
-                      <p>You lack the required permission to view this page ({config.permission}).</p>
+
+                      <p>
+                        You lack the required permission to view this page (
+                        {config.permission}).
+                      </p>
                     </div>
                   )
                 }
@@ -130,15 +154,16 @@ function Dashboard() {
             );
           })}
 
-          {/* Fallback extra custom route */}
-          <Route 
-            path="/addToOutletProducts" 
+          {/* Add To Outlet Products */}
+          <Route
+            path="/addToOutletProducts"
             element={
-              <AddToOutletProducts 
+              <AddToOutletProducts
                 refreshCategories={refreshCategories}
                 setRefreshCategories={setRefreshCategories}
+                setActivePage={setActivePage}
               />
-            } 
+            }
           />
         </Routes>
       </div>
