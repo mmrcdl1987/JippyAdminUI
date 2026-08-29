@@ -68,23 +68,23 @@ export const menuData = [
         pageKey: "usersCustomers",
         permission: "CUSTOMER_READ",
       },
-      {
-        name: "Owners / Vendors",
-        children: [
-          {
-            name: "All Vendors",
-            permission: "VENDOR_READ",
-          },
-          {
-            name: "Approved Vendors",
-            permission: "VENDOR_READ",
-          },
-          { 
-            name: "Approval Pending Vendors",
-            permission: "VENDOR_READ",
-          },
-        ],
-      },
+      // {
+      //   name: "Owners / Vendors",
+      //   children: [
+      //     {
+      //       name: "All Vendors",
+      //       permission: "VENDOR_READ",
+      //     },
+      //     {
+      //       name: "Approved Vendors",
+      //       permission: "VENDOR_READ",
+      //     },
+      //     { 
+      //       name: "Approval Pending Vendors",
+      //       permission: "VENDOR_READ",
+      //     },
+      //   ],
+      // },
     ],
   },
 
@@ -228,11 +228,11 @@ export const menuData = [
           },
         ],
       },
-      {
-        name: "Menu Periods",
-        permission: "RESTAURANT_READ",
-      },
-    ],
+    //   {
+    //     name: "Menu Periods",
+    //     permission: "RESTAURANT_READ",
+    //   },
+     ],
   },
   {
     title: "PROMOTIONS & OFFERS",
@@ -421,11 +421,11 @@ export const menuData = [
           //   pageKey: "taxSettings",
           //   permission: "SETTINGS_READ",
           // },
-          {
-            name: "Driver Settings",
-            pageKey: "driverSettings",
-            permission: "SETTINGS_READ",
-          },
+          // {
+          //   name: "Driver Settings",
+          //   pageKey: "driverSettings",
+          //   permission: "SETTINGS_READ",
+          // },
           {
             name: "Delivery Charge",
             pageKey: "deliveryCharge",
