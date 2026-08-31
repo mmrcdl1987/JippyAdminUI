@@ -52,11 +52,8 @@ const errorInterceptor = (error) => {
         window.location.href = "/login";
         break;
       case 403:
-<<<<<<< HEAD
         console.warn("API 403 Forbidden: Access Denied");
-=======
         alert("Access Denied");
->>>>>>> 58bcec160de07627f468f5c20d960241d842ba41
         break;
       case 500:
         alert("Internal Server Error");

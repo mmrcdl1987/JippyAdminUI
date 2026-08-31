@@ -67,7 +67,6 @@ export const menuData = [
         pageKey: "usersCustomers",
         permission: "CUSTOMER_READ",
       },
-<<<<<<< HEAD
       {
         name: "Owners / Vendors",
         children: [
@@ -85,25 +84,6 @@ export const menuData = [
           },
         ],
       },
-=======
-      // {
-      //   name: "Owners / Vendors",
-      //   children: [
-      //     {
-      //       name: "All Vendors",
-      //       permission: "VENDOR_READ",
-      //     },
-      //     {
-      //       name: "Approved Vendors",
-      //       permission: "VENDOR_READ",
-      //     },
-      //     { 
-      //       name: "Approval Pending Vendors",
-      //       permission: "VENDOR_READ",
-      //     },
-      //   ],
-      // },
->>>>>>> 58bcec160de07627f468f5c20d960241d842ba41
     ],
   },
 
