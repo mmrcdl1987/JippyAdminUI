@@ -1,38 +1,32 @@
+import { useNavigate } from "react-router-dom";
 import "../styles/ViewSubscriptionPlan.css";
 
-function ViewSubscriptionPlan({
-  selectedPlan,
-  setActivePage,
-}) {
+function ViewSubscriptionPlan({ selectedPlan }) {
+  const navigate = useNavigate();
 
   return (
     <div className="view-sub-page-wrapper">
-
       <h2 className="view-sub-page-title">
         View Subscription Plan
       </h2>
 
       <div className="view-sub-toolbar">
-
         <button
           className="view-sub-top-back-btn"
           onClick={() =>
-            setActivePage("subscriptionPlanSettings")
+            navigate("/dashboard/subscriptionPlanSettings")
           }
         >
           ← Back
         </button>
-
       </div>
 
       <div className="view-sub-card">
-
         <div className="view-sub-card-header">
           SUBSCRIPTION PLAN DETAILS
         </div>
 
         <div className="view-sub-grid">
-
           <div className="view-sub-item">
             <label>Plan Name</label>
             <span>{selectedPlan?.planName || "-"}</span>
@@ -40,37 +34,39 @@ function ViewSubscriptionPlan({
 
           <div className="view-sub-item">
             <label>Price</label>
-            <span>₹ {selectedPlan?.price || "-"}</span>
+            <span>
+              ₹ {selectedPlan?.price !== undefined ? Number(selectedPlan.price).toLocaleString("en-IN", { minimumFractionDigits: 2 }) : "-"}
+            </span>
           </div>
 
           <div className="view-sub-item">
             <label>Duration</label>
-            <span>{selectedPlan?.durationInDays || "-"} Days</span>
+            <span>{selectedPlan?.durationInDays ? `${selectedPlan.durationInDays} Days` : "-"}</span>
           </div>
 
           <div className="view-sub-item">
             <label>Banner Duration</label>
-            <span>{selectedPlan?.bannerDurationInDays || "-"} Days</span>
+            <span>{selectedPlan?.bannerDurationInDays ? `${selectedPlan.bannerDurationInDays} Days` : "-"}</span>
           </div>
 
           <div className="view-sub-item">
             <label>Radius</label>
-            <span>{selectedPlan?.radiusInKms || "-"} Km</span>
+            <span>{selectedPlan?.radiusInKms ? `${selectedPlan.radiusInKms} Km` : "-"}</span>
           </div>
 
           <div className="view-sub-item">
             <label>Banner Slot</label>
-            <span>{selectedPlan?.bannerSlot || "-"}</span>
+            <span>{selectedPlan?.bannerSlot ?? "-"}</span>
           </div>
 
           <div className="view-sub-item">
             <label>Best Restaurant Slot</label>
-            <span>{selectedPlan?.bestRestaurantSlot || "-"}</span>
+            <span>{selectedPlan?.bestRestaurantSlot ?? "-"}</span>
           </div>
 
           <div className="view-sub-item">
             <label>Deals Slot</label>
-            <span>{selectedPlan?.dealsSlot || "-"}</span>
+            <span>{selectedPlan?.dealsSlot ?? "-"}</span>
           </div>
 
           <div className="view-sub-item">
@@ -92,14 +88,10 @@ function ViewSubscriptionPlan({
             <label>User ID</label>
             <span>{selectedPlan?.userId || "-"}</span>
           </div>
-
         </div>
-
       </div>
-
     </div>
   );
-
 }
 
 export default ViewSubscriptionPlan;

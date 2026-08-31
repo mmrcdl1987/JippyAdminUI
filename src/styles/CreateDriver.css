@@ -1,0 +1,986 @@
+/* =========================================================
+   JIPPYMART CREATE DRIVER
+   Theme: #ff6b00
+   ========================================================= */
+
+
+/* =========================================================
+   PAGE
+   ========================================================= */
+
+.jippy-create-driver-page {
+
+    min-height: 100vh;
+
+    padding: 28px 30px 80px;
+
+    box-sizing: border-box;
+
+    background: #f5f7fb;
+
+}
+
+
+/* =========================================================
+   NOTIFICATION
+   ========================================================= */
+
+.jippy-driver-notification {
+
+    position: fixed;
+
+    top: 25px;
+
+    right: 25px;
+
+    z-index: 10000;
+
+    min-width: 330px;
+
+    max-width: 450px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 14px 16px;
+
+    box-sizing: border-box;
+
+    border-radius: 10px;
+
+    background: #ffffff;
+
+    box-shadow:
+        0 8px 30px rgba(0, 0, 0, 0.15);
+
+    animation:
+        jippyDriverNotificationIn
+        0.3s ease;
+
+}
+
+
+@keyframes jippyDriverNotificationIn {
+
+    from {
+
+        opacity: 0;
+
+        transform: translateX(30px);
+
+    }
+
+    to {
+
+        opacity: 1;
+
+        transform: translateX(0);
+
+    }
+
+}
+
+
+/* =========================================================
+   SUCCESS NOTIFICATION
+   ========================================================= */
+
+.jippy-driver-notification-success {
+
+    border-left: 5px solid #2e9d50;
+
+}
+
+
+/* =========================================================
+   ERROR NOTIFICATION
+   ========================================================= */
+
+.jippy-driver-notification-error {
+
+    border-left: 5px solid #e53935;
+
+}
+
+
+/* =========================================================
+   NOTIFICATION ICON
+   ========================================================= */
+
+.jippy-driver-notification-icon {
+
+    width: 30px;
+
+    height: 30px;
+
+    min-width: 30px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #ff6b00;
+
+    color: #ffffff;
+
+    font-size: 14px;
+
+    font-weight: 700;
+
+}
+
+
+.jippy-driver-notification-error
+.jippy-driver-notification-icon {
+
+    background: #e53935;
+
+}
+
+
+/* =========================================================
+   NOTIFICATION CONTENT
+   ========================================================= */
+
+.jippy-driver-notification-content {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 3px;
+
+    flex: 1;
+
+}
+
+
+.jippy-driver-notification-content strong {
+
+    font-size: 14px;
+
+    color: #222222;
+
+}
+
+
+.jippy-driver-notification-content span {
+
+    font-size: 13px;
+
+    color: #666666;
+
+    line-height: 1.4;
+
+}
+
+
+/* =========================================================
+   NOTIFICATION CLOSE BUTTON
+   ========================================================= */
+
+.jippy-driver-notification > button {
+
+    width: 25px;
+
+    height: 25px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 0;
+
+    border: none;
+
+    background: transparent;
+
+    color: #777777;
+
+    font-size: 20px;
+
+    line-height: 1;
+
+    cursor: pointer;
+
+}
+
+
+.jippy-driver-notification > button:hover {
+
+    color: #222222;
+
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.jippy-create-driver-header {
+
+    width: 100%;
+
+    max-width: 1200px;
+
+    margin: 0 auto 25px;
+
+    box-sizing: border-box;
+
+}
+
+
+/* =========================================================
+   BACK BUTTON
+   ========================================================= */
+
+.jippy-create-driver-back-btn {
+
+    height: 40px;
+
+    padding: 0 16px;
+
+    margin-bottom: 20px;
+
+    border: none;
+
+    border-radius: 7px;
+
+    background: #ff6b00;
+
+    color: #ffffff;
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: 0.2s ease;
+
+}
+
+
+.jippy-create-driver-back-btn:hover {
+
+    background: #e85f00;
+
+}
+
+
+/* =========================================================
+   HEADER TITLE
+   ========================================================= */
+
+.jippy-create-driver-header h2 {
+
+    margin: 0;
+
+    color: #222222;
+
+    font-size: 30px;
+
+    font-weight: 700;
+
+    line-height: 1.2;
+
+}
+
+
+/* =========================================================
+   HEADER DESCRIPTION
+   ========================================================= */
+
+.jippy-create-driver-header p {
+
+    margin: 7px 0 0;
+
+    color: #666666;
+
+    font-size: 14px;
+
+    line-height: 1.5;
+
+}
+
+
+/* =========================================================
+   MAIN FORM CARD
+   ========================================================= */
+
+.jippy-create-driver-form {
+
+    width: 100%;
+
+    max-width: 1200px;
+
+    margin: 0 auto 40px;
+
+    padding: 30px 30px 80px;
+
+    box-sizing: border-box;
+
+    background: #ffffff;
+
+    border: 1px solid #eeeeee;
+
+    border-radius: 12px;
+
+    box-shadow:
+        0 2px 12px rgba(0, 0, 0, 0.08);
+
+}
+
+
+/* =========================================================
+   FORM SECTION
+   ========================================================= */
+
+.jippy-create-driver-section {
+
+    width: 100%;
+
+    margin: 0 0 34px;
+
+    padding: 0;
+
+    background: transparent;
+
+}
+
+
+/* =========================================================
+   SECTION HEADING
+   ========================================================= */
+
+.jippy-create-driver-section h3 {
+
+    width: 100%;
+
+    margin: 0 0 20px;
+
+    padding: 0 0 10px;
+
+    box-sizing: border-box;
+
+    border-bottom: 2px solid #eeeeee;
+
+    color: #ff6b00;
+
+    font-size: 18px;
+
+    font-weight: 600;
+
+    line-height: 1.3;
+
+}
+
+
+/* =========================================================
+   FORM GRID
+   ========================================================= */
+
+.jippy-create-driver-grid {
+
+    width: 100%;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(280px, 1fr));
+
+    gap: 22px;
+
+}
+
+
+/* =========================================================
+   FIELD
+   ========================================================= */
+
+.jippy-create-driver-field {
+
+    width: 100%;
+
+    min-width: 0;
+
+    display: flex;
+
+    flex-direction: column;
+
+}
+
+
+/* =========================================================
+   LABEL
+   ========================================================= */
+
+.jippy-create-driver-field label {
+
+    display: block;
+
+    margin-bottom: 8px;
+
+    color: #444444;
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    line-height: 1.3;
+
+}
+
+
+.jippy-create-driver-required {
+
+    margin-left: 3px;
+
+    color: #e53935;
+
+    font-weight: 700;
+
+}
+
+
+/* =========================================================
+   INPUT
+   ========================================================= */
+
+.jippy-create-driver-input {
+
+    width: 100%;
+
+    height: 46px;
+
+    padding: 0 14px;
+
+    box-sizing: border-box;
+
+    border: 1px solid #d8d8d8;
+
+    border-radius: 8px;
+
+    outline: none;
+
+    background: #ffffff;
+
+    color: #222222;
+
+    font-family: inherit;
+
+    font-size: 14px;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+
+}
+
+
+.jippy-create-driver-input::placeholder {
+
+    color: #888888;
+
+}
+
+
+.jippy-create-driver-input:hover {
+
+    border-color: #bdbdbd;
+
+}
+
+
+.jippy-create-driver-input:focus {
+
+    border-color: #ff6b00;
+
+    box-shadow:
+        0 0 0 3px rgba(255, 107, 0, 0.12);
+
+}
+
+
+/* =========================================================
+   ERROR INPUT
+   ========================================================= */
+
+.jippy-create-driver-input-error {
+
+    border-color: #e53935 !important;
+
+    background: #fff8f8;
+
+}
+
+
+.jippy-create-driver-input-error:hover {
+
+    border-color: #e53935 !important;
+
+}
+
+
+.jippy-create-driver-input-error:focus {
+
+    border-color: #e53935 !important;
+
+    box-shadow:
+        0 0 0 3px rgba(229, 57, 53, 0.12);
+
+}
+
+
+/* =========================================================
+   VALIDATION ERROR
+   ========================================================= */
+
+.jippy-create-driver-error {
+
+    display: block;
+
+    margin-top: 6px;
+
+    color: #e53935;
+
+    font-size: 12px;
+
+    font-weight: 500;
+
+    line-height: 1.4;
+
+}
+
+
+/* =========================================================
+   CHECKBOX
+   ========================================================= */
+
+.jippy-create-driver-checkbox {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 9px;
+
+    width: fit-content;
+
+    margin-top: 17px;
+
+    color: #444444;
+
+    font-size: 13px;
+
+    font-weight: 500;
+
+    cursor: pointer;
+
+}
+
+
+.jippy-create-driver-checkbox input {
+
+    width: 16px;
+
+    height: 16px;
+
+    margin: 0;
+
+    accent-color: #ff6b00;
+
+    cursor: pointer;
+
+}
+
+
+.jippy-create-driver-checkbox span {
+
+    user-select: none;
+
+}
+
+
+/* =========================================================
+   PASSWORD HINT
+   ========================================================= */
+
+.jippy-create-driver-password-hint {
+
+    width: 100%;
+
+    margin-top: 12px;
+
+    padding: 12px 15px;
+
+    box-sizing: border-box;
+
+    border-radius: 8px;
+
+    background: #fff7f0;
+
+    color: #666666;
+
+    font-size: 12px;
+
+    line-height: 1.4;
+
+}
+
+
+.jippy-create-driver-password-hint ul {
+
+    margin: 7px 0 0 18px;
+
+    padding: 0;
+
+}
+
+
+.jippy-create-driver-password-hint li {
+
+    margin-bottom: 3px;
+
+}
+
+
+.jippy-create-driver-password-hint li:last-child {
+
+    margin-bottom: 0;
+
+}
+
+
+/* =========================================================
+   ACTION AREA
+   ========================================================= */
+
+.jippy-create-driver-actions {
+
+    width: 100%;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    gap: 18px;
+
+    margin-top: 30px;
+
+    padding-top: 25px;
+
+    border-top: 1px solid #eeeeee;
+
+}
+
+
+/* =========================================================
+   ACTION BUTTONS
+   ========================================================= */
+
+.jippy-create-driver-cancel-btn,
+.jippy-create-driver-submit-btn {
+
+    width: 180px;
+
+    height: 45px;
+
+    padding: 0 20px;
+
+    box-sizing: border-box;
+
+    border-radius: 8px;
+
+    font-family: inherit;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        opacity 0.2s ease;
+
+}
+
+
+/* =========================================================
+   CANCEL BUTTON
+   ========================================================= */
+
+.jippy-create-driver-cancel-btn {
+
+    border: 1px solid #d5d5d5;
+
+    background: #ffffff;
+
+    color: #555555;
+
+}
+
+
+.jippy-create-driver-cancel-btn:hover {
+
+    background: #f5f5f5;
+
+    border-color: #c5c5c5;
+
+}
+
+
+/* =========================================================
+   CREATE DRIVER BUTTON
+   ========================================================= */
+
+.jippy-create-driver-submit-btn {
+
+    border: 1px solid #ff6b00;
+
+    background: #ff6b00;
+
+    color: #ffffff;
+
+}
+
+
+.jippy-create-driver-submit-btn:hover {
+
+    background: #e85f00;
+
+    border-color: #e85f00;
+
+}
+
+
+/* =========================================================
+   DISABLED BUTTONS
+   ========================================================= */
+
+.jippy-create-driver-submit-btn:disabled,
+.jippy-create-driver-cancel-btn:disabled {
+
+    opacity: 0.6;
+
+    cursor: not-allowed;
+
+}
+
+
+/* =========================================================
+   REMOVE NUMBER INPUT ARROWS
+   ========================================================= */
+
+.jippy-create-driver-input[type="number"]::-webkit-inner-spin-button,
+.jippy-create-driver-input[type="number"]::-webkit-outer-spin-button {
+
+    margin: 0;
+
+    -webkit-appearance: none;
+
+}
+
+
+.jippy-create-driver-input[type="number"] {
+
+    -moz-appearance: textfield;
+
+}
+
+
+/* =========================================================
+   RESPONSIVE - TABLET
+   ========================================================= */
+
+@media (max-width: 992px) {
+
+    .jippy-create-driver-page {
+
+        padding: 25px 20px 70px;
+
+    }
+
+
+    .jippy-create-driver-form {
+
+        padding: 28px 24px 70px;
+
+    }
+
+
+    .jippy-create-driver-grid {
+
+        grid-template-columns:
+            repeat(2, minmax(220px, 1fr));
+
+    }
+
+}
+
+
+/* =========================================================
+   RESPONSIVE - MOBILE
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+    .jippy-create-driver-page {
+
+        padding: 20px 16px 60px;
+
+    }
+
+
+    .jippy-create-driver-header {
+
+        margin-bottom: 20px;
+
+    }
+
+
+    .jippy-create-driver-header h2 {
+
+        font-size: 25px;
+
+    }
+
+
+    .jippy-create-driver-header p {
+
+        font-size: 13px;
+
+    }
+
+
+    .jippy-create-driver-form {
+
+        width: 100%;
+
+        margin-bottom: 30px;
+
+        padding: 22px 18px 60px;
+
+        border-radius: 10px;
+
+    }
+
+
+    .jippy-create-driver-grid {
+
+        grid-template-columns: 1fr;
+
+        gap: 18px;
+
+    }
+
+
+    .jippy-create-driver-section {
+
+        margin-bottom: 28px;
+
+    }
+
+
+    .jippy-create-driver-section h3 {
+
+        font-size: 17px;
+
+        margin-bottom: 17px;
+
+    }
+
+
+    .jippy-create-driver-actions {
+
+        flex-direction: column;
+
+        gap: 12px;
+
+    }
+
+
+    .jippy-create-driver-cancel-btn,
+    .jippy-create-driver-submit-btn {
+
+        width: 100%;
+
+        max-width: 320px;
+
+    }
+
+
+    .jippy-driver-notification {
+
+        top: 15px;
+
+        right: 15px;
+
+        left: 15px;
+
+        min-width: auto;
+
+        max-width: none;
+
+    }
+
+}
+
+
+/* =========================================================
+   VERY SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 480px) {
+
+    .jippy-create-driver-page {
+
+        padding: 16px 10px 50px;
+
+    }
+
+
+    .jippy-create-driver-form {
+
+        padding: 20px 14px 55px;
+
+    }
+
+
+    .jippy-create-driver-header h2 {
+
+        font-size: 23px;
+
+    }
+
+
+    .jippy-create-driver-input {
+
+        height: 44px;
+
+        font-size: 13px;
+
+    }
+
+
+    .jippy-create-driver-notification {
+
+        min-width: 0;
+
+    }
+
+}

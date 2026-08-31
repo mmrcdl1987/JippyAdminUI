@@ -92,6 +92,18 @@ function RolesPermissions() {
       alert("Please enter a role name");
       return;
     }
+
+    if (roleName.length > 25) {
+      alert("Role name cannot exceed 25 characters.");
+      return;
+    }
+
+    const roleRegex = /^[a-zA-Z0-9_-]+$/;
+    if (!roleRegex.test(roleName)) {
+      alert("Role name can only contain letters, numbers, underscores (_), and hyphens (-).");
+      return;
+    }
+
     try {
       await FM_API.post("/api/fm/roles", { roleName });
       alert("Role Created Successfully");
@@ -111,6 +123,17 @@ function RolesPermissions() {
     }
     if (!roleName.trim()) {
       alert("Please enter a role name");
+      return;
+    }
+
+    if (roleName.length > 25) {
+      alert("Role name cannot exceed 25 characters.");
+      return;
+    }
+
+    const roleRegex = /^[a-zA-Z0-9_-]+$/;
+    if (!roleRegex.test(roleName)) {
+      alert("Role name can only contain letters, numbers, underscores (_), and hyphens (-).");
       return;
     }
 
@@ -349,15 +372,6 @@ function RolesPermissions() {
                 </div>
 
                 <div className="bottom-actions">
-                  {hasPermission("ROLE_DELETE") && (
-                    <button
-                      className="delete-role-btn"
-                      onClick={() => deleteRole(selectedRole?.roleId)}
-                    >
-                      Delete Role
-                    </button>
-                  )}
-
                   {hasPermission("ROLE_CREATE") && (
                     <button
                       className="create-role-btn"
@@ -547,10 +561,13 @@ function RolesPermissions() {
             <input
               type="text"
               placeholder="Enter Role Name"
+              maxLength={25}
               value={roleName}
               onChange={(e) => setRoleName(e.target.value)}
               className="role-name-box"
             />
+            <br />
+            <small style={{ color: "#666" }}>{roleName.length}/25 characters</small>
             <br />
             <br />
 

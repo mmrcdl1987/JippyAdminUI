@@ -67,6 +67,7 @@ export const menuData = [
         pageKey: "usersCustomers",
         permission: "CUSTOMER_READ",
       },
+<<<<<<< HEAD
       {
         name: "Owners / Vendors",
         children: [
@@ -84,11 +85,30 @@ export const menuData = [
           },
         ],
       },
+=======
+      // {
+      //   name: "Owners / Vendors",
+      //   children: [
+      //     {
+      //       name: "All Vendors",
+      //       permission: "VENDOR_READ",
+      //     },
+      //     {
+      //       name: "Approved Vendors",
+      //       permission: "VENDOR_READ",
+      //     },
+      //     { 
+      //       name: "Approval Pending Vendors",
+      //       permission: "VENDOR_READ",
+      //     },
+      //   ],
+      // },
+>>>>>>> 58bcec160de07627f468f5c20d960241d842ba41
     ],
   },
 
   {
-    title: "MERCHANT & DRIVER MANAGEMENT",
+    title: "MERCHANT  MANAGEMENT",
     permission: "RESTAURANT_READ",
     items: [
       {
@@ -107,10 +127,7 @@ export const menuData = [
           },
         ],
       },
-      // {
-      //   name: "Marts",
-      //   permission: "RESTAURANT_READ",
-      // },
+      
       // {
       //   name: "Drivers",
       //   children: [
@@ -128,23 +145,6 @@ export const menuData = [
       //     },
       //   ],
       // },
-      {
-        name: "Drivers",
-        children: [
-          {
-            name: "All Drivers",
-            permission: "DRIVER_READ",
-          },
-          {
-            name: "Approved Drivers",
-            permission: "DRIVER_READ",
-          },
-          {
-            name: "Approval Pending Drivers",
-            permission: "DRIVER_READ",
-          },
-        ],
-      },
     ],
   },
 
@@ -166,9 +166,10 @@ export const menuData = [
     permission: "RESTAURANT_READ",
     items: [
       {
-        name: "OUTLETS",
-        permission: "RESTAURANT_READ",
-      },
+    name: "Outlets",
+    pageKey: "allOutletsList",
+    permission: "RESTAURANT_READ",
+},
       // {
       //   name: "Marts",
       //   permission: "RESTAURANT_READ",
@@ -242,11 +243,11 @@ export const menuData = [
           },
         ],
       },
-      {
-        name: "Menu Periods",
-        permission: "RESTAURANT_READ",
-      },
-    ],
+    //   {
+    //     name: "Menu Periods",
+    //     permission: "RESTAURANT_READ",
+    //   },
+     ],
   },
   {
     title: "PROMOTIONS & OFFERS",
@@ -473,11 +474,11 @@ export const menuData = [
           //   pageKey: "taxSettings",
           //   permission: "SETTINGS_READ",
           // },
-          {
-            name: "Driver Settings",
-            pageKey: "driverSettings",
-            permission: "SETTINGS_READ",
-          },
+          // {
+          //   name: "Driver Settings",
+          //   pageKey: "driverSettings",
+          //   permission: "SETTINGS_READ",
+          // },
           {
             name: "Delivery Charge",
             pageKey: "deliveryCharge",

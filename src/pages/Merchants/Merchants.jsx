@@ -1,37 +1,55 @@
 import "../../styles/Merchants/Merchants.css";
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { FM_API } from "../../services/api";
+import { uploadMerchants } from "../../services/merchantService";
+import { FaStore } from "react-icons/fa";
 
-import {
-  FaChartBar,
-  FaClipboardList,
-  FaFileAlt,
-  FaEye,
-  FaPen,
-  FaUsers,
-  FaTrash,
-  FaStar,
-} from "react-icons/fa";
 
-function Merchants({ setActivePage }) {
+function Merchants() {
+  const navigate = useNavigate();
   const [merchants, setMerchants] = useState([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
   const [expandedRow, setExpandedRow] = useState(null);
 
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(30);
+
   useEffect(() => {
     fetchMerchants();
   }, []);
 
-  const openEdit = (merchant) => {
+  // ============================================================
+// MERCHANT TABLE COLUMNS
+// ============================================================
+
+const [selectedFile, setSelectedFile] = useState(null);
+const [bulkUploadLoading, setBulkUploadLoading] = useState(false);
+const [bulkUploadResult, setBulkUploadResult] = useState(null);
+const [showColumnsMenu, setShowColumnsMenu] = useState(false);
+
+const [visibleColumns, setVisibleColumns] = useState({
+  merchantInfo: true,
+  ownerInfo: true,
+  zone: true,
+  status: true,
+  adminCommission: true,
+  date: true,
+});
+
+  const openOutlets = (merchant) => {
+    console.log("Saving merchantId to localStorage:", merchant.merchantId);
     localStorage.setItem("merchantId", merchant.merchantId);
-    setActivePage("editMerchant");
+    
+    // Navigates to outlets page. Ensure this route matches your Dashboard subroute configuration.
+    navigate("/dashboard/view-outlets"); 
   };
 
-  const openView = (merchant) => {
-    localStorage.setItem("merchantId", merchant.merchantId);
-    setActivePage("viewMerchant");
-  };
+  const handleCreateMerchant = () => {
+  navigate("/dashboard/createMerchant");
+};
 
   const fetchMerchants = async () => {
     try {
@@ -52,90 +70,232 @@ function Merchants({ setActivePage }) {
     }
   };
 
-  const filteredMerchants = merchants.filter((merchant) => {
-    const keyword = search.toLowerCase();
+  // ============================================================
+  // BULK MERCHANT FILE SELECTION
+  // ============================================================
+  const handleBulkFileChange = (event) => {
+    const file = event.target.files?.[0];
 
-    return (
-      merchant.merchantName?.toLowerCase().includes(keyword) ||
-      merchant.firstName?.toLowerCase().includes(keyword) ||
-      merchant.lastName?.toLowerCase().includes(keyword) ||
-      merchant.merchantEmail?.toLowerCase().includes(keyword) ||
-      merchant.merchantPhone?.toLowerCase().includes(keyword) ||
-      merchant.state?.toLowerCase().includes(keyword) ||
-      merchant.merchantBusinessType?.toLowerCase().includes(keyword)
-    );
+    if (!file) {
+      setSelectedFile(null);
+      setBulkUploadResult(null);
+      return;
+    }
+
+    const fileName = file.name.toLowerCase();
+    const isValidFile =
+      fileName.endsWith(".csv") ||
+      fileName.endsWith(".xlsx") ||
+      fileName.endsWith(".xls");
+
+    if (!isValidFile) {
+      alert("Please select a CSV or Excel file (.csv, .xlsx, .xls).");
+      event.target.value = "";
+      setSelectedFile(null);
+      setBulkUploadResult(null);
+      return;
+    }
+
+    if (file.size === 0) {
+      alert("The selected file is empty.");
+      event.target.value = "";
+      setSelectedFile(null);
+      setBulkUploadResult(null);
+      return;
+    }
+
+    setSelectedFile(file);
+    setBulkUploadResult(null);
+  };
+
+  // ============================================================
+  // BULK MERCHANT UPLOAD
+  // ============================================================
+  const handleBulkUpdate = async () => {
+    if (!selectedFile) {
+      alert("Please select a CSV or Excel file first.");
+      return;
+    }
+
+    try {
+      setBulkUploadLoading(true);
+      setBulkUploadResult(null);
+
+      console.log("[MERCHANT BULK] Uploading:", selectedFile.name);
+
+      const response = await uploadMerchants(selectedFile);
+
+      console.log("[MERCHANT BULK] API response:", response);
+
+      const resultData = response?.data || response;
+      const success = response?.success !== false;
+
+      setBulkUploadResult({
+        success,
+        message:
+          response?.message ||
+          (success
+            ? "Merchants uploaded successfully."
+            : "Merchant upload failed."),
+        data: resultData,
+      });
+
+      // Refresh merchant list after API call
+      if (success) {
+        await fetchMerchants();
+      }
+
+      // Clear selected file after successful request
+      if (success) {
+        setSelectedFile(null);
+
+        const fileInput = document.getElementById(
+          "merchant-bulk-file"
+        );
+
+        if (fileInput) {
+          fileInput.value = "";
+        }
+      }
+    } catch (error) {
+      console.error("[MERCHANT BULK] Upload failed:", error);
+
+      const errorData = error?.response?.data;
+
+      setBulkUploadResult({
+        success: false,
+        message:
+          errorData?.message ||
+          errorData?.error ||
+          error?.message ||
+          "Merchant bulk upload failed.",
+        data: errorData?.data || errorData || null,
+      });
+    } finally {
+      setBulkUploadLoading(false);
+    }
+  };
+
+const filteredMerchants = merchants.filter((merchant) => {
+  const keyword = search.toLowerCase();
+
+  return (
+    merchant.merchantName?.toLowerCase().includes(keyword) ||
+    merchant.firstName?.toLowerCase().includes(keyword) ||
+    merchant.lastName?.toLowerCase().includes(keyword) ||
+    merchant.merchantEmail?.toLowerCase().includes(keyword) ||
+    merchant.merchantPhone?.toLowerCase().includes(keyword) ||
+    merchant.area?.toLowerCase().includes(keyword) ||
+    merchant.city?.toLowerCase().includes(keyword) ||
+    merchant.state?.toLowerCase().includes(keyword) ||
+    merchant.merchantBusinessType?.toLowerCase().includes(keyword) ||
+    merchant.status?.toLowerCase().includes(keyword)
+  );
+});
+    
+
+
+  // ============================================================
+// COLUMN OPTIONS
+// ============================================================
+
+const merchantColumnOptions = [
+  ["merchantInfo", "Merchant Info"],
+  ["ownerInfo", "Owner Info"],
+  ["zone", "Zone"],
+  ["status", "Status"],
+  ["adminCommission", "Admin Commission"],
+  ["date", "Date"],
+];
+
+// ============================================================
+// TOGGLE COLUMN
+// ============================================================
+
+const toggleMerchantColumn = (columnKey) => {
+  setVisibleColumns((prev) => ({
+    ...prev,
+    [columnKey]: !prev[columnKey],
+  }));
+};
+
+// ============================================================
+// SHOW ALL COLUMNS
+// ============================================================
+
+const showAllMerchantColumns = () => {
+  const allColumns = {};
+
+  merchantColumnOptions.forEach(([key]) => {
+    allColumns[key] = true;
   });
+
+  setVisibleColumns(allColumns);
+};
+  // Pagination calculations
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentMerchants = filteredMerchants.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredMerchants.length / itemsPerPage) || 1;
+
+  const handleSearchChange = (e) => {
+    setSearch(e.target.value);
+    setCurrentPage(1);
+  };
+
+  const handleEntriesChange = (e) => {
+    setItemsPerPage(Number(e.target.value));
+    setCurrentPage(1);
+  };
 
   return (
     <div className="merchant-list-page">
-
       {/* Header */}
-
       <div className="merchant-list-header">
-
         <div>
           <h2>Merchants</h2>
         </div>
-
         <div className="merchant-list-breadcrumb">
           Dashboard &gt; Merchants &gt; Merchants List
         </div>
-
       </div>
 
       {/* Toolbar */}
-
       <div className="merchant-list-toolbar">
-
         <div className="merchant-list-title">
-
           <span className="merchant-list-shop-icon">🏪</span>
-
           <h2>
             Merchants
             <span className="merchant-list-count-badge">
               {merchants.length}
             </span>
           </h2>
-
         </div>
 
         <div className="merchant-list-filters">
-
           <select>
             <option>Merchant Type</option>
           </select>
-
           <select>
             <option>Business Model</option>
           </select>
-
           <select>
-            <option>Select Zone</option>
+            <option>Select City</option>
           </select>
-
           <select>
             <option>Best Merchants</option>
           </select>
-
         </div>
-
       </div>
 
       {/* Statistics */}
-
       <div className="merchant-list-stats-row">
-
         <div className="merchant-list-stat-card merchant-list-total-card">
-
           <h1>{merchants.length}</h1>
-
           <p>Total Merchants</p>
-
         </div>
 
         <div className="merchant-list-stat-card merchant-list-active-card">
-
           <h1>
             {
               merchants.filter(
@@ -143,12 +303,10 @@ function Merchants({ setActivePage }) {
               ).length
             }
           </h1>
-
           <p>Active Merchants</p>
-
         </div>
-                <div className="merchant-list-stat-card merchant-list-inactive-card">
 
+        <div className="merchant-list-stat-card merchant-list-inactive-card">
           <h1>
             {
               merchants.filter(
@@ -156,195 +314,350 @@ function Merchants({ setActivePage }) {
               ).length
             }
           </h1>
-
           <p>Inactive Merchants</p>
-
         </div>
 
         <div className="merchant-list-stat-card merchant-list-new-card">
-
-          <h1>
-            {
-              merchants.filter((m) => m.isApproved).length
-            }
-          </h1>
-
+          <h1>{merchants.filter((m) => m.isApproved).length}</h1>
           <p>Newly Joined Merchants</p>
-
         </div>
-
       </div>
 
-      {/* ================= Bulk Import ================= */}
-
+      {/* Bulk Import Section */}
       <div className="merchant-list-bulk-import-card">
-
         <div className="merchant-list-bulk-left">
-
           <h2>Bulk Import / Update Merchants</h2>
-
           <p>
-            Upload Excel file to import or update multiple merchants at once
+          Upload CSV or Excel file to import or update multiple merchants at once
           </p>
-
         </div>
 
         <div className="merchant-list-bulk-middle">
-
-          <button className="merchant-list-download-btn">
+          <button
+            type="button"
+            className="merchant-list-download-btn"
+          >
             ⬇ Download Template
           </button>
-
         </div>
 
         <div className="merchant-list-bulk-right">
-
-          <label>
-            Select Excel File (.xls/.xlsx)
+          <label htmlFor="merchant-bulk-file">
+            Select File (.csv / .xls / .xlsx)
           </label>
 
           <input
+            id="merchant-bulk-file"
             type="file"
             className="merchant-list-file-input"
+            accept=".csv,.xlsx,.xls"
+            onChange={handleBulkFileChange}
+            disabled={bulkUploadLoading}
           />
 
           <small>
-            File should contain Merchant Name, Email, Mobile,
-            Address, Zone, Business Model, Merchant Type and
-            Merchant Id (for updates).
+            File should contain Merchant Name, Email, Mobile, Address, Area,
+            City, State, Business Model, Merchant Type and Merchant Id (for updates).
           </small>
 
-          <button className="merchant-list-update-btn">
-            ⬆ Bulk Update
+          {selectedFile && (
+            <div
+              style={{
+                marginTop: "8px",
+                fontSize: "12px",
+                color: "#333",
+              }}
+            >
+              Selected File: <strong>{selectedFile.name}</strong>
+            </div>
+          )}
+
+          <button
+            type="button"
+            className="merchant-list-update-btn"
+            onClick={handleBulkUpdate}
+            disabled={bulkUploadLoading || !selectedFile}
+          >
+            {bulkUploadLoading ? "⏳ Uploading..." : "⬆ Bulk Update"}
           </button>
 
+          {bulkUploadResult && (
+            <div
+              className={
+                bulkUploadResult.success
+                  ? "upload-result upload-success"
+                  : "upload-result upload-error"
+              }
+              style={{
+                marginTop: "12px",
+                padding: "12px",
+                borderRadius: "8px",
+                backgroundColor: bulkUploadResult.success
+                  ? "#e8f5e9"
+                  : "#ffebee",
+                border: bulkUploadResult.success
+                  ? "1px solid #81c784"
+                  : "1px solid #ef9a9a",
+              }}
+            >
+              <h4 style={{ margin: "0 0 8px 0" }}>
+                {bulkUploadResult.success ? "✓ " : "✕ "}
+                {bulkUploadResult.message}
+              </h4>
+
+              {bulkUploadResult.data && (
+                <div className="upload-result-details">
+                  {bulkUploadResult.data.totalRows !== undefined && (
+                    <p>
+                      <strong>Total Rows:</strong>{" "}
+                      {bulkUploadResult.data.totalRows}
+                    </p>
+                  )}
+
+                  {bulkUploadResult.data.successCount !== undefined && (
+                    <p>
+                      <strong>Success:</strong>{" "}
+                      {bulkUploadResult.data.successCount}
+                    </p>
+                  )}
+
+                  {bulkUploadResult.data.failureCount !== undefined && (
+                    <p>
+                      <strong>Failed:</strong>{" "}
+                      {bulkUploadResult.data.failureCount}
+                    </p>
+                  )}
+
+                  {bulkUploadResult.data.errors?.length > 0 && (
+                    <div style={{ marginTop: "10px" }}>
+                      <strong>Upload Errors:</strong>
+
+                      <div style={{ marginTop: "6px" }}>
+                        {bulkUploadResult.data.errors.map((error, index) => {
+                          if (typeof error === "string") {
+                            return (
+                              <div
+                                key={index}
+                                style={{
+                                  marginBottom: "6px",
+                                  padding: "8px 10px",
+                                  background: "#fff",
+                                  border: "1px solid #ddd",
+                                  borderRadius: "5px",
+                                  fontSize: "14px",
+                                  color: "#000",
+                                }}
+                              >
+                                {error}
+                              </div>
+                            );
+                          }
+
+                          const rowNum =
+                            error.rowNumber ??
+                            error.row ??
+                            error.line ??
+                            index + 1;
+
+                          const fieldName =
+                            error.field ??
+                            error.column ??
+                            error.key ??
+                            "";
+
+                          const errorMsg =
+                            error.reason ??
+                            error.message ??
+                            error.error ??
+                            JSON.stringify(error);
+
+                          return (
+                            <div
+                              key={index}
+                              style={{
+                                marginBottom: "6px",
+                                padding: "8px 10px",
+                                background: "#fff",
+                                border: "1px solid #ddd",
+                                borderRadius: "5px",
+                                fontSize: "14px",
+                                color: "#000",
+                              }}
+                            >
+                              <strong>Row {rowNum}</strong>
+                              {fieldName && <span>{` - ${fieldName}`}</span>}
+                              {errorMsg && <span>{`: ${errorMsg}`}</span>}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
-      </div>
-
-      {/* Global Merchant Status */}
-
-      <div className="merchant-list-global-status-card">
-
-        <div className="merchant-list-status-left">
-
-          <h3>Global Merchant Status</h3>
-
-          <p>
-            Override all merchants open / closed status.
-          </p>
-
-        </div>
-
-        <div className="merchant-list-status-right">
-
-          <span className="merchant-list-status-open">
-            🟢 All Open
-          </span>
-
-          <button className="merchant-list-apply-btn">
-            ✔ Apply to All Merchants
-          </button>
-
-        </div>
-
-      </div>
+      </div> 
 
       {/* Merchant List */}
-
       <div className="merchant-list-container">
-
         <div className="merchant-list-heading">
-
           <div>
-
             <h2>Merchants List</h2>
-
             <p>View and manage all the merchants</p>
-
           </div>
 
           <div className="merchant-list-actions">
+           <div className="merchant-list-columns-wrapper">
 
-            <button className="merchant-list-columns-btn">
-              Columns ▼
+  <button
+    type="button"
+    className="merchant-list-columns-btn"
+    onClick={() =>
+      setShowColumnsMenu((prev) => !prev)
+    }
+  >
+    Columns ▾
+  </button>
+
+  {showColumnsMenu && (
+    <div className="merchant-list-columns-menu">
+
+      {/* HEADER */}
+      <div className="merchant-list-columns-menu-header">
+
+        <span>Choose Columns</span>
+
+        <button
+          type="button"
+          className="merchant-list-columns-close"
+          onClick={() => setShowColumnsMenu(false)}
+        >
+          ×
+        </button>
+
+      </div>
+
+      {/* CATEGORY */}
+      <div className="merchant-list-columns-title">
+        General
+      </div>
+
+      {/* CHECKBOXES */}
+      {merchantColumnOptions.map(
+        ([key, label]) => (
+          <label
+            key={key}
+            className="merchant-list-column-option"
+          >
+
+            <input
+              type="checkbox"
+              checked={visibleColumns[key]}
+              onChange={() =>
+                toggleMerchantColumn(key)
+              }
+            />
+
+            <span>{label}</span>
+
+          </label>
+        )
+      )}
+
+      <div className="merchant-list-columns-divider" />
+
+      {/* SHOW ALL */}
+      <button
+        type="button"
+        className="merchant-list-show-all-columns"
+        onClick={showAllMerchantColumns}
+      >
+        Show All
+      </button>
+
+    </div>
+  )}
+
+</div>
+            <button 
+              className="merchant-list-create-btn"
+              onClick={handleCreateMerchant}
+            >
+              + Create Merchant
             </button>
-
-            <button
-    className="merchant-list-create-btn"
-    onClick={() => setActivePage("createMerchant")}
->
-    + Create Merchant
-</button>
-
           </div>
-
         </div>
 
         <div className="merchant-list-toolbar-bottom">
-
           <div className="merchant-list-entries">
-
             <span>Show</span>
-
-            <select>
-              <option>30</option>
-              <option>50</option>
+            <select value={itemsPerPage} onChange={handleEntriesChange}>
+              <option value={10}>10</option>
+              <option value={30}>30</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
             </select>
-
             <span>entries</span>
-
           </div>
 
           <div className="merchant-list-search-export">
-
             <input
               type="text"
               placeholder="Search merchants..."
               className="merchant-list-search-box"
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={handleSearchChange}
             />
-
-            <button className="merchant-list-export-btn">
-              Export as ▼
-            </button>
-
+            <button className="merchant-list-export-btn">Export as ▼</button>
           </div>
-
         </div>
 
         <table className="merchant-list-table">
+     
 
-          <thead>
+<thead>
+  <tr>
+    <th>
+      <input type="checkbox" />
+    </th>
 
-            <tr>
+    {visibleColumns.merchantInfo && (
+      <th>Merchant Info</th>
+    )}
 
-              <th>
-                <input type="checkbox" />
-              </th>
+    {visibleColumns.ownerInfo && (
+      <th>Owner Info</th>
+    )}
 
-              <th>Merchant Info</th>
+    {visibleColumns.zone && (
+      <th>Zone</th>
+    )}
 
-              <th>Owner Info</th>
+    {visibleColumns.status && (
+      <th>Status</th>
+    )}
 
-              <th>Zone</th>
+    {visibleColumns.adminCommission && (
+      <th>Admin Commission</th>
+    )}
 
-              <th>Admin Commission</th>
+    {visibleColumns.date && (
+      <th>Date</th>
+    )}
 
-              <th>Date</th>
-
-            </tr>
-
-          </thead>
+    <th>Actions</th>
+  </tr>
+</thead>
+         
 
           <tbody>
-
             {loading ? (
-                            <tr>
-
+              <tr>
                 <td
-                  colSpan="6"
+                  colSpan="7"
                   style={{
                     textAlign: "center",
                     padding: "20px",
@@ -352,19 +665,12 @@ function Merchants({ setActivePage }) {
                 >
                   Loading...
                 </td>
-
               </tr>
-
-            ) : filteredMerchants.length > 0 ? (
-
-              filteredMerchants.map((merchant) => (
-
+            ) : currentMerchants.length > 0 ? (
+              currentMerchants.map((merchant) => (
                 <React.Fragment key={merchant.merchantId}>
-
                   <tr>
-
                     <td>
-
                       <button
                         className="merchant-list-expand-btn"
                         onClick={() =>
@@ -377,213 +683,196 @@ function Merchants({ setActivePage }) {
                       >
                         {expandedRow === merchant.merchantId ? "−" : "+"}
                       </button>
-
                       <input type="checkbox" />
-
                     </td>
 
-                    <td>
+                    {visibleColumns.merchantInfo && (
+  <td>
 
-                      <div className="merchant-list-info">
+    <div className="merchant-list-info">
 
-                        <img
-                          src={
-                            merchant.profilePicUrl ||
-                            "/default-shop.png"
-                          }
-                          alt={merchant.merchantName}
-                        />
+      <img
+        src={
+          merchant.profilePicUrl ||
+          "/default-shop.png"
+        }
+        alt={merchant.merchantName}
+      />
 
-                        <div>
+      <div>
 
-                          <strong>
-                            {merchant.merchantName}
-                          </strong>
+        <strong>
+          {merchant.merchantName}
+        </strong>
 
-                          <br />
+        <br />
 
-                          <small>
-                            {merchant.merchantBusinessType}
-                          </small>
+        <small>
+          {merchant.merchantBusinessType}
+        </small>
 
-                        </div>
+      </div>
 
-                      </div>
+    </div>
 
-                    </td>
+  </td>
+)}
 
-                    <td>
+                    {visibleColumns.ownerInfo && (
+  <td>
 
-                      {merchant.firstName} {merchant.lastName}
+    {merchant.firstName} {merchant.lastName}
 
-                      <br />
+    <br />
 
-                      {merchant.merchantPhone}
+    {merchant.merchantPhone}
 
-                      <br />
+    <br />
 
-                      <small>
-                        {merchant.merchantEmail}
-                      </small>
+    <small>
+      {merchant.merchantEmail}
+    </small>
 
-                    </td>
+  </td>
+)}
+{visibleColumns.zone && (
+  <td>{merchant.state || "-"}</td>
+)}
 
-                    <td>
-                      {merchant.state}
-                    </td>
+{visibleColumns.status && (
+  <td>{merchant.status || "-"}</td>
+)}
 
-                    <td>
-                      {merchant.status}
-                    </td>
+{visibleColumns.adminCommission && (
+  <td>{merchant.adminCommission ?? "-"}</td>
+)}
 
-                    <td>
-                      {new Date(
-                        merchant.createdAt
-                      ).toLocaleDateString()}
-                    </td>
+{visibleColumns.date && (
+  <td>
+    {merchant.createdAt
+      ? new Date(merchant.createdAt).toLocaleDateString()
+      : "-"}
+  </td>
+)}
 
                   </tr>
 
                   {expandedRow === merchant.merchantId && (
-
                     <tr className="merchant-list-expanded-row">
-
-                      <td colSpan="6">
-
+                      <td colSpan="7">
                         <div className="merchant-list-expand-container">
+                          <div className="merchant-list-left" style={{ flex: 1 }}>
+                            <div className="merchant-list-item">
+                              <span>Merchant ID</span>
+                              <strong>{merchant.merchantId || "N/A"}</strong>
+                            </div>
 
-    <div className="merchant-list-left">
+                            <div className="merchant-list-item">
+                              <span>Owner Name</span>
+                              <strong>
+                                {merchant.firstName} {merchant.lastName}
+                              </strong>
+                            </div>
 
-        <div className="merchant-list-item">
-            <span>Wallet History</span>
-            <strong>-</strong>
-        </div>
+                            <div className="merchant-list-item">
+                              <span>Business Type</span>
+                              <strong>
+                                {merchant.merchantBusinessType || "N/A"}
+                              </strong>
+                            </div>
 
-        <div className="merchant-list-item">
-            <span>Plan Name</span>
+                            <div className="merchant-list-item">
+                              <span>Email</span>
+                              <strong>{merchant.merchantEmail || "N/A"}</strong>
+                            </div>
 
-            <span className="merchant-list-plan-badge">
-                Commission Plan
-            </span>
-        </div>
+                            <div className="merchant-list-item">
+                              <span>Phone Number</span>
+                              <strong>{merchant.merchantPhone || "N/A"}</strong>
+                            </div>
 
-        <div className="merchant-list-item">
-            <span>Plan Commission</span>
-            <strong>N/A</strong>
-        </div>
+                            <div className="merchant-list-item">
+                              <span>Area</span>
+                              <strong>{merchant.area || "N/A"}</strong>
+                            </div>
 
-        <div className="merchant-list-item">
-            <span>Plan Expiry Date</span>
+                            <div className="merchant-list-item">
+                              <span>City</span>
+                              <strong>{merchant.city || "N/A"}</strong>
+                            </div>
 
-            <span className="merchant-list-expired-badge">
-                Expired
-            </span>
-        </div>
+                            <div className="merchant-list-item">
+                              <span>State</span>
+                              <strong>{merchant.state || "N/A"}</strong>
+                            </div>
 
-        <div className="merchant-list-item">
-            <span>Best</span>
-            <FaStar style={{ color: "#ffb400" }} />
-        </div>
+                            <div className="merchant-list-item">
+                              <span>API Status</span>
+                              <strong>{merchant.status || "N/A"}</strong>
+                            </div>
 
-        <div className="merchant-list-item">
-            <span>GST</span>
+                            <div className="merchant-list-item">
+                              <span>Is Approved</span>
+                              <strong>{merchant.isApproved ? "True" : "False"}</strong>
+                            </div>
 
-            <label className="merchant-list-switch">
-                <input
-                    type="checkbox"
-                    checked
-                    readOnly
-                />
-                <span className="merchant-list-slider"></span>
-            </label>
+                            <div className="merchant-list-item">
+                              <span>Active Status</span>
+                              <span
+                                className={
+                                  merchant.isActive === "Y" ||
+                                  merchant.isActive === true
+                                    ? "merchant-list-plan-badge"
+                                    : "merchant-list-expired-badge"
+                                }
+                              >
+                                {merchant.isActive === "Y" ||
+                                merchant.isActive === true
+                                  ? "Active"
+                                  : "Inactive"}
+                              </span>
+                            </div>
+                          </div>
 
-        </div>
-
-        <div className="merchant-list-item">
-            <span>Publish</span>
-
-            <label className="merchant-list-switch">
-                <input
-                    type="checkbox"
-                    checked
-                    readOnly
-                />
-                <span className="merchant-list-slider"></span>
-            </label>
-
-        </div>
-
-    </div>
-
-    <div className="merchant-list-right">
-
-        <h4>Actions</h4>
-
-        <div className="merchant-list-action-icons">
-
-    <div className="merchant-list-action-item">
-        <FaChartBar color="#19b44b" />
-        <span>Analytics</span>
-    </div>
-
-    <div className="merchant-list-action-item">
-        <FaClipboardList color="#ff6b35" />
-        <span>Orders</span>
-    </div>
-
-    <div className="merchant-list-action-item">
-        <FaFileAlt color="#8d6e63" />
-        <span>Documents</span>
-    </div>
-
-    <div
-        className="merchant-list-action-item"
-        onClick={() => openView(merchant)}
-    >
-        <FaEye color="#7b1fa2" />
-        <span>View</span>
-    </div>
-
-    <div
-        className="merchant-list-action-item"
-        onClick={() => openEdit(merchant)}
-    >
-        <FaPen color="#1565c0" />
-        <span>Edit</span>
-    </div>
-
-    <div className="merchant-list-action-item">
-        <FaUsers color="#1565c0" />
-        <span>Users</span>
-    </div>
-
-    <div className="merchant-list-action-item">
-        <FaTrash color="#f44336" />
-        <span>Delete</span>
-    </div>
-
-</div>
-
-    </div>
-
-</div>
-
+                          <div
+                            className="merchant-list-right"
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              flex: "0 0 250px",
+                              padding: "20px",
+                            }}
+                          >
+                            <button
+                              onClick={() => openOutlets(merchant)}
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "8px",
+                                backgroundColor: "#FF6A00",
+                                color: "#ffffff",
+                                border: "none",
+                                padding: "12px 20px",
+                                borderRadius: "8px",
+                                cursor: "pointer",
+                                fontWeight: "bold",
+                                fontSize: "14px",
+                              }}
+                            >
+                              <FaStore /> View All Outlets
+                            </button>
+                          </div>
+                        </div>
                       </td>
-
                     </tr>
-
                   )}
-
                 </React.Fragment>
-
               ))
-
             ) : (
-
               <tr>
-
                 <td
-                  colSpan="6"
+                  colSpan="7"
                   style={{
                     textAlign: "center",
                     padding: "20px",
@@ -591,18 +880,56 @@ function Merchants({ setActivePage }) {
                 >
                   No Merchants Found
                 </td>
-
               </tr>
-                          )}
-
+            )}
           </tbody>
-
         </table>
 
+        {/* Pagination Footer Controls */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "15px 20px" }}>
+          <div>
+            Showing {filteredMerchants.length > 0 ? indexOfFirstItem + 1 : 0} to{" "}
+            {Math.min(indexOfLastItem, filteredMerchants.length)} of {filteredMerchants.length} entries
+          </div>
+
+          <div style={{ display: "flex", gap: "5px" }}>
+            <button
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              style={{ padding: "6px 12px", cursor: currentPage === 1 ? "not-allowed" : "pointer" }}
+            >
+              Previous
+            </button>
+
+            {Array.from({ length: totalPages }, (_, index) => (
+              <button
+                key={index + 1}
+                onClick={() => setCurrentPage(index + 1)}
+                style={{
+                  padding: "6px 12px",
+                  backgroundColor: currentPage === index + 1 ? "#FF6A00" : "#f0f0f0",
+                  color: currentPage === index + 1 ? "#fff" : "#000",
+                  border: "none",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                }}
+              >
+                {index + 1}
+              </button>
+            ))}
+
+            <button
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              style={{ padding: "6px 12px", cursor: currentPage === totalPages ? "not-allowed" : "pointer" }}
+            >
+              Next
+            </button>
+          </div>
+        </div>
+
       </div>
-
     </div>
-
   );
 }
 

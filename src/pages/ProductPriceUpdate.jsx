@@ -2,9 +2,9 @@ import React, { useState, useEffect, useMemo, useCallback } from "react";
 import {
   fetchStates,
   fetchCampaignLocations,
-  fetchOutletDetailsById,
   fetchOutletProductsForUpdate,
-  updateOutletProducts,
+  updateOutletPricing,
+  bulkUpdateOutletPricing,
 } from "../services/outletPriceService";
 import "../styles/ProductPriceUpdate.css";
 
@@ -22,8 +22,9 @@ export default function ProductPriceUpdate() {
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
   // Outlet-Level Bulk Price Adjustment State
-  const [adjustmentType, setAdjustmentType] = useState("percentage");
+  const [adjustmentType, setAdjustmentType] = useState("percentage"); // "percentage" or "flat"
   const [adjustmentValue, setAdjustmentValue] = useState("");
+  const [operationDirection, setOperationDirection] = useState("INCREASE"); // "INCREASE" or "DECREASE"
 
   // Dynamic Location Lists
   const [statesList, setStatesList] = useState([]);
@@ -39,7 +40,7 @@ export default function ProductPriceUpdate() {
   const [openDropdownId, setOpenDropdownId] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Price States
+  // Price States for Individual Products
   const [newPrices, setNewPrices] = useState({});
 
   useEffect(() => {
@@ -60,11 +61,11 @@ export default function ProductPriceUpdate() {
     try {
       const data = await fetchCampaignLocations(stateId, cityId, areaId);
 
-      if (Array.isArray(data?.cities)) {
+      if (Array.isArray(data?.cities) && data.cities.length > 0) {
         setCitiesList(data.cities);
       }
 
-      if (Array.isArray(data?.areas)) {
+      if (Array.isArray(data?.areas) && data.areas.length > 0) {
         setAreasList(data.areas);
       }
 
@@ -160,47 +161,35 @@ export default function ProductPriceUpdate() {
     setLoadingProducts(true);
 
     try {
-      const outletData = await fetchOutletProductsForUpdate(outlet.outletId);
-      setActiveOutlet(outletData);
+      const response = await fetchOutletProductsForUpdate(outlet.outletId);
+      const rawData = response?.data || response;
+      const productsList = Array.isArray(rawData) ? rawData : (rawData?.products || []);
+
+      setActiveOutlet({
+        ...outlet,
+        products: productsList,
+      });
 
       if (!selectedOutletIds.includes(outlet.outletId)) {
         setSelectedOutletIds((prev) => [...prev, outlet.outletId]);
       }
 
       const initialPrices = {};
-      const rawList = Array.isArray(outletData) 
-        ? outletData 
-        : outletData?.categories;
+      productsList.forEach((prod, index) => {
+        const key = `p_${prod.productId}_${index}`;
+        initialPrices[key] = prod.onlinePrice ?? prod.price ?? 0;
+      });
 
-      if (Array.isArray(rawList)) {
-        if (rawList.length > 0 && ("productId" in rawList[0] || "productName" in rawList[0])) {
-          rawList.forEach((prod) => {
-            const key = prod.variantId ? `v_${prod.variantId}` : `p_${prod.productId}`;
-            initialPrices[key] = prod.onlinePrice ?? prod.price ?? 0;
-          });
-        } else {
-          rawList.forEach((cat) => {
-            cat.products?.forEach((prod) => {
-              if (prod.hasProductVariants && prod.variants) {
-                prod.variants.forEach((v) => {
-                  initialPrices[`v_${v.variantId}`] = v.price ?? v.onlinePrice ?? 0;
-                });
-              } else {
-                initialPrices[`p_${prod.productId}`] = prod.price ?? prod.onlinePrice ?? 0;
-              }
-            });
-          });
-        }
-      }
       setNewPrices(initialPrices);
     } catch (error) {
-      console.error("Error fetching outlet products:", error);
-      alert("Failed to load outlet product details.");
+      console.error("Error fetching outlet products pricing:", error);
+      alert("Failed to load outlet product pricing details.");
     } finally {
       setLoadingProducts(false);
     }
   };
 
+  // Triggered when clicking "Apply" for bulk update on selected outlets
   const handleApplyOutletBulkAdjustment = async () => {
     if (selectedOutletIds.length === 0) {
       alert("Please select at least one outlet.");
@@ -216,73 +205,21 @@ export default function ProductPriceUpdate() {
     setUpdatingPrices(true);
 
     try {
-      const outletDetailsList = await Promise.all(
-        selectedOutletIds.map((id) => fetchOutletProductsForUpdate(id))
-      );
+      const payload = {
+        outletIds: selectedOutletIds,
+        priceModel: adjustmentType === "percentage" ? "PERCENTAGE" : "FLAT",
+        value: val,
+        priceType: adjustmentType === "percentage" ? "PERCENTAGE" : "FLAT",
+        locationType: "OUTLET",
+        operationType: operationDirection, // "INCREASE" or "DECREASE"
+      };
 
-      const updatePromises = outletDetailsList.map((outletData) => {
-        const rawList = Array.isArray(outletData) ? outletData : outletData?.categories;
-        
-        if (Array.isArray(outletData)) {
-          const updatedFlatProducts = outletData.map((prod) => {
-            const currentPrice = prod.onlinePrice ?? prod.price ?? 0;
-            const calculatedPrice =
-              adjustmentType === "percentage"
-                ? currentPrice + (currentPrice * val) / 100
-                : currentPrice + val;
-            return {
-              ...prod,
-              onlinePrice: Math.max(0, Math.round(calculatedPrice)),
-            };
-          });
-          return updateOutletProducts(outletData.outletId || selectedOutletIds[0], updatedFlatProducts, "MERCHANT");
-        }
+      await bulkUpdateOutletPricing(payload, true);
 
-        const updatedCategories = outletData.categories?.map((cat) => ({
-          ...cat,
-          products: cat.products?.map((prod) => {
-            if (prod.hasProductVariants && prod.variants) {
-              const updatedVariants = prod.variants.map((v) => {
-                const currentPrice = v.price ?? v.onlinePrice ?? 0;
-                const calculatedPrice =
-                  adjustmentType === "percentage"
-                    ? currentPrice + (currentPrice * val) / 100
-                    : currentPrice + val;
-
-                return {
-                  ...v,
-                  price: Math.max(0, Math.round(calculatedPrice)),
-                };
-              });
-              return { ...prod, variants: updatedVariants };
-            }
-
-            const currentPrice = prod.price ?? prod.onlinePrice ?? 0;
-            const calculatedPrice =
-              adjustmentType === "percentage"
-                ? currentPrice + (currentPrice * val) / 100
-                : currentPrice + val;
-
-            return {
-              ...prod,
-              price: Math.max(0, Math.round(calculatedPrice)),
-            };
-          }),
-        }));
-
-        const payload = {
-          ...outletData,
-          categories: updatedCategories,
-        };
-
-        return updateOutletProducts(outletData.outletId, payload, "MERCHANT");
-      });
-
-      await Promise.all(updatePromises);
-      alert(`Successfully updated product prices for ${selectedOutletIds.length} outlet(s)!`);
+      alert(`Successfully performed bulk price update for ${selectedOutletIds.length} outlet(s)!`);
     } catch (error) {
       console.error("Error applying bulk price adjustment:", error);
-      alert("Failed to update product prices for selected outlets.");
+      alert("Failed to apply bulk update for selected outlets.");
     } finally {
       setUpdatingPrices(false);
     }
@@ -296,62 +233,49 @@ export default function ProductPriceUpdate() {
   };
 
   const handleSavePrices = async () => {
+    if (!activeOutlet || !activeOutlet.products) {
+      alert("No active outlet product details found.");
+      return;
+    }
+
     if (selectedOutletIds.length === 0) {
-      alert("Please select at least one outlet checkbox.");
+      alert("Please select at least one outlet.");
       return;
     }
 
     try {
-      const rawList = Array.isArray(activeOutlet) ? activeOutlet : activeOutlet?.categories;
+      const changedItems = [];
 
-      let payload;
-      if (Array.isArray(activeOutlet)) {
-        payload = activeOutlet.map((prod) => {
-          const key = prod.variantId ? `v_${prod.variantId}` : `p_${prod.productId}`;
-          const val = newPrices[key];
-          return {
-            ...prod,
-            onlinePrice: val !== "" && val !== undefined ? val : prod.onlinePrice,
-          };
-        });
-      } else {
-        const updatedCategories = activeOutlet.categories?.map((cat) => ({
-          ...cat,
-          products: cat.products?.map((prod) => {
-            if (prod.hasProductVariants && prod.variants) {
-              const updatedVariants = prod.variants.map((v) => ({
-                ...v,
-                price:
-                  newPrices[`v_${v.variantId}`] !== "" && newPrices[`v_${v.variantId}`] !== undefined
-                    ? newPrices[`v_${v.variantId}`]
-                    : v.price,
-              }));
-              return { ...prod, variants: updatedVariants };
-            }
+      activeOutlet.products.forEach((prod, index) => {
+        const key = `p_${prod.productId}_${index}`;
+        const val = newPrices[key];
+        const currentPrice = prod.onlinePrice ?? prod.price ?? 0;
 
-            return {
-              ...prod,
-              price:
-                newPrices[`p_${prod.productId}`] !== "" && newPrices[`p_${prod.productId}`] !== undefined
-                  ? newPrices[`p_${prod.productId}`]
-                  : prod.price,
-            };
-          }),
-        }));
+        if (val !== "" && val !== undefined && !isNaN(val)) {
+          const numericVal = Number(val);
+          if (numericVal !== currentPrice) {
+            changedItems.push({
+              productId: prod.productId,
+              productVariantId: prod.productVariantId ?? null,
+              newPrice: numericVal,
+            });
+          }
+        }
+      });
 
-        payload = {
-          ...activeOutlet,
-          categories: updatedCategories,
-        };
+      if (changedItems.length === 0) {
+        alert("No price changes detected to save.");
+        return;
       }
 
-      await Promise.all(
-        selectedOutletIds.map((id) =>
-          updateOutletProducts(id, payload, "MERCHANT")
-        )
-      );
+      const payload = {
+        outletIds: selectedOutletIds,
+        items: changedItems,
+      };
 
-      alert(`Successfully updated product prices for ${selectedOutletIds.length} outlet(s)!`);
+      await updateOutletPricing(payload, true);
+
+      alert(`Successfully updated ${changedItems.length} changed product price(s) across ${selectedOutletIds.length} outlet(s)!`);
     } catch (error) {
       console.error("Error updating prices:", error);
       alert("Failed to update product prices.");
@@ -360,47 +284,18 @@ export default function ProductPriceUpdate() {
 
   const allProducts = useMemo(() => {
     const products = [];
-    if (!activeOutlet) return products;
+    if (!activeOutlet || !Array.isArray(activeOutlet.products)) return products;
 
-    const rawList = Array.isArray(activeOutlet) 
-      ? activeOutlet 
-      : activeOutlet.categories;
+    activeOutlet.products.forEach((prod, index) => {
+      const key = `p_${prod.productId}_${index}`;
+      products.push({
+        key,
+        name: prod.productName || prod.name || "Unnamed Product",
+        merchantPrice: prod.merchantPrice ?? prod.mrp ?? 0,
+        currentPrice: prod.onlinePrice ?? prod.price ?? 0,
+      });
+    });
 
-    if (Array.isArray(rawList)) {
-      if (rawList.length > 0 && ("productId" in rawList[0] || "productName" in rawList[0])) {
-        rawList.forEach((prod) => {
-          const key = prod.variantId ? `v_${prod.variantId}` : `p_${prod.productId}`;
-          products.push({
-            key,
-            name: prod.variantName ? `${prod.productName} (${prod.variantName})` : prod.productName,
-            merchantPrice: prod.merchantPrice ?? 0,
-            currentPrice: prod.onlinePrice ?? prod.price ?? 0,
-          });
-        });
-      } else {
-        rawList.forEach((cat) => {
-          cat.products?.forEach((prod) => {
-            if (prod.hasProductVariants && prod.variants) {
-              prod.variants.forEach((v) => {
-                products.push({
-                  key: `v_${v.variantId}`,
-                  name: `${prod.productName} (${v.variantName})`,
-                  merchantPrice: v.merchantPrice ?? 0,
-                  currentPrice: v.price ?? v.onlinePrice ?? 0,
-                });
-              });
-            } else {
-              products.push({
-                key: `p_${prod.productId}`,
-                name: prod.productName,
-                merchantPrice: prod.merchantPrice ?? 0,
-                currentPrice: prod.price ?? prod.onlinePrice ?? 0,
-              });
-            }
-          });
-        });
-      }
-    }
     return products;
   }, [activeOutlet]);
 
@@ -624,7 +519,17 @@ export default function ProductPriceUpdate() {
 
                     <div className="bottom-bulk-adjustment-container">
                       <div className="bulk-adjustment-bar">
-                        <label>Increase By:</label>
+                        <label>Action:</label>
+                        <select
+                          value={operationDirection}
+                          onChange={(e) => setOperationDirection(e.target.value)}
+                          disabled={updatingPrices || activeOutlet !== null}
+                        >
+                          <option value="INCREASE">Increase By</option>
+                          <option value="DECREASE">Decrease By</option>
+                        </select>
+
+                        <label>Type:</label>
                         <select
                           value={adjustmentType}
                           onChange={(e) => setAdjustmentType(e.target.value)}
@@ -637,7 +542,7 @@ export default function ProductPriceUpdate() {
                         <input
                           type="number"
                           placeholder={
-                            adjustmentType === "percentage" ? "e.g. 10" : "e.g. 20"
+                            adjustmentType === "percentage" ? "e.g. 20" : "e.g. 50"
                           }
                           value={adjustmentValue}
                           onChange={(e) => setAdjustmentValue(e.target.value)}
@@ -672,8 +577,7 @@ export default function ProductPriceUpdate() {
               <div className="panel-header">
                 <div>
                   <p className="outlet-count-tag">
-                    Managing menu product pricing for {selectedOutletIds.length}{" "}
-                    outlet(s)
+                    Managing menu pricing for <strong>{activeOutlet.outletName || ""}</strong>
                   </p>
                 </div>
                 <button
@@ -697,7 +601,7 @@ export default function ProductPriceUpdate() {
               <div className="table-card">
                 {loadingProducts ? (
                   <div style={{ padding: "20px", textAlign: "center" }}>
-                    Loading outlet products...
+                    Loading products...
                   </div>
                 ) : (
                   <table>
@@ -717,7 +621,7 @@ export default function ProductPriceUpdate() {
                             colSpan="5"
                             style={{ textAlign: "center", padding: "20px" }}
                           >
-                            No products found.
+                            No products found in the response.
                           </td>
                         </tr>
                       ) : (

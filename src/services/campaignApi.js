@@ -38,7 +38,7 @@ export const getCampaignLocation = async (stateId, cityId = null, areaId = null)
 ========================================== */
 
 export const createCampaign = async (payload) => {
-  const response = await API.post("/api/div/coupons/campaign/create", payload);
+  const response = await API.post("/api/div/campaign/campaign/create", payload);
   return response.data;
 };
 

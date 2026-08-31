@@ -15,6 +15,11 @@ export const createSubscriptionPlan = async (payload) => {
   return await FM_API.post("/api/fm/subscription-plans", payload);
 };
 
+// Update Plan (Add this function)
+export const updateSubscriptionPlan = async (id, payload) => {
+  return await FM_API.put(`/api/fm/subscription-plans/${id}`, payload);
+};
+
 // Delete Plan
 export const deleteSubscriptionPlan = async (id) => {
   return await FM_API.delete(`/api/fm/subscription-plans/${id}`);
@@ -38,7 +43,6 @@ export const getAreasByCity = async (cityId) => {
     `/api/fm/location/fetchAreaInCity?cityId=${cityId}`
   );
 };
-
 
 // Get Plans By Area
 export const getSubscriptionPlansByArea = async (areaId) => {

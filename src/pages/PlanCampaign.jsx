@@ -11,102 +11,129 @@ function PlanCampaign() {
     cityId: "",
     areaId: "",
     locationId: null,
-    locationType: "STATE",
+    locationType: "", // Dynamically updated by selection (e.g., STATE, CITY, AREA, etc.)
     selectedOutlets: [],
 
     startDate: "",
     endDate: "",
-    mealTypeSlotIds: [], // List of slot IDs
+    mealTypeSlotIds: [],
 
-    campaignType: "",
+    campaignType: "", // Can be "COUPON" or "PRICE_DROP"
     couponId: null,
-    discountType: "PERCENTAGE",
+    discountType: "", // Dynamically updated by selection (e.g., PERCENTAGE, FLAT)
     priceModelId: null,
     priceDropValue: null,
   });
 
   const [loading, setLoading] = useState(false);
 
-  // Function to get the current logged-in user's ID
-  const getLoggedInUserId = () => {
-    // 1. Try reading user object from localStorage
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      try {
-        const parsedUser = JSON.parse(storedUser);
-        if (parsedUser.id || parsedUser.userId) {
-          return parseInt(parsedUser.id || parsedUser.userId, 10);
+  /**
+   * Dynamically extracts the user ID from localStorage scanning all available keys.
+   */
+  const getDynamicUserId = () => {
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        const value = localStorage.getItem(key);
+
+        if (!value) continue;
+
+        if (value.startsWith("{") || value.startsWith("[")) {
+          try {
+            const parsed = JSON.parse(value);
+            const foundId = parsed.id || parsed.userId || parsed.accountId || parsed.empId;
+            if (foundId) return Number(foundId);
+          } catch (e) {
+            // Ignore parse errors for non-JSON strings
+          }
+        } else if (key.toLowerCase().includes("user") || key.toLowerCase().includes("id")) {
+          const num = Number(value);
+          if (!isNaN(num) && num > 0) return num;
         }
-      } catch (e) {
-        console.error("Failed to parse stored user object:", e);
       }
+    } catch (err) {
+      console.warn("Dynamic user ID resolution warning:", err);
     }
-
-    // 2. Alternatively check direct item key if stored separately
-    const directUserId = localStorage.getItem("userId");
-    if (directUserId) {
-      return parseInt(directUserId, 10);
-    }
-
-    // 3. Fallback default ID if not found
-    return 1;
+    return null; 
   };
 
   const buildPayload = () => {
-    const userId = getLoggedInUserId();
+    const userId = getDynamicUserId();
 
-    // Map Discount Type to priceModelId (1 = PERCENTAGE, 2 = FLAT) if not explicitly set
-    let resolvedPriceModelId = campaignData.priceModelId;
-    if (campaignData.campaignType === "PRICE_DROP" && !resolvedPriceModelId) {
-      resolvedPriceModelId = campaignData.discountType === "FLAT" ? 2 : 1;
+    // Dynamically infer locationType if not explicitly set, based on active IDs
+    let resolvedLocationType = campaignData.locationType;
+    if (!resolvedLocationType) {
+      if (campaignData.areaId) resolvedLocationType = "AREA";
+      else if (campaignData.cityId) resolvedLocationType = "CITY";
+      else if (campaignData.stateId) resolvedLocationType = "STATE";
+      else resolvedLocationType = "OUTLET";
     }
 
-    return {
+    // Base payload common to both campaign types with dynamic location parameters
+    const payload = {
       campainType: campaignData.campaignType,
-      locationId: parseInt(campaignData.locationId, 10),
-      locationType: campaignData.locationType,
+      locationId: campaignData.locationId ? Number(campaignData.locationId) : null,
+      locationType: resolvedLocationType,
       mealTypeSlotIds: campaignData.mealTypeSlotIds,
-      promotionFromDate: `${campaignData.startDate}T00:00:00`,
-      promotionToDate: `${campaignData.endDate}T23:59:59`,
+      promotionFromDate: campaignData.startDate ? `${campaignData.startDate}T00:00:00` : null,
+      promotionToDate: campaignData.endDate ? `${campaignData.endDate}T23:59:59` : null,
       outletIds: campaignData.selectedOutlets,
-      couponId: campaignData.couponId ? parseInt(campaignData.couponId, 10) : null,
-      priceModelId: resolvedPriceModelId ? parseInt(resolvedPriceModelId, 10) : null,
-      priceDropValue: campaignData.priceDropValue ? parseFloat(campaignData.priceDropValue) : null,
-      createdBy: userId,
     };
+
+    // Dynamically attach fields based on whether it's a COUPON or PRICE_DROP campaign
+    if (campaignData.campaignType === "COUPON") {
+      payload.couponId = campaignData.couponId ? Number(campaignData.couponId) : null;
+      payload.priceModelId = null;
+      payload.priceDropValue = null;
+    } else if (campaignData.campaignType === "PRICE_DROP") {
+      // Dynamically resolve discountType if not set
+      const currentDiscountType = campaignData.discountType || "PERCENTAGE";
+
+      let resolvedPriceModelId = campaignData.priceModelId;
+      if (!resolvedPriceModelId) {
+        resolvedPriceModelId = currentDiscountType.toUpperCase() === "FLAT" ? 2 : 1;
+      }
+
+      payload.priceModelId = Number(resolvedPriceModelId);
+      payload.priceDropValue = campaignData.priceDropValue ? Number(campaignData.priceDropValue) : null;
+      payload.couponId = null;
+    }
+
+    if (userId !== null) {
+      payload.createdBy = userId;
+    }
+
+    return payload;
   };
 
   const handlePublish = async () => {
-    // 1. Location Validation
+    // 1. General Validations
     if (!campaignData.locationId) {
       alert("Please select a Location.");
       return;
     }
 
-    // 2. Dates Validation
     if (!campaignData.startDate || !campaignData.endDate) {
       alert("Please select both Start Date and End Date.");
       return;
     }
 
-    // 3. Meal Slots Validation
-    if (!campaignData.mealTypeSlotIds || campaignData.mealTypeSlotIds.length === 0) {
+    if (!campaignData.mealTypeSlotIds?.length) {
       alert("Please select at least one available Meal Time Slot.");
       return;
     }
 
-    // 4. Outlets Validation
-    if (!campaignData.selectedOutlets || campaignData.selectedOutlets.length === 0) {
+    if (!campaignData.selectedOutlets?.length) {
       alert("Please select at least one outlet.");
       return;
     }
 
-    // 5. Campaign Type & Specific Type Validations
     if (!campaignData.campaignType) {
       alert("Please select a Campaign Type.");
       return;
     }
 
+    // 2. Conditional Validations based on Campaign Type
     if (campaignData.campaignType === "COUPON" && !campaignData.couponId) {
       alert("Please select a Coupon.");
       return;
@@ -122,10 +149,20 @@ function PlanCampaign() {
     try {
       setLoading(true);
       const response = await createCampaign(payload);
-      alert(response?.message || "Campaign Created Successfully!");
+      alert(response?.message || response?.successMessage || "Campaign Created Successfully!");
     } catch (error) {
       console.error("Failed to publish campaign:", error);
-      alert(error?.response?.data?.message || "Failed to create campaign.");
+      
+      // Extract backend error message dynamically (e.g., "No active products found for outlet : 191")
+      const errorData = error?.response?.data || error?.data || error;
+      const dynamicErrorMessage =
+        errorData?.errorMessage ||
+        errorData?.message ||
+        errorData?.error ||
+        error?.message ||
+        "An unexpected error occurred while creating the campaign.";
+
+      alert(dynamicErrorMessage);
     } finally {
       setLoading(false);
     }

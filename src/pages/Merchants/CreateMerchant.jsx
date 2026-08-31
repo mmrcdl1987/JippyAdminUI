@@ -20,7 +20,8 @@ username: "",
 password: "",
 
 outletType: "",
-uploadedBy: "Admin",
+// Automatically tracked in background payload, fallback to "Admin"
+uploadedBy: localStorage.getItem("loggedInUser") || localStorage.getItem("username") || "Admin",
 
 pan: "",
 adhar: "",
@@ -62,8 +63,6 @@ const validateForm = () => {
 
 const newErrors = {};
 
-
-
 /* ================= FIRST NAME ================= */
 
 if (!merchant.firstName.trim()) {
@@ -86,8 +85,6 @@ newErrors.firstName =
 "First Name must contain only letters";
 
 }
-
-
 
 /* ================= LAST NAME ================= */
 
@@ -112,8 +109,6 @@ newErrors.lastName =
 
 }
 
-
-
 /* ================= EMAIL ================= */
 
 if (!merchant.email.trim()) {
@@ -134,8 +129,6 @@ else if (
 newErrors.email = "Invalid Email format";
 
 }
-
-
 
 /* ================= PHONE ================= */
 
@@ -168,8 +161,6 @@ newErrors.username =
 
 }
 
-
-
 /* ================= PASSWORD ================= */
 
 if (!merchant.password.trim()) {
@@ -188,8 +179,6 @@ newErrors.password =
 
 }
 
-
-
 /* ================= OUTLET TYPE ================= */
 
 if (!merchant.outletType) {
@@ -203,8 +192,6 @@ newErrors.outletType =
 "Outlet Type cannot exceed 50 characters";
 
 }
-
-
 
 /* ================= PAN ================= */
 
@@ -223,8 +210,6 @@ newErrors.pan =
 "PAN format should be AAAAA9999A";
 
 }
-
-
 
 /* ================= AADHAAR ================= */
 
@@ -245,8 +230,6 @@ newErrors.adhar =
 
 }
 
-
-
 /* ================= ACCOUNT NUMBER ================= */
 
 if (
@@ -260,8 +243,6 @@ newErrors.accountNumber =
 "Account Number must be between 9 and 18 digits";
 
 }
-
-
 
 /* ================= IFSC ================= */
 
@@ -277,8 +258,6 @@ newErrors.ifscCode =
 
 }
 
-
-
 /* ================= BANK LOCATION ================= */
 
 if (
@@ -291,8 +270,6 @@ newErrors.bankLocation =
 
 }
 
-
-
 /* ================= NAME IN BANK ================= */
 
 if (
@@ -304,8 +281,6 @@ newErrors.nameInBankAccount =
 "Name In Bank Account cannot exceed 150 characters";
 
 }
-
-
 
 /* ================= DATE OF BIRTH ================= */
 
@@ -326,8 +301,6 @@ newErrors.dob =
 
 }
 
-
-
 /* ================= FSSAI ================= */
 
 if (
@@ -341,8 +314,6 @@ newErrors.fssai =
 "FSSAI must be exactly 14 digits";
 
 }
-
-
 
 /* ================= GST ================= */
 
@@ -689,31 +660,8 @@ Cafe
 
 </div>
 
-<div className="create-merchant-field">
-
-<label>
-Uploaded By
-</label>
-
-<input
-type="text"
-name="uploadedBy"
-value={merchant.uploadedBy}
-onChange={handleChange}
-className={
-errors.uploadedBy
-? "create-merchant-input-error"
-: ""
-}
-/>
-
-{errors.uploadedBy && (
-<p className="create-merchant-error">
-{errors.uploadedBy}
-</p>
-)}
-
-</div>
+{/* Hidden input field for uploadedBy so it's not visible in UI, but passed in payload */}
+<input type="hidden" name="uploadedBy" value={merchant.uploadedBy} />
 
 </div>
 
@@ -723,7 +671,7 @@ errors.uploadedBy
 
 <div className="create-merchant-section">
 
-<h3 className="create-merchant-section-header">
+<h3 className="custom-section-header">
 Government Details
 </h3>
 

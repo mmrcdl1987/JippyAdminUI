@@ -749,3 +749,227 @@
 }
 
 }
+
+/* ============================================================
+   MERCHANT COLUMNS DROPDOWN
+   ============================================================ */
+
+.merchant-list-columns-wrapper {
+  position: relative;
+  display: inline-flex;
+}
+
+/* Columns button */
+
+.merchant-list-columns-btn {
+  height: 38px;
+  padding: 0 16px;
+
+  border: 1px solid #d9d9d9;
+  border-radius: 20px;
+
+  background: #ffffff;
+  color: #333333;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transition: all 0.2s ease;
+}
+
+.merchant-list-columns-btn:hover {
+  background: #f8f8f8;
+  border-color: #c9c9c9;
+}
+
+/* ============================================================
+   DROPDOWN
+   ============================================================ */
+
+.merchant-list-columns-menu {
+  position: absolute;
+
+  top: calc(100% + 7px);
+  right: 0;
+
+  width: 205px;
+
+  background: #ffffff;
+
+  border: 1px solid #dddddd;
+  border-radius: 7px;
+
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.12);
+
+  z-index: 9999;
+
+  padding: 8px 0;
+
+  max-height: 360px;
+  overflow-y: auto;
+}
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+
+.merchant-list-columns-menu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 10px 13px;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  color: #333333;
+
+  border-bottom: 1px solid #eeeeee;
+}
+
+.merchant-list-columns-close {
+  width: 24px;
+  height: 24px;
+
+  border: none;
+  background: transparent;
+
+  color: #777777;
+
+  font-size: 18px;
+  line-height: 1;
+
+  cursor: pointer;
+
+  border-radius: 4px;
+}
+
+.merchant-list-columns-close:hover {
+  background: #f2f2f2;
+  color: #222222;
+}
+
+/* ============================================================
+   GENERAL TITLE
+   ============================================================ */
+
+.merchant-list-columns-title {
+  padding: 10px 13px 6px;
+
+  font-size: 11px;
+  font-weight: 700;
+
+  color: #999999;
+}
+
+/* ============================================================
+   CHECKBOX OPTION
+   ============================================================ */
+
+.merchant-list-column-option {
+  display: flex;
+
+  align-items: center;
+
+  gap: 9px;
+
+  padding: 8px 13px;
+
+  cursor: pointer;
+
+  font-size: 12px;
+
+  color: #333333;
+
+  transition: background 0.15s ease;
+}
+
+.merchant-list-column-option:hover {
+  background: #f5f5f5;
+}
+
+/* Checkbox */
+
+.merchant-list-column-option input {
+  width: 15px;
+  height: 15px;
+
+  margin: 0;
+
+  accent-color: #19b5a5;
+
+  cursor: pointer;
+}
+
+/* Label */
+
+.merchant-list-column-option span {
+  flex: 1;
+
+  line-height: 18px;
+}
+
+/* ============================================================
+   DIVIDER
+   ============================================================ */
+
+.merchant-list-columns-divider {
+  height: 1px;
+
+  background: #eeeeee;
+
+  margin: 5px 0;
+}
+
+/* ============================================================
+   SHOW ALL
+   ============================================================ */
+
+.merchant-list-show-all-columns {
+  width: calc(100% - 14px);
+
+  margin: 3px 7px;
+
+  padding: 8px 10px;
+
+  border: none;
+  border-radius: 5px;
+
+  background: #f7f7f7;
+
+  color: #444444;
+
+  font-size: 12px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.merchant-list-show-all-columns:hover {
+  background: #eeeeee;
+}
+
+/* ============================================================
+   SCROLLBAR
+   ============================================================ */
+
+.merchant-list-columns-menu::-webkit-scrollbar {
+  width: 5px;
+}
+
+.merchant-list-columns-menu::-webkit-scrollbar-track {
+  background: #f5f5f5;
+}
+
+.merchant-list-columns-menu::-webkit-scrollbar-thumb {
+  background: #cfcfcf;
+  border-radius: 10px;
+}
