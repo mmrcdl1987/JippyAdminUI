@@ -1,5 +1,4 @@
 export const menuData = [
-
   {
     title: "LIVE MONITORING",
     permission: "DRIVER_READ",
@@ -79,7 +78,7 @@ export const menuData = [
             name: "Approved Vendors",
             permission: "VENDOR_READ",
           },
-          { 
+          {
             name: "Approval Pending Vendors",
             permission: "VENDOR_READ",
           },
@@ -87,8 +86,6 @@ export const menuData = [
       },
     ],
   },
-
-
 
   {
     title: "MERCHANT & DRIVER MANAGEMENT",
@@ -151,19 +148,18 @@ export const menuData = [
     ],
   },
 
-// {
-//   title: "MERCHANT & DRIVER MANAGEMENT",
-//   permission: "RESTAURANT_READ",
-//   items: [
-//     {
-//       name: "Merchants",
-//       pageKey: "outlets",   // Opens Outlets.jsx
-//       permission: "RESTAURANT_READ",
-//     },
-    
-//   ],
-// },
+  // {
+  //   title: "MERCHANT & DRIVER MANAGEMENT",
+  //   permission: "RESTAURANT_READ",
+  //   items: [
+  //     {
+  //       name: "Merchants",
+  //       pageKey: "outlets",   // Opens Outlets.jsx
+  //       permission: "RESTAURANT_READ",
+  //     },
 
+  //   ],
+  // },
 
   {
     title: "RESTAURANT & DRIVER MANAGEMENT",
@@ -197,7 +193,6 @@ export const menuData = [
       },
     ],
   },
-
 
   {
     title: "MENU & FOOD MANAGEMENT",
@@ -295,10 +290,10 @@ export const menuData = [
             name: "Product Price Update",
             pageKey: "productPriceUpdate",
             permission: "PROMOTION_READ",
-          }
-        ]
-      }
-    ]
+          },
+        ],
+      },
+    ],
   },
 
   {
@@ -355,6 +350,44 @@ export const menuData = [
           {
             name: "App Notifications",
             permission: "NOTIFICATION_READ",
+          },
+        ],
+      },
+    ],
+  },
+
+  {
+    title: "APPROVAL MANAGEMENT",
+    permission: "APPROVAL_READ",
+    role: "ROLE_FLEET_MANAGER",
+    items: [
+      {
+        name: "Approval Management",
+        role: "ROLE_FLEET_MANAGER",
+        children: [
+          {
+            name: "Assign Areas",
+            pageKey: "assignAreas",
+            permission: "APPROVAL_READ",
+            excludeRole: "ROLE_FLEET_MANAGER",
+          },
+          {
+            name: "Pending Approvals",
+            pageKey: "pendingApprovals",
+            permission: "APPROVAL_READ",
+            role: "ROLE_FLEET_MANAGER",
+          },
+          {
+            name: "Approval Settings",
+            pageKey: "createApprovalSettings",
+            permission: "APPROVAL_SETTINGS_READ",
+            excludeRole: "ROLE_FLEET_MANAGER",
+          },
+          {
+            name: "Approval Transactions",
+            pageKey: "approvalTransactions",
+            permission: "APPROVAL_READ",
+            role: "ROLE_FLEET_MANAGER",
           },
         ],
       },
@@ -542,5 +575,4 @@ export const menuData = [
       },
     ],
   },
-
 ];

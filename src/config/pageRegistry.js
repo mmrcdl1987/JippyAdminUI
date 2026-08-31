@@ -42,9 +42,12 @@ import MerchantAddVariants from "../pages/MerchantAddVariants";
 
 import DriverSettings from "../pages/DriverSettings";
 import CreateMerchant from "../pages/Merchants/CreateMerchant";
-
-
-
+import ApprovalSettings from "../pages/ApprovalSettings";
+import CreateApprovalRequest from "../pages/CreateApprovalRequest";
+import PendingApprovals from "../pages/PendingApprovals";
+// import RejectedApprovals from "../pages/RejectedApprovals";
+import ApprovalTransactions from "../pages/ApprovalTransactions";
+import AssignAreas from "../pages/AssignAreas";
 
 export const pageRegistry = {
   zones: {
@@ -243,7 +246,39 @@ createMerchant: {
   permission: "VENDOR_READ",
 },
 
+createApprovalSettings: {
+  component: ApprovalSettings,
+  permission: "APPROVAL_SETTINGS_READ",
+  excludeRole: "ROLE_FLEET_MANAGER",
+},
 
+approvalSettings: {
+  component: ApprovalSettings,
+  permission: "APPROVAL_SETTINGS_READ",
+  excludeRole: "ROLE_FLEET_MANAGER",
+},
+
+createApprovalRequest: {
+  component: CreateApprovalRequest,
+  permission: "APPROVAL_READ",
+  role: "ROLE_FLEET_MANAGER",
+},
+
+pendingApprovals: {
+  component: PendingApprovals,
+  permission: "APPROVAL_READ",
+  role: "ROLE_FLEET_MANAGER",
+},
+
+approvalTransactions: {
+  component: ApprovalTransactions,
+  permission: "APPROVAL_READ",
+  role: "ROLE_FLEET_MANAGER",
+},
+
+assignAreas: {
+  component: AssignAreas,
+  permission: "APPROVAL_READ",
+  role: "ROLE_FLEET_MANAGER",
+},
 };
-
-

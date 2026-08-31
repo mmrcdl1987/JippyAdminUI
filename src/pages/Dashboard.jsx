@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Sidebar from "../components/Sidebar";
-import { hasPermission } from "../utils/permissionUtils";
+import { hasPermission, getRole, hasRoleAccess, canAccessPage } from "../utils/permissionUtils";
 import { pageRegistry } from "../config/pageRegistry";
 import AddToOutletProducts from "../pages/AddToOutletProducts";
 
@@ -23,6 +23,7 @@ function Dashboard() {
 
   const pageConfig = pageRegistry[activePage];
   const CurrentPage = pageConfig?.component;
+  const userRole = getRole();
 
   console.log("Active Page:", activePage);
   console.log("Page Config:", pageConfig);
@@ -100,7 +101,7 @@ function Dashboard() {
 
         {/* Dynamic Page Rendering with Explicit Fallback Rendering */}
         {activePage !== "dashboard" && pageConfig && (
-          !pageConfig.permission || hasPermission(pageConfig.permission) ? (
+          canAccessPage(pageConfig.permission, pageConfig.role, pageConfig.excludeRole) ? (
             CurrentPage ? (
               <CurrentPage
                 setActivePage={setActivePage}
@@ -121,7 +122,7 @@ function Dashboard() {
             <div style={{ padding: "40px", backgroundColor: "#fff", borderRadius: "8px", color: "#d9534f" }}>
               <h2>Access Denied</h2>
               <p>
-                You lack the permission <strong>"{pageConfig.permission}"</strong> to view this page.
+                You lack access to view this page. (Role: <strong>{userRole || "N/A"}</strong>)
               </p>
             </div>
           )

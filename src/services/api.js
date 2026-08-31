@@ -93,9 +93,7 @@ const errorInterceptor = (error) => {
         break;
 
       case 403:
-
-        alert("Access Denied");
-
+        console.warn("API 403 Forbidden: Access Denied");
         break;
 
       case 500:

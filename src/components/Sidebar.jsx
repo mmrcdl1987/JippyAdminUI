@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { menuData } from "../data/menuData";
 import "../styles/Sidebar.css";
-import { hasPermission } from "../utils/permissionUtils";
+import { hasPermission, hasRoleAccess, canAccessPage } from "../utils/permissionUtils";
 import { getRole } from "../utils/authUtils";
 import {
   FiHome,
@@ -68,18 +68,13 @@ function Sidebar({ setActivePage }) {
       </div>
 
       {menuData
-        .filter((section) => hasPermission(section.permission))
+        .filter((section) => canAccessPage(section.permission, section.role, section.excludeRole))
         .map((section) => (
           <div key={section.title}>
             <div className="section-title">{section.title}</div>
 
             {section.items
-              .filter((item) => {
-                if (!item.permission) {
-                  return true;
-                }
-                return hasPermission(item.permission);
-              })
+              .filter((item) => canAccessPage(item.permission, item.role, item.excludeRole))
               .map((item) => (
                 <div key={item.name}>
                   <div
@@ -101,14 +96,10 @@ function Sidebar({ setActivePage }) {
 
                   {openMenus[item.name] &&
                     item.children &&
-                    item.children.some((child) =>
-                      hasPermission(child.permission)
-                    ) && (
+                    item.children.some((child) => canAccessPage(child.permission, child.role, child.excludeRole)) && (
                       <div className="submenu">
                         {item.children
-                          .filter((child) =>
-                            hasPermission(child.permission)
-                          )
+                          .filter((child) => canAccessPage(child.permission, child.role, child.excludeRole))
                           .map((child) => (
                             <div
                               key={child.name}

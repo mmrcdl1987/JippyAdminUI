@@ -10,10 +10,10 @@ function AdminUsers() {
   }
 
   const [employeeName, setEmployeeName] = useState("");
-const [email, setEmail] = useState("");
-const [mobileNumber, setMobileNumber] = useState("");
-const [username, setUsername] = useState("");
-const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
+  const [mobileNumber, setMobileNumber] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
 
   const [roles, setRoles] = useState([]);
   const [users, setUsers] = useState([]);
@@ -24,9 +24,6 @@ const [password, setPassword] = useState("");
 
   const [showRoleModal, setShowRoleModal] =
     useState(false);
-
-  const [selectedRoleIds, setSelectedRoleIds] =
-    useState([]);
 
   const [selectedUser, setSelectedUser] =
     useState(null);
@@ -72,14 +69,14 @@ const [password, setPassword] = useState("");
 
 
   const handleCancel = () => {
-  setEmployeeName("");
-  setEmail("");
-  setMobileNumber("");
-  setUsername("");
-  setPassword("");
+    setEmployeeName("");
+    setEmail("");
+    setMobileNumber("");
+    setUsername("");
+    setPassword("");
 
-  setActiveTab("list");   // Go back to Admin List
-};
+    setActiveTab("list");   // Go back to Admin List
+  };
   const openRoleModal = async (user) => {
 
     try {
@@ -87,9 +84,9 @@ const [password, setPassword] = useState("");
       setSelectedUser(user);
 
       const response =
-       await FM_API.get(
-  `/api/fm/users/${user.usersId}/roles`
-);
+        await FM_API.get(
+          `/api/fm/users/${user.usersId}/roles`
+        );
       setSelectedRoleIds(
         response.data
       );
@@ -120,7 +117,7 @@ const [password, setPassword] = useState("");
     try {
 
       await FM_API.post(
-  "/api/fm/users/assignRole",
+        "/api/fm/users/assignRole",
         {
           userId:
             selectedUser.usersId,
@@ -150,74 +147,74 @@ const [password, setPassword] = useState("");
       );
     }
   };
-//   const saveEmployee = async () => {
+  //   const saveEmployee = async () => {
 
-//   try {
+  //   try {
 
-//     await FM_API.post(
-//   "/api/fm/users/createEmployee",
-//       {
-//         employeeName,
-//         email,
-//         mobileNumber,
-//         username,
-//         password
-//       }
-//     );
+  //     await FM_API.post(
+  //   "/api/fm/users/createEmployee",
+  //       {
+  //         employeeName,
+  //         email,
+  //         mobileNumber,
+  //         username,
+  //         password
+  //       }
+  //     );
 
-//     alert("Employee Created Successfully");
-   
-
-//     loadUsers();
-
-//       setActiveTab("list"); 
-
-//   } catch (error) {
-
-//     console.error(error);
-
-//     alert("Failed To Create Employee");
-//   }
-// };
+  //     alert("Employee Created Successfully");
 
 
-const saveEmployee = async () => {
-  try {
-    const response = await FM_API.post(
-      "/api/fm/users/createEmployee",
-      {
-        employeeName,
-        email,
-        mobileNumber,
-        username,
-        password,
-      }
-    );
+  //     loadUsers();
 
-   
+  //       setActiveTab("list"); 
 
-    alert("Employee Created Successfully");
+  //   } catch (error) {
 
-    loadUsers();
+  //     console.error(error);
 
-    setActiveTab("list");
+  //     alert("Failed To Create Employee");
+  //   }
+  // };
 
-  } catch (error) {
-    console.error(error);
-    
 
-    alert(error.response?.data || "Failed To Create Employee");
-  }
-};
+  const saveEmployee = async () => {
+    try {
+      const response = await FM_API.post(
+        "/api/fm/users/createEmployee",
+        {
+          employeeName,
+          email,
+          mobileNumber,
+          username,
+          password,
+        }
+      );
+
+
+
+      alert("Employee Created Successfully");
+
+      loadUsers();
+
+      setActiveTab("list");
+
+    } catch (error) {
+      console.error(error);
+
+
+      alert(error.response?.data || "Failed To Create Employee");
+    }
+  };
   const filteredUsers =
     Array.isArray(users)
       ? users.filter((user) =>
-          user.username
-            ?.toLowerCase()
-            .includes(
-              search.toLowerCase()
-            )
-        )
+        user.username
+          ?.toLowerCase()
+          .includes(
+            search.toLowerCase()
+          )
+      )
       : [];
 
   return (
@@ -322,36 +319,36 @@ const saveEmployee = async () => {
                           "-"}
                       </td>
 
-                     <td>
+                      <td>
 
-  <div className="action-buttons">
+                        <div className="action-buttons">
 
-    {hasPermission("ADMIN_USER_UPDATE") && (
-      <button
-        className="assign-role-btn"
-        onClick={() => openRoleModal(user)}
-      >
-        Assign Role
-      </button>
-    )}
+                          {hasPermission("ADMIN_USER_UPDATE") && (
+                            <button
+                              className="assign-role-btn"
+                              onClick={() => openRoleModal(user)}
+                            >
+                              Assign Role
+                            </button>
+                          )}
 
-    <button
-      className="edit-user-btn"
-      onClick={() => editUser(user)}
-    >
-      Edit
-    </button>
+                          <button
+                            className="edit-user-btn"
+                            onClick={() => editUser(user)}
+                          >
+                            Edit
+                          </button>
 
-    <button
-      className="delete-user-btn"
-      onClick={() => deleteUser(user.usersId)}
-    >
-      Delete
-    </button>
+                          <button
+                            className="delete-user-btn"
+                            onClick={() => deleteUser(user.usersId)}
+                          >
+                            Delete
+                          </button>
 
-  </div>
+                        </div>
 
-</td>
+                      </td>
 
                     </tr>
 
@@ -392,94 +389,94 @@ const saveEmployee = async () => {
           "ADMIN_USER_CREATE"
         ) && (
 
-         <div className="create-admin-card">
+          <div className="create-admin-card">
 
-  <h3>Create Employee Admin</h3>
+            <h3>Create Employee Admin</h3>
 
-  <div className="form-grid">
+            <div className="form-grid">
 
-    <div className="form-group">
-      <label>Employee Name</label>
-      <input
-        type="text"
-        placeholder="Enter employee name"
-        value={employeeName}
-        onChange={(e) =>
-          setEmployeeName(e.target.value)
-        }
-      />
-    </div>
+              <div className="form-group">
+                <label>Employee Name</label>
+                <input
+                  type="text"
+                  placeholder="Enter employee name"
+                  value={employeeName}
+                  onChange={(e) =>
+                    setEmployeeName(e.target.value)
+                  }
+                />
+              </div>
 
-    <div className="form-group">
-      <label>Email</label>
-      <input
-        type="email"
-        placeholder="Enter email"
-        value={email}
-        onChange={(e) =>
-          setEmail(e.target.value)
-        }
-      />
-    </div>
+              <div className="form-group">
+                <label>Email</label>
+                <input
+                  type="email"
+                  placeholder="Enter email"
+                  value={email}
+                  onChange={(e) =>
+                    setEmail(e.target.value)
+                  }
+                />
+              </div>
 
-    <div className="form-group">
-      <label>Mobile Number</label>
-      <input
-        type="text"
-        placeholder="Enter mobile number"
-        value={mobileNumber}
-        onChange={(e) =>
-          setMobileNumber(e.target.value)
-        }
-      />
-    </div>
+              <div className="form-group">
+                <label>Mobile Number</label>
+                <input
+                  type="text"
+                  placeholder="Enter mobile number"
+                  value={mobileNumber}
+                  onChange={(e) =>
+                    setMobileNumber(e.target.value)
+                  }
+                />
+              </div>
 
-    <div className="form-group">
-      <label>Username</label>
-      <input
-        type="text"
-        placeholder="Enter username"
-        value={username}
-        onChange={(e) =>
-          setUsername(e.target.value)
-        }
-      />
-    </div>
+              <div className="form-group">
+                <label>Username</label>
+                <input
+                  type="text"
+                  placeholder="Enter username"
+                  value={username}
+                  onChange={(e) =>
+                    setUsername(e.target.value)
+                  }
+                />
+              </div>
 
-    <div className="form-group">
-      <label>Password</label>
-      <input
-        type="password"
-        placeholder="Enter password"
-        value={password}
-        onChange={(e) =>
-          setPassword(e.target.value)
-        }
-      />
-    </div>
+              <div className="form-group">
+                <label>Password</label>
+                <input
+                  type="password"
+                  placeholder="Enter password"
+                  value={password}
+                  onChange={(e) =>
+                    setPassword(e.target.value)
+                  }
+                />
+              </div>
 
-  </div>
+            </div>
 
-  <div className="button-container">
+            <div className="button-container">
 
-     <button
-      className="create-employee-cancel-btn"
-      onClick={handleCancel}
-    >
-      Cancel
-    </button>
-    
-    <button
-      className="create-employee-save-btn"
-      onClick={saveEmployee}
-    >
-      Create Employee
-    </button>
+              <button
+                className="create-employee-cancel-btn"
+                onClick={handleCancel}
+              >
+                Cancel
+              </button>
 
-   
-  </div>
+              <button
+                className="create-employee-save-btn"
+                onClick={saveEmployee}
+              >
+                Create Employee
+              </button>
 
-</div>
+
+            </div>
+
+          </div>
 
         )
       }
@@ -506,7 +503,7 @@ const saveEmployee = async () => {
               >
                 ✖
               </button>
-              
+
 
             </div>
 
