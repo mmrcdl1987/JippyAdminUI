@@ -54,8 +54,68 @@ function CompareFile({ setActivePage }) {
     try {
       setLoading(true);
       const response = await compareMasterProductsFile(selectedFile);
-      console.log(response.data);
-      setCompareResult(response.data);
+
+      const data = response.data || {};
+
+      /*
+       * Keep the XLS values attached to every compare item.
+       * Different backend DTO versions may expose the price as
+       * csvPrice, csvMerchantPrice, or merchantPrice.
+       * Normalize it once here so the outlet popup always receives
+       * the XLS price/timing/day together with the product.
+       */
+      const normalizeCompareItem = (item) => {
+        if (!item) return item;
+
+        const rawPrice =
+          item.xlsMerchantPrice ??
+          item.csvMerchantPrice ??
+          item.csvPrice ??
+          item.merchantPrice ??
+          null;
+
+        const xlsMerchantPrice =
+          rawPrice !== null &&
+          rawPrice !== undefined &&
+          rawPrice !== "" &&
+          !Number.isNaN(Number(rawPrice))
+            ? Number(rawPrice)
+            : null;
+
+        const xlsTiming =
+          item.xlsTiming ??
+          item.csvTiming ??
+          item.timing ??
+          "";
+
+        const xlsDayOfWeek =
+          item.xlsDayOfWeek ??
+          item.csvDayOfWeek ??
+          item.dayOfWeek ??
+          "";
+
+        return {
+          ...item,
+          xlsMerchantPrice,
+          xlsTiming: String(xlsTiming || "").trim(),
+          xlsDayOfWeek: String(xlsDayOfWeek || "").trim(),
+        };
+      };
+
+      const normalizedResult = {
+        ...data,
+        duplicates: Array.isArray(data.duplicates)
+          ? data.duplicates.map(normalizeCompareItem)
+          : [],
+        newProducts: Array.isArray(data.newProducts)
+          ? data.newProducts.map(normalizeCompareItem)
+          : [],
+      };
+
+      console.log("[COMPARE] Raw API response:", data);
+      console.log("[COMPARE] Normalized XLS cache:", normalizedResult);
+
+      setCompareResult(normalizedResult);
       setActiveTab("duplicates");
       setSelectedProducts([]);
     } catch (error) {

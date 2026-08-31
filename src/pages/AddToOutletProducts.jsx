@@ -226,18 +226,71 @@ function AddToOutletProducts({
         // ------------------------------------------------------
         // PRICE
         // ------------------------------------------------------
+        //
+        // Priority:
+        // 1. merchant_price from the uploaded XLS/CSV
+        // 2. Default Price entered in this popup
+        // 3. 0
+        //
+        // The XLS value must NOT be overwritten by the default price.
+        // ------------------------------------------------------
 
-        const merchantPrice =
-          defaultPrice !== ""
+        /*
+         * XLS PRICE CACHE
+         *
+         * CompareFile normalizes the uploaded XLS price into
+         * xlsMerchantPrice. The older property names are kept as
+         * fallbacks for compatibility with older API responses.
+         */
+        const rawXlsPrice =
+          product.xlsMerchantPrice ??
+          product.csvMerchantPrice ??
+          product.csvPrice ??
+          product.merchantPrice ??
+          null;
+
+        const hasXlsPrice =
+          rawXlsPrice !== null &&
+          rawXlsPrice !== undefined &&
+          rawXlsPrice !== "" &&
+          !Number.isNaN(Number(rawXlsPrice));
+
+        const merchantPrice = hasXlsPrice
+          ? Number(rawXlsPrice)
+          : defaultPrice !== ""
             ? Number(defaultPrice)
-            : Number(product.csvMerchantPrice || 0);
+            : 0;
 
         // ------------------------------------------------------
         // TIMING
         // ------------------------------------------------------
+        //
+        // Priority:
+        // 1. timing from the uploaded XLS/CSV
+        // 2. Default Timing entered in this popup
+        // 3. empty
+        // ------------------------------------------------------
 
-        const csvTiming =
-          defaultTiming?.trim() || "";
+        const rawXlsTiming =
+          product.xlsTiming ??
+          product.csvTiming ??
+          product.timing ??
+          "";
+
+        const hasXlsTiming =
+          rawXlsTiming !== null &&
+          rawXlsTiming !== undefined &&
+          String(rawXlsTiming).trim() !== "";
+
+        const csvTiming = hasXlsTiming
+          ? String(rawXlsTiming).trim()
+          : defaultTiming?.trim() || "";
+
+        const csvDayOfWeek =
+          product.xlsDayOfWeek ??
+          product.csvDayOfWeek ??
+          product.dayOfWeek ??
+          "";
 
         // ------------------------------------------------------
         // PRODUCT
@@ -266,7 +319,7 @@ function AddToOutletProducts({
           /*
            * No variants are sent.
            */
-          csvDayOfWeek: "",
+          csvDayOfWeek: String(csvDayOfWeek || "").trim(),
 
           csvTiming,
 
@@ -399,6 +452,95 @@ function AddToOutletProducts({
       }
 
       // --------------------------------------------------------
+      // Saved product details
+      // --------------------------------------------------------
+      //
+      // The backend currently returns savedNames only.
+      // Build the display details from the exact products that
+      // were sent in this Save request, so the XLS merchant price
+      // remains attached to the correct product.
+      //
+      // If the backend later returns savedProducts/savedProductDetails,
+      // those details are preferred.
+      // --------------------------------------------------------
+
+      const backendSavedProducts =
+        Array.isArray(result?.savedProducts)
+          ? result.savedProducts
+          : Array.isArray(result?.savedProductDetails)
+            ? result.savedProductDetails
+            : [];
+
+      const normalizeName = (value) =>
+        String(value || "")
+          .trim()
+          .toLowerCase();
+
+      const savedProducts =
+        backendSavedProducts.length > 0
+          ? backendSavedProducts.map((item) => ({
+              productName:
+                item?.productName ||
+                item?.masterProductName ||
+                "",
+              merchantPrice:
+                item?.merchantPrice ??
+                item?.csvMerchantPrice ??
+                item?.xlsMerchantPrice ??
+                item?.csvPrice ??
+                null,
+              timing:
+                item?.csvTiming ??
+                item?.xlsTiming ??
+                item?.timing ??
+                "",
+              dayOfWeek:
+                item?.csvDayOfWeek ??
+                item?.xlsDayOfWeek ??
+                item?.dayOfWeek ??
+                "",
+            }))
+          : savedNames.map((savedName) => {
+              const cleanSavedName = String(savedName || "")
+                .replace(" (Already Exists)", "")
+                .trim();
+
+              const matchedProduct =
+                selectedProducts.find(
+                  (product) =>
+                    normalizeName(
+                      product?.masterProductName ||
+                        product?.productName
+                    ) === normalizeName(cleanSavedName)
+                );
+
+              return {
+                productName: cleanSavedName,
+                merchantPrice:
+                  matchedProduct?.xlsMerchantPrice ??
+                  matchedProduct?.csvMerchantPrice ??
+                  matchedProduct?.csvPrice ??
+                  matchedProduct?.merchantPrice ??
+                  null,
+                timing:
+                  matchedProduct?.xlsTiming ??
+                  matchedProduct?.csvTiming ??
+                  matchedProduct?.timing ??
+                  "",
+                dayOfWeek:
+                  matchedProduct?.xlsDayOfWeek ??
+                  matchedProduct?.csvDayOfWeek ??
+                  matchedProduct?.dayOfWeek ??
+                  "",
+              };
+            });
+
+      console.log(
+        "[OUTLET] Saved products with XLS price:",
+        savedProducts
+      );
+
+      // --------------------------------------------------------
       // Store result
       // --------------------------------------------------------
 
@@ -406,6 +548,7 @@ function AddToOutletProducts({
         savedCount,
         skippedCount,
         savedNames,
+        savedProducts,
         skippedNames,
         skippedProducts,
       });
@@ -465,6 +608,7 @@ function AddToOutletProducts({
       savedCount,
       skippedCount,
       savedNames,
+      savedProducts = [],
       skippedProducts,
     } = mappingResult;
 
@@ -614,18 +758,37 @@ function AddToOutletProducts({
                   }}
                 >
 
-                  {savedNames.map(
-                    (name, index) => (
+                  {(savedProducts.length > 0
+                    ? savedProducts
+                    : savedNames.map((name) => ({
+                        productName: name,
+                        merchantPrice: null,
+                        timing: "",
+                        dayOfWeek: "",
+                      }))
+                  ).map((item, index) => (
+                    <div
+                      key={`${item?.productName || "product"}-${index}`}
+                      style={{
+                        padding: "9px 10px",
+                        borderBottom:
+                          index <
+                          (savedProducts.length > 0
+                            ? savedProducts.length
+                            : savedNames.length) - 1
+                            ? "1px solid #eee"
+                            : "none",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        gap: "12px",
+                      }}
+                    >
                       <div
-                        key={`${name}-${index}`}
                         style={{
-                          padding:
-                            "8px 10px",
-                          borderBottom:
-                            index <
-                            savedNames.length - 1
-                              ? "1px solid #eee"
-                              : "none",
+                          display: "flex",
+                          alignItems: "center",
+                          minWidth: 0,
                         }}
                       >
                         <span
@@ -636,10 +799,50 @@ function AddToOutletProducts({
                           ✓
                         </span>
 
-                        {name}
+                        <span
+                          style={{
+                            fontWeight: "500",
+                          }}
+                        >
+                          {item?.productName || "Unknown Product"}
+                        </span>
                       </div>
-                    )
-                  )}
+
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "10px",
+                          flexShrink: 0,
+                        }}
+                      >
+                        <span
+                          style={{
+                            fontWeight: "700",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {item?.merchantPrice !== null &&
+                          item?.merchantPrice !== undefined &&
+                          item?.merchantPrice !== ""
+                            ? `₹${Number(item.merchantPrice).toFixed(2)}`
+                            : "₹0.00"}
+                        </span>
+
+                        {item?.timing && (
+                          <span
+                            style={{
+                              fontSize: "12px",
+                              color: "#666",
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            {item.timing}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
 
                 </div>
 
@@ -1039,13 +1242,7 @@ function AddToOutletProducts({
                   <div className="product-details">
 
                     <h5>
-
                       {product.masterProductName}
-
-                      <span>
-                        {product.price || ""}
-                      </span>
-
                     </h5>
 
                     <p>
@@ -1070,15 +1267,22 @@ function AddToOutletProducts({
                       type="number"
                       min="0"
                       step="0.01"
-                      placeholder={
-                        defaultPrice ||
-                        "Price"
-                      }
+                      placeholder="Price"
                       disabled
                       value={
-                        defaultPrice
-                          ? defaultPrice
-                          : ""
+                        product.xlsMerchantPrice !== undefined &&
+                        product.xlsMerchantPrice !== null &&
+                        product.xlsMerchantPrice !== ""
+                          ? product.xlsMerchantPrice
+                          : product.csvMerchantPrice !== undefined &&
+                            product.csvMerchantPrice !== null &&
+                            product.csvMerchantPrice !== ""
+                            ? product.csvMerchantPrice
+                            : product.csvPrice !== undefined &&
+                              product.csvPrice !== null &&
+                              product.csvPrice !== ""
+                              ? product.csvPrice
+                              : defaultPrice || ""
                       }
                       readOnly
                     />
@@ -1093,7 +1297,13 @@ function AddToOutletProducts({
                       type="text"
                       placeholder="e.g. 9:00-22:00"
                       disabled
-                      value={defaultTiming}
+                      value={
+                        product.xlsTiming?.trim()
+                          ? product.xlsTiming
+                          : product.csvTiming?.trim()
+                            ? product.csvTiming
+                            : defaultTiming || ""
+                      }
                       readOnly
                     />
 
