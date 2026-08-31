@@ -67,6 +67,14 @@ const handleSubmit = async (e) => {
       userData.role || ""
     );
 
+    // User ID & Approver ID
+    const userIdVal = userData.userId || userData.id || userData.employeeId || "";
+    localStorage.setItem("userId", String(userIdVal));
+    localStorage.setItem("approverId", String(userIdVal));
+    if (userData.employeeId) {
+      localStorage.setItem("employeeId", String(userData.employeeId));
+    }
+
     // Permissions
     localStorage.setItem(
       "permissions",
