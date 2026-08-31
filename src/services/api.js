@@ -52,6 +52,7 @@ const errorInterceptor = (error) => {
         window.location.href = "/login";
         break;
       case 403:
+        console.warn("API 403 Forbidden: Access Denied");
         alert("Access Denied");
         break;
       case 500:

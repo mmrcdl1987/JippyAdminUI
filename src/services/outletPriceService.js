@@ -56,3 +56,28 @@ export const bulkUpdateOutletPricing = async (payload, isApproved = true) => {
   );
   return response.data;
 };
+
+/**
+ * Fetch Outlet Details
+ */
+export const fetchOutletDetailsById = async (outletId) => {
+  const response = await FM_API.get(`/api/fm/outlets/getOutletById/${outletId}`);
+  return response.data;
+};
+
+/**
+ * Update Outlet Products
+ */
+export const updateOutletProducts = async (outletId, payload, userType = "MERCHANT") => {
+  const response = await FM_API.put(
+    "/api/fm/outlets/editAndUpdateOutletProducts",
+    payload,
+    {
+      params: {
+        outletId,
+        userType,
+      },
+    }
+  );
+  return response.data;
+};

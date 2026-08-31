@@ -56,8 +56,35 @@ import ViewSubscriptionPlan from "../pages/ViewSubscriptionPlan";
 
 import DriverSettings from "../pages/DriverSettings";
 
+import AssignAreas from "../pages/AssignAreas";
+import PendingApprovals from "../pages/PendingApprovals";
+import ApprovalSettings from "../pages/ApprovalSettings";
+import ApprovalTransactions from "../pages/ApprovalTransactions";
+
+
 
 export const pageRegistry = {
+
+  // =========================
+  // APPROVALS
+  // =========================
+
+  assignAreas: {
+    component: AssignAreas,
+    permission: "APPROVAL_READ",
+  },
+  pendingApprovals: {
+    component: PendingApprovals,
+    permission: "APPROVAL_READ",
+  },
+  createApprovalSettings: {
+    component: ApprovalSettings,
+    permission: "APPROVAL_SETTINGS_READ",
+  },
+  approvalTransactions: {
+    component: ApprovalTransactions,
+    permission: "APPROVAL_READ",
+  },
 
   // =========================
   // ZONES
@@ -341,5 +368,21 @@ export const pageRegistry = {
   driverSettings: {
     component: DriverSettings,
     permission: "SETTINGS_READ",
+},
+
+
+merchantAddVariants: {
+    component: MerchantAddVariants,
+    permission: "RESTAURANT_READ", // Change to null if permission issues persist
   },
+
+
+createMerchant: {
+  component: CreateMerchant,
+  permission: "VENDOR_READ",
+},
+
+
 };
+
+

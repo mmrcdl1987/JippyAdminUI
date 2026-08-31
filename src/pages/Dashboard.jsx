@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
 
 import Sidebar from "../components/Sidebar";
-import { hasPermission } from "../utils/permissionUtils";
+import { hasPermission, getRole, hasRoleAccess, canAccessPage } from "../utils/permissionUtils";
 import { pageRegistry } from "../config/pageRegistry";
 import AddToOutletProducts from "../pages/AddToOutletProducts";
 
@@ -164,6 +164,17 @@ const setActivePage = (page) => {
                 setActivePage={setActivePage}
               />
             }
+          />
+
+          {/* Catch-all 404 Fallback */}
+          <Route 
+            path="*" 
+            element={
+              <div style={{ padding: "40px", backgroundColor: "#fff", borderRadius: "8px", color: "#333" }}>
+                <h2>404 - Page Not Found</h2>
+                <p>The requested page could not be found or has not been registered in <code>pageRegistry.js</code>.</p>
+              </div>
+            } 
           />
         </Routes>
       </div>

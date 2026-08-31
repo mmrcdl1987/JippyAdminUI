@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { menuData } from "../data/menuData";
 import "../styles/Sidebar.css";
-import { hasPermission } from "../utils/permissionUtils";
+import { hasPermission, hasRoleAccess, canAccessPage } from "../utils/permissionUtils";
 import { getRole } from "../utils/authUtils";
 import {
   FiHome,
@@ -71,7 +71,7 @@ function Sidebar() {
       </div>
 
       {menuData
-        .filter((section) => hasPermission(section.permission))
+        .filter((section) => canAccessPage(section.permission, section.role, section.excludeRole))
         .map((section) => (
           <div key={section.title}>
             <div className="section-title">{section.title}</div>
@@ -83,15 +83,13 @@ function Sidebar() {
                 }
                 return hasPermission(item.permission);
               })
-              .map((item) => {
-                const isItemActive = item.pageKey && location.pathname === `/dashboard/${item.pageKey}`;
-                return (
-                  <div key={item.name}>
-                    <div
-                      className={`menu-item ${isItemActive ? "active" : ""}`}
-                      onClick={() => handleMenuClick(item)}
-                    >
-                      <span>{item.name}</span>
+              .map((item) => (
+                <div key={item.name}>
+                  <div
+                    className="menu-item"
+                    onClick={() => handleMenuClick(item)}
+                  >
+                    <span>{item.name}</span>
 
                       {item.children && (
                         <span className="arrow">
@@ -104,38 +102,34 @@ function Sidebar() {
                       )}
                     </div>
 
-                    {openMenus[item.name] &&
-                      item.children &&
-                      item.children.some((child) =>
-                        hasPermission(child.permission)
-                      ) && (
-                        <div className="submenu">
-                          {item.children
-                            .filter((child) =>
-                              hasPermission(child.permission)
-                            )
-                            .map((child) => {
-                              const isChildActive = child.pageKey && location.pathname === `/dashboard/${child.pageKey}`;
-                              return (
-                                <div
-                                  key={child.name}
-                                  className={`submenu-item ${isChildActive ? "active" : ""}`}
-                                  onClick={() => {
-                                    console.log("Navigating to subpage:", child.pageKey);
-                                    if (child.pageKey) {
-                                      navigate(`/dashboard/${child.pageKey}`);
-                                    }
-                                  }}
-                                >
-                                  • {child.name}
-                                </div>
-                              );
-                            })}
-                        </div>
-                      )}
-                  </div>
-                );
-              })}
+                  {openMenus[item.name] &&
+                    item.children &&
+                    item.children.some((child) =>
+                      hasPermission(child.permission)
+                    ) && (
+                      <div className="submenu">
+                        {item.children
+                          .filter((child) =>
+                            hasPermission(child.permission)
+                          )
+                          .map((child) => (
+                            <div
+                              key={child.name}
+                              className="submenu-item"
+                              onClick={() => {
+                                console.log("Clicked:", child.pageKey);
+                                if (child.pageKey) {
+                                  navigate(`/dashboard/${child.pageKey}`);
+                                }
+                              }}
+                            >
+                              • {child.name}
+                            </div>
+                          ))}
+                      </div>
+                    )}
+                </div>
+              ))}
           </div>
         ))}
 
