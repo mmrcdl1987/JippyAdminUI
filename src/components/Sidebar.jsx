@@ -119,7 +119,7 @@ function Sidebar() {
                               onClick={() => {
                                 console.log("Clicked:", child.pageKey);
                                 if (child.pageKey) {
-                                  setActivePage(child.pageKey);
+                                  navigate(`/dashboard/${child.pageKey}`);
                                 }
                               }}
                             >

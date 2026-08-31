@@ -165,6 +165,17 @@ const setActivePage = (page) => {
               />
             }
           />
+
+          {/* Catch-all 404 Fallback */}
+          <Route 
+            path="*" 
+            element={
+              <div style={{ padding: "40px", backgroundColor: "#fff", borderRadius: "8px", color: "#333" }}>
+                <h2>404 - Page Not Found</h2>
+                <p>The requested page could not be found or has not been registered in <code>pageRegistry.js</code>.</p>
+              </div>
+            } 
+          />
         </Routes>
       </div>
     </div>
