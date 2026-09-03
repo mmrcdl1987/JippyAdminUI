@@ -10,6 +10,7 @@ import {
 
 import OutletFoods from "./OutletFoods";
 import OutletSubscriptionHistory from "./OutletSubscriptionHistory";
+import OutletCategories from "./OutletCategories";
 
 import {
   FiHome,
@@ -40,6 +41,8 @@ function OutletProfileDetails({ setActivePage }) {
   const [loading, setLoading] = useState(true);
 
   const [errorMessage, setErrorMessage] = useState("");
+
+  const [coordinateLocation, setCoordinateLocation] = useState("");
 
 
   // ============================================================
@@ -78,6 +81,54 @@ function OutletProfileDetails({ setActivePage }) {
   };
 
 
+
+  useEffect(() => {
+  const getCoordinateLocation = async () => {
+    if (
+      outlet?.latitude == null ||
+      outlet?.longitude == null
+    ) {
+      setCoordinateLocation("");
+      return;
+    }
+
+    try {
+      const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+
+      const response = await fetch(
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${outlet.latitude},${outlet.longitude}&key=${apiKey}`
+      );
+
+      const data = await response.json();
+
+      console.log("REVERSE GEOCODING RESPONSE:", data);
+
+      if (
+        data.status === "OK" &&
+        data.results?.length > 0
+      ) {
+        setCoordinateLocation(
+          data.results[0].formatted_address
+        );
+      } else {
+        setCoordinateLocation("");
+        console.warn(
+          "Reverse geocoding failed:",
+          data.status
+        );
+      }
+    } catch (error) {
+      console.error(
+        "Failed to get location from coordinates:",
+        error
+      );
+
+      setCoordinateLocation("");
+    }
+  };
+
+  getCoordinateLocation();
+}, [outlet?.latitude, outlet?.longitude]);
   // ============================================================
   // LOAD OUTLET DETAILS
   // ============================================================
@@ -687,30 +738,16 @@ if (details) {
   // GOOGLE MAP URL
   // ============================================================
 
-  const getMapUrl = () => {
+const getMapUrl = () => {
+  if (
+    outlet?.latitude == null ||
+    outlet?.longitude == null
+  ) {
+    return null;
+  }
 
-    const latitude =
-      outlet?.latitude;
-
-    const longitude =
-      outlet?.longitude;
-
-
-    if (
-      latitude === null ||
-      latitude === undefined ||
-      longitude === null ||
-      longitude === undefined
-    ) {
-
-      return null;
-
-    }
-
-
-    return `https://www.google.com/maps?q=${latitude},${longitude}&output=embed`;
-
-  };
+  return `https://www.google.com/maps?q=${outlet.latitude},${outlet.longitude}&z=15&output=embed`;
+};
 
 
   // ============================================================
@@ -720,6 +757,8 @@ if (details) {
   const tabs = [
 
     "Basic",
+
+    "Categories",
 
     "Foods",
 
@@ -1564,40 +1603,31 @@ if (details) {
 
               <div className="jippy-outlet-profile-map-header">
 
-                <span>
-                  Location Map
-                </span>
+  <span>
+    Location Map
+  </span>
 
+  {coordinateLocation ? (
+  <span className="jippy-outlet-profile-map-location">
+    <FiMapPin />
+    {coordinateLocation}
+  </span>
+) : null}
 
-                {outlet?.latitude &&
-                outlet?.longitude ? (
-
-                  <a
-                    href={`https://www.google.com/maps?q=${outlet.latitude},${outlet.longitude}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-
-                    <FiNavigation />
-
-                    Open in Maps
-
-                  </a>
-
-                ) : null}
-
-              </div>
+</div>
 
 
               <div className="jippy-outlet-profile-map">
 
                 {getMapUrl() ? (
 
-                  <iframe
-                    title="Outlet Location"
-                    src={getMapUrl()}
-                    loading="lazy"
-                  />
+   <iframe
+  title="Outlet Location"
+  src={getMapUrl()}
+  loading="lazy"
+  allowFullScreen
+  referrerPolicy="strict-origin-when-cross-origin"
+/>
 
                 ) : (
 
@@ -1703,6 +1733,36 @@ if (details) {
 
       )}
 
+      {/* ========================================================
+          CATEGORIES TAB
+      ======================================================== */}
+
+      {activeTab === "Categories" && (
+
+        <div className="jippy-outlet-profile-main-card">
+
+          <div className="jippy-outlet-profile-card-heading">
+
+            <FiShoppingBag />
+
+            <span>
+              Outlet Categories
+            </span>
+
+          </div>
+
+          <OutletCategories
+            categories={
+              Array.isArray(outlet?.categories)
+                ? outlet.categories
+                : []
+            }
+            outlet={outlet}
+          />
+
+        </div>
+
+      )}
 
       {/* ========================================================
           FOODS TAB
