@@ -6,21 +6,20 @@ import api from "./api";
 export const getAllOutlets = async () => {
   try {
     const response = await api.get("/api/fm/outlets");
-<<<<<<< Updated upstream
+
 
     console.log("ALL OUTLETS FULL RESPONSE:", response.data);
     console.log("ALL OUTLETS DATA:", response.data?.data);
 
-=======
->>>>>>> Stashed changes
+
+
     return response.data?.data || [];
   } catch (error) {
     console.error("Failed to fetch outlets:", error);
     throw error;
   }
 };
-<<<<<<< Updated upstream
-=======
+
 
 // export const getAllOutlets = async () => {
 //   try {
@@ -36,7 +35,6 @@ export const getAllOutlets = async () => {
 //   }
 // };
 
->>>>>>> Stashed changes
 
 // ============================================================
 // GET OUTLET BY ID
@@ -253,7 +251,7 @@ export const getAreasByCity = async (cityId) => {
 };
 
 // ============================================================
-<<<<<<< Updated upstream
+
 // BULK UPLOAD OUTLETS
 // ============================================================
 export const uploadOutletsBulk = async (file) => {
@@ -279,7 +277,11 @@ export const uploadOutletsBulk = async (file) => {
       error.response?.status,
       error.response?.data || error.message
     );
-=======
+        throw error;
+  }
+};
+  
+
 // SET OUTLET UNAVAILABLE
 // ============================================================
 
@@ -594,7 +596,6 @@ export const restoreCategoryUnavailable = async (categoryId) => {
       error.response?.data || error.message
     );
 
->>>>>>> Stashed changes
     throw error;
   }
 };

@@ -11,12 +11,12 @@ import {
   updateOutletDetailsByMerchant,
   createOutlet,
   getOutletCount,
-<<<<<<< Updated upstream
+
   uploadOutletsBulk,
-=======
+
   setOutletUnavailable,
   restoreOutletUnavailability,
->>>>>>> Stashed changes
+
 } from "../services/outletListService";
 
 import {
@@ -97,17 +97,18 @@ const [expandedOutletId, setExpandedOutletId] = useState(null);
   const [showExportMenu, setShowExportMenu] = useState(false);
   const [globalStatus, setGlobalStatus] = useState("OPEN");
 
-<<<<<<< Updated upstream
+
   // DRAG AND DROP & BULK UPLOAD STATE
   const [isDragging, setIsDragging] = useState(false);
   const [bulkFile, setBulkFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [uploadResult, setUploadResult] = useState(null); // <-- Added state for upload results/errors
-=======
 
 
 
->>>>>>> Stashed changes
+
+
+
 
   // =========================================================
   // COLUMNS
@@ -152,8 +153,6 @@ const showAllColumns = () => {
   });
 };
 
-<<<<<<< Updated upstream
-=======
 const handleExpandOutlet = (outletId) => {
   const id = Number(outletId);
 
@@ -495,7 +494,7 @@ const handleConfirmOutletRestore = async () => {
   // const API_BASE_URL =
   //   "http://srv1617582.hstgr.cloud:8084";
 
->>>>>>> Stashed changes
+
   // =========================================================
   // FETCH OUTLET COUNT
   // =========================================================
@@ -589,39 +588,29 @@ const handleConfirmOutletRestore = async () => {
 //     fetchOutletCount();
 //   }, []);
 
+// =========================================================
+// FETCH ALL OUTLETS
+// =========================================================
 
-  const fetchOutlets = async () => {
-    try {
-      setLoading(true);
+const fetchOutlets = async () => {
+  try {
+    setLoading(true);
 
-      const data = await getAllOutlets();
+    // 1. Get all outlets
+    const data = await getAllOutlets();
 
-<<<<<<< Updated upstream
-      setOutlets(Array.isArray(data) ? data : []);
-    } catch (error) {
-      console.error("Failed to fetch outlets:", error);
-      setOutlets([]);
-    } finally {
-      setLoading(false);
-    }
-  };
     if (!Array.isArray(data)) {
       setOutlets([]);
       return;
     }
 
+    // 2. Get isToggle from admin outlet-details API
     const outletsWithAvailability = await Promise.all(
       data.map(async (outlet) => {
         try {
           const details = await getOutletDetails(
             Number(outlet.outletId)
           );
-          console.log(
-  "OUTLET ID:",
-  outlet.outletId,
-  "DETAILS isToggle:",
-  details?.isToggle
-);
 
           console.log(
             `OUTLET ${outlet.outletId} DETAILS:`,
@@ -631,8 +620,10 @@ const handleConfirmOutletRestore = async () => {
           return {
             ...outlet,
 
-            isToggle:
-              details?.isToggle === true,
+            // IMPORTANT:
+            // /api/fm/outlets does NOT provide isToggle.
+            // It comes from /admin/outlet-details.
+            isToggle: details?.isToggle === true,
 
             isAvailable:
               details?.isAvailable === true,
@@ -643,7 +634,10 @@ const handleConfirmOutletRestore = async () => {
             error
           );
 
-          return outlet;
+          // Do NOT force false if the details API fails.
+          return {
+            ...outlet,
+          };
         }
       })
     );
@@ -667,8 +661,15 @@ const handleConfirmOutletRestore = async () => {
     setLoading(false);
   }
 };
->>>>>>> Stashed changes
 
+// =========================================================
+// INITIAL LOAD
+// =========================================================
+
+useEffect(() => {
+  fetchOutlets();
+  fetchOutletCount();
+}, []);
 useEffect(() => {
   fetchOutlets();
   fetchOutletCount();
@@ -1731,11 +1732,9 @@ const columnOptions = [
       <th>Status</th>
     )}
 
-<<<<<<< Updated upstream
                 <th className="jippy-all-outlets-actions-header">
                   Actions
                 </th>
-=======
     {visibleColumns.menuItemCount && (
       <th>Menu Items</th>
     )}
@@ -1743,7 +1742,6 @@ const columnOptions = [
     {visibleColumns.areaId && (
       <th>Area ID</th>
     )}
->>>>>>> Stashed changes
 
     {visibleColumns.stateId && (
       <th>State ID</th>
@@ -1849,7 +1847,7 @@ const columnOptions = [
               </td>
             )}
 
-<<<<<<< Updated upstream
+
                       {visibleColumns.outletId && (
                         <td>
                           {outlet.outletId ??
@@ -1857,9 +1855,8 @@ const columnOptions = [
                         </td>
                       )}
 
-                      {visibleColumns.outletName && (
-                        <td className="jippy-all-outlets-name">
-=======
+                     
+
             {/* OUTLET NAME */}
             {visibleColumns.outletName && (
   <td>
@@ -1895,7 +1892,6 @@ const columnOptions = [
                 {outlet.outletPhone || "-"}
               </td>
             )}
->>>>>>> Stashed changes
 
             {/* STATUS */}
             {visibleColumns.status && (
@@ -1935,52 +1931,50 @@ const columnOptions = [
               </td>
             )}
 
-            {/* AVAILABILITY */}
-           {visibleColumns.availability && (
-<td>
-  <label className="jippy-outlet-toggle">
-   <input
-  type="checkbox"
-  checked={outlet.isToggle === true}
-  onChange={() => handleOutletToggle(outlet)}
-/>
+{/* AVAILABILITY */}
+{visibleColumns.availability && (
+  <td>
+    <label className="jippy-outlet-toggle">
+      <input
+        type="checkbox"
+        checked={outlet.isToggle === true}
+        onChange={() => handleOutletToggle(outlet)}
+      />
 
-<<<<<<< Updated upstream
-                      {visibleColumns.merchantId && (
-                        <td>
-                          {outlet.merchantId ??
-                            "-"}
-                        </td>
-                      )}
-
-                      {visibleColumns.cuisineType && (
-                        <td>
-                          {Array.isArray(
-                            outlet.cuisineType
-                          )
-                            ? outlet.cuisineType.join(
-                                ", "
-                              )
-                            : outlet.cuisineType ||
-                              "-"}
-                        </td>
-                      )}
-
-                      {visibleColumns.outletPhone && (
-                        <td>
-                          {outlet.outletPhone ||
-                            "-"}
-                        </td>
-                      )}
-
-                      {visibleColumns.status && (
-                        <td>
-=======
-    <span className="jippy-outlet-toggle-slider" />
-  </label>
-</td>
+      <span className="jippy-outlet-toggle-slider" />
+    </label>
+  </td>
 )}
 
+{/* MERCHANT ID */}
+{visibleColumns.merchantId && (
+  <td>
+    {outlet.merchantId ?? "-"}
+  </td>
+)}
+
+{/* CUISINE TYPE */}
+{visibleColumns.cuisineType && (
+  <td>
+    {Array.isArray(outlet.cuisineType)
+      ? outlet.cuisineType.join(", ")
+      : outlet.cuisineType || "-"}
+  </td>
+)}
+
+{/* OUTLET PHONE */}
+{visibleColumns.outletPhone && (
+  <td>
+    {outlet.outletPhone || "-"}
+  </td>
+)}
+
+{/* STATUS */}
+{visibleColumns.status && (
+  <td>
+    {/* your existing status content goes here */}
+  </td>
+)}
             {/* ACTIONS */}
             <td className="jippy-all-outlets-actions-cell">
               <div className="jippy-all-outlets-actions">
@@ -2015,46 +2009,45 @@ const columnOptions = [
           </tr>
 
 
-          {/* ================================================= */}
-          {/* EXPANDED DETAILS */}
-          {/* ================================================= */}
->>>>>>> Stashed changes
+            {/* ================================================= */}
+            {/* EXPANDED DETAILS */}
+            {/* ================================================= */}
 
-          {isExpanded && (
-            <tr className="jippy-all-outlets-expanded-row">
+            {isExpanded && (
+              <tr className="jippy-all-outlets-expanded-row">
 
-              <td
-                colSpan="12"
-                className="jippy-all-outlets-expanded-cell"
-              >
+                <td
+                  colSpan="12"
+                  className="jippy-all-outlets-expanded-cell"
+                >
 
-                <div className="jippy-all-outlets-expanded-content">
+                  <div className="jippy-all-outlets-expanded-content">
 
-                  {/* ADDRESS DETAILS */}
+                    {/* ADDRESS DETAILS */}
 
-                  <div className="jippy-all-outlets-address-grid">
+                    <div className="jippy-all-outlets-address-grid">
 
-                    <div className="jippy-outlet-detail-item">
-                      <span className="jippy-outlet-detail-label">
-                        🏠 Building No.
-                      </span>
+                      <div className="jippy-outlet-detail-item">
+                        <span className="jippy-outlet-detail-label">
+                          🏠 Building No.
+                        </span>
 
-                      <strong>
-                        {outlet.buildingNumber ||
-                          "-"}
-                      </strong>
-                    </div>
+                        <strong>
+                          {outlet.buildingNumber ||
+                            "-"}
+                        </strong>
+                      </div>
 
 
-                    <div className="jippy-outlet-detail-item">
-                      <span className="jippy-outlet-detail-label">
-                        🛣️ Road
-                      </span>
+                      <div className="jippy-outlet-detail-item">
+                        <span className="jippy-outlet-detail-label">
+                          🛣️ Road
+                        </span>
 
-                      <strong>
-                        {outlet.road || "-"}
-                      </strong>
-                    </div>
+                        <strong>
+                          {outlet.road || "-"}
+                        </strong>
+                      </div>
 
 
                     <div className="jippy-outlet-detail-item">
@@ -2133,126 +2126,78 @@ const columnOptions = [
                       </div>
 
 
-                      <div className="jippy-outlet-unavailability-content">
+                     <div className="jippy-outlet-unavailability-content">
 
-                        <div className="jippy-unavailability-info">
+  <div className="jippy-unavailability-info">
+    <span>
+      From Date & Time
+    </span>
 
-                          <span>
-                            From Date & Time
-                          </span>
+    <strong>
+      {formatUnavailabilityDate(
+        savedUnavailability.fromDate
+      )}
+    </strong>
+  </div>
 
-                          <strong>
-                            {formatUnavailabilityDate(
-                              savedUnavailability.fromDate
-                            )}
-                          </strong>
+  <div className="jippy-unavailability-info">
+    <span>
+      To Date & Time
+    </span>
 
-<<<<<<< Updated upstream
-                      {visibleColumns.menuItemCount && (
-                        <td>
-                          {outlet.menuItemCount ??
-                            0}
-                        </td>
-                      )}
+    <strong>
+      {formatUnavailabilityDate(
+        savedUnavailability.toDate
+      )}
+    </strong>
+  </div>
 
-                      {visibleColumns.address && (
-                        <td className="jippy-all-outlets-address">
-=======
-                        </div>
+  <div className="jippy-unavailability-info reason">
+    <span>
+      Reason
+    </span>
 
+    <strong>
+      {savedUnavailability.reason}
+    </strong>
+  </div>
 
-                        <div className="jippy-unavailability-info">
+  <div className="jippy-unavailability-info">
+    <button
+      type="button"
+      className="jippy-all-outlets-edit-btn"
+      title="Edit Outlet"
+      aria-label="Edit Outlet"
+      onClick={() => handleEditOutlet(outlet)}
+    >
+      <FiEdit2 />
+    </button>
 
-                          <span>
-                            To Date & Time
-                          </span>
->>>>>>> Stashed changes
+    <span>
+      Marked On
+    </span>
 
-                          <strong>
-                            {formatUnavailabilityDate(
-                              savedUnavailability.toDate
-                            )}
-                          </strong>
+    <strong>
+      {formatUnavailabilityDate(
+        savedUnavailability.markedOn
+      )}
+    </strong>
+  </div>
 
-                        </div>
+  <div className="jippy-unavailability-edit-wrapper">
+    <button
+      type="button"
+      className="jippy-edit-unavailability-btn"
+      onClick={() =>
+        handleEditUnavailability(outlet)
+      }
+    >
+      <FiEdit2 />
+      Edit Unavailability
+    </button>
+  </div>
 
-<<<<<<< Updated upstream
-                      {visibleColumns.areaId && (
-                        <td>
-                          {outlet.areaId ??
-                            "-"}
-                        </td>
-                      )}
-
-                      {visibleColumns.stateId && (
-                        <td>
-                          {outlet.stateId ??
-                            "-"}
-                        </td>
-                      )}
-
-                      <td>
-=======
-
-                        <div className="jippy-unavailability-info reason">
-
-                          <span>
-                            Reason
-                          </span>
-
-                          <strong>
-                            {savedUnavailability.reason}
-                          </strong>
-
-                        </div>
-
->>>>>>> Stashed changes
-
-                        <div className="jippy-unavailability-info">
-
-<<<<<<< Updated upstream
-                          <button
-                            type="button"
-                            className="jippy-all-outlets-edit-btn"
-                            title="Edit Outlet"
-                            aria-label="Edit Outlet"
-                            onClick={() => handleEditOutlet(outlet)}
-                          >
-                            <FiEdit2 />
-                          </button>
-=======
-                          <span>
-                            Marked On
-                          </span>
-
-                          <strong>
-                            {formatUnavailabilityDate(
-                              savedUnavailability.markedOn
-                            )}
-                          </strong>
-
-                        </div>
-
-
-                        <div className="jippy-unavailability-edit-wrapper">
->>>>>>> Stashed changes
-
-                          <button
-                            type="button"
-                            className="jippy-edit-unavailability-btn"
-                            onClick={() =>
-                              handleEditUnavailability(
-                                outlet
-                              )
-                            }
-                          >
-                            <FiEdit2 />
-                            Edit Unavailability
-                          </button>
-
-                        </div>
-
-                      </div>
+</div>
 
                     </div>
                   )}
