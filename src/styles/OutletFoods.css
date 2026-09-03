@@ -991,3 +991,510 @@
     gap: 12px;
   }
 }
+
+/* FOOD AVAILABILITY TOGGLE */
+
+.jippy-food-availability-toggle {
+  width: 42px;
+  height: 22px;
+  border: none;
+  border-radius: 20px;
+  padding: 2px;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.jippy-food-toggle-on {
+  background: #16a34a;
+  justify-content: flex-end;
+}
+
+.jippy-food-toggle-off {
+  background: #d1d5db;
+  justify-content: flex-start;
+}
+
+.jippy-food-toggle-knob {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+
+/* MODAL */
+
+.jippy-food-unavailability-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.jippy-food-unavailability-modal {
+  width: 560px;
+  max-width: calc(100vw - 30px);
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 24px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+}
+
+.jippy-food-unavailability-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.jippy-food-unavailability-header h3 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.jippy-food-unavailability-header p {
+  margin: 5px 0 0;
+  color: #777;
+}
+
+.jippy-food-unavailability-close {
+  border: none;
+  background: transparent;
+  font-size: 26px;
+  cursor: pointer;
+}
+
+.jippy-food-unavailability-info {
+  margin: 20px 0;
+  padding: 12px;
+  border: 1px solid #f5d98b;
+  background: #fff9e8;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.jippy-food-unavailability-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.jippy-food-unavailability-grid label,
+.jippy-food-unavailability-field label {
+  display: block;
+  margin-bottom: 7px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.jippy-food-unavailability-grid input,
+.jippy-food-unavailability-field textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 11px;
+  font-size: 13px;
+}
+
+.jippy-food-unavailability-field {
+  margin-top: 18px;
+}
+
+.jippy-food-unavailability-field textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+.jippy-food-unavailability-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.jippy-food-unavailability-cancel,
+.jippy-food-unavailability-confirm {
+  padding: 10px 18px;
+  border-radius: 7px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.jippy-food-unavailability-cancel {
+  background: #fff;
+  border: 1px solid #ddd;
+}
+
+.jippy-food-unavailability-confirm {
+  background: #ff6b00;
+  color: #fff;
+  border: 1px solid #ff6b00;
+}
+
+
+/* =========================================================
+   FOOD EXPAND BUTTON
+   ========================================================= */
+
+.food-expand-btn {
+  width: 28px;
+  height: 28px;
+  border: 1px solid #f07822;
+  background: #fff;
+  color: #f07822;
+  border-radius: 6px;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.food-expand-btn:hover {
+  background: #fff5ee;
+}
+
+
+/* =========================================================
+   EXPANDED FOOD ROW
+   ========================================================= */
+
+.food-expanded-row {
+  background: #fff;
+}
+
+.food-expanded-row > td {
+  padding: 0 !important;
+}
+
+
+/* =========================================================
+   EXPANDED FOOD DETAILS
+   ========================================================= */
+
+.food-expanded-details {
+  margin: 0 12px 12px;
+  padding: 18px 20px;
+  border: 1px solid #f0d9ce;
+  border-radius: 10px;
+  background: #fffaf7;
+}
+
+
+/* =========================================================
+   UNAVAILABILITY HEADER
+   ========================================================= */
+
+.food-unavailability-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 18px;
+  color: #dc2626;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.food-unavailable-status {
+  font-weight: 500;
+  color: #444;
+}
+
+.edit-food-unavailability-btn {
+  margin-left: auto;
+  padding: 8px 14px;
+  border: 1px solid #dc2626;
+  border-radius: 6px;
+  background: #fff;
+  color: #dc2626;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.edit-food-unavailability-btn:hover {
+  background: #fff1f1;
+}
+
+
+/* =========================================================
+   HORIZONTAL FOOD UNAVAILABILITY DETAILS
+   ========================================================= */
+
+.jippy-food-unavailability-content {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 24px;
+  align-items: start;
+  box-sizing: border-box;
+}
+
+.jippy-unavailability-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.jippy-unavailability-info span {
+  color: #dc2626;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.jippy-unavailability-info strong {
+  color: #222;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+
+/* =========================================================
+   NO UNAVAILABILITY
+   ========================================================= */
+
+.food-no-unavailability {
+  color: #777;
+  font-size: 13px;
+  padding: 8px 0;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1000px) {
+  .jippy-food-unavailability-content {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .jippy-food-unavailability-content {
+    grid-template-columns: 1fr;
+  }
+
+  .jippy-food-unavailability-heading {
+    flex-wrap: wrap;
+  }
+
+  .jippy-edit-unavailability-btn {
+    margin-left: 0;
+  }
+}
+
+/* =========================================================
+   JIPPY FOOD UNAVAILABILITY EXPANDED CARD
+   ========================================================= */
+
+.jippy-food-expanded-cell {
+  padding: 0 !important;
+  background: #fffaf7 !important;
+}
+
+.jippy-food-unavailability-card {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 18px 20px;
+  background: #fffaf7;
+  border-top: 1px solid #f0d9ce;
+}
+
+.jippy-food-unavailability-heading {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 18px;
+}
+
+.jippy-food-unavailability-heading > div {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.jippy-food-unavailability-heading strong {
+  color: #222;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.jippy-food-unavailability-heading span {
+  color: #555;
+  font-size: 13px;
+}
+
+.jippy-edit-unavailability-btn {
+  flex-shrink: 0;
+  padding: 7px 12px;
+  border: 1px solid #dc2626;
+  border-radius: 6px;
+  background: #fff;
+  color: #dc2626;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.jippy-edit-unavailability-btn:hover {
+  background: #fff1f1;
+}
+
+
+.jippy-food-restore-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.jippy-food-restore-modal {
+  width: 500px;
+  max-width: calc(100vw - 40px);
+
+  background: #fff;
+  border-radius: 12px;
+  padding: 22px;
+
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+}
+
+.jippy-food-restore-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.jippy-food-restore-header h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.jippy-food-restore-header p {
+  margin: 5px 0 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.jippy-food-restore-close {
+  border: none;
+  background: transparent;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.jippy-food-restore-info {
+  margin-top: 20px;
+  padding: 14px;
+  border-radius: 8px;
+  background: #fff7e6;
+  border: 1px solid #ffd98a;
+  font-size: 14px;
+}
+
+.jippy-food-restore-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.jippy-food-restore-cancel,
+.jippy-food-restore-confirm {
+  padding: 9px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.jippy-food-restore-cancel {
+  background: #fff;
+  border: 1px solid #ddd;
+}
+
+.jippy-food-restore-confirm {
+  background: #ff6b00;
+  color: #fff;
+  border: none;
+}
+
+.jippy-food-restore-confirm:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   FOOD UNAVAILABILITY MODAL - ACTION BUTTONS
+   ========================================================= */
+
+.jippy-food-unavailability-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+  width: 100%;
+}
+
+/* Cancel Button */
+.jippy-food-unavailability-cancel-btn {
+  border: 1px solid #d9d9d9;
+  background: #ffffff;
+  color: #333333;
+  padding: 9px 18px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 70px;
+}
+
+.jippy-food-unavailability-cancel-btn:hover {
+  background: #f5f5f5;
+  border-color: #bdbdbd;
+}
+
+/* Confirm Button */
+.jippy-food-unavailability-confirm-btn {
+  border: none;
+  background: #ff6b00;
+  color: #ffffff;
+  padding: 9px 18px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 135px;
+}
+
+.jippy-food-unavailability-confirm-btn:hover {
+  background: #e85f00;
+}
+
+.jippy-food-unavailability-confirm-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

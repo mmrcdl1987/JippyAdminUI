@@ -6,16 +6,37 @@ import api from "./api";
 export const getAllOutlets = async () => {
   try {
     const response = await api.get("/api/fm/outlets");
+<<<<<<< Updated upstream
 
     console.log("ALL OUTLETS FULL RESPONSE:", response.data);
     console.log("ALL OUTLETS DATA:", response.data?.data);
 
+=======
+>>>>>>> Stashed changes
     return response.data?.data || [];
   } catch (error) {
     console.error("Failed to fetch outlets:", error);
     throw error;
   }
 };
+<<<<<<< Updated upstream
+=======
+
+// export const getAllOutlets = async () => {
+//   try {
+//     const response = await api.get("/api/fm/outlets");
+
+//     console.log("ALL OUTLETS FULL RESPONSE:", response.data);
+//     console.log("ALL OUTLETS DATA:", response.data?.data);
+
+//     return response.data?.data || [];
+//   } catch (error) {
+//     console.error("Failed to fetch outlets:", error);
+//     throw error;
+//   }
+// };
+
+>>>>>>> Stashed changes
 
 // ============================================================
 // GET OUTLET BY ID
@@ -232,6 +253,7 @@ export const getAreasByCity = async (cityId) => {
 };
 
 // ============================================================
+<<<<<<< Updated upstream
 // BULK UPLOAD OUTLETS
 // ============================================================
 export const uploadOutletsBulk = async (file) => {
@@ -257,6 +279,322 @@ export const uploadOutletsBulk = async (file) => {
       error.response?.status,
       error.response?.data || error.message
     );
+=======
+// SET OUTLET UNAVAILABLE
+// ============================================================
+
+export const setOutletUnavailable = async (
+  outletId,
+  fromDate,
+  toDate,
+  reason = "Outlet unavailable"
+) => {
+  try {
+    const formatDateTime = (value) => {
+      if (!value) return null;
+
+      return value.length === 16
+        ? `${value}:00`
+        : value.substring(0, 19);
+    };
+
+    const payload = {
+      type: "OUTLET",
+      unavailabilityId: Number(outletId),
+      unavailabilityFromDate: formatDateTime(fromDate),
+      unavailabilityToDate: formatDateTime(toDate),
+      reason: reason?.trim() || "Outlet unavailable",
+    };
+
+    console.log(
+      "OUTLET UNAVAILABILITY PAYLOAD:",
+      JSON.stringify(payload, null, 2)
+    );
+
+    const response = await api.post(
+      "/api/fm/outlet-unavailability",
+      payload
+    );
+
+    console.log("OUTLET UNAVAILABILITY RESPONSE:", response.data);
+
+    return response.data;
+  } catch (error) {
+    console.error(
+      "SET OUTLET UNAVAILABLE ERROR:",
+      error.response?.status,
+      error.response?.data || error.message
+    );
+
+    throw error;
+  }
+};
+
+// For product
+export const setProductUnavailable = async (
+  productId,
+  fromDate,
+  toDate,
+  reason = "Product unavailable"
+) => {
+  try {
+    const formatDateTime = (value) => {
+      if (!value) return null;
+
+      return value.length === 16
+        ? `${value}:00`
+        : value.substring(0, 19);
+    };
+
+    const payload = {
+      type: "PRODUCT",
+      unavailabilityId: Number(productId),
+      unavailabilityFromDate: formatDateTime(fromDate),
+      unavailabilityToDate: formatDateTime(toDate),
+      reason: reason?.trim() || "Product unavailable",
+    };
+
+    console.log(
+      "PRODUCT UNAVAILABILITY PAYLOAD:",
+      JSON.stringify(payload, null, 2)
+    );
+
+    const response = await api.post(
+      "/api/fm/outlet-unavailability",
+      payload
+    );
+
+    console.log("PRODUCT UNAVAILABILITY RESPONSE:", response.data);
+
+    return response.data;
+  } catch (error) {
+    console.error(
+      "SET PRODUCT UNAVAILABLE ERROR:",
+      error.response?.status,
+      error.response?.data || error.message
+    );
+
+    throw error;
+  }
+};
+
+
+// ============================================================
+// RESTORE AVAILABILITY
+// Used when toggling FOOD/PRODUCT or OUTLET back ON
+// ============================================================
+
+export const restoreUnavailability = async (
+  type,
+  unavailabilityId,
+  reason
+) => {
+  try {
+    const payload = {
+      type: type,
+      unavailabilityId: Number(unavailabilityId),
+      reason: reason?.trim() || "stock restored",
+    };
+
+    console.log(
+      "RESTORE UNAVAILABILITY PAYLOAD:",
+      JSON.stringify(payload, null, 2)
+    );
+
+    const response = await api.patch(
+      "/api/fm/outlet-unavailability/restore",
+      payload
+    );
+
+    console.log(
+      "RESTORE UNAVAILABILITY RESPONSE:",
+      response.data
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error(
+      "RESTORE UNAVAILABILITY ERROR:",
+      error.response?.status,
+      error.response?.data || error.message
+    );
+
+    throw error;
+  }
+};
+
+export const restoreProductUnavailable = async (
+  productId,
+  reason = "stock restored"
+) => {
+  try {
+    const payload = {
+      type: "PRODUCT",
+      unavailabilityId: Number(productId),
+      reason: reason?.trim() || "stock restored",
+    };
+
+    console.log(
+      "RESTORE PRODUCT UNAVAILABILITY PAYLOAD:",
+      JSON.stringify(payload, null, 2)
+    );
+
+    const response = await api.patch(
+      "/api/fm/outlet-unavailability/restore",
+      payload
+    );
+
+    console.log(
+      "RESTORE PRODUCT UNAVAILABILITY RESPONSE:",
+      response.data
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error(
+      "RESTORE PRODUCT UNAVAILABILITY ERROR:",
+      error.response?.status,
+      error.response?.data || error.message
+    );
+
+    throw error;
+  }
+};
+
+
+
+
+
+// ============================================================
+// RESTORE OUTLET AVAILABILITY
+// OFF → ON
+// ============================================================
+
+export const restoreOutletUnavailability = async (outletId) => {
+  try {
+    const payload = {
+      type: "OUTLET",
+      unavailabilityId: Number(outletId),
+      reason: "outlet restored",
+    };
+
+    console.log(
+      "RESTORE OUTLET UNAVAILABILITY PAYLOAD:",
+      JSON.stringify(payload, null, 2)
+    );
+
+    const response = await api.patch(
+      "/api/fm/outlet-unavailability/restore",
+      payload
+    );
+
+    console.log(
+      "RESTORE OUTLET UNAVAILABILITY RESPONSE:",
+      response.data
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error(
+      "RESTORE OUTLET UNAVAILABILITY ERROR:",
+      error.response?.status,
+      error.response?.data || error.message
+    );
+
+    throw error;
+  }
+};
+
+
+
+// ============================================================
+// SET CATEGORY UNAVAILABLE
+// ============================================================
+export const setCategoryUnavailable = async (
+  categoryId,
+  fromDate,
+  toDate,
+  reason = "Category unavailable"
+) => {
+  try {
+    const formatDateTime = (value) => {
+      if (!value) return null;
+
+      return value.length === 16
+        ? `${value}:00`
+        : value.substring(0, 19);
+    };
+
+    const payload = {
+      type: "OUTLET_CATEGORY",
+      unavailabilityId: Number(categoryId),
+      unavailabilityFromDate: formatDateTime(fromDate),
+      unavailabilityToDate: formatDateTime(toDate),
+      reason: reason?.trim() || "Category unavailable",
+    };
+
+    console.log(
+      "CATEGORY UNAVAILABILITY PAYLOAD:",
+      JSON.stringify(payload, null, 2)
+    );
+
+    const response = await api.post(
+      "/api/fm/outlet-unavailability",
+      payload
+    );
+
+    console.log(
+      "CATEGORY UNAVAILABILITY RESPONSE:",
+      response.data
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error(
+      "SET CATEGORY UNAVAILABLE ERROR:",
+      error.response?.status,
+      error.response?.data || error.message
+    );
+
+    throw error;
+  }
+};
+
+// ============================================================
+// RESTORE CATEGORY UNAVAILABILITY
+// ============================================================
+export const restoreCategoryUnavailable = async (categoryId) => {
+  try {
+    const payload = {
+      type: "OUTLET_CATEGORY",
+      unavailabilityId: Number(categoryId),
+      reason: "category restored",
+    };
+
+    console.log(
+      "RESTORE CATEGORY UNAVAILABILITY PAYLOAD:",
+      JSON.stringify(payload, null, 2)
+    );
+
+    const response = await api.patch(
+      "/api/fm/outlet-unavailability/restore",
+      payload
+    );
+
+    console.log(
+      "CATEGORY RESTORE RESPONSE:",
+      response.data
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error(
+      "RESTORE CATEGORY UNAVAILABILITY ERROR:",
+      error.response?.status,
+      error.response?.data || error.message
+    );
+
+>>>>>>> Stashed changes
     throw error;
   }
 };
