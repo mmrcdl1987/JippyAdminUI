@@ -453,7 +453,6 @@ function RolesPermissions() {
 
           {/* Search bar for permissions */}
           <div className="roles-search-container">
-
             <FaSearch className="roles-search-icon" />
             <input
               type="text"
@@ -462,11 +461,7 @@ function RolesPermissions() {
               value={searchPermission}
               onChange={(e) => setSearchPermission(e.target.value)}
             />
-
-  
-</div>
-
-      
+          </div>
 
           {/* TABLE CONTAINER FOR SCROLLBAR */}
           <div className="permission-table-wrapper">
@@ -478,70 +473,90 @@ function RolesPermissions() {
                   <th>Action</th>
                 </tr>
               </thead>
-              
+              <tbody>
+                {filteredPermissions.length > 0 ? (
+                  filteredPermissions.map((permission) => (
+                    <tr key={permission.permissionId}>
+                      <td>{permission.permissionId}</td>
+                      <td>{permission.permissionName}</td>
+                      <td>
+                        <div className="table-actions">
+                          {hasPermission("ROLE_UPDATE") && (
+                            <button
+                              className="action-btn edit-action"
+                              onClick={() => {
+                                setSelectedPermission(permission);
+                                setPermissionName(permission.permissionName);
+                                setIsPermissionEditMode(true);
+                                setShowPermissionCrudModal(true);
+                              }}
+                            >
+                              <FaEdit />
+                            </button>
+                          )}
 
-                <tbody>
-  {filteredPermissions.length > 0 ? (
-    filteredPermissions.map((permission) => (
-      <tr key={permission.permissionId}>
-        <td>{permission.permissionId}</td>
-
-        <td>{permission.permissionName}</td>
-
-        <td>
-          <div className="table-actions">
-
-            {hasPermission("ROLE_UPDATE") && (
-              <button
-                className="action-btn edit-action"
-                onClick={() => {
-                  setSelectedPermission(permission);
-                  setPermissionName(permission.permissionName);
-                  setIsPermissionEditMode(true);
-                  setShowPermissionCrudModal(true);
-                }}
-              >
-                <FaEdit />
-              </button>
-            )}
-
-            {hasPermission("ROLE_DELETE") && (
-              <button
-                className="action-btn delete-action"
-                onClick={() =>
-                  deletePermission(permission.permissionId)
-                }
-              >
-                <FaTrash />
-              </button>
-            )}
-
-          </div>
-        </td>
-      </tr>
-    ))
-  ) : (
-    <tr>
-      <td colSpan="3" style={{ textAlign: "center", padding: "20px" }}>
-        No Permissions Found
-      </td>
-    </tr>
-  )}
-</tbody>
+                          {hasPermission("ROLE_DELETE") && (
+                            <button
+                              className="action-btn delete-action"
+                              onClick={() =>
+                                deletePermission(permission.permissionId)
+                              }
+                            >
+                              <FaTrash />
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="3" style={{ textAlign: "center", padding: "20px" }}>
+                      No Permissions Found
+                    </td>
+                  </tr>
+                )}
+              </tbody>
             </table>
           </div>
-          
         </div>
       )}
 
       {/* MODAL: MANAGE ROLE PERMISSIONS */}
       {showPermissionModal && (
         <div className="modal-overlay">
-          <div className="permission-modal">
-            
+          <div className="permission-modal" style={{ maxWidth: "500px", width: "100%" }}>
+            <div className="modal-header">
+              <h3>Manage Permissions for "{selectedRole?.roleName}"</h3>
+              <button onClick={() => setShowPermissionModal(false)}>✖</button>
+            </div>
+
+            <div className="permissions-checkbox-list" style={{ maxHeight: "300px", overflowY: "auto", margin: "15px 0", textAlign: "left" }}>
+              {allPermissions.map((permission) => {
+                const isChecked = selectedPermissions.includes(permission.permissionId);
+                return (
+                  <label key={permission.permissionId} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "8px 0", cursor: "pointer" }}>
+                    <input
+                      type="checkbox"
+                      checked={isChecked}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelectedPermissions([...selectedPermissions, permission.permissionId]);
+                        } else {
+                          setSelectedPermissions(
+                            selectedPermissions.filter((id) => id !== permission.permissionId)
+                          );
+                        }
+                      }}
+                    />
+                    <span>{permission.permissionName}</span>
+                  </label>
+                );
+              })}
+            </div>
 
             {hasPermission("ROLE_UPDATE") && (
-              <button className="save-btn" onClick={savePermissions}>
+              <button className="save-btn" onClick={savePermissions} style={{ width: "100%" }}>
                 Save Permissions
               </button>
             )}

@@ -12,6 +12,7 @@ import BannerDesigner from "../pages/BannerDesigner";
 import BannerDesignerEdit from "../pages/BannerDesignerEdit";
 import PlanCampaign from "../pages/PlanCampaign";
 import ProductPriceUpdate from "../pages/ProductPriceUpdate";
+import ResetPassword from "../pages/ResetPassword";
 
 import Merchants from "../pages/Merchants/Merchants";
 import EditMerchant from "../pages/Merchants/EditMerchant";
@@ -64,6 +65,39 @@ import ApprovalTransactions from "../pages/ApprovalTransactions";
 
 
 export const pageRegistry = {
+
+  // =========================
+  // AUTH / RESET PASSWORD (All variations covered)
+  // =========================
+
+  "reset-password": {
+    component: ResetPassword,
+    permission: null, 
+  },
+  "ResetPassword": {
+    component: ResetPassword,
+    permission: null, 
+  },
+  "reset password": {
+    component: ResetPassword,
+    permission: null, 
+  },
+  "reset%20password": {
+    component: ResetPassword,
+    permission: null, 
+  },
+  "forgot-password": {
+    component: ResetPassword,
+    permission: null, 
+  },
+  "forgot password": {
+    component: ResetPassword,
+    permission: null, 
+  },
+  "forgot%20password": {
+    component: ResetPassword,
+    permission: null, 
+  },
 
   // =========================
   // APPROVALS
@@ -368,21 +402,6 @@ export const pageRegistry = {
   driverSettings: {
     component: DriverSettings,
     permission: "SETTINGS_READ",
-},
-
-
-merchantAddVariants: {
-    component: MerchantAddVariants,
-    permission: "RESTAURANT_READ", // Change to null if permission issues persist
   },
 
-
-createMerchant: {
-  component: CreateMerchant,
-  permission: "VENDOR_READ",
-},
-
-
 };
-
-

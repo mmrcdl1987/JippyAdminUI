@@ -36,7 +36,7 @@ function DeliveryCharge() {
     serviceTypes: [],
     vehicleTypes: [],
     fuelTypes: [],
-    chargeTypes: [],
+    chargeTypes: ["pickup", "delivery"], // Explicitly restricted to these two options
     deliveryTypes: [],
     driverTypes: [],
     zoneIds: []
@@ -47,7 +47,7 @@ function DeliveryCharge() {
     kmsRangeFrom: "",
     kmsRangeTo: "",
     unitPricePerKm: "",
-    chargeType: "",
+    chargeType: "pickup", // Default to pickup
     deliveryType: "",
     driverType: "",
     serviceType: "",
@@ -111,12 +111,15 @@ function DeliveryCharge() {
 
       setRules(formattedRules);
 
-      // Dynamically map all unique fields from existing data to power selects
+      // Dynamically map all unique fields, ensuring chargeTypes always includes 'pickup' and 'delivery'
+      const fetchedChargeTypes = [...new Set(pageContent.map((item) => item.chargeType).filter(Boolean))];
+      const combinedChargeTypes = Array.from(new Set(["pickup", "delivery", ...fetchedChargeTypes]));
+
       setDropdownOptions({
         serviceTypes: [...new Set(pageContent.map((item) => item.serviceType).filter(Boolean))],
         vehicleTypes: [...new Set(pageContent.map((item) => item.vehicleType).filter(Boolean))],
         fuelTypes: [...new Set(pageContent.map((item) => item.fuelType).filter(Boolean))],
-        chargeTypes: [...new Set(pageContent.map((item) => item.chargeType).filter(Boolean))],
+        chargeTypes: combinedChargeTypes,
         deliveryTypes: [...new Set(pageContent.map((item) => item.deliveryType).filter(Boolean))],
         driverTypes: [...new Set(pageContent.map((item) => item.driverType).filter(Boolean))],
         zoneIds: [...new Set(pageContent.map((item) => item.zoneId).filter((val) => val !== null && val !== undefined))]
@@ -138,7 +141,7 @@ function DeliveryCharge() {
     const currentUserId = getLoggedInUserId();
     setFormData({
       ...emptyForm,
-      chargeType: dropdownOptions.chargeTypes[0] || "PER_KM",
+      chargeType: "pickup", // Explicitly default to pickup
       deliveryType: dropdownOptions.deliveryTypes[0] || "STANDARD",
       driverType: dropdownOptions.driverTypes[0] || "FULL_TIME",
       serviceType: dropdownOptions.serviceTypes[0] || "",
@@ -160,7 +163,7 @@ function DeliveryCharge() {
       kmsRangeFrom: rule.kmsRangeFrom ?? "",
       kmsRangeTo: rule.kmsRangeTo ?? "",
       unitPricePerKm: rule.unitPricePerKm ?? "",
-      chargeType: rule.chargeType || "",
+      chargeType: rule.chargeType || "pickup",
       deliveryType: rule.deliveryType || "",
       driverType: rule.driverType || "",
       serviceType: rule.serviceType || "",
@@ -659,8 +662,8 @@ function DeliveryCharge() {
 
                   <div className="pricing-grid-3" style={{ marginTop: "16px" }}>
                     <div className="jmart-field-group">
-                      <label className="jmart-label">Charge Type</label>
-                      <select className="jmart-select" style={{ width: "100%" }} name="chargeType" value={formData.chargeType} onChange={handleInputChange}>
+                      <label className="jmart-label">Charge Type <span className="req">*</span></label>
+                      <select className="jmart-select" style={{ width: "100%" }} name="chargeType" value={formData.chargeType} onChange={handleInputChange} required>
                         <option value="">Select Charge Type</option>
                         {dropdownOptions.chargeTypes.map((c, i) => <option key={i} value={c}>{c}</option>)}
                       </select>
@@ -727,13 +730,13 @@ function DeliveryCharge() {
                     <div className="jmart-field-group">
                       <label className="jmart-label">Status</label>
                       <select className="jmart-select" style={{ width: "100%" }} name="status" value={formData.status} onChange={handleInputChange}>
-                        {STATUS_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
+                        {STATUS_OPTIONS.map((st, i) => <option key={i} value={st}>{st}</option>)}
                       </select>
                     </div>
                   </div>
                 </div>
 
-                <div className="form-action-buttons">
+                <div style={{ marginTop: "20px", display: "flex", justifyContent: "flex-end", gap: "10px" }}>
                   <button type="button" className="jmart-btn-secondary" onClick={() => setIsDrawerOpen(false)}>
                     Cancel
                   </button>
@@ -742,27 +745,6 @@ function DeliveryCharge() {
                   </button>
                 </div>
               </form>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {deleteTarget && (
-        <div className="jmart-modal-backdrop" onClick={() => setDeleteTarget(null)}>
-          <div className="jmart-modal-dialog" onClick={(e) => e.stopPropagation()}>
-            <div className="warning-circle">&#9888;</div>
-            <h3>Delete Rule</h3>
-            <p>
-              Are you sure you want to delete rule #{deleteTarget.deliveryChargeSettingId}?
-              This action cannot be undone.
-            </p>
-            <div className="modal-btns">
-              <button className="jmart-btn-secondary" onClick={() => setDeleteTarget(null)} disabled={actionLoading}>
-                Cancel
-              </button>
-              <button className="jmart-btn-danger" onClick={handleConfirmDelete} disabled={actionLoading}>
-                {actionLoading ? "Deleting..." : "Delete"}
-              </button>
             </div>
           </div>
         </div>

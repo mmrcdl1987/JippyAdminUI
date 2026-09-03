@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { FM_API } from "../services/api";
 import { hasPermission } from "../utils/permissionUtils";
@@ -19,27 +20,39 @@ function AdminUsers() {
   const [users, setUsers] = useState([]);
   const [search, setSearch] = useState("");
 
-  const [activeTab, setActiveTab] =
-    useState("list");
+  const [activeTab, setActiveTab] = useState("list");
 
-  const [showRoleModal, setShowRoleModal] =
-    useState(false);
+  const [showRoleModal, setShowRoleModal] = useState(false);
 
-  const [selectedUser, setSelectedUser] =
-    useState(null);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [selectedRoleIds, setSelectedRoleIds] = useState([]);
 
+  const [loadingRoles, setLoadingRoles] = useState(false);
+
+  /*
+   * Load users when page loads.
+   *
+   * Roles are intentionally NOT loaded here.
+   * Roles will be loaded when "Assign Role" is clicked.
+   */
   useEffect(() => {
     loadUsers();
-    loadRoles();
   }, []);
 
+  /*
+   * Load all users
+   */
   const loadUsers = async () => {
     try {
 
       const response =
         await FM_API.get("/api/fm/users/all");
 
-      setUsers(response.data);
+      setUsers(
+        Array.isArray(response.data)
+          ? response.data
+          : []
+      );
 
     } catch (error) {
 
@@ -50,13 +63,27 @@ function AdminUsers() {
     }
   };
 
+  /*
+   * Load all available roles
+   *
+   * API:
+   * GET http://localhost:8084/api/fm/roles
+   */
   const loadRoles = async () => {
+
     try {
 
       const response =
         await FM_API.get("/api/fm/roles");
 
-      setRoles(response.data);
+      const allRoles =
+        Array.isArray(response.data)
+          ? response.data
+          : [];
+
+      setRoles(allRoles);
+
+      return allRoles;
 
     } catch (error) {
 
@@ -64,46 +91,119 @@ function AdminUsers() {
         "Role Load Error:",
         error
       );
+
+      throw error;
     }
   };
 
-
+  /*
+   * Reset create employee form
+   */
   const handleCancel = () => {
+
     setEmployeeName("");
     setEmail("");
     setMobileNumber("");
     setUsername("");
     setPassword("");
 
-    setActiveTab("list");   // Go back to Admin List
+    setActiveTab("list");
   };
+
+  /*
+   * Open Assign Role Modal
+   *
+   * When Assign Role is clicked:
+   *
+   * 1. Select the user
+   * 2. Load ALL roles
+   * 3. Load user's existing roles
+   * 4. Open the modal
+   */
   const openRoleModal = async (user) => {
 
     try {
 
+      setLoadingRoles(true);
+
       setSelectedUser(user);
 
-      const response =
+      /*
+       * Load ALL roles.
+       *
+       * GET:
+       * http://localhost:8084/api/fm/roles
+       */
+      const rolesResponse =
+        await FM_API.get("/api/fm/roles");
+
+      const allRoles =
+        Array.isArray(rolesResponse.data)
+          ? rolesResponse.data
+          : [];
+
+      setRoles(allRoles);
+
+      /*
+       * Load roles already assigned
+       * to the selected user.
+       */
+      const userRolesResponse =
         await FM_API.get(
           `/api/fm/users/${user.usersId}/roles`
         );
+
+      const assignedRoleIds =
+        Array.isArray(userRolesResponse.data)
+          ? userRolesResponse.data.map(
+              (id) => Number(id)
+            )
+          : [];
+
       setSelectedRoleIds(
-        response.data
+        assignedRoleIds
       );
 
+      /*
+       * Open modal after both APIs
+       * are successfully completed.
+       */
       setShowRoleModal(true);
 
     } catch (error) {
 
-      console.error(error);
+      console.error(
+        "Assign Role Modal Load Error:",
+        error
+      );
+
+      setSelectedUser(null);
+      setSelectedRoleIds([]);
 
       alert(
-        "Failed To Load User Roles"
+        error.response?.data ||
+        "Failed To Load Roles"
       );
+
+    } finally {
+
+      setLoadingRoles(false);
     }
   };
 
+  /*
+   * Assign selected roles to user
+   */
   const assignRole = async () => {
+
+    if (!selectedUser) {
+
+      alert(
+        "Please Select User"
+      );
+
+      return;
+    }
 
     if (selectedRoleIds.length === 0) {
 
@@ -121,8 +221,11 @@ function AdminUsers() {
         {
           userId:
             selectedUser.usersId,
+
           roleIds:
-            selectedRoleIds.map(Number)
+            selectedRoleIds.map(
+              (id) => Number(id)
+            )
         }
       );
 
@@ -130,8 +233,21 @@ function AdminUsers() {
         "Role Assigned Successfully"
       );
 
+      /*
+       * Close modal
+       */
       setShowRoleModal(false);
 
+      /*
+       * Clear selected data
+       */
+      setSelectedUser(null);
+      setSelectedRoleIds([]);
+
+      /*
+       * Reload users so the
+       * updated role is displayed.
+       */
       loadUsers();
 
     } catch (error) {
@@ -147,74 +263,74 @@ function AdminUsers() {
       );
     }
   };
-  //   const saveEmployee = async () => {
 
-  //   try {
-
-  //     await FM_API.post(
-  //   "/api/fm/users/createEmployee",
-  //       {
-  //         employeeName,
-  //         email,
-  //         mobileNumber,
-  //         username,
-  //         password
-  //       }
-  //     );
-
-  //     alert("Employee Created Successfully");
-
-
-  //     loadUsers();
-
-  //       setActiveTab("list"); 
-
-  //   } catch (error) {
-
-  //     console.error(error);
-
-  //     alert("Failed To Create Employee");
-  //   }
-  // };
-
-
+  /*
+   * Create employee admin
+   */
   const saveEmployee = async () => {
+
     try {
-      const response = await FM_API.post(
+
+      await FM_API.post(
         "/api/fm/users/createEmployee",
         {
           employeeName,
           email,
           mobileNumber,
           username,
-          password,
+          password
         }
       );
 
+      alert(
+        "Employee Created Successfully"
+      );
 
-
-      alert("Employee Created Successfully");
-
+      /*
+       * Reload users
+       */
       loadUsers();
 
+      /*
+       * Clear form
+       */
+      setEmployeeName("");
+      setEmail("");
+      setMobileNumber("");
+      setUsername("");
+      setPassword("");
+
+      /*
+       * Go back to admin list
+       */
       setActiveTab("list");
 
     } catch (error) {
-      console.error(error);
 
+      console.error(
+        "Create Employee Error:",
+        error
+      );
 
-      alert(error.response?.data || "Failed To Create Employee");
+      alert(
+        error.response?.data ||
+        "Failed To Create Employee"
+      );
     }
   };
+
+  /*
+   * Search users
+   */
   const filteredUsers =
     Array.isArray(users)
       ? users.filter((user) =>
-        user.username
-          ?.toLowerCase()
-          .includes(
-            search.toLowerCase()
-          )
-      )
+          user.username
+            ?.toLowerCase()
+            .includes(
+              search.toLowerCase()
+            )
+        )
       : [];
 
   return (
@@ -225,7 +341,13 @@ function AdminUsers() {
         Admin Users
       </h2>
 
+      {/* =========================
+          TABS
+      ========================== */}
+
       <div className="tabs">
+
+        {/* Admin List */}
 
         <button
           className={
@@ -240,10 +362,13 @@ function AdminUsers() {
           📋 Admin List
         </button>
 
+        {/* Create Admin */}
+
         {
           hasPermission(
             "ADMIN_USER_CREATE"
           ) && (
+
             <button
               className={
                 activeTab === "create"
@@ -256,132 +381,194 @@ function AdminUsers() {
             >
               ➕ Create Admin
             </button>
+
           )
         }
 
       </div>
 
-      {activeTab === "list" && (
+      {/* =========================
+          ADMIN LIST
+      ========================== */}
 
-        <div>
+      {
+        activeTab === "list" && (
 
-          <div className="search-box">
+          <div>
 
-            <input
-              type="text"
-              placeholder="Search User..."
-              value={search}
-              onChange={(e) =>
-                setSearch(
-                  e.target.value
-                )
-              }
-            />
+            {/* Search */}
 
-          </div>
+            <div className="search-box">
 
-          <table className="admin-table">
+              <input
+                type="text"
+                placeholder="Search User..."
+                value={search}
+                onChange={(e) =>
+                  setSearch(
+                    e.target.value
+                  )
+                }
+              />
 
-            <thead>
+            </div>
 
-              <tr>
-                <th>Username</th>
-                <th>User Type</th>
-                <th>Role</th>
-                <th>Actions</th>
-              </tr>
+            {/* Users Table */}
 
-            </thead>
+            <table className="admin-table">
 
-            <tbody>
+              <thead>
 
-              {filteredUsers.length > 0 ? (
+                <tr>
 
-                filteredUsers.map(
-                  (user) => (
+                  <th>
+                    Username
+                  </th>
 
-                    <tr
-                      key={
-                        user.usersId
-                      }
-                    >
+                  <th>
+                    User Type
+                  </th>
 
-                      <td>
-                        {user.username}
-                      </td>
+                  <th>
+                    Role
+                  </th>
 
-                      <td>
-                        {user.userType}
-                      </td>
+                  <th>
+                    Actions
+                  </th>
 
-                      <td>
-                        {user.roleName ||
-                          "-"}
-                      </td>
+                </tr>
 
-                      <td>
+              </thead>
 
-                        <div className="action-buttons">
+              <tbody>
 
-                          {hasPermission("ADMIN_USER_UPDATE") && (
-                            <button
-                              className="assign-role-btn"
-                              onClick={() => openRoleModal(user)}
-                            >
-                              Assign Role
-                            </button>
-                          )}
+                {
+                  filteredUsers.length > 0 ? (
 
-                          <button
-                            className="edit-user-btn"
-                            onClick={() => editUser(user)}
-                          >
-                            Edit
-                          </button>
+                    filteredUsers.map(
+                      (user) => (
 
-                          <button
-                            className="delete-user-btn"
-                            onClick={() => deleteUser(user.usersId)}
-                          >
-                            Delete
-                          </button>
+                        <tr
+                          key={
+                            user.usersId
+                          }
+                        >
 
-                        </div>
+                          {/* Username */}
 
+                          <td>
+                            {user.username}
+                          </td>
+
+                          {/* User Type */}
+
+                          <td>
+                            {user.userType}
+                          </td>
+
+                          {/* Role */}
+
+                          <td>
+                            {
+                              user.roleName ||
+                              "-"
+                            }
+                          </td>
+
+                          {/* Actions */}
+
+                          <td>
+
+                            <div className="action-buttons">
+
+                              {/* Assign Role */}
+
+                              {
+                                hasPermission(
+                                  "ADMIN_USER_UPDATE"
+                                ) && (
+
+                                  <button
+                                    className="assign-role-btn"
+                                    onClick={() =>
+                                      openRoleModal(
+                                        user
+                                      )
+                                    }
+                                  >
+                                    Assign Role
+                                  </button>
+
+                                )
+                              }
+
+                              {/* Edit */}
+
+                              <button
+                                className="edit-user-btn"
+                                onClick={() =>
+                                  editUser(user)
+                                }
+                              >
+                                Edit
+                              </button>
+
+                              {/* Delete */}
+
+                              <button
+                                className="delete-user-btn"
+                                onClick={() =>
+                                  deleteUser(
+                                    user.usersId
+                                  )
+                                }
+                              >
+                                Delete
+                              </button>
+
+                            </div>
+
+                          </td>
+
+                        </tr>
+
+                      )
+                    )
+
+                  ) : (
+
+                    <tr>
+
+                      <td
+                        colSpan="4"
+                        style={{
+                          textAlign:
+                            "center",
+                          padding:
+                            "20px"
+                        }}
+                      >
+                        No Users Found
                       </td>
 
                     </tr>
 
                   )
-                )
+                }
 
-              ) : (
+              </tbody>
 
-                <tr>
+            </table>
 
-                  <td
-                    colSpan="4"
-                    style={{
-                      textAlign:
-                        "center",
-                      padding:
-                        "20px"
-                    }}
-                  >
-                    No Users Found
-                  </td>
+          </div>
 
-                </tr>
+        )
+      }
 
-              )}
-
-            </tbody>
-
-          </table>
-
-        </div>
-
-      )}
+      {/* =========================
+          CREATE ADMIN
+      ========================== */}
 
       {
         activeTab === "create" &&
@@ -391,71 +578,120 @@ function AdminUsers() {
 
           <div className="create-admin-card">
 
-            <h3>Create Employee Admin</h3>
+            <h3>
+              Create Employee Admin
+            </h3>
 
             <div className="form-grid">
 
+              {/* Employee Name */}
+
               <div className="form-group">
-                <label>Employee Name</label>
+
+                <label>
+                  Employee Name
+                </label>
+
                 <input
                   type="text"
                   placeholder="Enter employee name"
                   value={employeeName}
                   onChange={(e) =>
-                    setEmployeeName(e.target.value)
+                    setEmployeeName(
+                      e.target.value
+                    )
                   }
                 />
+
               </div>
 
+              {/* Email */}
+
               <div className="form-group">
-                <label>Email</label>
+
+                <label>
+                  Email
+                </label>
+
                 <input
                   type="email"
                   placeholder="Enter email"
                   value={email}
                   onChange={(e) =>
-                    setEmail(e.target.value)
+                    setEmail(
+                      e.target.value
+                    )
                   }
                 />
+
               </div>
 
+              {/* Mobile Number */}
+
               <div className="form-group">
-                <label>Mobile Number</label>
+
+                <label>
+                  Mobile Number
+                </label>
+
                 <input
                   type="text"
                   placeholder="Enter mobile number"
                   value={mobileNumber}
                   onChange={(e) =>
-                    setMobileNumber(e.target.value)
+                    setMobileNumber(
+                      e.target.value
+                    )
                   }
                 />
+
               </div>
 
+              {/* Username */}
+
               <div className="form-group">
-                <label>Username</label>
+
+                <label>
+                  Username
+                </label>
+
                 <input
                   type="text"
                   placeholder="Enter username"
                   value={username}
                   onChange={(e) =>
-                    setUsername(e.target.value)
+                    setUsername(
+                      e.target.value
+                    )
                   }
                 />
+
               </div>
 
+              {/* Password */}
+
               <div className="form-group">
-                <label>Password</label>
+
+                <label>
+                  Password
+                </label>
+
                 <input
                   type="password"
                   placeholder="Enter password"
                   value={password}
                   onChange={(e) =>
-                    setPassword(e.target.value)
+                    setPassword(
+                      e.target.value
+                    )
                   }
                 />
+
               </div>
 
             </div>
+
+            {/* Create Buttons */}
 
             <div className="button-container">
 
@@ -473,6 +709,256 @@ function AdminUsers() {
                 Create Employee
               </button>
 
+            </div>
+
+          </div>
+
+        )
+      }
+
+      {/* =========================
+          ASSIGN ROLE MODAL
+      ========================== */}
+
+      {
+        showRoleModal && (
+
+          <div className="modal-overlay">
+
+            <div className="permission-modal">
+
+              {/* Modal Header */}
+
+              <div className="modal-header">
+
+                <h3>
+                  Assign Role
+                </h3>
+
+                <button
+                  className="close-btn"
+                  onClick={() => {
+
+                    setShowRoleModal(false);
+
+                    setSelectedUser(null);
+
+                    setSelectedRoleIds([]);
+
+                  }}
+                >
+                  ✖
+                </button>
+
+              </div>
+
+              <div className="create-form">
+
+                {/* Selected Username */}
+
+                <input
+                  type="text"
+                  value={
+                    selectedUser?.username ||
+                    ""
+                  }
+                  disabled
+                />
+
+                {/* Selected User Type */}
+
+                <input
+                  type="text"
+                  value={
+                    selectedUser?.userType ||
+                    ""
+                  }
+                  disabled
+                />
+
+                {/* =====================
+                    ROLES TABLE / LIST
+                ====================== */}
+
+                <div className="role-checkbox-container">
+
+                  {/* Loading */}
+
+                  {
+                    loadingRoles ? (
+
+                      <div
+                        style={{
+                          textAlign: "center",
+                          padding: "20px"
+                        }}
+                      >
+                        Loading Roles...
+                      </div>
+
+                    ) : roles.length > 0 ? (
+
+                      roles.map(
+                        (role) => {
+
+                          const roleId =
+                            Number(
+                              role.roleId
+                            );
+
+                          const isSelected =
+                            selectedRoleIds.includes(
+                              roleId
+                            );
+
+                          return (
+
+                            <div
+                              key={
+                                role.roleId
+                              }
+                              className="role-checkbox-item"
+                            >
+
+                              {/* Checkbox */}
+
+                              <input
+                                type="checkbox"
+                                id={`role-${role.roleId}`}
+                                checked={
+                                  isSelected
+                                }
+                                onChange={(e) => {
+
+                                  if (
+                                    e.target.checked
+                                  ) {
+
+                                    /*
+                                     * Add role ID
+                                     */
+                                    setSelectedRoleIds(
+                                      (
+                                        previousIds
+                                      ) => {
+
+                                        if (
+                                          previousIds.includes(
+                                            roleId
+                                          )
+                                        ) {
+
+                                          return previousIds;
+
+                                        }
+
+                                        return [
+                                          ...previousIds,
+                                          roleId
+                                        ];
+
+                                      }
+                                    );
+
+                                  } else {
+
+                                    /*
+                                     * Remove role ID
+                                     */
+                                    setSelectedRoleIds(
+                                      (
+                                        previousIds
+                                      ) =>
+                                        previousIds.filter(
+                                          (id) =>
+                                            id !==
+                                            roleId
+                                        )
+                                    );
+
+                                  }
+
+                                }}
+                              />
+
+                              {/* Role Name */}
+
+                              <label
+                                htmlFor={`role-${role.roleId}`}
+                              >
+                                {
+                                  role.roleName
+                                }
+                              </label>
+
+                            </div>
+
+                          );
+
+                        }
+                      )
+
+                    ) : (
+
+                      <div
+                        style={{
+                          textAlign: "center",
+                          padding: "20px"
+                        }}
+                      >
+                        No Roles Found
+                      </div>
+
+                    )
+                  }
+
+                </div>
+
+                {/* Selected Role Count */}
+
+                {
+                  !loadingRoles &&
+                  roles.length > 0 && (
+
+                    <div
+                      style={{
+                        marginTop: "10px",
+                        marginBottom: "10px"
+                      }}
+                    >
+                      Selected Roles:{" "}
+                      {
+                        selectedRoleIds.length
+                      }
+                    </div>
+
+                  )
+                }
+
+                {/* Save Role */}
+
+                {
+                  hasPermission(
+                    "ADMIN_USER_UPDATE"
+                  ) && (
+
+                    <button
+                      onClick={
+                        assignRole
+                      }
+                      disabled={
+                        loadingRoles ||
+                        selectedRoleIds.length ===
+                        0
+                      }
+                    >
+                      Save Role
+                    </button>
+
+                  )
+                }
+
+              </div>
 
             </div>
 
@@ -481,133 +967,10 @@ function AdminUsers() {
         )
       }
 
-      {showRoleModal && (
-
-        <div className="modal-overlay">
-
-          <div className="permission-modal">
-
-            <div className="modal-header">
-
-              <h3>
-                Assign Role
-              </h3>
-
-              <button
-                className="close-btn"
-                onClick={() =>
-                  setShowRoleModal(
-                    false
-                  )
-                }
-              >
-                ✖
-              </button>
-
-
-            </div>
-
-            <div className="create-form">
-
-              <input
-                type="text"
-                value={
-                  selectedUser?.username ||
-                  ""
-                }
-                disabled
-              />
-
-              <input
-                type="text"
-                value={
-                  selectedUser?.userType ||
-                  ""
-                }
-                disabled
-              />
-
-              <div className="role-checkbox-container">
-
-                {roles.map((role) => (
-
-                  <div
-                    key={role.roleId}
-                    className="role-checkbox-item"
-                  >
-
-                    <input
-                      type="checkbox"
-                      id={`role-${role.roleId}`}
-                      checked={
-                        selectedRoleIds.includes(
-                          role.roleId
-                        )
-                      }
-                      onChange={(e) => {
-
-                        if (
-                          e.target.checked
-                        ) {
-
-                          setSelectedRoleIds([
-                            ...selectedRoleIds,
-                            role.roleId
-                          ]);
-
-                        } else {
-
-                          setSelectedRoleIds(
-                            selectedRoleIds.filter(
-                              id =>
-                                id !== role.roleId
-                            )
-                          );
-
-                        }
-
-                      }}
-                    />
-
-                    <label
-                      htmlFor={`role-${role.roleId}`}
-                    >
-                      {role.roleName}
-                    </label>
-
-                  </div>
-
-                ))}
-
-              </div>
-
-              {
-                hasPermission(
-                  "ADMIN_USER_UPDATE"
-                ) && (
-
-                  <button
-                    onClick={
-                      assignRole
-                    }
-                  >
-                    Save Role
-                  </button>
-
-                )
-              }
-
-            </div>
-
-          </div>
-
-        </div>
-
-      )}
-
     </div>
 
   );
 }
 
 export default AdminUsers;
+

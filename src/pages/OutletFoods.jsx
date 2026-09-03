@@ -44,6 +44,10 @@ function OutletFoods({
   const [foodPage, setFoodPage] =
     useState(1);
 
+  // Added P/PV Toggle State (false = P, true = PV)
+  const [isPvToggle, setIsPvToggle] =
+    useState(false);
+
   // ============================================================
   // GET SELECTED OUTLET ID
   // ============================================================
@@ -252,20 +256,32 @@ function OutletFoods({
   ]);
 
   // ============================================================
-  // SEARCH / FILTER
+  // SEARCH / FILTER / TOGGLE
   // ============================================================
 
   const filteredFoods = useMemo(() => {
+    let result = allFoods;
+
+    // Filter based on P/PV toggle state
+    if (isPvToggle) {
+      result = result.filter(
+        (food) =>
+          food?.hasProductVariants === true ||
+          food?.hasProductVariants === "true" ||
+          (Array.isArray(food?.variants) && food.variants.length > 0)
+      );
+    }
+
     const search =
       foodSearch
         .trim()
         .toLowerCase();
 
     if (!search) {
-      return allFoods;
+      return result;
     }
 
-    return allFoods.filter(
+    return result.filter(
       (food) => {
         const productId =
           String(
@@ -298,6 +314,7 @@ function OutletFoods({
   }, [
     allFoods,
     foodSearch,
+    isPvToggle,
   ]);
 
   // ============================================================
@@ -342,6 +359,7 @@ function OutletFoods({
   }, [
     foodSearch,
     foodEntries,
+    isPvToggle,
   ]);
 
   // ============================================================
@@ -604,8 +622,54 @@ function OutletFoods({
           </p>
         </div>
 
-        <div className="jippy-outlet-foods-count-badge">
-          {allFoods.length} Foods
+        {/* CONTAINER FOR TOGGLE AND COUNT BADGE */}
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          
+          {/* P/PV Toggle Switch */}
+          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+            <span style={{ fontSize: "12px", fontWeight: "600", color: "#555" }}>P/PV</span>
+            <label style={{ position: "relative", display: "inline-block", width: "36px", height: "20px", cursor: "pointer" }}>
+              <input
+                type="checkbox"
+                checked={isPvToggle}
+                onChange={() => setIsPvToggle(!isPvToggle)}
+                style={{ opacity: 0, width: 0, height: 0 }}
+              />
+              <span 
+                style={{
+                  position: "absolute",
+                  cursor: "pointer",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  backgroundColor: isPvToggle ? "#ff5722" : "#ccc",
+                  transition: ".4s",
+                  borderRadius: "20px"
+                }}
+              >
+                <span
+                  style={{
+                    position: "absolute",
+                    content: '""',
+                    height: "14px",
+                    width: "14px",
+                    left: "3px",
+                    bottom: "3px",
+                    backgroundColor: "white",
+                    transition: ".4s",
+                    borderRadius: "50%",
+                    transform: isPvToggle ? "translateX(16px)" : "translateX(0)"
+                  }}
+                />
+              </span>
+            </label>
+          </div>
+
+          <div className="jippy-outlet-foods-count-badge">
+            {allFoods.length} Foods
+          </div>
+
         </div>
 
       </div>
@@ -745,6 +809,10 @@ function OutletFoods({
                   Product Timings
                 </th>
 
+                <th>
+                  Product Type
+                </th>
+
               </tr>
             </thead>
 
@@ -867,6 +935,14 @@ function OutletFoods({
                         )}
                       </td>
 
+                      {/* PRODUCT TYPE */}
+
+                      <td>
+                        <span className="jippy-food-product-type">
+                          {food?.productType || "-"}
+                        </span>
+                      </td>
+
                     </tr>
                   )
                 )
@@ -875,7 +951,7 @@ function OutletFoods({
 
                 <tr>
                   <td
-                    colSpan="10"
+                    colSpan="11"
                     className="jippy-outlet-foods-empty"
                   >
                     <FiShoppingBag />
