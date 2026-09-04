@@ -1391,26 +1391,19 @@ const handleConfirmFoodRestore = async () => {
                           {/* VARIANTS */}
 
                           <td>
-
-                            {renderVariants(
-                              food
-                            )}
-
+                            <div className="jippy-food-variants-cell">
+                              {renderVariants(food)}
+                              <button
+                                type="button"
+                                className="jippy-food-variants-btn"
+                                onClick={() => handleViewVariants(food)}
+                                disabled={variantLoading}
+                              >
+                                <FiLayers />
+                                View variants
+                              </button>
+                            </div>
                           </td>
-                      <td>
-                        <div className="jippy-food-variants-cell">
-                          {renderVariants(food)}
-                          <button
-                            type="button"
-                            className="jippy-food-variants-btn"
-                            onClick={() => handleViewVariants(food)}
-                            disabled={variantLoading}
-                          >
-                            <FiLayers />
-                            View variants
-                          </button>
-                        </div>
-                      </td>
 
                           {/* AVAILABLE */}
 
@@ -1458,6 +1451,21 @@ const handleConfirmFoodRestore = async () => {
 
                           </td>
 
+                          {/* ADD VARIANTS */}
+
+                          <td>
+                            <button
+                              type="button"
+                              className="jippy-food-add-variants-btn"
+                              onClick={() => handleAddVariants(food)}
+                              disabled={preparingVariantForm}
+                              title="Edit product variants"
+                              aria-label="Edit product variants"
+                            >
+                              <FiEdit2 />
+                            </button>
+                          </td>
+
                         </tr>
 
                         {/* ==================================================
@@ -1477,7 +1485,7 @@ const handleConfirmFoodRestore = async () => {
                             <tr className="food-expanded-row">
 
                               <td
-                                colSpan={11}
+                                colSpan={12}
                                 className="jippy-food-expanded-cell"
                               >
 
@@ -1501,77 +1509,37 @@ const handleConfirmFoodRestore = async () => {
 
                                     </div>
 
-                                    {/* <button
+                                    <button
                                       type="button"
                                       className="jippy-edit-unavailability-btn"
                                       onClick={() => {
-
                                         const saved =
                                           foodUnavailabilityData[
                                             food?.productId
                                           ];
 
-                                        setSelectedFood(
-                                          food
-                                        );
+                                        setSelectedFood(food);
 
-                                        setFoodUnavailabilityForm(
-                                          {
-                                            fromDate:
-                                              saved?.fromDate ||
-                                              "",
+                                        setFoodUnavailabilityForm({
+                                          fromDate:
+                                            saved?.fromDate || "",
 
-                                            toDate:
-                                              saved?.toDate ||
-                                              "",
+                                          toDate:
+                                            saved?.toDate || "",
 
-                                            reason:
-                                              saved?.reason ||
-                                              "",
-                                          }
-                                        );
+                                          reason:
+                                            saved?.reason || "",
+                                        });
 
-                                        setFoodAvailabilityModal(
-                                          true
-                                        );
+                                        // IMPORTANT:
+                                        // Edit must open the form, NOT restore popup
+                                        setFoodAvailabilityMode("edit");
 
+                                        setFoodAvailabilityModal(true);
                                       }}
                                     >
-
                                       Edit Unavailability
-
-                                    </button> */}
-<button
-  type="button"
-  className="jippy-edit-unavailability-btn"
-  onClick={() => {
-    const saved =
-      foodUnavailabilityData[
-        food?.productId
-      ];
-
-    setSelectedFood(food);
-
-    setFoodUnavailabilityForm({
-      fromDate:
-        saved?.fromDate || "",
-
-      toDate:
-        saved?.toDate || "",
-
-      reason:
-        saved?.reason || "",
-    });
-
-    // IMPORTANT:
-    // Edit must open the form, NOT restore popup
-    setFoodAvailabilityMode("edit");
-
-    setFoodAvailabilityModal(true);
-  }}
->
-  Edit Unavailability
-</button>
+                                    </button>
 
                                   </div>
 
@@ -1678,21 +1646,6 @@ const handleConfirmFoodRestore = async () => {
                       </React.Fragment>
                     );
                   }
-                      <td>
-                        <button
-                          type="button"
-                          className="jippy-food-add-variants-btn"
-                          onClick={() => handleAddVariants(food)}
-                          disabled={preparingVariantForm}
-                          title="Edit product variants"
-                          aria-label="Edit product variants"
-                        >
-                          <FiEdit2 />
-                        </button>
-                      </td>
-
-                    </tr>
-                  )
                 )
 
               ) : (
@@ -1700,8 +1653,7 @@ const handleConfirmFoodRestore = async () => {
                 <tr>
 
                   <td
-                    colSpan={11}
-                    colSpan="11"
+                    colSpan={12}
                     className="jippy-outlet-foods-empty"
                   >
 
@@ -1797,7 +1749,6 @@ const handleConfirmFoodRestore = async () => {
         </div>
 
       </div>
-
       {(variantLoading || variantProduct || variantError) && (
         <div className="jippy-food-variants-modal" role="dialog" aria-modal="true" aria-label="Product variants">
           <div className="jippy-food-variants-dialog">
