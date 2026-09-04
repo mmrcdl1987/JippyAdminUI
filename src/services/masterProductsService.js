@@ -70,10 +70,13 @@ export const getAllOutlets = async () => {
   return await FM_API.get("/api/fm/outlets");
 };
 
-// Add Duplicate Products to Outlet
-export const addProductsToOutlet = async (payload) => {
+// Add products from master to outlet
+export const mapProductsFromMaster = async (payload) => {
   return await FM_API.post("/api/fm/products/from-master", payload);
 };
+
+// Backward-compatible alias used by existing screens
+export const addProductsToOutlet = mapProductsFromMaster;
 
 // Get Total Outlet Count
 export const getOutletCount = async () => {

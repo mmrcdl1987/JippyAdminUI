@@ -184,17 +184,22 @@ export const menuData = [
       //   permission: "RESTAURANT_READ",
       // },
       {
+        name: "Master Products",
+        pageKey: "masterProducts",
+        permission: "RESTAURANT_READ",
+      },
+      {
+        name: "Bulk Upload Variants",
+        permission: "RESTAURANT_READ",
+        pageKey: "variantBulkUpload",
+      },
+      {
         name: "Categories",
         pageKey: "categories",
         permission: "CATEGORY_READ",
       },
       {
         name: "Foods",
-        permission: "RESTAURANT_READ",
-      },
-      {
-        name: "Master Products",
-        pageKey: "masterProducts",
         permission: "RESTAURANT_READ",
       },
       // {
@@ -399,12 +404,12 @@ export const menuData = [
             permission: "PAYMENT_READ",
           },
           {
-            name: "Wallet Transactions",
-            pageKey: "WalletTransactions",
+            name: "Payout Requests",
             permission: "PAYMENT_READ",
           },
           {
-            name: "Payout Requests",
+            name: "Wallet Transactions",
+            pageKey: "WalletTransactions",
             permission: "PAYMENT_READ",
           },
         ],
@@ -476,6 +481,11 @@ export const menuData = [
           //   pageKey: "deliveryCharges",
           //   permission: "SETTINGS_READ",
           // },
+          {
+            name: "PaymentModes",
+            pageKey: "PaymentModes",
+            permission: "PAYMENT_READ",
+          },
           {
             name: "Wallet Settings",
             pageKey: "walletSettings",

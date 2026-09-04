@@ -31,6 +31,7 @@ import MasterProducts from "../pages/MasterProducts";
 import CompareFile from "../pages/CompareFile";
 import EditMasterProduct from "../pages/EditMasterProduct";
 import CreateMasterProduct from "../pages/CreateMasterProduct";
+import AddToOutletProducts from "../pages/AddToOutletProducts"
 
 import ViewOutlets from "../pages/ViewOutlets";
 import CreateOutlet from "../pages/CreateOutlet";
@@ -41,6 +42,7 @@ import OutletProfileDetails from "../pages/OutletProfileDetails";
 import OutletEdit from "../pages/OutletEdit";
 
 import MerchantAddVariants from "../pages/MerchantAddVariants";
+import VariantBulkUpload from "../pages/VariantBulkUpload";
 
 import DeliveryCharge from "../pages/DeliveryCharge";
 import Incentives from "../pages/Incentives";
@@ -48,6 +50,7 @@ import OrderSettings from "../pages/OrderSettings";
 import WalletSettings from "../pages/WalletSettings";
 import CustomerWallet from "../pages/CustomerWallet.jsx";
 import WalletTransactions from "../pages/WalletTransactions.jsx";
+import PaymentModes from "../pages/PaymentModes";
 
 import SubscriptionPlanSettings from "../pages/SubscriptionPlanSettings";
 import CreateSubscriptionPlan from "../pages/CreateSubscriptionPlan";
@@ -60,7 +63,6 @@ import AssignAreas from "../pages/AssignAreas";
 import PendingApprovals from "../pages/PendingApprovals";
 import ApprovalSettings from "../pages/ApprovalSettings";
 import ApprovalTransactions from "../pages/ApprovalTransactions";
-
 
 
 export const pageRegistry = {
@@ -300,6 +302,15 @@ export const pageRegistry = {
     permission: "RESTAURANT_READ",
   },
 
+  variantBulkUpload: {
+    component: VariantBulkUpload,
+    permission: "RESTAURANT_READ",
+  },
+
+  addToOutletProducts: {
+    component: AddToOutletProducts,
+    permission: "RESTAURANT_READ",
+  },
 
   // =========================
   // SETTINGS
@@ -381,6 +392,13 @@ createMerchant: {
   component: CreateMerchant,
   permission: "VENDOR_READ",
 },
+
+
+paymentModes: {
+  component: PaymentModes,
+  permission: "SETTINGS_READ",
+},
+
 
 
 };
