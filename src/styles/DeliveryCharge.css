@@ -1124,3 +1124,58 @@ body {
         padding: 20px;
     }
 }
+/* Add Delivery Charge Modal */
+.jmart-modal {
+  max-height: 96vh;
+  overflow-y: auto;
+}
+
+.jmart-modal-content {
+  max-height: 94vh;
+  overflow-y: auto;
+}
+
+/* Reduce section spacing */
+.jmart-form-section {
+  padding: 10px 12px;
+  margin-bottom: 10px;
+}
+
+/* Compact labels */
+.jmart-label {
+  font-size: 11px;
+  margin-bottom: 4px;
+}
+
+/* Compact inputs/selects */
+.jmart-input,
+.jmart-select {
+  height: 34px !important;
+  min-height: 34px !important;
+  font-size: 11px !important;
+  padding: 5px 8px !important;
+}
+
+/* Reduce field spacing */
+.jmart-form-group {
+  margin-bottom: 8px;
+}
+
+/* Zone section */
+.zone-distance-section {
+  padding: 10px 12px !important;
+  margin-bottom: 10px !important;
+}
+
+/* Don't make the actual select huge */
+.zone-distance-section select {
+  height: 34px !important;
+  max-height: 34px !important;
+}
+
+/* Buttons */
+.jmart-button {
+  height: 34px;
+  padding: 6px 14px;
+  font-size: 11px;
+}

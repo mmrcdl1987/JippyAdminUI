@@ -1250,3 +1250,24 @@
   }
 
 }
+
+
+
+.jippy-outlet-profile-map-location {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #555;
+}
+
+.jippy-outlet-profile-map-location svg {
+  width: 15px;
+  height: 15px;
+}
+
+
+
+
+

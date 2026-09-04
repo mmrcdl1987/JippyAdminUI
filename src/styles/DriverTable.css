@@ -971,3 +971,83 @@
     }
 
 }
+/* Driver name hyperlink */
+.jippy-driver-name-link {
+  border: none;
+  background: none;
+  padding: 0;
+  margin: 0;
+  color: #007bff;
+  font-size: inherit;
+  font-family: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+.jippy-driver-name-link:hover {
+  color: #0056b3;
+}
+/* =========================================================
+   DRIVER NAME HYPERLINK
+   ========================================================= */
+
+.jippy-driver-name-link {
+  border: none;
+  background: transparent;
+
+  padding: 0;
+  margin: 0;
+
+  color: #007bff;
+
+  font-size: inherit;
+  font-family: inherit;
+
+  cursor: pointer;
+
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+.jippy-driver-name-link:hover {
+  color: #0056b3;
+}
+
+/* =========================================================
+   DRIVER NAME HYPERLINK
+   ========================================================= */
+
+.jippy-driver-name-link {
+  border: none;
+  background: transparent;
+
+  padding: 0;
+  margin: 0;
+
+  color: #007bff;
+
+  font-size: inherit;
+  font-family: inherit;
+
+  cursor: pointer;
+
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+.jippy-driver-name-link:hover {
+  color: #0056b3;
+}
+
+.jippy-driver-name-link:focus {
+  outline: none;
+}
+
+.jippy-driver-name-link:focus-visible {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+}

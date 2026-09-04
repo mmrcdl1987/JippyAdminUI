@@ -1,6 +1,6 @@
 import ZoneManagement from "../pages/ZoneManagement";
 import CreateZone from "../pages/CreateZone";
-
+import DriverDetails from "../pages/DriverDetails";
 import RolesPermissions from "../pages/RolesPermissions";
 import AdminUsers from "../pages/AdminUsers";
 
@@ -235,21 +235,37 @@ export const pageRegistry = {
   },
 
 
-  // =========================
-  // DRIVERS
-  // =========================
+  // // =========================
+  // // DRIVERS
+  // // =========================
 
-  allDrivers: {
-    component: AllDrivers,
-    permission: "DRIVER_READ",
-  },
+  // allDrivers: {
+  //   component: AllDrivers,
+  //   permission: "DRIVER_READ",
+  // },
 
-  createDriver: {
-    component: CreateDriver,
-    permission: "DRIVER_CREATE",
-  },
+  // createDriver: {
+  //   component: CreateDriver,
+  //   permission: "DRIVER_CREATE",
+  // },
 
+// =========================
+// DRIVERS
+// =========================
+allDrivers: {
+  component: AllDrivers,
+  permission: "DRIVER_READ",
+},
 
+createDriver: {
+  component: CreateDriver,
+  permission: "DRIVER_CREATE",
+},
+
+driverDetails: {
+  component: DriverDetails,
+  permission: "DRIVER_READ",
+},
   // =========================
   // CATEGORIES
   // =========================
