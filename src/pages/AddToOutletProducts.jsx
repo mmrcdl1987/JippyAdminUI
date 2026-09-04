@@ -2,35 +2,88 @@ import "../styles/AddToOutletProducts.css";
 import { useState, useEffect } from "react";
 import {
   getAllOutlets,
-  addProductsToOutlet,
+  getAllMasterProducts,
+  mapProductsFromMaster,
 } from "../services/masterProductsService";
+import { getOutletDetails } from "../services/outletListService";
+import { updateProductDetails } from "../services/productDetailService";
+import {
+  getAllVariantGroups,
+  getVariantGroupValues,
+} from "../services/productVariantGroupService";
 import Select from "react-select";
+
+const getPriceTypeForGroup = (group, availableGroups = []) => {
+  let groupName = group?.groupName || group?.name || group?.group_name || "";
+  if (!groupName && group?.productVariantGroupsId && Array.isArray(availableGroups)) {
+    const matched = availableGroups.find(
+      (g) => String(g.productVariantGroupsId || g.groupId || g.id) === String(group.productVariantGroupsId)
+    );
+    groupName = matched?.groupName || matched?.name || matched?.group_name || "";
+  }
+  const norm = (groupName || "").trim().toLowerCase();
+  if (
+    norm === "add-ons" ||
+    norm === "add-on" ||
+    norm === "addons" ||
+    norm === "addon" ||
+    norm === "add ons" ||
+    norm === "add on" ||
+    norm.includes("add-on") ||
+    norm.includes("addon")
+  ) {
+    return "ADD";
+  }
+  return "MAIN";
+};
 
 function AddToOutletProducts({
   setShowOutletPopup,
   selectedProducts,
+  setActivePage,
+  initialOutletId,
+  initialOutletCategoryId,
+  initialCategoryId,
+  initialOutletName,
+  asModal = false,
 }) {
   // ============================================================
   // STATE
   // ============================================================
 
-  const [outlet, setOutlet] = useState("");
+  const [outlet, setOutlet] = useState(initialOutletId ? String(initialOutletId) : "");
+  const [outletCategoryId, setOutletCategoryId] = useState(initialOutletCategoryId ? String(initialOutletCategoryId) : "");
+  const [categoryId, setCategoryId] = useState(initialCategoryId ? String(initialCategoryId) : "");
   const [outlets, setOutlets] = useState([]);
+  const [masterProducts, setMasterProducts] = useState([]);
+  const [selectedMasterProductIds, setSelectedMasterProductIds] = useState([]);
+  const [loadingMasterProducts, setLoadingMasterProducts] = useState(false);
+  
+  // Variant draft state
+  const [variantDrafts, setVariantDrafts] = useState({});
+  const [availableVariantGroups, setAvailableVariantGroups] = useState([]);
+  const [groupValuesCache, setGroupValuesCache] = useState({});
 
   const [defaultPrice, setDefaultPrice] = useState("");
   const [defaultTiming, setDefaultTiming] = useState("");
   const [defaultType, setDefaultType] = useState("");
+  const [appliedPrice, setAppliedPrice] = useState("");
+  const [appliedTiming, setAppliedTiming] = useState("");
 
   const [isSaving, setIsSaving] = useState(false);
 
   /**
    * Backend mapping result.
-   *
    * null = result screen not shown
    */
   const [mappingResult, setMappingResult] = useState(null);
 
-  const products = selectedProducts || [];
+  const hasPreselectedProducts = Array.isArray(selectedProducts) && selectedProducts.length > 0;
+  const products = hasPreselectedProducts
+    ? selectedProducts
+    : masterProducts.filter((product) =>
+      selectedMasterProductIds.includes(Number(product.masterProductId || product.productId || product.id))
+    );
 
   // ============================================================
   // DEBUG
@@ -39,71 +92,376 @@ function AddToOutletProducts({
   console.log("Products received:", products);
 
   // ============================================================
-  // FETCH OUTLETS
+  // FETCH OUTLETS & VARIANT GROUPS
   // ============================================================
 
   const fetchOutlets = async () => {
     try {
       const response = await getAllOutlets();
-
       console.log("Outlets response:", response.data);
-
       setOutlets(response.data?.data || []);
     } catch (error) {
       console.error("Failed to fetch outlets:", error);
-
       alert("Failed to load outlets.");
+    }
+  };
+
+  const fetchVariantGroupsList = async () => {
+    try {
+      const response = await getAllVariantGroups();
+      console.log("Variant Groups Response:", response.data);
+      const data = response.data?.data || response.data || [];
+      setAvailableVariantGroups(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("Failed to fetch variant groups:", error);
+    }
+  };
+
+  const fetchGroupValuesList = async (groupId) => {
+    if (!groupId || groupValuesCache[groupId]) return;
+    try {
+      const response = await getVariantGroupValues(groupId);
+      console.log(`Variant Group ${groupId} Values Response:`, response.data);
+      const data = response.data?.data || response.data || [];
+      setGroupValuesCache((prev) => ({
+        ...prev,
+        [groupId]: Array.isArray(data) ? data : [],
+      }));
+    } catch (error) {
+      console.error(`Failed to fetch values for group ${groupId}:`, error);
     }
   };
 
   useEffect(() => {
     fetchOutlets();
+    fetchVariantGroupsList();
   }, []);
 
-  // ============================================================
-  // APPLY DEFAULT PRICE
-  // ============================================================
+  useEffect(() => {
+    if (initialOutletId) setOutlet(String(initialOutletId));
+  }, [initialOutletId]);
 
-  const handleApplyDefaultPrice = () => {
-    if (defaultPrice === "") {
-      alert("Please enter a default price.");
-      return;
+  useEffect(() => {
+    if (initialOutletCategoryId) setOutletCategoryId(String(initialOutletCategoryId));
+    if (initialCategoryId) setCategoryId(String(initialCategoryId));
+  }, [initialOutletCategoryId, initialCategoryId]);
+
+  useEffect(() => {
+    if (!asModal || initialOutletCategoryId || !initialOutletId) return;
+
+    let isActive = true;
+    const fetchOutletCategory = async () => {
+      try {
+        const response = await getOutletDetails(Number(initialOutletId));
+        const outletDetails = response?.data ?? response ?? {};
+        const categories = Array.isArray(outletDetails.categories)
+          ? outletDetails.categories
+          : [];
+        const selectedProduct = selectedProducts?.[0];
+        const selectedProductId = Number(
+          selectedProduct?.productId ?? selectedProduct?.masterProductId ?? selectedProduct?.id
+        );
+        const selectedCategoryId = Number(selectedProduct?.categoryId);
+        const matchedCategory = categories.find((category) => {
+          const categoryIdValue = Number(category?.categoryId ?? category?.id);
+          const containsProduct = Array.isArray(category?.products) && category.products.some(
+            (product) =>
+              Number(product?.productId ?? product?.masterProductId ?? product?.id) === selectedProductId
+          );
+          return containsProduct || (selectedCategoryId > 0 && categoryIdValue === selectedCategoryId);
+        });
+
+        const resolvedOutletCategoryId =
+          matchedCategory?.outletCategoryId ??
+          matchedCategory?.outlet_category_id ??
+          outletDetails?.outletCategoryId ??
+          outletDetails?.outlet_category_id;
+
+        if (isActive && Number(resolvedOutletCategoryId) > 0) {
+          setOutletCategoryId(String(resolvedOutletCategoryId));
+        }
+      } catch (error) {
+        console.error("Failed to fetch outlet category:", error);
+      }
+    };
+
+    fetchOutletCategory();
+    return () => {
+      isActive = false;
+    };
+  }, [asModal, initialOutletCategoryId, initialOutletId, selectedProducts]);
+
+  useEffect(() => {
+    if (categoryId) return;
+
+    const categoryIds = products
+      .map((product) => Number(product?.categoryId))
+      .filter((value) => Number.isInteger(value) && value > 0);
+
+    const uniqueCategoryIds = [...new Set(categoryIds)];
+
+    if (uniqueCategoryIds.length === 1) {
+      setCategoryId(String(uniqueCategoryIds[0]));
     }
+  }, [products, categoryId]);
 
-    console.log("Applying default price:", defaultPrice);
+  useEffect(() => {
+    if (hasPreselectedProducts) return;
 
-    /*
-     * The default price is used while building the payload.
-     *
-     * No separate product-level state is required because
-     * the current screen uses one default price for all
-     * selected products.
-     */
-  };
+    const fetchMasterProducts = async () => {
+      setLoadingMasterProducts(true);
+      try {
+        const response = await getAllMasterProducts(0, 100);
+        const data = response?.data?.data ?? response?.data ?? {};
+        const list = Array.isArray(data)
+          ? data
+          : data.content || data.products || [];
+        setMasterProducts(list);
+      } catch (error) {
+        console.error("Failed to fetch master products:", error);
+        alert("Failed to load master products.");
+      } finally {
+        setLoadingMasterProducts(false);
+      }
+    };
+
+    fetchMasterProducts();
+  }, [hasPreselectedProducts]);
+
+  // Pre-fetch values for any pre-existing group IDs
+  useEffect(() => {
+    Object.values(variantDrafts).forEach((groups) => {
+      if (Array.isArray(groups)) {
+        groups.forEach((g) => {
+          if (g.productVariantGroupsId) {
+            fetchGroupValuesList(g.productVariantGroupsId);
+          }
+        });
+      }
+    });
+  }, [variantDrafts]);
 
   // ============================================================
-  // APPLY DEFAULT TIMING
+  // OUTLET SELECT OPTIONS
   // ============================================================
 
-  const handleApplyDefaultTiming = () => {
-    if (!defaultTiming.trim()) {
-      alert("Please enter a default timing.");
-      return;
-    }
+  const outletOptions = outlets.map((o) => ({
+    value: String(o.outletId || o.id),
+    label: o.outletName || o.name || `Outlet ${o.outletId || o.id}`,
+  }));
 
-    console.log("Applying default timing:", defaultTiming);
-
-    /*
-     * The default timing is used while building the payload.
-     */
-  };
+  const selectedOutlet = outletOptions.find((o) => o.value === outlet) || null;
 
   // ============================================================
   // CLOSE POPUP
   // ============================================================
 
   const handleClose = () => {
-    setShowOutletPopup(false);
+    if (typeof setShowOutletPopup === "function") {
+      setShowOutletPopup(false);
+    } else if (typeof setActivePage === "function") {
+      setActivePage("masterProducts");
+    }
+  };
+
+  const toggleMasterProduct = (product) => {
+    const productId = Number(product.masterProductId || product.productId || product.id);
+    if (!productId) return;
+
+    setSelectedMasterProductIds((current) => {
+      const isSelected = current.includes(productId);
+      if (!isSelected) {
+        setVariantDrafts((drafts) => ({
+          ...drafts,
+          [productId]: drafts[productId] || toVariantGroups(product),
+        }));
+      }
+      return isSelected ? current.filter((id) => id !== productId) : [...current, productId];
+    });
+  };
+
+  const toVariantGroups = (product) => {
+    return normalizeVariantGroups(product.variantGroups || product.productVariantGroups || []);
+  };
+
+  const normalizeVariantGroups = (groups) => {
+    return Array.isArray(groups)
+      ? groups
+        .map((group) => {
+          const groupId = Number(group.productVariantGroupsId || group.variantGroupId || group.id || group.groupId);
+          if (groupId > 0) {
+            fetchGroupValuesList(groupId);
+          }
+          const groupName = group.groupName || group.name || group.group_name || "";
+          const calculatedPriceType = getPriceTypeForGroup(
+            { groupName, productVariantGroupsId: groupId },
+            availableVariantGroups
+          );
+          return {
+            productVariantGroupsId: groupId || "",
+            groupName,
+            options: Array.isArray(group.options || group.values || group.variantGroupValues)
+              ? (group.options || group.values || group.variantGroupValues)
+                .map((option) => ({
+                  productVariantOptionsId: Number(
+                    option.productVariantOptionsId || option.variantOptionId || option.id || option.productVariantGroupValuesId || option.valueId
+                  ) || "",
+                  productVariantGroupValuesId: Number(
+                    option.productVariantGroupValuesId || option.variantGroupValueId || option.valueId || option.id
+                  ) || "",
+                  optionName: option.variantName || option.optionName || option.name || option.valueName || "",
+                  priceType: calculatedPriceType,
+                  variantPrice: Number(option.variantPrice ?? option.price ?? 0),
+                }))
+              : [],
+          };
+        })
+        .filter(
+          (group) => group.productVariantGroupsId > 0 || group.options.length > 0
+        )
+      : [];
+  };
+
+  const getMasterProductId = (product) =>
+    Number(product.masterProductId || product.productId || product.id);
+
+  const emptyVariantOption = (priceType = "MAIN") => ({
+    productVariantOptionsId: "",
+    productVariantGroupValuesId: "",
+    optionName: "",
+    priceType,
+    variantPrice: "",
+  });
+
+  const addVariantGroup = (product) => {
+    const productId = getMasterProductId(product);
+    setVariantDrafts((drafts) => ({
+      ...drafts,
+      [productId]: [
+        ...(drafts[productId] || toVariantGroups(product)),
+        { productVariantGroupsId: "", groupName: "", options: [emptyVariantOption()] },
+      ],
+    }));
+  };
+
+  const updateVariantGroup = (product, groupIndex, groupIdValue) => {
+    const productId = getMasterProductId(product);
+    const selectedGroupObj = availableVariantGroups.find(
+      (g) => String(g.productVariantGroupsId || g.groupId || g.id) === String(groupIdValue)
+    );
+    const groupName = selectedGroupObj?.groupName || selectedGroupObj?.name || selectedGroupObj?.group_name || "";
+    
+    if (groupIdValue) {
+      fetchGroupValuesList(groupIdValue);
+    }
+
+    const calculatedPriceType = getPriceTypeForGroup(
+      { groupName, productVariantGroupsId: groupIdValue },
+      availableVariantGroups
+    );
+
+    setVariantDrafts((drafts) => ({
+      ...drafts,
+      [productId]: (drafts[productId] || toVariantGroups(product)).map((group, index) =>
+        index === groupIndex
+          ? {
+              ...group,
+              productVariantGroupsId: groupIdValue ? Number(groupIdValue) : "",
+              groupName,
+              options: (group.options || []).map((option) => ({
+                ...option,
+                priceType: calculatedPriceType,
+              })),
+            }
+          : group
+      ),
+    }));
+  };
+
+  const removeVariantGroup = (product, groupIndex) => {
+    const productId = getMasterProductId(product);
+    setVariantDrafts((drafts) => ({
+      ...drafts,
+      [productId]: (drafts[productId] || toVariantGroups(product)).filter((_, index) => index !== groupIndex),
+    }));
+  };
+
+  const updateVariantOptionValue = (product, groupIndex, optionIndex, valueIdValue) => {
+    const productId = getMasterProductId(product);
+    const currentGroups = variantDrafts[productId] || toVariantGroups(product);
+    const currentGroup = currentGroups[groupIndex];
+    const groupId = currentGroup?.productVariantGroupsId;
+    const groupValuesList = groupValuesCache[groupId] || [];
+    
+    const selectedValObj = groupValuesList.find(
+      (v) => String(v.productVariantGroupValuesId || v.valueId || v.id) === String(valueIdValue)
+    );
+    
+    const optionName = selectedValObj?.variantName || selectedValObj?.valueName || selectedValObj?.name || selectedValObj?.value || "";
+
+    setVariantDrafts((drafts) => ({
+      ...drafts,
+      [productId]: (drafts[productId] || toVariantGroups(product)).map((group, gIdx) => {
+        if (gIdx !== groupIndex) return group;
+        return {
+          ...group,
+          options: (group.options || []).map((option, oIdx) => {
+            if (oIdx !== optionIndex) return option;
+            return {
+              ...option,
+              productVariantGroupValuesId: valueIdValue ? Number(valueIdValue) : "",
+              productVariantOptionsId: valueIdValue ? Number(valueIdValue) : "",
+              optionName,
+            };
+          }),
+        };
+      }),
+    }));
+  };
+
+  const updateVariantOption = (product, groupIndex, optionIndex, field, value) => {
+    const productId = getMasterProductId(product);
+    setVariantDrafts((drafts) => ({
+      ...drafts,
+      [productId]: (drafts[productId] || toVariantGroups(product)).map((group, index) => {
+        if (index !== groupIndex) return group;
+        return {
+          ...group,
+          options: (group.options || []).map((option, optionPosition) =>
+            optionPosition === optionIndex ? { ...option, [field]: value } : option
+          ),
+        };
+      }),
+    }));
+  };
+
+  const addVariantOption = (product, groupIndex) => {
+    const productId = getMasterProductId(product);
+    setVariantDrafts((drafts) => {
+      const currentGroups = drafts[productId] || toVariantGroups(product);
+      const targetGroup = currentGroups[groupIndex];
+      const calculatedPriceType = getPriceTypeForGroup(targetGroup, availableVariantGroups);
+      return {
+        ...drafts,
+        [productId]: currentGroups.map((group, index) =>
+          index === groupIndex
+            ? { ...group, options: [...(group.options || []), emptyVariantOption(calculatedPriceType)] }
+            : group
+        ),
+      };
+    });
+  };
+
+  const removeVariantOption = (product, groupIndex, optionIndex) => {
+    const productId = getMasterProductId(product);
+    setVariantDrafts((drafts) => ({
+      ...drafts,
+      [productId]: (drafts[productId] || toVariantGroups(product)).map((group, index) =>
+        index === groupIndex
+          ? { ...group, options: group.options.filter((_, position) => position !== optionIndex) }
+          : group
+      ),
+    }));
   };
 
   // ============================================================
@@ -111,137 +469,88 @@ function AddToOutletProducts({
   // ============================================================
 
   const handleSaveProducts = async () => {
-    // ----------------------------------------------------------
-    // Validate outlet
-    // ----------------------------------------------------------
-
     if (!outlet) {
       alert("Please select an outlet.");
       return;
     }
-
-    // ----------------------------------------------------------
-    // Validate products
-    // ----------------------------------------------------------
 
     if (!products || products.length === 0) {
       alert("Please select at least one master product.");
       return;
     }
 
-    // ----------------------------------------------------------
-    // Validate master product IDs
-    // ----------------------------------------------------------
-
     const invalidProducts = products.filter(
       (product) =>
-        !product?.masterProductId ||
-        Number(product.masterProductId) <= 0
+        !getMasterProductId(product) ||
+        getMasterProductId(product) <= 0
     );
 
     if (invalidProducts.length > 0) {
-      console.error(
-        "Products without valid masterProductId:",
-        invalidProducts
-      );
-
-      alert(
-        "One or more selected products do not have a valid Master Product ID."
-      );
-
+      alert("One or more selected products do not have a valid Master Product ID.");
       return;
     }
 
-    // ----------------------------------------------------------
-    // Reset previous result
-    // ----------------------------------------------------------
+    const hasIncompleteVariantDraft = products.some((product) => {
+      const draftGroups = variantDrafts[getMasterProductId(product)];
+      if (!draftGroups) return false;
+
+      return draftGroups.some(
+        (group) =>
+          !Number(group.productVariantGroupsId) ||
+          !Array.isArray(group.options) ||
+          group.options.length === 0 ||
+          group.options.some(
+            (option) =>
+              !Number(option.productVariantGroupValuesId) ||
+              option.variantPrice === "" ||
+              option.variantPrice === null ||
+              Number.isNaN(Number(option.variantPrice))
+          )
+      );
+    });
+
+    if (hasIncompleteVariantDraft) {
+      alert("Complete every variant group and option, including its price, before saving.");
+      return;
+    }
 
     setMappingResult(null);
     setIsSaving(true);
 
-    // ==========================================================
-    // BUILD PAYLOAD
-    // ==========================================================
-
-    /*
-     * IMPORTANT:
-     *
-     * DO NOT send outletCategoryId here.
-     *
-     * Selected master products can belong to different
-     * categories.
-     *
-     * Example:
-     *
-     * Chicken Biryani -> category 5
-     * Paneer Butter Masala -> category 6
-     * Chicken Tikka -> category 7
-     *
-     * Backend will resolve:
-     *
-     * masterProductId
-     *       ↓
-     * master_products.category_id
-     *       ↓
-     * outlet_categories
-     *       ↓
-     * outlet_category_id
-     */
+    const serializeVariantGroups = (groups) =>
+      groups.map((group) => {
+        const calculatedPriceType = getPriceTypeForGroup(group, availableVariantGroups);
+        return {
+          productVariantGroupsId: Number(group.productVariantGroupsId),
+          options: (group.options || []).map((option) => ({
+            productVariantOptionsId: Number(option.productVariantOptionsId || option.productVariantGroupValuesId),
+            productVariantGroupValuesId: Number(option.productVariantGroupValuesId),
+            priceType: calculatedPriceType,
+            variantPrice: Number(option.variantPrice),
+          })),
+        };
+      });
 
     const payload = {
+      outletCategoryId: Number(outletCategoryId),
       outletId: Number(outlet),
-
+      categoryId: Number(categoryId),
       products: products.map((product) => {
-        const masterProductId = Number(
-          product.masterProductId
-        );
-
-        // ------------------------------------------------------
-        // VEG / NON-VEG
-        // ------------------------------------------------------
+        const masterProductId = getMasterProductId(product);
 
         let isVeg = null;
-
-        /*
-         * If user selected a default type, use it.
-         *
-         * Otherwise keep the master product's type.
-         */
         if (defaultType === "Veg") {
           isVeg = true;
         } else if (defaultType === "Non Veg") {
           isVeg = false;
-        } else if (
-          product.veg !== undefined &&
-          product.veg !== null
-        ) {
+        } else if (product.veg !== undefined && product.veg !== null) {
           isVeg = Number(product.veg) === 1;
-        } else if (
-          product.nonVeg !== undefined &&
-          product.nonVeg !== null
-        ) {
+        } else if (product.nonVeg !== undefined && product.nonVeg !== null) {
           isVeg = Number(product.nonVeg) !== 1;
+        } else if (typeof product.isVeg === "boolean") {
+          isVeg = product.isVeg;
         }
 
-        // ------------------------------------------------------
-        // PRICE
-        // ------------------------------------------------------
-        //
-        // Priority:
-        // 1. merchant_price from the uploaded XLS/CSV
-        // 2. Default Price entered in this popup
-        // 3. 0
-        //
-        // The XLS value must NOT be overwritten by the default price.
-        // ------------------------------------------------------
-
-        /*
-         * XLS PRICE CACHE
-         *
-         * CompareFile normalizes the uploaded XLS price into
-         * xlsMerchantPrice. The older property names are kept as
-         * fallbacks for compatibility with older API responses.
-         */
         const rawXlsPrice =
           product.xlsMerchantPrice ??
           product.csvMerchantPrice ??
@@ -257,347 +566,170 @@ function AddToOutletProducts({
 
         const merchantPrice = hasXlsPrice
           ? Number(rawXlsPrice)
-          : defaultPrice !== ""
-            ? Number(defaultPrice)
+          : appliedPrice !== ""
+            ? Number(appliedPrice)
             : 0;
 
-        // ------------------------------------------------------
-        // TIMING
-        // ------------------------------------------------------
-        //
-        // Priority:
-        // 1. timing from the uploaded XLS/CSV
-        // 2. Default Timing entered in this popup
-        // 3. empty
-        // ------------------------------------------------------
-
-        const rawXlsTiming =
-          product.xlsTiming ??
-          product.csvTiming ??
-          product.timing ??
-          "";
-
-        const hasXlsTiming =
-          rawXlsTiming !== null &&
-          rawXlsTiming !== undefined &&
-          String(rawXlsTiming).trim() !== "";
-
-        const csvTiming = hasXlsTiming
-          ? String(rawXlsTiming).trim()
-          : defaultTiming?.trim() || "";
-
-        const csvDayOfWeek =
-          product.xlsDayOfWeek ??
-          product.csvDayOfWeek ??
-          product.dayOfWeek ??
-          "";
-
-        // ------------------------------------------------------
-        // PRODUCT
-        // ------------------------------------------------------
+        const variantGroups = serializeVariantGroups(
+          variantDrafts[masterProductId] ?? toVariantGroups(product)
+        );
 
         return {
           masterProductId,
-
-          productName:
-            product.masterProductName ||
-            product.productName ||
-            "",
-
-          description:
-            product.description || "",
-
-          merchantPrice,
-
-          isVeg,
-
-          /*
-           * Master product mapping should NOT create variants.
-           */
-          hasProductVariants: false,
-
-          /*
-           * No variants are sent.
-           */
-          csvDayOfWeek: String(csvDayOfWeek || "").trim(),
-
-          csvTiming,
-
-          timings: [],
-
-          /*
-           * This is only informational.
-           *
-           * Backend should use the category from
-           * master_products as the source of truth.
-           */
+          productName: product.masterProductName || product.productName || "",
+          description: product.description || "",
           categoryId:
-            product.categoryId !== undefined &&
-            product.categoryId !== null
+            product.categoryId !== undefined && product.categoryId !== null
               ? Number(product.categoryId)
               : null,
+          productType: product.productType || product.type || "",
+          isVeg: isVeg !== null ? isVeg : false,
+          hasProductVariants: variantGroups.length > 0,
+          merchantPrice,
+          variantGroups,
         };
       }),
     };
 
-    // ==========================================================
-    // DEBUG
-    // ==========================================================
-
-    console.log(
-      "=========================================="
-    );
-
-    console.log(
-      "MASTER PRODUCT → OUTLET PRODUCT PAYLOAD"
-    );
-
-    console.log(
-      JSON.stringify(payload, null, 2)
-    );
-
-    console.log(
-      "=========================================="
-    );
-
-    // ==========================================================
-    // API CALL
-    // ==========================================================
+    const existingProduct = products.find((p) => p.productId || (asModal && p.id));
 
     try {
-      const response =
-        await addProductsToOutlet(payload);
+      if (existingProduct && (existingProduct.productId || existingProduct.id)) {
+        const productId = Number(existingProduct.productId || existingProduct.id);
+        const masterProductId = getMasterProductId(existingProduct);
+        const draftGroups = variantDrafts[masterProductId] ?? toVariantGroups(existingProduct);
 
-      console.log(
-        "Map products response:",
-        response.data
-      );
+        let isVeg = null;
+        if (defaultType === "Veg") isVeg = true;
+        else if (defaultType === "Non Veg") isVeg = false;
+        else if (existingProduct.veg !== undefined && existingProduct.veg !== null) isVeg = Number(existingProduct.veg) === 1;
+        else if (existingProduct.nonVeg !== undefined && existingProduct.nonVeg !== null) isVeg = Number(existingProduct.nonVeg) !== 1;
+        else if (typeof existingProduct.isVeg === "boolean") isVeg = existingProduct.isVeg;
 
-      // --------------------------------------------------------
-      // Backend response
-      // --------------------------------------------------------
+        const variantGroups = draftGroups.map((group) => {
+          const calculatedPriceType = getPriceTypeForGroup(group, availableVariantGroups);
+          return {
+            productVariantGroupsId: Number(group.productVariantGroupsId),
+            options: (group.options || []).map((option) => ({
+              productVariantOptionsId:
+                option.productVariantOptionsId &&
+                Number(option.productVariantOptionsId) > 0 &&
+                Number(option.productVariantOptionsId) !== Number(option.productVariantGroupValuesId)
+                  ? Number(option.productVariantOptionsId)
+                  : null,
+              productVariantGroupValuesId: Number(option.productVariantGroupValuesId),
+              priceType: calculatedPriceType,
+              variantPrice: Number(option.variantPrice),
+            })),
+          };
+        });
 
-      const result =
-        response.data?.data ||
-        response.data ||
-        {};
+        const updatePayload = {
+          productName: existingProduct.productName || existingProduct.masterProductName || "",
+          outletCategoryId: Number(outletCategoryId || existingProduct.outletCategoryId || 1),
+          description: existingProduct.description || "",
+          isVeg: isVeg !== null ? isVeg : false,
+          hasProductVariants: variantGroups.length > 0,
+          merchantPrice: Number(existingProduct.merchantPrice || appliedPrice || 0),
+          imageLink: existingProduct.imageLink || "",
+          photos: existingProduct.photos || "",
+          thumbnail: existingProduct.thumbnail || "",
+          productType: existingProduct.productType || existingProduct.type || "",
+          timings: (existingProduct.timings || existingProduct.productTimings || []).map((t) => ({
+            productAvailableTimingId: t.productAvailableTimingId || t.id || null,
+            dayOfWeekId: t.dayOfWeekId || t.dayId || 1,
+            startTime: t.startTime || "09:00",
+            endTime: t.endTime || "22:00",
+          })),
+          variantGroups,
+        };
 
-      console.log(
-        "Mapping result:",
-        result
-      );
+        console.log("[UPDATE-PRODUCT] PUT /api/fm/products/updateproduct Payload:", JSON.stringify(updatePayload, null, 2));
 
-      // --------------------------------------------------------
-      // Saved count
-      // --------------------------------------------------------
+        const response = await updateProductDetails(productId, updatePayload);
+        console.log("[UPDATE-PRODUCT] Response:", response);
 
-      const savedCount =
-        Number(result?.savedCount ?? 0);
+        setMappingResult({
+          savedCount: 1,
+          skippedCount: 0,
+          savedNames: [existingProduct.productName || "Product"],
+          savedProducts: [{
+            productName: existingProduct.productName || "Product",
+            merchantPrice: existingProduct.merchantPrice,
+            timing: "",
+            dayOfWeek: "",
+          }],
+          skippedNames: [],
+          skippedProducts: [],
+        });
+      } else {
+        console.log("MASTER PRODUCT → OUTLET PRODUCT PAYLOAD:", JSON.stringify(payload, null, 2));
 
-      // --------------------------------------------------------
-      // Skipped count
-      // --------------------------------------------------------
+        const response = await mapProductsFromMaster(payload);
+        const result = response.data?.data || response.data || {};
+        const savedCount = Number(result?.savedCount ?? 0);
+        const skippedCount = Number(result?.skippedCount ?? 0);
+        const savedNames = Array.isArray(result?.savedNames) ? result.savedNames : [];
+        const skippedNames = Array.isArray(result?.skippedNames) ? result.skippedNames : [];
 
-      const skippedCount =
-        Number(result?.skippedCount ?? 0);
-
-      // --------------------------------------------------------
-      // Saved names
-      // --------------------------------------------------------
-
-      const savedNames =
-        Array.isArray(result?.savedNames)
-          ? result.savedNames
-          : [];
-
-      // --------------------------------------------------------
-      // Skipped names
-      // --------------------------------------------------------
-
-      const skippedNames =
-        Array.isArray(result?.skippedNames)
-          ? result.skippedNames
-          : [];
-
-      // --------------------------------------------------------
-      // Detailed skipped products
-      // --------------------------------------------------------
-
-      let skippedProducts =
-        Array.isArray(result?.skippedProducts)
+        let skippedProducts = Array.isArray(result?.skippedProducts)
           ? result.skippedProducts
           : [];
 
-      /*
-       * Backward compatibility:
-       *
-       * If backend does not yet send skippedProducts,
-       * create a basic reason from skippedNames.
-       */
-      if (
-        skippedProducts.length === 0 &&
-        skippedNames.length > 0
-      ) {
-        skippedProducts = skippedNames.map(
-          (name) => ({
-            productName: String(name)
-              .replace(" (Already Exists)", ""),
-            reason: String(name).includes(
-              "Already Exists"
-            )
+        if (skippedProducts.length === 0 && skippedNames.length > 0) {
+          skippedProducts = skippedNames.map((name) => ({
+            productName: String(name).replace(" (Already Exists)", ""),
+            reason: String(name).includes("Already Exists")
               ? "Product already exists in this outlet and category"
               : "Product was skipped by the backend",
-          })
-        );
-      }
+          }));
+        }
 
-      // --------------------------------------------------------
-      // Saved product details
-      // --------------------------------------------------------
-      //
-      // The backend currently returns savedNames only.
-      // Build the display details from the exact products that
-      // were sent in this Save request, so the XLS merchant price
-      // remains attached to the correct product.
-      //
-      // If the backend later returns savedProducts/savedProductDetails,
-      // those details are preferred.
-      // --------------------------------------------------------
-
-      const backendSavedProducts =
-        Array.isArray(result?.savedProducts)
+        const backendSavedProducts = Array.isArray(result?.savedProducts)
           ? result.savedProducts
           : Array.isArray(result?.savedProductDetails)
             ? result.savedProductDetails
             : [];
 
-      const normalizeName = (value) =>
-        String(value || "")
-          .trim()
-          .toLowerCase();
+        const normalizeName = (value) => String(value || "").trim().toLowerCase();
 
-      const savedProducts =
-        backendSavedProducts.length > 0
+        const savedProductsList = backendSavedProducts.length > 0
           ? backendSavedProducts.map((item) => ({
-              productName:
-                item?.productName ||
-                item?.masterProductName ||
-                "",
-              merchantPrice:
-                item?.merchantPrice ??
-                item?.csvMerchantPrice ??
-                item?.xlsMerchantPrice ??
-                item?.csvPrice ??
-                null,
-              timing:
-                item?.csvTiming ??
-                item?.xlsTiming ??
-                item?.timing ??
-                "",
-              dayOfWeek:
-                item?.csvDayOfWeek ??
-                item?.xlsDayOfWeek ??
-                item?.dayOfWeek ??
-                "",
-            }))
+            productName: item?.productName || item?.masterProductName || "",
+            merchantPrice: item?.merchantPrice ?? item?.csvMerchantPrice ?? item?.xlsMerchantPrice ?? item?.csvPrice ?? null,
+            timing: item?.csvTiming ?? item?.xlsTiming ?? item?.timing ?? "",
+            dayOfWeek: item?.csvDayOfWeek ?? item?.xlsDayOfWeek ?? item?.dayOfWeek ?? "",
+          }))
           : savedNames.map((savedName) => {
-              const cleanSavedName = String(savedName || "")
-                .replace(" (Already Exists)", "")
-                .trim();
+            const cleanSavedName = String(savedName || "").replace(" (Already Exists)", "").trim();
+            const matchedProduct = products.find(
+              (product) => normalizeName(product?.masterProductName || product?.productName) === normalizeName(cleanSavedName)
+            );
+            return {
+              productName: cleanSavedName,
+              merchantPrice: matchedProduct?.xlsMerchantPrice ?? matchedProduct?.csvMerchantPrice ?? matchedProduct?.csvPrice ?? matchedProduct?.merchantPrice ?? null,
+              timing: matchedProduct?.xlsTiming ?? matchedProduct?.csvTiming ?? matchedProduct?.timing ?? "",
+              dayOfWeek: matchedProduct?.xlsDayOfWeek ?? matchedProduct?.csvDayOfWeek ?? matchedProduct?.dayOfWeek ?? "",
+            };
+          });
 
-              const matchedProduct =
-                selectedProducts.find(
-                  (product) =>
-                    normalizeName(
-                      product?.masterProductName ||
-                        product?.productName
-                    ) === normalizeName(cleanSavedName)
-                );
-
-              return {
-                productName: cleanSavedName,
-                merchantPrice:
-                  matchedProduct?.xlsMerchantPrice ??
-                  matchedProduct?.csvMerchantPrice ??
-                  matchedProduct?.csvPrice ??
-                  matchedProduct?.merchantPrice ??
-                  null,
-                timing:
-                  matchedProduct?.xlsTiming ??
-                  matchedProduct?.csvTiming ??
-                  matchedProduct?.timing ??
-                  "",
-                dayOfWeek:
-                  matchedProduct?.xlsDayOfWeek ??
-                  matchedProduct?.csvDayOfWeek ??
-                  matchedProduct?.dayOfWeek ??
-                  "",
-              };
-            });
-
-      console.log(
-        "[OUTLET] Saved products with XLS price:",
-        savedProducts
-      );
-
-      // --------------------------------------------------------
-      // Store result
-      // --------------------------------------------------------
-
-      setMappingResult({
-        savedCount,
-        skippedCount,
-        savedNames,
-        savedProducts,
-        skippedNames,
-        skippedProducts,
-      });
-
-      /*
-       * IMPORTANT:
-       *
-       * Do NOT close the popup here.
-       *
-       * The user needs to see the success/skipped
-       * result on the UI.
-       */
-
+        setMappingResult({
+          savedCount,
+          skippedCount,
+          savedNames,
+          savedProducts: savedProductsList,
+          skippedNames,
+          skippedProducts,
+        });
+      }
     } catch (error) {
-      console.error(
-        "Failed to add products to outlet:",
-        error
-      );
-
-      console.error(
-        "Backend error:",
-        error?.response?.data
-      );
-
-      const message =
-        error?.response?.data?.message ||
-        error?.response?.data?.error ||
-        "Failed to add products.";
-
+      console.error("Failed to add products to outlet:", error);
+      const message = error?.response?.data?.message || error?.response?.data?.error || "Failed to add products.";
       alert(message);
     } finally {
       setIsSaving(false);
     }
   };
-
-  // ============================================================
-  // OUTLET OPTIONS
-  // ============================================================
-
-  const outletOptions = outlets.map((item) => ({
-    value: item.outletId,
-    label: item.outletName,
-  }));
-
-  const selectedOutlet =
-    outletOptions.find(
-      (option) =>
-        Number(option.value) === Number(outlet)
-    ) || null;
 
   // ============================================================
   // RESULT SCREEN
@@ -613,372 +745,80 @@ function AddToOutletProducts({
     } = mappingResult;
 
     return (
-      <div className="outlet-page">
-        <div className="outlet-card">
-
-          {/* ==================================================
-              RESULT HEADER
-          =================================================== */}
-
+      <div className="outlet-page outlet-mapping-result-overlay">
+        <div className="outlet-card mapping-result-card">
           <div className="outlet-header">
-
-            <h2>
-              📊 Product Mapping Result
-            </h2>
-
-            <button
-              type="button"
-              className="close-btn"
-              onClick={handleClose}
-            >
-              ✕
-            </button>
-
+            <h2>📊 Product Mapping Result</h2>
+            <button type="button" className="close-btn" onClick={handleClose}>✕</button>
           </div>
 
-          {/* ==================================================
-              SUMMARY
-          =================================================== */}
-
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns:
-                "1fr 1fr",
-              gap: "15px",
-              marginBottom: "25px",
-            }}
-          >
-
-            {/* SUCCESS */}
-
-            <div
-              style={{
-                padding: "20px",
-                borderRadius: "10px",
-                background: "#eaf8ef",
-                border: "1px solid #b7e4c7",
-                textAlign: "center",
-              }}
-            >
-
-              <div
-                style={{
-                  fontSize: "30px",
-                  marginBottom: "5px",
-                }}
-              >
-                ✅
-              </div>
-
-              <div
-                style={{
-                  fontSize: "28px",
-                  fontWeight: "700",
-                }}
-              >
-                {savedCount}
-              </div>
-
-              <div
-                style={{
-                  fontWeight: "600",
-                }}
-              >
-                Successfully Added
-              </div>
-
+          <div className="mapping-summary">
+            <div className="mapping-summary-card mapping-summary-success">
+              <div className="mapping-summary-icon">✅</div>
+              <div className="mapping-summary-count">{savedCount}</div>
+              <div className="mapping-summary-label">Successfully Added</div>
             </div>
 
-            {/* SKIPPED */}
-
-            <div
-              style={{
-                padding: "20px",
-                borderRadius: "10px",
-                background: "#fff8e6",
-                border: "1px solid #f1d48a",
-                textAlign: "center",
-              }}
-            >
-
-              <div
-                style={{
-                  fontSize: "30px",
-                  marginBottom: "5px",
-                }}
-              >
-                ⏭️
-              </div>
-
-              <div
-                style={{
-                  fontSize: "28px",
-                  fontWeight: "700",
-                }}
-              >
-                {skippedCount}
-              </div>
-
-              <div
-                style={{
-                  fontWeight: "600",
-                }}
-              >
-                Skipped
-              </div>
-
+            <div className="mapping-summary-card mapping-summary-skipped">
+              <div className="mapping-summary-icon">⏭️</div>
+              <div className="mapping-summary-count">{skippedCount}</div>
+              <div className="mapping-summary-label">Skipped</div>
             </div>
-
           </div>
 
-          {/* ==================================================
-              SUCCESSFULLY ADDED
-          =================================================== */}
-
-          {savedCount > 0 &&
-            savedNames.length > 0 && (
-              <div
-                style={{
-                  marginBottom: "25px",
-                }}
-              >
-
-                <h3>
-                  ✅ Successfully Added Products
-                </h3>
-
-                <div
-                  style={{
-                    border: "1px solid #ddd",
-                    borderRadius: "8px",
-                    padding: "10px",
-                    maxHeight: "220px",
-                    overflowY: "auto",
-                  }}
-                >
-
-                  {(savedProducts.length > 0
-                    ? savedProducts
-                    : savedNames.map((name) => ({
-                        productName: name,
-                        merchantPrice: null,
-                        timing: "",
-                        dayOfWeek: "",
-                      }))
-                  ).map((item, index) => (
-                    <div
-                      key={`${item?.productName || "product"}-${index}`}
-                      style={{
-                        padding: "9px 10px",
-                        borderBottom:
-                          index <
-                          (savedProducts.length > 0
-                            ? savedProducts.length
-                            : savedNames.length) - 1
-                            ? "1px solid #eee"
-                            : "none",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        gap: "12px",
-                      }}
-                    >
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          minWidth: 0,
-                        }}
-                      >
-                        <span
-                          style={{
-                            marginRight: "8px",
-                          }}
-                        >
-                          ✓
-                        </span>
-
-                        <span
-                          style={{
-                            fontWeight: "500",
-                          }}
-                        >
-                          {item?.productName || "Unknown Product"}
-                        </span>
-                      </div>
-
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "10px",
-                          flexShrink: 0,
-                        }}
-                      >
-                        <span
-                          style={{
-                            fontWeight: "700",
-                            whiteSpace: "nowrap",
-                          }}
-                        >
-                          {item?.merchantPrice !== null &&
-                          item?.merchantPrice !== undefined &&
-                          item?.merchantPrice !== ""
-                            ? `₹${Number(item.merchantPrice).toFixed(2)}`
-                            : "₹0.00"}
-                        </span>
-
-                        {item?.timing && (
-                          <span
-                            style={{
-                              fontSize: "12px",
-                              color: "#666",
-                              whiteSpace: "nowrap",
-                            }}
-                          >
-                            {item.timing}
-                          </span>
-                        )}
-                      </div>
+          {savedCount > 0 && savedNames.length > 0 && (
+            <div className="mapping-saved-section">
+              <h3>✅ Successfully Added Products</h3>
+              <div className="mapping-saved-list">
+                {(savedProducts.length > 0
+                  ? savedProducts
+                  : savedNames.map((name) => ({ productName: name, merchantPrice: null, timing: "", dayOfWeek: "" }))
+                ).map((item, index) => (
+                  <div key={`${item?.productName || "product"}-${index}`} className={`mapping-saved-item ${index < (savedProducts.length > 0 ? savedProducts.length : savedNames.length) - 1 ? "has-divider" : ""}`}>
+                    <div className="mapping-saved-name">
+                      <span className="mapping-check">✓</span>
+                      <span className="mapping-product-name">{item?.productName || "Unknown Product"}</span>
                     </div>
-                  ))}
-
-                </div>
-
+                    <div className="mapping-saved-meta">
+                      <span className="mapping-saved-price">
+                        {item?.merchantPrice !== null && item?.merchantPrice !== undefined && item?.merchantPrice !== ""
+                          ? `₹${Number(item.merchantPrice).toFixed(2)}`
+                          : "₹0.00"}
+                      </span>
+                      {item?.timing && <span className="mapping-saved-time">{item.timing}</span>}
+                    </div>
+                  </div>
+                ))}
               </div>
-            )}
-
-          {/* ==================================================
-              SKIPPED PRODUCTS
-          =================================================== */}
+            </div>
+          )}
 
           {skippedCount > 0 && (
             <div>
-
-              <h3>
-                ⏭️ Skipped Products
-              </h3>
-
-              <div
-                style={{
-                  border: "1px solid #f1d48a",
-                  borderRadius: "8px",
-                  overflow: "hidden",
-                  marginTop: "10px",
-                }}
-              >
-
+              <h3>⏭️ Skipped Products</h3>
+              <div className="mapping-skipped-list">
                 {skippedProducts.length > 0 ? (
-                  skippedProducts.map(
-                    (item, index) => (
-                      <div
-                        key={`${item?.productName}-${index}`}
-                        style={{
-                          padding: "15px",
-                          background:
-                            index % 2 === 0
-                              ? "#fffdf5"
-                              : "#ffffff",
-                          borderBottom:
-                            index <
-                            skippedProducts.length - 1
-                              ? "1px solid #eee"
-                              : "none",
-                        }}
-                      >
-
-                        <div
-                          style={{
-                            fontWeight: "700",
-                            marginBottom: "5px",
-                          }}
-                        >
-                          ⏭️{" "}
-                          {item?.productName ||
-                            "Unknown Product"}
-                        </div>
-
-                        <div
-                          style={{
-                            fontSize: "14px",
-                            color: "#666",
-                            paddingLeft: "25px",
-                          }}
-                        >
-                          <strong>
-                            Reason:
-                          </strong>{" "}
-                          {item?.reason ||
-                            "Product was skipped"}
-                        </div>
-
-                      </div>
-                    )
-                  )
+                  skippedProducts.map((item, index) => (
+                    <div key={`${item?.productName}-${index}`} className={`mapping-skipped-item ${index % 2 === 0 ? "mapping-skipped-alt" : ""} ${index < skippedProducts.length - 1 ? "has-divider" : ""}`}>
+                      <div className="mapping-skipped-name">⏭️ {item?.productName || "Unknown Product"}</div>
+                      <div className="mapping-skipped-reason"><strong>Reason:</strong> {item?.reason || "Product was skipped"}</div>
+                    </div>
+                  ))
                 ) : (
-                  <div
-                    style={{
-                      padding: "15px",
-                      color: "#666",
-                    }}
-                  >
-                    Products were skipped, but
-                    no detailed reason was returned
-                    by the backend.
-                  </div>
+                  <div className="mapping-skipped-empty">Products were skipped, but no detailed reason was returned by the backend.</div>
                 )}
-
               </div>
-
             </div>
           )}
-
-          {/* ==================================================
-              NO SKIPPED PRODUCTS
-          =================================================== */}
 
           {skippedCount === 0 && (
-            <div
-              style={{
-                padding: "15px",
-                borderRadius: "8px",
-                background: "#eaf8ef",
-                marginTop: "20px",
-                textAlign: "center",
-              }}
-            >
-              🎉 All selected products were
-              successfully added.
-            </div>
+            <div className="mapping-all-saved">🎉 All selected products were successfully added.</div>
           )}
 
-          {/* ==================================================
-              RESULT FOOTER
-          =================================================== */}
-
           <div className="outlet-footer">
-
-            <button
-              type="button"
-              className="outlet-cancel-btn"
-              onClick={handleClose}
-            >
-              Close
-            </button>
-
-            <button
-              type="button"
-              className="outlet-save-btn"
-              onClick={() => {
-                setMappingResult(null);
-              }}
-            >
-              ← Back
-            </button>
-
+            <button type="button" className="outlet-cancel-btn" onClick={handleClose}>Close</button>
+            <button type="button" className="outlet-save-btn" onClick={() => setMappingResult(null)}>← Back</button>
           </div>
-
         </div>
       </div>
     );
@@ -989,366 +829,264 @@ function AddToOutletProducts({
   // ============================================================
 
   return (
-    <div className="outlet-page">
-
-      <div className="outlet-card">
-
-        {/* =====================================================
-            HEADER
-        ====================================================== */}
-
+    <div className={`outlet-page ${asModal ? "outlet-variant-modal" : ""}`}>
+      <div className="outlet-card variant-popup-card">
         <div className="outlet-header">
-
-          <h2>
-            📂 Add to Outlet Products
-          </h2>
-
-          <button
-            type="button"
-            className="close-btn"
-            onClick={handleClose}
-          >
-            ✕
-          </button>
-
+          <h2>📂 Add to Outlet Products</h2>
+          <button type="button" className="close-btn" onClick={handleClose}>✕</button>
         </div>
 
-        {/* =====================================================
-            INFO
-        ====================================================== */}
-
-        <div className="outlet-info">
-
-          <div className="outlet-icon">
-            📦
-          </div>
-
-          <div>
-
-            <h3>
-              Map selected products to an outlet
-            </h3>
-
-            <p>
-              Choose the outlet, set a default
-              price and timing, then save.
-              Selected master products will be
-              mapped to their corresponding
-              outlet categories automatically.
-            </p>
-
-          </div>
-
-        </div>
-
-        {/* =====================================================
-            FORM
-        ====================================================== */}
-
-        <div className="outlet-form">
-
-          {/* ---------------------------------------------------
-              OUTLET
-          ---------------------------------------------------- */}
-
-          <div className="form-group full">
-
-            <label>
-              Outlet *
-            </label>
-
-            <Select
-              options={outletOptions}
-              value={selectedOutlet}
-              onChange={(selected) =>
-                setOutlet(
-                  selected
-                    ? selected.value
-                    : ""
-                )
-              }
-              placeholder="Select Outlet..."
-              isSearchable
-              isDisabled={isSaving}
-              styles={{
-                control: (base) => ({
-                  ...base,
-                  minHeight: "46px",
-                  borderRadius: "8px",
-                }),
-
-                menu: (base) => ({
-                  ...base,
-                  zIndex: 99999,
-                }),
-              }}
-            />
-
-          </div>
-
-          {/* ---------------------------------------------------
-              DEFAULT PRICE / TIMING
-          ---------------------------------------------------- */}
-
-          <div className="row">
-
-            {/* DEFAULT PRICE */}
-
-            <div className="form-group">
-
-              <label>
-                Default Price (₹)
-              </label>
-
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                placeholder="149"
-                value={defaultPrice}
-                disabled={isSaving}
-                onChange={(e) =>
-                  setDefaultPrice(
-                    e.target.value
-                  )
-                }
-              />
-
-            </div>
-
-            <button
-              type="button"
-              className="apply-btn"
-              disabled={isSaving}
-              onClick={
-                handleApplyDefaultPrice
-              }
-            >
-              ↓ Apply
-            </button>
-
-            {/* DEFAULT TIMING */}
-
-            <div className="form-group">
-
-              <label>
-                Default Timing
-              </label>
-
-              <input
-                type="text"
-                placeholder="9:00-22:00"
-                value={defaultTiming}
-                disabled={isSaving}
-                onChange={(e) =>
-                  setDefaultTiming(
-                    e.target.value
-                  )
-                }
-              />
-
-            </div>
-
-            <button
-              type="button"
-              className="apply-btn"
-              disabled={isSaving}
-              onClick={
-                handleApplyDefaultTiming
-              }
-            >
-              ↓ Apply
-            </button>
-
-          </div>
-
-          {/* ---------------------------------------------------
-              DEFAULT TYPE
-          ---------------------------------------------------- */}
-
-          <div className="form-group full">
-
-            <label>
-              Default Type
-            </label>
-
-            <select
-              value={defaultType}
-              disabled={isSaving}
-              onChange={(e) =>
-                setDefaultType(
-                  e.target.value
-                )
-              }
-            >
-
-              <option value="">
-                -- Keep Per Item --
-              </option>
-
-              <option value="Veg">
-                Veg
-              </option>
-
-              <option value="Non Veg">
-                Non Veg
-              </option>
-
-            </select>
-
-          </div>
-
-        </div>
-
-        {/* =====================================================
-            PRODUCTS HEADER
-        ====================================================== */}
-
-        <div className="products-header">
-
-          <h4>
-            PRODUCTS TO MAP
-          </h4>
-
-          <span>
-            {products.length}
-          </span>
-
-        </div>
-
-        {/* =====================================================
-            PRODUCTS LIST
-        ====================================================== */}
-
-        <div className="products-list">
-
-          {products.map(
-            (product, index) => {
-
-              const isVeg =
-                product.veg === 1;
-
-              return (
-                <div
-                  key={
-                    product.masterProductId ||
-                    index
-                  }
-                  className="product-card"
-                >
-
-                  {/* PRODUCT DETAILS */}
-
-                  <div className="product-details">
-
-                    <h5>
-                      {product.masterProductName}
-                    </h5>
-
-                    <p>
-                      {product.description}
-                    </p>
-
-                    <small>
-                      Master Product ID:{" "}
-                      {product.masterProductId}
-                      {" | "}
-                      Category ID:{" "}
-                      {product.categoryId}
-                    </small>
-
-                  </div>
-
-                  {/* PRODUCT PRICE */}
-
-                  <div className="product-price">
-
-                    <input
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      placeholder="Price"
-                      disabled
-                      value={
-                        product.xlsMerchantPrice !== undefined &&
-                        product.xlsMerchantPrice !== null &&
-                        product.xlsMerchantPrice !== ""
-                          ? product.xlsMerchantPrice
-                          : product.csvMerchantPrice !== undefined &&
-                            product.csvMerchantPrice !== null &&
-                            product.csvMerchantPrice !== ""
-                            ? product.csvMerchantPrice
-                            : product.csvPrice !== undefined &&
-                              product.csvPrice !== null &&
-                              product.csvPrice !== ""
-                              ? product.csvPrice
-                              : defaultPrice || ""
-                      }
-                      readOnly
-                    />
-
-                  </div>
-
-                  {/* PRODUCT TIMING */}
-
-                  <div className="product-time">
-
-                    <input
-                      type="text"
-                      placeholder="e.g. 9:00-22:00"
-                      disabled
-                      value={
-                        product.xlsTiming?.trim()
-                          ? product.xlsTiming
-                          : product.csvTiming?.trim()
-                            ? product.csvTiming
-                            : defaultTiming || ""
-                      }
-                      readOnly
-                    />
-
-                  </div>
-
-                  {/* PRODUCT TYPE */}
-
-                  <div className="product-type">
-
-                    <select
-                      value={
-                        defaultType ||
-                        (isVeg
-                          ? "Veg"
-                          : "Non Veg")
-                      }
-                      disabled
-                      onChange={() => {}}
-                    >
-
-                      <option value="Veg">
-                        Veg
-                      </option>
-
-                      <option value="Non Veg">
-                        Non Veg
-                      </option>
-
-                    </select>
-
-                  </div>
-
+        <div className="outlet-body">
+          {asModal && initialOutletName && (
+            <div className="mapping-info-bar">
+              <div className="mapping-info-item">
+                <span className="mapping-info-label">Outlet</span>
+                <span className="mapping-info-value">{initialOutletName}</span>
+              </div>
+              {outletCategoryId && (
+                <div className="mapping-info-item">
+                  <span className="mapping-info-label">Outlet Category ID</span>
+                  <span className="mapping-info-value">{outletCategoryId}</span>
                 </div>
-              );
-            }
+              )}
+            </div>
           )}
 
+          {!asModal && (
+            <>
+              <div className="outlet-info">
+                <div className="outlet-icon">📦</div>
+                <div>
+                  <h3>Map selected products to an outlet</h3>
+                  <p>Choose the outlet, set a default price and timing, then save. Selected master products will be mapped to their corresponding outlet categories automatically.</p>
+                </div>
+              </div>
+
+              {!hasPreselectedProducts && (
+                <div className="outlet-form master-product-picker">
+                  <div className="form-group full">
+                    <label>Master Products *</label>
+                    <div className="master-product-list">
+                      {loadingMasterProducts ? (
+                        <p className="master-product-empty">Loading master products...</p>
+                      ) : masterProducts.length === 0 ? (
+                        <p className="master-product-empty">No master products available.</p>
+                      ) : (
+                        masterProducts.map((product, index) => {
+                          const productId = Number(product.masterProductId || product.productId || product.id);
+                          const productName = product.masterProductName || product.productName || `Product ${productId}`;
+                          return (
+                            <label key={productId || index} className={`master-product-option ${index < masterProducts.length - 1 ? "master-product-divider" : ""}`}>
+                              <input
+                                type="checkbox"
+                                checked={selectedMasterProductIds.includes(productId)}
+                                onChange={() => toggleMasterProduct(product)}
+                              />
+                              <span>
+                                {productName}
+                                <small className="master-product-meta">
+                                  ID: {productId} {product.variantGroups?.length ? `• ${product.variantGroups.length} variant group(s)` : ""}
+                                </small>
+                              </span>
+                            </label>
+                          );
+                        })
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="outlet-form">
+                <div className="form-group full">
+                  <label>Outlet *</label>
+                  <Select
+                    classNamePrefix="outlet-select"
+                    options={outletOptions}
+                    value={selectedOutlet}
+                    onChange={(selected) => setOutlet(selected ? selected.value : "")}
+                    placeholder="Select Outlet..."
+                    isSearchable
+                    isDisabled={isSaving}
+                  />
+                </div>
+                <div className="row outlet-category-row">
+                  <div className="form-group">
+                    <label>Outlet Category ID <span>(required)</span></label>
+                    <input type="number" min="1" placeholder="e.g. 1" value={outletCategoryId} disabled={isSaving} onChange={(event) => setOutletCategoryId(event.target.value)} />
+                  </div>
+                  <div className="form-group">
+                    <label>Category ID <span>(required)</span></label>
+                    <input type="number" min="1" placeholder="e.g. 1" value={categoryId} disabled={isSaving} onChange={(event) => setCategoryId(event.target.value)} />
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+
+          <div className="products-header">
+            <h4>{asModal ? "PRODUCT DETAILS" : "PRODUCTS TO MAP"}</h4>
+          </div>
+
+          <div className="products-list">
+            {products.map((product, index) => {
+              const isVeg =
+                typeof product.isVeg === "boolean"
+                  ? product.isVeg
+                  : product.veg === 1 || product.veg === true;
+              const productId = getMasterProductId(product);
+              const variantGroups = variantDrafts[productId] ?? toVariantGroups(product);
+
+              const displayPrice =
+                product.merchantPrice ??
+                product.xlsMerchantPrice ??
+                product.csvMerchantPrice ??
+                product.csvPrice ??
+                appliedPrice ??
+                "—";
+
+              return (
+                <div key={productId || index} className="food-item-card">
+                  {/* ---- Product Summary ---- */}
+                  <div className="product-summary-card">
+                    <div className="product-summary-top">
+                      <div className="product-summary-name">
+                        <h5>
+                          {product.masterProductName || product.productName}
+                          <span className={`product-veg-badge ${isVeg ? "veg" : "nonveg"}`}>
+                            {isVeg ? "VEG" : "NON-VEG"}
+                          </span>
+                        </h5>
+                        {product.description && <p className="product-summary-desc">{product.description}</p>}
+                      </div>
+                      {product.imageLink && product.imageLink.startsWith("http") && (
+                        <img src={product.imageLink} alt="" className="product-summary-img" />
+                      )}
+                    </div>
+                  </div>
+
+                  {/* ---- Variant Editor ---- */}
+                  <section className="variant-editor">
+                    <div className="variant-editor-header">
+                      <div>
+                        <h5>Variant Groups ({variantGroups.length})</h5>
+                        <p>Select variant group & value names. Set the price type (MAIN / ADD) and price for each option.</p>
+                      </div>
+                      <button type="button" className="add-variant-group-btn" onClick={() => addVariantGroup(product)} disabled={isSaving}>
+                        + Add group
+                      </button>
+                    </div>
+
+                    {variantGroups.length === 0 ? (
+                      <div className="no-variants">No variant groups on this product. Click "+ Add group" to create one.</div>
+                    ) : (
+                      variantGroups.map((group, groupIndex) => {
+                        const currentGroupId = group.productVariantGroupsId;
+                        const groupValuesList = groupValuesCache[currentGroupId] || [];
+
+                        return (
+                          <div className="variant-group-editor" key={`${productId}-${groupIndex}`}>
+                            <div className="variant-group-toolbar">
+                              <div className="variant-group-label" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                                <span className="variant-group-name" style={{ fontWeight: "600" }}>Variant Group:</span>
+                                
+                                {/* Group Name / ID Dropdown */}
+                                <select
+                                  value={group.productVariantGroupsId ?? ""}
+                                  disabled={isSaving}
+                                  onChange={(event) => updateVariantGroup(product, groupIndex, event.target.value)}
+                                  style={{ padding: "6px 12px", borderRadius: "6px", border: "1px solid #cbd5e1", minWidth: "180px" }}
+                                >
+                                  <option value="">Select Variant Group...</option>
+                                  {availableVariantGroups.map((g) => {
+                                    const gId = g.productVariantGroupsId || g.groupId || g.id;
+                                    const gName = g.groupName || g.name || g.group_name || `Group ${gId}`;
+                                    return (
+                                      <option key={gId} value={gId}>
+                                        {gName}
+                                      </option>
+                                    );
+                                  })}
+                                </select>
+                              </div>
+                            </div>
+
+                            <div className="variant-options-heading" style={{ display: "grid", gridTemplateColumns: "2fr 1.2fr 1fr 40px", gap: "10px", padding: "8px 0", fontWeight: "600", fontSize: "13px" }}>
+                              <span>Option Value</span>
+                              <span>Price Type</span>
+                              <span>Price (₹)</span>
+                              <span />
+                            </div>
+
+                            {group.options?.map((option, optionIndex) => (
+                              <div className="variant-option-row" key={optionIndex} style={{ display: "grid", gridTemplateColumns: "2fr 1.2fr 1fr 40px", gap: "10px", marginBottom: "8px", alignItems: "center" }}>
+                                
+                                {/* Group Value / Option Name Dropdown */}
+                                <select
+                                  value={option.productVariantGroupValuesId ?? ""}
+                                  disabled={isSaving || !currentGroupId}
+                                  onChange={(event) => updateVariantOptionValue(product, groupIndex, optionIndex, event.target.value)}
+                                  style={{ padding: "6px 10px", borderRadius: "6px", border: "1px solid #cbd5e1" }}
+                                >
+                                  <option value="">Select Value...</option>
+                                  {groupValuesList.map((val) => {
+                                    const vId = val.productVariantGroupValuesId || val.valueId || val.id;
+                                    const vName = val.variantName || val.valueName || val.name || val.value || `Value ${vId}`;
+                                    return (
+                                      <option key={vId} value={vId}>
+                                        {vName}
+                                      </option>
+                                    );
+                                  })}
+                                </select>
+
+                                 {/* Price Type (Read-only: ADD for Add-ons group, MAIN for everything else) */}
+                                <input
+                                  type="text"
+                                  readOnly
+                                  value={getPriceTypeForGroup(group, availableVariantGroups)}
+                                  style={{
+                                    padding: "6px 10px",
+                                    borderRadius: "6px",
+                                    border: "1px solid #cbd5e1",
+                                    backgroundColor: "#f1f5f9",
+                                    color: "#334155",
+                                    fontWeight: "600",
+                                    cursor: "not-allowed",
+                                  }}
+                                />
+
+                                {/* Variant Price Input */}
+                                <input
+                                  type="number"
+                                  min="0"
+                                  step="0.01"
+                                  placeholder="Price"
+                                  value={option.variantPrice ?? ""}
+                                  disabled={isSaving}
+                                  onChange={(event) => updateVariantOption(product, groupIndex, optionIndex, "variantPrice", event.target.value)}
+                                  style={{ padding: "6px 10px", borderRadius: "6px", border: "1px solid #cbd5e1" }}
+                                />
+                              </div>
+                            ))}
+
+                            <button type="button" className="add-option-btn" style={{ marginTop: "10px" }} onClick={() => addVariantOption(product, groupIndex)} disabled={isSaving}>
+                              + Add option
+                            </button>
+                            <br />
+                          </div>
+                        );
+                      })
+                    )}
+                    <span className="variant-message-span">If you want to remove variant Conatact Admin</span>
+                  </section>
+                </div>
+              );
+            })}
+          </div>
         </div>
 
-        {/* =====================================================
-            FOOTER
-        ====================================================== */}
-
         <div className="outlet-footer">
-
           <button
             type="button"
             className="outlet-cancel-btn"
@@ -1362,20 +1100,12 @@ function AddToOutletProducts({
             type="button"
             className="outlet-save-btn"
             onClick={handleSaveProducts}
-            disabled={
-              products.length === 0 ||
-              isSaving
-            }
+            disabled={products.length === 0 || isSaving}
           >
-            {isSaving
-              ? "⏳ Saving..."
-              : "💾 Save to Products"}
+            {isSaving ? "⏳ Saving..." : "Save variants"}
           </button>
-
         </div>
-
       </div>
-
     </div>
   );
 }

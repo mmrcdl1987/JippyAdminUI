@@ -11,12 +11,17 @@ import {
   setProductUnavailable,
   restoreProductUnavailable,
 } from "../services/outletListService";
+import { getProductDetailById } from "../services/productDetailService";
+import AddToOutletProducts from "./AddToOutletProducts";
 
 import {
   FiSearch,
   FiChevronLeft,
   FiChevronRight,
   FiShoppingBag,
+  FiLayers,
+  FiX,
+  FiEdit2,
 } from "react-icons/fi";
 
 function OutletFoods({
@@ -70,6 +75,12 @@ function OutletFoods({
 
   const [foodPage, setFoodPage] =
     useState(1);
+
+  const [variantProduct, setVariantProduct] = useState(null);
+  const [variantLoading, setVariantLoading] = useState(false);
+  const [variantError, setVariantError] = useState("");
+  const [foodForVariants, setFoodForVariants] = useState(null);
+  const [preparingVariantForm, setPreparingVariantForm] = useState(false);
 
   // ============================================================
   // GET SELECTED OUTLET ID
@@ -630,6 +641,11 @@ const handleConfirmFoodRestore = async () => {
               product?.categoryName ??
               category?.categoryName ??
               "-",
+
+            outletCategoryId:
+              product?.outletCategoryId ??
+              category?.outletCategoryId ??
+              null,
           })
         );
       }
@@ -867,26 +883,70 @@ const handleConfirmFoodRestore = async () => {
         ? food.variants
         : [];
 
-    if (
-      isTrue(
-        food?.hasProductVariants
-      )
-    ) {
-      return (
-        <span className="jippy-food-variant">
-          Yes
-          {variants.length > 0
-            ? ` (${variants.length})`
-            : ""}
-        </span>
-      );
+  };
+
+  const handleViewVariants = async (food) => {
+    const productId = Number(food?.productId ?? food?.id);
+    if (!productId) {
+      setVariantError("This food item does not have a valid product ID.");
+      return;
     }
 
-    return (
-      <span className="jippy-food-no-variant">
-        No
-      </span>
-    );
+    setVariantProduct(null);
+    setVariantError("");
+    setVariantLoading(true);
+
+    try {
+      const response = await getProductDetailById(productId);
+      const product = response?.data ?? response;
+      setVariantProduct(product);
+    } catch (error) {
+      setVariantError(
+        error?.response?.data?.message ||
+          error?.message ||
+          "Unable to load product variants."
+      );
+    } finally {
+      setVariantLoading(false);
+    }
+  };
+
+  const handleAddVariants = async (food) => {
+    const productId = Number(food?.productId ?? food?.id);
+    if (!productId) {
+      setVariantError("This food item does not have a valid product ID.");
+      return;
+    }
+
+    setPreparingVariantForm(true);
+    setVariantError("");
+    try {
+      // Fetch complete product data first, then retain the food-row category,
+      // timings, and product ID needed by the mapping request.
+      const response = await getProductDetailById(productId);
+      const detail = response?.data ?? response ?? {};
+      setFoodForVariants({
+        ...food,
+        ...detail,
+        masterProductId:
+          detail.masterProductId ??
+          food.masterProductId ??
+          food.master_product_id ??
+          productId,
+        productName: detail.productName ?? food.productName,
+        categoryId: detail.categoryId ?? food.categoryId,
+        timings: detail.timings ?? food.productTimings ?? [],
+        variantGroups: detail.variantGroups ?? food.variantGroups ?? [],
+      });
+    } catch (error) {
+      setVariantError(
+        error?.response?.data?.message ||
+          error?.message ||
+          "Unable to load this food item for variant mapping."
+      );
+    } finally {
+      setPreparingVariantForm(false);
+    }
   };
 
   // ============================================================
@@ -1159,6 +1219,10 @@ const handleConfirmFoodRestore = async () => {
                   Product Timings
                 </th>
 
+                <th>
+                  Add Variants
+                </th>
+
               </tr>
 
             </thead>
@@ -1327,11 +1391,18 @@ const handleConfirmFoodRestore = async () => {
                           {/* VARIANTS */}
 
                           <td>
-
-                            {renderVariants(
-                              food
-                            )}
-
+                            <div className="jippy-food-variants-cell">
+                              {renderVariants(food)}
+                              <button
+                                type="button"
+                                className="jippy-food-variants-btn"
+                                onClick={() => handleViewVariants(food)}
+                                disabled={variantLoading}
+                              >
+                                <FiLayers />
+                                View variants
+                              </button>
+                            </div>
                           </td>
 
                           {/* AVAILABLE */}
@@ -1380,6 +1451,21 @@ const handleConfirmFoodRestore = async () => {
 
                           </td>
 
+                          {/* ADD VARIANTS */}
+
+                          <td>
+                            <button
+                              type="button"
+                              className="jippy-food-add-variants-btn"
+                              onClick={() => handleAddVariants(food)}
+                              disabled={preparingVariantForm}
+                              title="Edit product variants"
+                              aria-label="Edit product variants"
+                            >
+                              <FiEdit2 />
+                            </button>
+                          </td>
+
                         </tr>
 
                         {/* ==================================================
@@ -1399,7 +1485,7 @@ const handleConfirmFoodRestore = async () => {
                             <tr className="food-expanded-row">
 
                               <td
-                                colSpan={11}
+                                colSpan={12}
                                 className="jippy-food-expanded-cell"
                               >
 
@@ -1423,77 +1509,37 @@ const handleConfirmFoodRestore = async () => {
 
                                     </div>
 
-                                    {/* <button
+                                    <button
                                       type="button"
                                       className="jippy-edit-unavailability-btn"
                                       onClick={() => {
-
                                         const saved =
                                           foodUnavailabilityData[
                                             food?.productId
                                           ];
 
-                                        setSelectedFood(
-                                          food
-                                        );
+                                        setSelectedFood(food);
 
-                                        setFoodUnavailabilityForm(
-                                          {
-                                            fromDate:
-                                              saved?.fromDate ||
-                                              "",
+                                        setFoodUnavailabilityForm({
+                                          fromDate:
+                                            saved?.fromDate || "",
 
-                                            toDate:
-                                              saved?.toDate ||
-                                              "",
+                                          toDate:
+                                            saved?.toDate || "",
 
-                                            reason:
-                                              saved?.reason ||
-                                              "",
-                                          }
-                                        );
+                                          reason:
+                                            saved?.reason || "",
+                                        });
 
-                                        setFoodAvailabilityModal(
-                                          true
-                                        );
+                                        // IMPORTANT:
+                                        // Edit must open the form, NOT restore popup
+                                        setFoodAvailabilityMode("edit");
 
+                                        setFoodAvailabilityModal(true);
                                       }}
                                     >
-
                                       Edit Unavailability
-
-                                    </button> */}
-<button
-  type="button"
-  className="jippy-edit-unavailability-btn"
-  onClick={() => {
-    const saved =
-      foodUnavailabilityData[
-        food?.productId
-      ];
-
-    setSelectedFood(food);
-
-    setFoodUnavailabilityForm({
-      fromDate:
-        saved?.fromDate || "",
-
-      toDate:
-        saved?.toDate || "",
-
-      reason:
-        saved?.reason || "",
-    });
-
-    // IMPORTANT:
-    // Edit must open the form, NOT restore popup
-    setFoodAvailabilityMode("edit");
-
-    setFoodAvailabilityModal(true);
-  }}
->
-  Edit Unavailability
-</button>
+                                    </button>
 
                                   </div>
 
@@ -1607,7 +1653,7 @@ const handleConfirmFoodRestore = async () => {
                 <tr>
 
                   <td
-                    colSpan={11}
+                    colSpan={12}
                     className="jippy-outlet-foods-empty"
                   >
 
@@ -1703,6 +1749,59 @@ const handleConfirmFoodRestore = async () => {
         </div>
 
       </div>
+      {(variantLoading || variantProduct || variantError) && (
+        <div className="jippy-food-variants-modal" role="dialog" aria-modal="true" aria-label="Product variants">
+          <div className="jippy-food-variants-dialog">
+            <div className="jippy-food-variants-dialog-header">
+              <div>
+                <p>PRODUCT VARIANTS</p>
+                <h3>{variantProduct?.productName || "Loading product variants"}</h3>
+              </div>
+              <button type="button" onClick={() => { setVariantProduct(null); setVariantError(""); }} aria-label="Close variants">
+                <FiX />
+              </button>
+            </div>
+
+            {variantLoading && <div className="jippy-food-variants-state">Loading variants...</div>}
+            {variantError && <div className="jippy-food-variants-error">{variantError}</div>}
+
+            {variantProduct && !variantLoading && (
+              <div className="jippy-food-variants-content">
+                {Array.isArray(variantProduct.variantGroups) && variantProduct.variantGroups.length > 0 ? (
+                  variantProduct.variantGroups.map((group) => (
+                    <section className="jippy-food-variant-group" key={group.productVariantGroupsId}>
+                      <h3>{group.groupName || `Group #${group.productVariantGroupsId}`}</h3>
+                      <div className="jippy-food-variant-options">
+                        {(group.options || []).map((option) => (
+                          <div className="jippy-food-variant-option" key={option.productVariantOptionsId}>
+                            <strong>{option.variantName || `Option #${option.productVariantOptionsId}`}</strong>
+                            <span>{option.priceType || "FIXED"}</span>
+                            <b>{formatPrice(option.variantPrice)}</b>
+                          </div>
+                        ))}
+                      </div>
+                    </section>
+                  ))
+                ) : (
+                  <div className="jippy-food-variants-state">No variants are configured for this food item.</div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {foodForVariants && (
+        <AddToOutletProducts
+          selectedProducts={[foodForVariants]}
+          initialOutletId={outlet?.outletId ?? outlet?.id}
+          initialOutletName={outlet?.outletName ?? outlet?.name}
+          initialOutletCategoryId={foodForVariants.outletCategoryId}
+          initialCategoryId={foodForVariants.categoryId}
+          asModal
+          setShowOutletPopup={() => setFoodForVariants(null)}
+        />
+      )}
 
       {/* ======================================================
           BACK BUTTON
