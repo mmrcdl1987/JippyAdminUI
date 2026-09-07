@@ -98,3 +98,20 @@ export const uploadMerchants = async (file) => {
     throw error;
   }
 };
+
+
+export const fetchStates = async () => {
+  const response = await FM_API.get(
+    "/api/fm/location/fetchStates"
+  );
+
+  return response.data;
+};
+
+export const fetchCitiesByState = async (stateId) => {
+  const response = await FM_API.get(
+    `/api/fm/location/fetchCityInState?stateId=${stateId}`
+  );
+
+  return response.data;
+};
