@@ -2,7 +2,10 @@ import "../../styles/Merchants/Merchants.css";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FM_API } from "../../services/api";
-import { uploadMerchants } from "../../services/merchantService";
+import { uploadMerchants,
+  fetchStates,
+  fetchCitiesByState,
+ } from "../../services/merchantService";
 import { FaStore } from "react-icons/fa";
 
 
@@ -13,13 +16,25 @@ function Merchants() {
   const [search, setSearch] = useState("");
   const [expandedRow, setExpandedRow] = useState(null);
 
+
+
+  const [selectedMerchantType, setSelectedMerchantType] = useState("");
+const [selectedState, setSelectedState] = useState("");
+const [selectedCity, setSelectedCity] = useState("");
+
+const [states, setStates] = useState([]);
+const [cities, setCities] = useState([]);
+const [locationLoading, setLocationLoading] = useState(false);
+
+
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(30);
 
   useEffect(() => {
-    fetchMerchants();
-  }, []);
+  fetchMerchants();
+  fetchStates();
+}, []);
 
   // ============================================================
 // MERCHANT TABLE COLUMNS
@@ -69,6 +84,63 @@ const [visibleColumns, setVisibleColumns] = useState({
       setLoading(false);
     }
   };
+
+
+  const handleStateChange = (e) => {
+  const stateId = e.target.value;
+
+  setSelectedState(stateId);
+
+  // Reset city whenever state changes
+  setSelectedCity("");
+
+  // Fetch cities for selected state
+  fetchCities(stateId);
+};
+
+  const fetchStates = async () => {
+  try {
+    setLocationLoading(true);
+
+    const response = await FM_API.get(
+      "/api/fm/location/fetchStates"
+    );
+
+    console.log("States API response:", response.data);
+
+    setStates(response.data || []);
+  } catch (error) {
+    console.error("Error fetching states:", error);
+    setStates([]);
+  } finally {
+    setLocationLoading(false);
+  }
+};
+
+
+const fetchCities = async (stateId) => {
+  if (!stateId) {
+    setCities([]);
+    return;
+  }
+
+  try {
+    setLocationLoading(true);
+
+    const response = await FM_API.get(
+      `/api/fm/location/fetchCityInState?stateId=${stateId}`
+    );
+
+    console.log("Cities API response:", response.data);
+
+    setCities(response.data || []);
+  } catch (error) {
+    console.error("Error fetching cities:", error);
+    setCities([]);
+  } finally {
+    setLocationLoading(false);
+  }
+};
 
   // ============================================================
   // BULK MERCHANT FILE SELECTION
@@ -179,7 +251,7 @@ const [visibleColumns, setVisibleColumns] = useState({
 const filteredMerchants = merchants.filter((merchant) => {
   const keyword = search.toLowerCase();
 
-  return (
+  const matchesSearch =
     merchant.merchantName?.toLowerCase().includes(keyword) ||
     merchant.firstName?.toLowerCase().includes(keyword) ||
     merchant.lastName?.toLowerCase().includes(keyword) ||
@@ -189,7 +261,25 @@ const filteredMerchants = merchants.filter((merchant) => {
     merchant.city?.toLowerCase().includes(keyword) ||
     merchant.state?.toLowerCase().includes(keyword) ||
     merchant.merchantBusinessType?.toLowerCase().includes(keyword) ||
-    merchant.status?.toLowerCase().includes(keyword)
+    merchant.status?.toLowerCase().includes(keyword);
+
+  const matchesMerchantType =
+    !selectedMerchantType ||
+    merchant.merchantBusinessType === selectedMerchantType;
+
+  const matchesState =
+    !selectedState ||
+    String(merchant.stateId) === String(selectedState);
+
+  const matchesCity =
+    !selectedCity ||
+    String(merchant.cityId) === String(selectedCity);
+
+  return (
+    matchesSearch &&
+    matchesMerchantType &&
+    matchesState &&
+    matchesCity
   );
 });
     
@@ -273,19 +363,56 @@ const showAllMerchantColumns = () => {
         </div>
 
         <div className="merchant-list-filters">
-          <select>
-            <option>Merchant Type</option>
-          </select>
-          <select>
-            <option>Business Model</option>
-          </select>
-          <select>
-            <option>Select City</option>
-          </select>
-          <select>
-            <option>Best Merchants</option>
-          </select>
-        </div>
+
+  {/* MERCHANT TYPE */}
+  <select
+    value={selectedMerchantType}
+    onChange={(e) => setSelectedMerchantType(e.target.value)}
+  >
+    <option value="">Merchant Type</option>
+    <option value="Outlets">Outlets</option>
+    <option value="Mart">Mart</option>
+  </select>
+
+
+  {/* STATE */}
+  <select
+    value={selectedState}
+    onChange={handleStateChange}
+    disabled={locationLoading}
+  >
+    <option value="">Select State</option>
+
+    {states.map((state) => (
+      <option
+        key={state.stateId}
+        value={state.stateId}
+      >
+        {state.stateName}
+      </option>
+    ))}
+  </select>
+
+
+  {/* CITY */}
+  <select
+    value={selectedCity}
+    onChange={(e) => setSelectedCity(e.target.value)}
+    disabled={!selectedState || locationLoading}
+  >
+    <option value="">Select City</option>
+
+    {cities.map((city) => (
+      <option
+        key={city.cityId}
+        value={city.cityId}
+      >
+        {city.cityName}
+      </option>
+    ))}
+  </select>
+
+</div>
       </div>
 
       {/* Statistics */}

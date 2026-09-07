@@ -509,89 +509,10 @@ const handleConfirmOutletRestore = async () => {
     }
   };
 
-  // =========================================================
-// FETCH ALL OUTLETS
-// =========================================================
-
-// const fetchOutlets = async () => {
-//   try {
-//     setLoading(true);
-
-//     // 1. Get all outlets
-//     const data = await getAllOutlets();
-
-//     if (!Array.isArray(data)) {
-//       setOutlets([]);
-//       return;
-//     }
-
-//     // 2. Get complete details for every outlet
-//     //    because /api/fm/outlets does NOT return isToggle
-//     const outletsWithAvailability = await Promise.all(
-//       data.map(async (outlet) => {
-//         try {
-//           const details = await getOutletDetails(
-//             Number(outlet.outletId)
-//           );
-
-//           console.log(
-//             `OUTLET ${outlet.outletId} DETAILS:`,
-//             details
-//           );
-
-//           return {
-//             ...outlet,
-
-//             // Get toggle from outlet-details API
-//             isToggle: details?.isToggle === true,
-
-//             // Get availability from outlet-details API
-//             isAvailable: details?.isAvailable === true,
-//           };
-//         } catch (error) {
-//           console.error(
-//             `Failed to fetch details for outlet ${outlet.outletId}:`,
-//             error
-//           );
-
-//           // Keep original outlet if details API fails
-//           return outlet;
-//         }
-//       })
-//     );
-
-//     console.log(
-//       "FINAL OUTLETS WITH AVAILABILITY:",
-//       outletsWithAvailability
-//     );
-
-//     setOutlets(outletsWithAvailability);
-
-//   } catch (error) {
-//     console.error(
-//       "Failed to fetch outlets:",
-//       error
-//     );
-
-//     setOutlets([]);
-
-//   } finally {
-//     setLoading(false);
-//   }
-// };
-//   // =========================================================
-//   // INITIAL LOAD
-//   // =========================================================
-
-//   useEffect(() => {
-//     fetchOutlets();
-//     fetchOutletCount();
-//   }, []);
 
 // =========================================================
 // FETCH ALL OUTLETS
 // =========================================================
-
 const fetchOutlets = async () => {
   try {
     setLoading(true);
@@ -605,42 +526,42 @@ const fetchOutlets = async () => {
     }
 
     // 2. Get isToggle from admin outlet-details API
-    const outletsWithAvailability = await Promise.all(
-      data.map(async (outlet) => {
-        try {
-          const details = await getOutletDetails(
-            Number(outlet.outletId)
-          );
+    const outletsWithAvailability = [];
 
-          console.log(
-            `OUTLET ${outlet.outletId} DETAILS:`,
-            details
-          );
+    for (const outlet of data) {
+      try {
+        const details = await getOutletDetails(
+          Number(outlet.outletId)
+        );
 
-          return {
-            ...outlet,
+        console.log(
+          `OUTLET ${outlet.outletId} DETAILS:`,
+          details
+        );
 
-            // IMPORTANT:
-            // /api/fm/outlets does NOT provide isToggle.
-            // It comes from /admin/outlet-details.
-            isToggle: details?.isToggle === true,
+        outletsWithAvailability.push({
+          ...outlet,
 
-            isAvailable:
-              details?.isAvailable === true,
-          };
-        } catch (error) {
-          console.error(
-            `Failed to fetch details for outlet ${outlet.outletId}:`,
-            error
-          );
+          isToggle:
+            details?.isToggle === true,
 
-          // Do NOT force false if the details API fails.
-          return {
-            ...outlet,
-          };
-        }
-      })
-    );
+          isAvailable:
+            details?.isAvailable === true,
+        });
+
+      } catch (error) {
+        console.error(
+          `Failed to fetch details for outlet ${outlet.outletId}:`,
+          error
+        );
+
+        // Don't force isToggle to false
+        // if the API request failed.
+        outletsWithAvailability.push({
+          ...outlet,
+        });
+      }
+    }
 
     console.log(
       "FINAL OUTLETS WITH AVAILABILITY:",
@@ -1732,9 +1653,7 @@ const columnOptions = [
       <th>Status</th>
     )}
 
-                <th className="jippy-all-outlets-actions-header">
-                  Actions
-                </th>
+               
     {visibleColumns.menuItemCount && (
       <th>Menu Items</th>
     )}
@@ -1848,13 +1767,7 @@ const columnOptions = [
             )}
 
 
-                      {visibleColumns.outletId && (
-                        <td>
-                          {outlet.outletId ??
-                            "-"}
-                        </td>
-                      )}
-
+                    
                      
 
             {/* OUTLET NAME */}
@@ -1877,14 +1790,14 @@ const columnOptions = [
               </td>
             )}
 
-            {/* CUISINE */}
-            {visibleColumns.cuisineType && (
-              <td>
-                {outlet.cuisineType ||
-                  outlet.cuisineTypeName ||
-                  "-"}
-              </td>
-            )}
+           {/* CUISINE TYPE */}
+{visibleColumns.cuisineType && (
+  <td>
+    {Array.isArray(outlet.cuisineType)
+      ? outlet.cuisineType.join(", ")
+      : outlet.cuisineType || "-"}
+  </td>
+)}
 
             {/* PHONE */}
             {visibleColumns.outletPhone && (
@@ -1932,6 +1845,7 @@ const columnOptions = [
             )}
 
 {/* AVAILABILITY */}
+{/* AVAILABILITY */}
 {visibleColumns.availability && (
   <td>
     <label className="jippy-outlet-toggle">
@@ -1946,35 +1860,11 @@ const columnOptions = [
   </td>
 )}
 
-{/* MERCHANT ID */}
-{visibleColumns.merchantId && (
-  <td>
-    {outlet.merchantId ?? "-"}
-  </td>
-)}
 
-{/* CUISINE TYPE */}
-{visibleColumns.cuisineType && (
-  <td>
-    {Array.isArray(outlet.cuisineType)
-      ? outlet.cuisineType.join(", ")
-      : outlet.cuisineType || "-"}
-  </td>
-)}
 
-{/* OUTLET PHONE */}
-{visibleColumns.outletPhone && (
-  <td>
-    {outlet.outletPhone || "-"}
-  </td>
-)}
 
-{/* STATUS */}
-{visibleColumns.status && (
-  <td>
-    {/* your existing status content goes here */}
-  </td>
-)}
+
+
             {/* ACTIONS */}
             <td className="jippy-all-outlets-actions-cell">
               <div className="jippy-all-outlets-actions">
