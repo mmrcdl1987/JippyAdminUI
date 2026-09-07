@@ -1498,3 +1498,222 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+/* ============================================================
+   FOOD VARIANTS CELL & BUTTONS
+   ============================================================ */
+
+.jippy-food-variants-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.jippy-food-variants-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 9px;
+  background: #f3f0ff;
+  border: 1px solid #d8b4fe;
+  border-radius: 6px;
+  color: #7c3aed;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.jippy-food-variants-btn svg {
+  font-size: 13px;
+}
+
+.jippy-food-variants-btn:hover:not(:disabled) {
+  background: #e9d5ff;
+  border-color: #c084fc;
+  color: #6d28d9;
+}
+
+.jippy-food-variants-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.jippy-food-add-variants-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #475569;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.jippy-food-add-variants-btn svg {
+  font-size: 15px;
+}
+
+.jippy-food-add-variants-btn:hover:not(:disabled) {
+  background: #fff3eb;
+  border-color: #f47b20;
+  color: #f47b20;
+}
+
+.jippy-food-add-variants-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ============================================================
+   PRODUCT VARIANTS MODAL
+   ============================================================ */
+
+.jippy-food-variants-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(3px);
+}
+
+.jippy-food-variants-dialog {
+  width: 520px;
+  max-width: calc(100vw - 32px);
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 24px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
+  display: flex;
+  flex-direction: column;
+  max-height: 85vh;
+}
+
+.jippy-food-variants-dialog-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.jippy-food-variants-dialog-header p {
+  margin: 0 0 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  color: #f47b20;
+}
+
+.jippy-food-variants-dialog-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.jippy-food-variants-dialog-header button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: #f8fafc;
+  color: #64748b;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 18px;
+  transition: all 0.2s ease;
+}
+
+.jippy-food-variants-dialog-header button:hover {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+.jippy-food-variants-state {
+  padding: 32px 16px;
+  text-align: center;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.jippy-food-variants-error {
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  color: #dc2626;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.jippy-food-variants-content {
+  margin-top: 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-right: 4px;
+}
+
+.jippy-food-variant-group {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+
+.jippy-food-variant-group h3 {
+  margin: 0 0 12px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.jippy-food-variant-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.jippy-food-variant-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.jippy-food-variant-option strong {
+  font-size: 13px;
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.jippy-food-variant-option span {
+  font-size: 11px;
+  padding: 3px 8px;
+  background: #eff6ff;
+  color: #2563eb;
+  border-radius: 5px;
+  font-weight: 700;
+}
+
+.jippy-food-variant-option b {
+  font-size: 14px;
+  color: #16a34a;
+  font-weight: 700;
+}
