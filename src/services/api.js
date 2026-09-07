@@ -99,5 +99,18 @@ export const uploadBannerImages = async (outletSubscriptionPlanId, updatedBy, fo
   }
 };
 
+// =============================================
+// Password Reset API Export
+// =============================================
+export const resetPasswordByAdminForRoles = async (resetData) => {
+  try {
+    const response = await FM_API.post("/api/fm/users/passwordResetByAdminForRoles", resetData);
+    return response.data;
+  } catch (error) {
+    console.error("Error resetting password:", error);
+    throw error;
+  }
+};
+
 export { API, FM_API };
 export default API;

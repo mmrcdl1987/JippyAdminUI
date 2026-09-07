@@ -75,6 +75,9 @@ function OutletFoods({
 
   const [foodPage, setFoodPage] =
     useState(1);
+  // P/PV toggle: false = P (all products), true = PV (products with variants)
+  const [isPvToggle, setIsPvToggle] = useState(false);
+
 
   const [variantProduct, setVariantProduct] = useState(null);
   const [variantLoading, setVariantLoading] = useState(false);
@@ -660,16 +663,29 @@ const handleConfirmFoodRestore = async () => {
   // ============================================================
 
   const filteredFoods = useMemo(() => {
+    let result = allFoods;
+
+    // Filter based on P/PV toggle state.
+    // OFF = all products (P), ON = products having variants (PV).
+    if (isPvToggle) {
+      result = result.filter(
+        (food) =>
+          food?.hasProductVariants === true ||
+          food?.hasProductVariants === "true" ||
+          (Array.isArray(food?.variants) && food.variants.length > 0)
+      );
+    }
+
     const search =
       foodSearch
         .trim()
         .toLowerCase();
 
     if (!search) {
-      return allFoods;
+      return result;
     }
 
-    return allFoods.filter(
+    return result.filter(
       (food) => {
         const productId =
           String(
@@ -710,6 +726,7 @@ const handleConfirmFoodRestore = async () => {
   }, [
     allFoods,
     foodSearch,
+    isPvToggle,
   ]);
 
   // ============================================================
@@ -754,6 +771,7 @@ const handleConfirmFoodRestore = async () => {
   }, [
     foodSearch,
     foodEntries,
+    isPvToggle,
   ]);
 
   // ============================================================
@@ -1072,8 +1090,74 @@ const handleConfirmFoodRestore = async () => {
 
         </div>
 
-        <div className="jippy-outlet-foods-count-badge">
-          {allFoods.length} Foods
+        {/* P/PV TOGGLE + FOOD COUNT */}
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+            <span
+              style={{
+                fontSize: "12px",
+                fontWeight: "600",
+                color: "#555",
+              }}
+            >
+              P/PV
+            </span>
+
+            <label
+              style={{
+                position: "relative",
+                display: "inline-block",
+                width: "36px",
+                height: "20px",
+                cursor: "pointer",
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={isPvToggle}
+                onChange={() => setIsPvToggle((previous) => !previous)}
+                style={{
+                  opacity: 0,
+                  width: 0,
+                  height: 0,
+                }}
+              />
+
+              <span
+                style={{
+                  position: "absolute",
+                  cursor: "pointer",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  backgroundColor: isPvToggle ? "#ff5722" : "#ccc",
+                  transition: ".4s",
+                  borderRadius: "20px",
+                }}
+              >
+                <span
+                  style={{
+                    position: "absolute",
+                    height: "14px",
+                    width: "14px",
+                    left: "3px",
+                    bottom: "3px",
+                    backgroundColor: "white",
+                    transition: ".4s",
+                    borderRadius: "50%",
+                    transform: isPvToggle
+                      ? "translateX(16px)"
+                      : "translateX(0)",
+                  }}
+                />
+              </span>
+            </label>
+          </div>
+
+          <div className="jippy-outlet-foods-count-badge">
+            {filteredFoods.length} Foods
+          </div>
         </div>
 
       </div>
@@ -1217,6 +1301,10 @@ const handleConfirmFoodRestore = async () => {
 
                 <th>
                   Product Timings
+                </th>
+
+                <th>
+                  Product Type
                 </th>
 
                 <th>
@@ -1451,6 +1539,14 @@ const handleConfirmFoodRestore = async () => {
 
                           </td>
 
+                          {/* PRODUCT TYPE */}
+
+                          <td>
+                            <span className="jippy-food-product-type">
+                              {food?.productType || "-"}
+                            </span>
+                          </td>
+
                           {/* ADD VARIANTS */}
 
                           <td>
@@ -1485,7 +1581,7 @@ const handleConfirmFoodRestore = async () => {
                             <tr className="food-expanded-row">
 
                               <td
-                                colSpan={12}
+                                colSpan={13}
                                 className="jippy-food-expanded-cell"
                               >
 
@@ -1653,7 +1749,7 @@ const handleConfirmFoodRestore = async () => {
                 <tr>
 
                   <td
-                    colSpan={12}
+                    colSpan={13}
                     className="jippy-outlet-foods-empty"
                   >
 

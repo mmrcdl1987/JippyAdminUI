@@ -5,6 +5,7 @@ import {
   fetchOutletProductsForUpdate,
   updateOutletPricing,
   bulkUpdateOutletPricing,
+  updateMerchantPrice,
 } from "../services/outletPriceService";
 import "../styles/ProductPriceUpdate.css";
 
@@ -42,6 +43,7 @@ export default function ProductPriceUpdate() {
 
   // Price States for Individual Products
   const [newPrices, setNewPrices] = useState({});
+  const [newMerchantPrices, setNewMerchantPrices] = useState({});
 
   useEffect(() => {
     loadStates();
@@ -175,12 +177,16 @@ export default function ProductPriceUpdate() {
       }
 
       const initialPrices = {};
+      const initialMerchantPrices = {};
+
       productsList.forEach((prod, index) => {
         const key = `p_${prod.productId}_${index}`;
         initialPrices[key] = prod.onlinePrice ?? prod.price ?? 0;
+        initialMerchantPrices[key] = prod.merchantPrice ?? prod.mrp ?? 0;
       });
 
       setNewPrices(initialPrices);
+      setNewMerchantPrices(initialMerchantPrices);
     } catch (error) {
       console.error("Error fetching outlet products pricing:", error);
       alert("Failed to load outlet product pricing details.");
@@ -189,7 +195,6 @@ export default function ProductPriceUpdate() {
     }
   };
 
-  // Triggered when clicking "Apply" for bulk update on selected outlets
   const handleApplyOutletBulkAdjustment = async () => {
     if (selectedOutletIds.length === 0) {
       alert("Please select at least one outlet.");
@@ -211,11 +216,10 @@ export default function ProductPriceUpdate() {
         value: val,
         priceType: adjustmentType === "percentage" ? "PERCENTAGE" : "FLAT",
         locationType: "OUTLET",
-        operationType: operationDirection, // "INCREASE" or "DECREASE"
+        operationType: operationDirection,
       };
 
       await bulkUpdateOutletPricing(payload, true);
-
       alert(`Successfully performed bulk price update for ${selectedOutletIds.length} outlet(s)!`);
     } catch (error) {
       console.error("Error applying bulk price adjustment:", error);
@@ -232,6 +236,13 @@ export default function ProductPriceUpdate() {
     }));
   };
 
+  const handleMerchantPriceChange = (key, value) => {
+    setNewMerchantPrices((prev) => ({
+      ...prev,
+      [key]: value === "" ? "" : isNaN(Number(value)) ? prev[key] : Number(value),
+    }));
+  };
+
   const handleSavePrices = async () => {
     if (!activeOutlet || !activeOutlet.products) {
       alert("No active outlet product details found.");
@@ -243,39 +254,62 @@ export default function ProductPriceUpdate() {
       return;
     }
 
+    // Retrieve current session credentials dynamically (adjust keys as needed)
+    const currentRole = localStorage.getItem("userRole") || "ROLE_SUPERADMIN";
+    const currentUserId = Number(localStorage.getItem("userId")) || 0;
+
     try {
       const changedItems = [];
+      const merchantPricePromises = [];
 
       activeOutlet.products.forEach((prod, index) => {
         const key = `p_${prod.productId}_${index}`;
         const val = newPrices[key];
-        const currentPrice = prod.onlinePrice ?? prod.price ?? 0;
+        const merchVal = newMerchantPrices[key];
 
-        if (val !== "" && val !== undefined && !isNaN(val)) {
-          const numericVal = Number(val);
-          if (numericVal !== currentPrice) {
-            changedItems.push({
-              productId: prod.productId,
-              productVariantId: prod.productVariantId ?? null,
-              newPrice: numericVal,
-            });
-          }
+        const currentPrice = prod.onlinePrice ?? prod.price ?? 0;
+        const currentMerchantPrice = prod.merchantPrice ?? prod.mrp ?? 0;
+
+        const numericVal = val !== "" && val !== undefined && !isNaN(val) ? Number(val) : currentPrice;
+        const numericMerchVal = merchVal !== "" && merchVal !== undefined && !isNaN(merchVal) ? Number(merchVal) : currentMerchantPrice;
+
+        // Track Online Price changes for batch update
+        if (numericVal !== currentPrice) {
+          changedItems.push({
+            productId: prod.productId,
+            productVariantId: prod.productVariantId ?? null,
+            newPrice: numericVal,
+          });
+        }
+
+        // Track Merchant Price changes with current session role and user ID payload
+        if (numericMerchVal !== currentMerchantPrice) {
+          merchantPricePromises.push(
+            updateMerchantPrice(prod.productId, numericMerchVal, currentRole, currentUserId)
+          );
         }
       });
 
-      if (changedItems.length === 0) {
+      if (changedItems.length === 0 && merchantPricePromises.length === 0) {
         alert("No price changes detected to save.");
         return;
       }
 
-      const payload = {
-        outletIds: selectedOutletIds,
-        items: changedItems,
-      };
+      // Execute Online Price batch update if changes exist
+      if (changedItems.length > 0) {
+        const payload = {
+          outletIds: selectedOutletIds,
+          items: changedItems,
+        };
+        await updateOutletPricing(payload, true);
+      }
 
-      await updateOutletPricing(payload, true);
+      // Execute Merchant Price updates if changes exist
+      if (merchantPricePromises.length > 0) {
+        await Promise.all(merchantPricePromises);
+      }
 
-      alert(`Successfully updated ${changedItems.length} changed product price(s) across ${selectedOutletIds.length} outlet(s)!`);
+      alert(`Successfully updated product pricing details across ${selectedOutletIds.length} outlet(s)!`);
     } catch (error) {
       console.error("Error updating prices:", error);
       alert("Failed to update product prices.");
@@ -627,6 +661,7 @@ export default function ProductPriceUpdate() {
                       ) : (
                         filteredProducts.map((prod) => {
                           const userPrice = newPrices[prod.key];
+                          const userMerchantPrice = newMerchantPrices[prod.key];
                           const diff =
                             userPrice !== "" && userPrice !== undefined && !isNaN(userPrice)
                               ? userPrice - prod.currentPrice
@@ -637,7 +672,15 @@ export default function ProductPriceUpdate() {
                               <td>
                                 <strong>{prod.name}</strong>
                               </td>
-                              <td>₹ {prod.merchantPrice}</td>
+                              <td>
+                                <input
+                                  type="number"
+                                  value={userMerchantPrice ?? ""}
+                                  onChange={(e) =>
+                                    handleMerchantPriceChange(prod.key, e.target.value)
+                                  }
+                                />
+                              </td>
                               <td>₹ {prod.currentPrice}</td>
                               <td>
                                 <input

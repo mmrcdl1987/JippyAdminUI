@@ -14,118 +14,110 @@ function Login() {
 
   const navigate = useNavigate();
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  try {
+    try {
+      setLoading(true);
 
-    setLoading(true);
-
-    // const response = await axios.post(
-    //   "/api/fm/auth/webLogin",
-    //   {
-    //     username: email,
-    //     password: password,
-    //   }
-    // );
- const response = await FM_API.post(
-  "/api/fm/auth/webLogin",
-  {
-    username: email,
-    password: password,
-  }
-);
-
-    const userData = response.data;
-
-    console.log("Login Response :", userData);
-
-    // Clear old session
-    localStorage.clear();
-
-    // Complete response
-    localStorage.setItem(
-      "userData",
-      JSON.stringify(userData)
-    );
-
-    // JWT Token
-    localStorage.setItem(
-      "token",
-      userData.token || ""
-    );
-
-    // Username
-    localStorage.setItem(
-      "username",
-      userData.username || ""
-    );
-
-    // Role
-    localStorage.setItem(
-      "role",
-      userData.role || ""
-    );
-
-    // User ID & Approver ID
-    const userIdVal = userData.userId || userData.id || userData.employeeId || "";
-    localStorage.setItem("userId", String(userIdVal));
-    localStorage.setItem("approverId", String(userIdVal));
-    if (userData.employeeId) {
-      localStorage.setItem("employeeId", String(userData.employeeId));
-    }
-
-    // Permissions
-    localStorage.setItem(
-      "permissions",
-      JSON.stringify(
-        userData.permissions || []
-      )
-    );
-
-    console.log(
-      "Stored Token:",
-      localStorage.getItem("token")
-    );
-
-    console.log(
-      "Stored Role:",
-      localStorage.getItem("role")
-    );
-
-    console.log(
-      "Stored Permissions:",
-      localStorage.getItem("permissions")
-    );
-
-    if (rememberMe) {
-      localStorage.setItem(
-        "rememberedUser",
-        email
+      const response = await FM_API.post(
+        "/api/fm/auth/webLogin",
+        {
+          username: email,
+          password: password,
+        }
       );
+
+      const userData = response.data;
+
+      console.log("Login Response :", userData);
+
+      // Clear old session
+      localStorage.clear();
+
+      // Complete response
+      localStorage.setItem(
+        "userData",
+        JSON.stringify(userData)
+      );
+
+      // JWT Token
+      localStorage.setItem(
+        "token",
+        userData.token || ""
+      );
+
+      // Username
+      localStorage.setItem(
+        "username",
+        userData.username || ""
+      );
+
+      // Role
+      localStorage.setItem(
+        "role",
+        userData.role || ""
+      );
+
+      // User ID & Approver ID
+      const userIdVal = userData.userId || userData.id || userData.employeeId || "";
+      localStorage.setItem("userId", String(userIdVal));
+      localStorage.setItem("approverId", String(userIdVal));
+      if (userData.employeeId) {
+        localStorage.setItem("employeeId", String(userData.employeeId));
+      }
+
+      // Permissions
+      localStorage.setItem(
+        "permissions",
+        JSON.stringify(
+          userData.permissions || []
+        )
+      );
+
+      console.log(
+        "Stored Token:",
+        localStorage.getItem("token")
+      );
+
+      console.log(
+        "Stored Role:",
+        localStorage.getItem("role")
+      );
+
+      console.log(
+        "Stored Permissions:",
+        localStorage.getItem("permissions")
+      );
+
+      if (rememberMe) {
+        localStorage.setItem(
+          "rememberedUser",
+          email
+        );
+      }
+
+      navigate("/dashboard");
+
+    } catch (error) {
+
+      console.error(
+        "Login Error:",
+        error
+      );
+
+      alert(
+        error?.response?.data?.message ||
+        error?.response?.data ||
+        "Invalid Username or Password"
+      );
+
+    } finally {
+
+      setLoading(false);
+
     }
-
-    navigate("/dashboard");
-
-  } catch (error) {
-
-    console.error(
-      "Login Error:",
-      error
-    );
-
-    alert(
-      error?.response?.data?.message ||
-      error?.response?.data ||
-      "Invalid Username or Password"
-    );
-
-  } finally {
-
-    setLoading(false);
-
-  }
-};
+  };
 
   return (
     <div className="login-container">
@@ -179,15 +171,25 @@ const handleSubmit = async (e) => {
             </span>
           </div>
 
-          <div className="remember">
-            <input
-              type="checkbox"
-              checked={rememberMe}
-              onChange={(e) =>
-                setRememberMe(e.target.checked)
-              }
-            />
-            <label>Remember Me</label>
+          <div className="login-options" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+            <div className="remember" style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) =>
+                  setRememberMe(e.target.checked)
+                }
+              />
+              <label>Remember Me</label>
+            </div>
+
+            <span
+              onClick={() => navigate("/forgot-password")}
+              style={{ color: "#007bff", cursor: "pointer", fontSize: "0.9rem" }}
+              className="forgot-password-link"
+            >
+              Forgot Password?
+            </span>
           </div>
 
           <button

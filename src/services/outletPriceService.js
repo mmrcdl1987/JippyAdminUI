@@ -81,3 +81,18 @@ export const updateOutletProducts = async (outletId, payload, userType = "MERCHA
   );
   return response.data;
 };
+/**
+ * Update Merchant Price API (PUT)
+ * Hits endpoint: /api/fm/products/{productId}/merchant-price
+ */
+export const updateMerchantPrice = async (productId, merchantPrice, role, updatedBy) => {
+  const response = await FM_API.put(
+    `/api/fm/products/${productId}/merchant-price`,
+    {
+      merchantPrice: Number(merchantPrice),
+      role: role,
+      updatedBy: Number(updatedBy),
+    }
+  );
+  return response.data;
+};

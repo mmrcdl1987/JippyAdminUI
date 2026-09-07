@@ -53,13 +53,18 @@ export const menuData = [
             pageKey: "adminUsers",
             permission: "ADMIN_USER_READ",
           },
+          {
+            name: "ResetPassword",
+            pageKey: "ResetPassword",
+            permission: "ADMIN_USER_READ",
+          },
         ],
       },
     ],
   },
 
   {
-    title: "CUSTOMER & VENDOR MANAGEMENT",
+    title: "CUSTOMERS",
     permission: "CUSTOMER_READ",
     items: [
       {
@@ -67,23 +72,23 @@ export const menuData = [
         pageKey: "usersCustomers",
         permission: "CUSTOMER_READ",
       },
-      {
-        name: "Owners / Vendors",
-        children: [
-          {
-            name: "All Vendors",
-            permission: "VENDOR_READ",
-          },
-          {
-            name: "Approved Vendors",
-            permission: "VENDOR_READ",
-          },
-          {
-            name: "Approval Pending Vendors",
-            permission: "VENDOR_READ",
-          },
-        ],
-      },
+      // {
+      //   name: "Owners / Vendors",
+      //   children: [
+      //     {
+      //       name: "All Vendors",
+      //       permission: "VENDOR_READ",
+      //     },
+      //     {
+      //       name: "Approved Vendors",
+      //       permission: "VENDOR_READ",
+      //     },
+      //     {
+      //       name: "Approval Pending Vendors",
+      //       permission: "VENDOR_READ",
+      //     },
+      //   ],
+      // },
     ],
   },
 
@@ -557,11 +562,11 @@ export const menuData = [
           //   pageKey: "landingPageTemplate",
           //   permission: "SETTINGS_READ",
           // },
-          // {
-          //   name: "Footer Template",
-          //   pageKey: "footerTemplate",
-          //   permission: "SETTINGS_READ",
-          // },
+          {
+            name: "Promotion Settings",
+            pageKey: "promotionSettings",
+            permission: "PROMOTION_READ",
+          },
         ],
       },
     ],

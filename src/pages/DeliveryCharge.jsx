@@ -3,7 +3,8 @@ import {
   getDeliveryRules,
   getDeliveryRuleById,
   saveDeliveryRule,
-  deleteDeliveryRule
+  deleteDeliveryRule,
+  getZones
 } from "../services/deliveryChargeService";
 import "../styles/DeliveryCharge.css";
 
@@ -36,18 +37,21 @@ function DeliveryCharge() {
     serviceTypes: [],
     vehicleTypes: [],
     fuelTypes: [],
-    chargeTypes: [],
+    chargeTypes: ["pickup", "delivery"], // Explicitly restricted to these two options
     deliveryTypes: [],
-    driverTypes: [],
-    zoneIds: []
+    driverTypes: []
   });
+
+  // Zones are loaded from GET /api/driver/getZones.
+  // The dropdown displays zoneName, while formData.zoneId stores the zoneId.
+  const [zones, setZones] = useState([]);
 
   const emptyForm = {
     deliveryChargeSettingId: "",
     kmsRangeFrom: "",
     kmsRangeTo: "",
     unitPricePerKm: "",
-    chargeType: "",
+    chargeType: "pickup", // Default to pickup
     deliveryType: "",
     driverType: "",
     serviceType: "",
@@ -89,6 +93,76 @@ function DeliveryCharge() {
     return 101; // Default fallback if no session found
   };
 
+  const loadZones = async () => {
+    try {
+      const data = await getZones();
+
+      // Support common API response formats.
+      const zoneList = Array.isArray(data)
+        ? data
+        : Array.isArray(data?.data)
+          ? data.data
+          : Array.isArray(data?.zones)
+            ? data.zones
+            : Array.isArray(data?.content)
+              ? data.content
+              : [];
+
+      // Display zoneName but keep zoneId as the select value.
+      const normalizedZones = zoneList
+        .map((zone, index) => {
+          const zoneId =
+            zone?.zoneId ??
+            zone?.id ??
+            zone?.zoneID ??
+            zone?.zone_id;
+
+          const zoneName =
+            zone?.zoneName ??
+            zone?.name ??
+            zone?.zone_name ??
+            zone?.displayName ??
+            (zoneId !== undefined && zoneId !== null
+              ? `Zone ${zoneId}`
+              : `Zone ${index + 1}`);
+
+          return {
+            ...zone,
+            zoneId,
+            zoneName
+          };
+        })
+        .filter(
+          (zone) =>
+            zone.zoneId !== undefined &&
+            zone.zoneId !== null &&
+            zone.zoneName
+        );
+
+      setZones(normalizedZones);
+    } catch (error) {
+      console.error("Error loading zones:", error);
+      setZones([]);
+      showNotification("Failed to fetch zones.", "error");
+    }
+  };
+
+  const getZoneName = (zoneId) => {
+    if (zoneId === null || zoneId === undefined || zoneId === "") {
+      return "-";
+    }
+
+    const zone = zones.find(
+      (item) => String(item.zoneId) === String(zoneId)
+    );
+
+    return zone?.zoneName || `Zone ${zoneId}`;
+  };
+
+  useEffect(() => {
+    loadZones();
+  }, []);
+
   useEffect(() => {
     loadRulesData(currentPage - 1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -111,15 +185,17 @@ function DeliveryCharge() {
 
       setRules(formattedRules);
 
-      // Dynamically map all unique fields from existing data to power selects
+      // Dynamically map all unique fields, ensuring chargeTypes always includes 'pickup' and 'delivery'
+      const fetchedChargeTypes = [...new Set(pageContent.map((item) => item.chargeType).filter(Boolean))];
+      const combinedChargeTypes = Array.from(new Set(["pickup", "delivery", ...fetchedChargeTypes]));
+
       setDropdownOptions({
         serviceTypes: [...new Set(pageContent.map((item) => item.serviceType).filter(Boolean))],
         vehicleTypes: [...new Set(pageContent.map((item) => item.vehicleType).filter(Boolean))],
         fuelTypes: [...new Set(pageContent.map((item) => item.fuelType).filter(Boolean))],
-        chargeTypes: [...new Set(pageContent.map((item) => item.chargeType).filter(Boolean))],
+        chargeTypes: combinedChargeTypes,
         deliveryTypes: [...new Set(pageContent.map((item) => item.deliveryType).filter(Boolean))],
-        driverTypes: [...new Set(pageContent.map((item) => item.driverType).filter(Boolean))],
-        zoneIds: [...new Set(pageContent.map((item) => item.zoneId).filter((val) => val !== null && val !== undefined))]
+        driverTypes: [...new Set(pageContent.map((item) => item.driverType).filter(Boolean))]
       });
     } catch (error) {
       console.error("Error loading rules:", error);
@@ -138,13 +214,13 @@ function DeliveryCharge() {
     const currentUserId = getLoggedInUserId();
     setFormData({
       ...emptyForm,
-      chargeType: dropdownOptions.chargeTypes[0] || "PER_KM",
+      chargeType: "pickup", // Explicitly default to pickup
       deliveryType: dropdownOptions.deliveryTypes[0] || "STANDARD",
       driverType: dropdownOptions.driverTypes[0] || "FULL_TIME",
       serviceType: dropdownOptions.serviceTypes[0] || "",
       vehicleType: dropdownOptions.vehicleTypes[0] || "",
       fuelType: dropdownOptions.fuelTypes[0] || "",
-      zoneId: dropdownOptions.zoneIds[0] || "",
+      zoneId: "",
       createdBy: currentUserId,
       updatedBy: currentUserId
     });
@@ -160,7 +236,7 @@ function DeliveryCharge() {
       kmsRangeFrom: rule.kmsRangeFrom ?? "",
       kmsRangeTo: rule.kmsRangeTo ?? "",
       unitPricePerKm: rule.unitPricePerKm ?? "",
-      chargeType: rule.chargeType || "",
+      chargeType: rule.chargeType || "pickup",
       deliveryType: rule.deliveryType || "",
       driverType: rule.driverType || "",
       serviceType: rule.serviceType || "",
@@ -264,13 +340,14 @@ function DeliveryCharge() {
     const matchesSearch =
       rule.deliveryChargeSettingId?.toString().includes(searchTerm) ||
       rule.serviceType?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      rule.vehicleType?.toLowerCase().includes(searchTerm.toLowerCase());
+      rule.vehicleType?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      rule.chargeType?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesVehicle = selectedVehicleFilter === "All" || rule.vehicleType === selectedVehicleFilter;
     return matchesSearch && matchesVehicle;
   });
 
   const activeCount = rules.filter((r) => r.status === "ACTIVE").length;
-  const zoneCount = dropdownOptions.zoneIds.length;
+  const zoneCount = zones.length;
 
   const rangeStart = totalElements === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
   const rangeEnd = Math.min(currentPage * itemsPerPage, totalElements);
@@ -370,9 +447,12 @@ function DeliveryCharge() {
                       <tr>
                         <th>ID</th>
                         <th>ZONE</th>
+                        <th>CHARGE TYPE</th>
                         <th>KM RANGE</th>
                         <th>UNIT PRICE</th>
-                        <th>SERVICE / VEHICLE</th>
+                        <th>SERVICE</th>
+                        <th>VEHICLE</th>
+                        <th>FUEL TYPE</th>
                         <th>STATUS</th>
                         <th className="text-center">ACTIONS</th>
                       </tr>
@@ -382,15 +462,30 @@ function DeliveryCharge() {
                         filteredRules.map((rule) => (
                           <tr key={rule.deliveryChargeSettingId}>
                             <td className="jmart-id-cell">#{rule.deliveryChargeSettingId}</td>
-                            <td>Zone {rule.zoneId}</td>
+                            <td>{getZoneName(rule.zoneId)}</td>
+                            <td>
+                              <span
+                                className={`charge-type-badge ${
+                                  rule.chargeType?.toLowerCase() === "delivery"
+                                    ? "delivery"
+                                    : "pickup"
+                                }`}
+                              >
+                                {rule.chargeType?.toUpperCase() || "-"}
+                              </span>
+                            </td>
                             <td>
                               {rule.rangeKm} KM
-                              <span className="jmart-subtext">{rule.chargeType}</span>
                             </td>
                             <td>{rule.currencyCode || "INR"} {rule.unitPricePerKm}</td>
                             <td>
-                              {rule.serviceType} / {rule.vehicleType}
-                              <span className="jmart-subtext">{rule.fuelType}</span>
+                              {rule.serviceType || "-"}
+                            </td>
+                            <td>
+                              {rule.vehicleType || "-"}
+                            </td>
+                            <td>
+                              {rule.fuelType || "-"}
                             </td>
                             <td>
                               <span className={`status-badge ${rule.status === "ACTIVE" ? "active" : "inactive"}`}>
@@ -427,7 +522,7 @@ function DeliveryCharge() {
                         ))
                       ) : (
                         <tr>
-                          <td colSpan="7">
+                          <td colSpan="10">
                             <div className="jmart-empty-state">
                               <span>&#128230;</span>
                               No delivery charge rules found.
@@ -499,8 +594,8 @@ function DeliveryCharge() {
 
             <div className="overview-grid">
               <div>
-                <p className="lbl">Zone ID</p>
-                <p>Zone {selectedRule.zoneId}</p>
+                <p className="lbl">Zone</p>
+                <p>{getZoneName(selectedRule.zoneId)}</p>
               </div>
               <div>
                 <p className="lbl">KM Range</p>
@@ -574,7 +669,7 @@ function DeliveryCharge() {
                   <p className="section-subtitle blue">Zone &amp; Distance Range</p>
 
                   <div className="jmart-field-group">
-                    <label className="jmart-label">Zone ID <span className="req">*</span></label>
+                    <label className="jmart-label">Zone <span className="req">*</span></label>
                     <select
                       className="jmart-select"
                       style={{ width: "100%" }}
@@ -584,8 +679,13 @@ function DeliveryCharge() {
                       required
                     >
                       <option value="">Select Zone</option>
-                      {dropdownOptions.zoneIds.map((z, i) => (
-                        <option key={i} value={z}>Zone {z}</option>
+                      {zones.map((zone) => (
+                        <option
+                          key={String(zone.zoneId)}
+                          value={String(zone.zoneId)}
+                        >
+                          {zone.zoneName}
+                        </option>
                       ))}
                     </select>
                   </div>
@@ -659,8 +759,8 @@ function DeliveryCharge() {
 
                   <div className="pricing-grid-3" style={{ marginTop: "16px" }}>
                     <div className="jmart-field-group">
-                      <label className="jmart-label">Charge Type</label>
-                      <select className="jmart-select" style={{ width: "100%" }} name="chargeType" value={formData.chargeType} onChange={handleInputChange}>
+                      <label className="jmart-label">Charge Type <span className="req">*</span></label>
+                      <select className="jmart-select" style={{ width: "100%" }} name="chargeType" value={formData.chargeType} onChange={handleInputChange} required>
                         <option value="">Select Charge Type</option>
                         {dropdownOptions.chargeTypes.map((c, i) => <option key={i} value={c}>{c}</option>)}
                       </select>
@@ -727,13 +827,13 @@ function DeliveryCharge() {
                     <div className="jmart-field-group">
                       <label className="jmart-label">Status</label>
                       <select className="jmart-select" style={{ width: "100%" }} name="status" value={formData.status} onChange={handleInputChange}>
-                        {STATUS_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
+                        {STATUS_OPTIONS.map((st, i) => <option key={i} value={st}>{st}</option>)}
                       </select>
                     </div>
                   </div>
                 </div>
 
-                <div className="form-action-buttons">
+                <div style={{ marginTop: "20px", display: "flex", justifyContent: "flex-end", gap: "10px" }}>
                   <button type="button" className="jmart-btn-secondary" onClick={() => setIsDrawerOpen(false)}>
                     Cancel
                   </button>
@@ -742,27 +842,6 @@ function DeliveryCharge() {
                   </button>
                 </div>
               </form>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {deleteTarget && (
-        <div className="jmart-modal-backdrop" onClick={() => setDeleteTarget(null)}>
-          <div className="jmart-modal-dialog" onClick={(e) => e.stopPropagation()}>
-            <div className="warning-circle">&#9888;</div>
-            <h3>Delete Rule</h3>
-            <p>
-              Are you sure you want to delete rule #{deleteTarget.deliveryChargeSettingId}?
-              This action cannot be undone.
-            </p>
-            <div className="modal-btns">
-              <button className="jmart-btn-secondary" onClick={() => setDeleteTarget(null)} disabled={actionLoading}>
-                Cancel
-              </button>
-              <button className="jmart-btn-danger" onClick={handleConfirmDelete} disabled={actionLoading}>
-                {actionLoading ? "Deleting..." : "Delete"}
-              </button>
             </div>
           </div>
         </div>

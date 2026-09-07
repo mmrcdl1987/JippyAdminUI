@@ -1,6 +1,9 @@
 import ZoneManagement from "../pages/ZoneManagement";
 import CreateZone from "../pages/CreateZone";
 
+import DriverDetails from "../pages/DriverDetails";
+import EditPromotionSettings from "../pages/EditPromotionSettings";
+
 import RolesPermissions from "../pages/RolesPermissions";
 import AdminUsers from "../pages/AdminUsers";
 
@@ -12,6 +15,9 @@ import BannerDesigner from "../pages/BannerDesigner";
 import BannerDesignerEdit from "../pages/BannerDesignerEdit";
 import PlanCampaign from "../pages/PlanCampaign";
 import ProductPriceUpdate from "../pages/ProductPriceUpdate";
+import PromotionSettings from "../pages/PromotionSettings";
+
+import ResetPassword from "../pages/ResetPassword";
 
 import Merchants from "../pages/Merchants/Merchants";
 import EditMerchant from "../pages/Merchants/EditMerchant";
@@ -31,7 +37,7 @@ import MasterProducts from "../pages/MasterProducts";
 import CompareFile from "../pages/CompareFile";
 import EditMasterProduct from "../pages/EditMasterProduct";
 import CreateMasterProduct from "../pages/CreateMasterProduct";
-import AddToOutletProducts from "../pages/AddToOutletProducts"
+import AddToOutletProducts from "../pages/AddToOutletProducts";
 
 import ViewOutlets from "../pages/ViewOutlets";
 import CreateOutlet from "../pages/CreateOutlet";
@@ -63,9 +69,50 @@ import AssignAreas from "../pages/AssignAreas";
 import PendingApprovals from "../pages/PendingApprovals";
 import ApprovalSettings from "../pages/ApprovalSettings";
 import ApprovalTransactions from "../pages/ApprovalTransactions";
+import CreatePromotionSettings from "../pages/CreatePromotionSettings";
 
 
 export const pageRegistry = {
+
+  // =========================
+  // AUTH / RESET PASSWORD
+  // =========================
+
+  "reset-password": {
+    component: ResetPassword,
+    permission: null,
+  },
+
+  "ResetPassword": {
+    component: ResetPassword,
+    permission: null,
+  },
+
+  "reset password": {
+    component: ResetPassword,
+    permission: null,
+  },
+
+  "reset%20password": {
+    component: ResetPassword,
+    permission: null,
+  },
+
+  "forgot-password": {
+    component: ResetPassword,
+    permission: null,
+  },
+
+  "forgot password": {
+    component: ResetPassword,
+    permission: null,
+  },
+
+  "forgot%20password": {
+    component: ResetPassword,
+    permission: null,
+  },
+
 
   // =========================
   // APPROVALS
@@ -75,18 +122,22 @@ export const pageRegistry = {
     component: AssignAreas,
     permission: "APPROVAL_READ",
   },
+
   pendingApprovals: {
     component: PendingApprovals,
     permission: "APPROVAL_READ",
   },
+
   createApprovalSettings: {
     component: ApprovalSettings,
     permission: "APPROVAL_SETTINGS_READ",
   },
+
   approvalTransactions: {
     component: ApprovalTransactions,
     permission: "APPROVAL_READ",
   },
+
 
   // =========================
   // ZONES
@@ -217,6 +268,11 @@ export const pageRegistry = {
     permission: "DRIVER_CREATE",
   },
 
+  driverDetails: {
+    component: DriverDetails,
+    permission: "DRIVER_READ",
+  },
+
 
   // =========================
   // CATEGORIES
@@ -292,6 +348,18 @@ export const pageRegistry = {
     permission: "PROMOTION_READ",
   },
 
+  promotionSettings: {
+    component: PromotionSettings,
+    permission: "PROMOTION_READ",
+  },
+createPromotionSettings: {
+  component: CreatePromotionSettings,
+  permission: "PROMOTION_READ",
+},
+editPromotionSettings: {
+  component: EditPromotionSettings,
+  permission: "PROMOTION_READ",
+},
 
   // =========================
   // MERCHANT VARIANTS
@@ -311,6 +379,7 @@ export const pageRegistry = {
     component: AddToOutletProducts,
     permission: "RESTAURANT_READ",
   },
+
 
   // =========================
   // SETTINGS
@@ -343,6 +412,11 @@ export const pageRegistry = {
 
   WalletTransactions: {
     component: WalletTransactions,
+    permission: "SETTINGS_READ",
+  },
+
+  paymentModes: {
+    component: PaymentModes,
     permission: "SETTINGS_READ",
   },
 
@@ -379,28 +453,6 @@ export const pageRegistry = {
   driverSettings: {
     component: DriverSettings,
     permission: "SETTINGS_READ",
-},
-
-
-merchantAddVariants: {
-    component: MerchantAddVariants,
-    permission: "RESTAURANT_READ", // Change to null if permission issues persist
   },
 
-
-createMerchant: {
-  component: CreateMerchant,
-  permission: "VENDOR_READ",
-},
-
-
-paymentModes: {
-  component: PaymentModes,
-  permission: "SETTINGS_READ",
-},
-
-
-
 };
-
-
