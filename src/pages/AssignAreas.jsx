@@ -19,6 +19,7 @@ function AssignAreas() {
   const userRole = (localStorage.getItem("role") || "").trim().toUpperCase();
   const isSuper = isSuperAdmin();
   const isFM = isFleetManager() || userRole === "ROLE_FLEET_MANAGER" || userRole === "FLEET_MANAGER";
+
   // Approver selection state
   const [approverIdInput, setApproverIdInput] = useState(storedUserId);
   const [activeApproverId, setActiveApproverId] = useState(Number(storedUserId));
@@ -182,8 +183,6 @@ function AssignAreas() {
       console.error(`Error fetching assigned areas for User #${userId}:`, err);
     }
   };
-
-
 
   const fetchApproversAndAreas = async () => {
     try {
@@ -349,7 +348,7 @@ function AssignAreas() {
           <div className="asgn-grid-2" style={{ maxWidth: "840px" }}>
             <div className="asgn-form-group">
               <label className="asgn-label">Approver ID <span className="asgn-required">*</span></label>
-              <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+              <div className="asgn-input-wrapper">
                 <input
                   type="number"
                   className="asgn-input"
@@ -366,7 +365,7 @@ function AssignAreas() {
                 />
                 {!isSuper && <span className="asgn-lock-icon">🔒</span>}
               </div>
-              <span style={{ fontSize: "11px", color: "#64748b", marginTop: "4px" }}>
+              <span className="asgn-helper-text">
                 {!isSuper
                   ? "Approver ID is locked to your account."
                   : "Type an Approver ID to fetch and assign coverage areas."}
@@ -375,7 +374,7 @@ function AssignAreas() {
 
             <div className="asgn-form-group">
               <label className="asgn-label">Search Approver</label>
-              <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+              <div className="asgn-input-wrapper">
                 <input
                   type="text"
                   className="asgn-input"
@@ -386,51 +385,40 @@ function AssignAreas() {
                   onBlur={() => setTimeout(() => setShowEmpDropdown(false), 200)}
                   onFocus={() => { if (empSearchResults.length > 0) setShowEmpDropdown(true); }}
                 />
-                {isSearchingEmp && <span style={{ position: "absolute", right: "10px", fontSize: "12px", color: "#64748b" }}>⏳</span>}
-                
+                {isSearchingEmp && <span className="asgn-search-spinner">⏳</span>}
+
                 {showEmpDropdown && empSearchResults.length > 0 && (
-                  <ul style={{
-                    position: "absolute", zIndex: 10, background: "white",
-                    border: "1px solid #cbd5e1", borderRadius: "6px", width: "100%", 
-                    maxHeight: "180px", overflowY: "auto",
-                    listStyle: "none", padding: 0, margin: 0, top: "105%", left: 0,
-                    boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)"
-                  }}>
+                  <ul className="asgn-dropdown-list">
                     {empSearchResults.map(emp => (
-                      <li key={emp.employeeId || emp.id}
-                          style={{ padding: "10px 12px", cursor: "pointer", borderBottom: "1px solid #f1f5f9", fontSize: "13px" }}
-                          onMouseDown={() => {
-                            const id = emp.employeeId || emp.id;
-                            setApproverIdInput(id);
-                            setActiveApproverId(Number(id));
-                            setShowEmpDropdown(false);
-                            setEmpSearchQuery("");
-                          }}
-                          onMouseEnter={(e) => e.target.style.backgroundColor = "#f8fafc"}
-                          onMouseLeave={(e) => e.target.style.backgroundColor = "white"}
+                      <li
+                        key={emp.employeeId || emp.id}
+                        className="asgn-dropdown-item"
+                        onMouseDown={() => {
+                          const id = emp.employeeId || emp.id;
+                          setApproverIdInput(id);
+                          setActiveApproverId(Number(id));
+                          setShowEmpDropdown(false);
+                          setEmpSearchQuery("");
+                        }}
                       >
-                        <strong>{emp.employeeName || emp.name || emp.firstName}</strong> <span style={{color: "#64748b"}}>(ID: {emp.employeeId || emp.id})</span>
+                        <strong>{emp.employeeName || emp.name || emp.firstName}</strong>
+                        <span className="asgn-dropdown-id">(ID: {emp.employeeId || emp.id})</span>
                       </li>
                     ))}
                   </ul>
                 )}
                 {showEmpDropdown && empSearchResults.length === 0 && empSearchQuery.trim().length > 0 && !isSearchingEmp && (
-                  <ul style={{
-                    position: "absolute", zIndex: 10, background: "white",
-                    border: "1px solid #cbd5e1", borderRadius: "6px", width: "100%", 
-                    padding: "10px 12px", margin: 0, top: "105%", left: 0, fontSize: "13px", color: "#64748b"
-                  }}>
-                    <li style={{ listStyle: "none" }}>No employees found</li>
+                  <ul className="asgn-dropdown-list">
+                    <li className="asgn-dropdown-empty">No employees found</li>
                   </ul>
                 )}
               </div>
-              <span style={{ fontSize: "11px", color: "#64748b", marginTop: "4px" }}>
+              <span className="asgn-helper-text">
                 {!isSuper
                   ? "Search disabled for Fleet Managers."
                   : "Search for an employee and click to select their ID."}
               </span>
             </div>
-
           </div>
         </div>
 
@@ -477,7 +465,7 @@ function AssignAreas() {
         {/* Step 3: Areas Checklist for Selected City */}
         {selectedCityId ? (
           <div className="asgn-section-box">
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
+            <div className="asgn-section-header">
               <label className="asgn-section-title" style={{ margin: 0 }}>
                 3. Select Areas in City {selectedAreaIds.length > 0 && <span className="asgn-badge-count">({selectedAreaIds.length} Total Selected)</span>}
               </label>
@@ -601,21 +589,21 @@ function AssignAreas() {
                       <td>
                         <strong>#{item.approverId}</strong>
                         {item.approverName && (
-                          <div style={{ fontSize: "12px", color: "#64748b", marginTop: "2px" }}>
+                          <div className="asgn-approver-name">
                             {item.approverName}
                           </div>
                         )}
                       </td>
                       <td>
                         {item.approverRole ? item.approverRole.split(", ").map((r, i) => (
-                          <span key={i} className="asgn-role-badge" style={{marginRight: '4px', display: 'inline-block', marginBottom: '4px'}}>{r}</span>
+                          <span key={i} className="asgn-role-badge">{r}</span>
                         )) : <span className="asgn-role-badge">MANAGER</span>}
                       </td>
                       <td>
                         {item.entityLevelDisplay ? item.entityLevelDisplay.split(", ").map((el, i) => {
                           const [entity, lvl] = el.split(" - ");
                           return (
-                            <div key={i} style={{marginBottom: '4px'}}>
+                            <div key={i} className="asgn-entity-item">
                               <strong>{entity}</strong> - <small>{lvl}</small>
                             </div>
                           );
@@ -623,9 +611,9 @@ function AssignAreas() {
                       </td>
                       <td>
                         {areaNames.length === 0 ? (
-                          <span style={{ color: "#94a3b8", fontSize: "12px", fontStyle: "italic" }}>No areas assigned</span>
+                          <span className="asgn-no-areas">No areas assigned</span>
                         ) : (
-                          <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }} title={`Assigned Areas (${areaNames.length}):\n${areaNames.join("\n")}`}>
+                          <div className="asgn-tag-container" title={`Assigned Areas (${areaNames.length}):\n${areaNames.join("\n")}`}>
                             {visibleNames.map((name, idx) => (
                               <span key={idx} className="asgn-tag">
                                 📍 {name}
@@ -634,7 +622,6 @@ function AssignAreas() {
                             {extraCount > 0 && (
                               <span
                                 className="asgn-more-tag"
-                                style={{ cursor: "pointer" }}
                                 onClick={() => openViewAreasModal(item, areaNames)}
                                 title="Click to view all assigned areas"
                               >
@@ -662,7 +649,7 @@ function AssignAreas() {
       {/* View All Assigned Areas Modal */}
       {showViewAreasModal && viewModalData && (
         <div className="asgn-modal-overlay">
-          <div className="asgn-modal" style={{ maxWidth: "540px" }}>
+          <div className="asgn-modal">
             <div className="asgn-modal-header">
               <h3>📍 Assigned Coverage Areas ({viewModalData.approverName ? `${viewModalData.approverName} #${viewModalData.approverId}` : `Approver #${viewModalData.approverId}`})</h3>
               <button
@@ -677,18 +664,18 @@ function AssignAreas() {
             </div>
 
             <div className="asgn-modal-body">
-              <div className="asgn-info-banner" style={{ margin: "0 0 14px 0" }}>
+              <div className="asgn-info-banner asgn-modal-info">
                 <strong>Approver:</strong> {viewModalData.approverName ? `${viewModalData.approverName} (ID #${viewModalData.approverId})` : `ID #${viewModalData.approverId}`} | Role: <strong>{viewModalData.approverRole}</strong> | Target: <strong>{viewModalData.entityLevel}</strong>
               </div>
 
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px", fontSize: "13px", fontWeight: 700, color: "#1e293b" }}>
+              <div className="asgn-modal-count">
                 <span>Total Assigned Coverage Areas:</span>
                 <span className="asgn-badge-count">{viewModalData.areaNames.length} Areas</span>
               </div>
 
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", maxHeight: "260px", overflowY: "auto", padding: "12px", background: "#f8fafc", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
+              <div className="asgn-modal-areas">
                 {viewModalData.areaNames.map((name, idx) => (
-                  <span key={idx} className="asgn-tag" style={{ fontSize: "12px", padding: "4px 10px" }}>
+                  <span key={idx} className="asgn-tag asgn-modal-tag">
                     📍 {name}
                   </span>
                 ))}

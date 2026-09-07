@@ -442,6 +442,62 @@
     padding: 10px 24px !important;
 }
 
+/* ============================================================
+   CATEGORY COUNTS
+   ============================================================ */
+
+.category-counts {
+  display: flex;
+  justify-content: end;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-bottom: 24px;
+}
+
+.category-count-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 2px 0px;
+  box-shadow: 0 1px 3px rgba(127, 124, 124, 0.05);
+}
+
+.category-count-content {
+  display: flex;
+  align-items: center;
+  justify-content: start;
+  gap: 20px;
+  padding: 5px;
+}
+
+.category-count-label {
+  font-size: 20px;
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.category-count-value {
+  font-size: 28px;
+  color: #1f1f20;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 768px) {
+  .category-counts {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .category-count-card {
+    padding: 16px 18px;
+  }
+
+  .category-count-value {
+    font-size: 24px;
+  }
+}
 /* ================= Responsive (Categories) ================= */
 
 @media(max-width:992px){
