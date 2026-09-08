@@ -102,7 +102,7 @@ export const menuData = [
         children: [
           {
             name: "All Merchants",
-            pageKey: "outlets",
+            pageKey: "merchants", 
             permission: "RESTAURANT_READ",
           },
           {
@@ -392,26 +392,26 @@ export const menuData = [
       {
         name: "Payments",
         children: [
-          {
-            name: "Restaurant Payments",
-            permission: "PAYMENT_READ",
-          },
-          {
-            name: "Restaurant Payouts",
-            permission: "PAYMENT_READ",
-          },
-          {
-            name: "Driver Payments",
-            permission: "PAYMENT_READ",
-          },
-          {
-            name: "Driver Payouts",
-            permission: "PAYMENT_READ",
-          },
-          {
-            name: "Payout Requests",
-            permission: "PAYMENT_READ",
-          },
+          // {
+          //   name: "Restaurant Payments",
+          //   permission: "PAYMENT_READ",
+          // },
+          // {
+          //   name: "Restaurant Payouts",
+          //   permission: "PAYMENT_READ",
+          // },
+          // {
+          //   name: "Driver Payments",
+          //   permission: "PAYMENT_READ",
+          // },
+          // {
+          //   name: "Driver Payouts",
+          //   permission: "PAYMENT_READ",
+          // },
+          // {
+          //   name: "Payout Requests",
+          //   permission: "PAYMENT_READ",
+          // },
           {
             name: "Wallet Transactions",
             pageKey: "WalletTransactions",

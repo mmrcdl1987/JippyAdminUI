@@ -2,78 +2,283 @@ import "../../styles/Merchants/Merchants.css";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FM_API } from "../../services/api";
-import { uploadMerchants,
+import {
+  uploadMerchants,
   fetchStates,
-  fetchCitiesByState,
- } from "../../services/merchantService";
-import { FaStore } from "react-icons/fa";
-
+  getMerchantAddress,
+  getMerchantProfile,
+  toggleMerchantStatus,
+  updateMerchantProfilePic,
+} from "../../services/merchantService";
+import { getAllAreas } from "../../services/managerAreaService";
+import { FaStore, FaEdit, FaEye, FaCamera } from "react-icons/fa";
 
 function Merchants() {
   const navigate = useNavigate();
   const [merchants, setMerchants] = useState([]);
+  const [merchantAddresses, setMerchantAddresses] = useState({});
+  const [merchantProfiles, setMerchantProfiles] = useState({});
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
   const [expandedRow, setExpandedRow] = useState(null);
 
-
+  const [selectedMerchants, setSelectedMerchants] = useState([]);
+  const [selectAll, setSelectAll] = useState(false);
 
   const [selectedMerchantType, setSelectedMerchantType] = useState("");
-const [selectedState, setSelectedState] = useState("");
-const [selectedCity, setSelectedCity] = useState("");
+  const [selectedState, setSelectedState] = useState("");
+  const [selectedCity, setSelectedCity] = useState("");
 
-const [states, setStates] = useState([]);
-const [cities, setCities] = useState([]);
-const [locationLoading, setLocationLoading] = useState(false);
-
-
-  // Pagination states
+  const [states, setStates] = useState([]);
+  const [cities, setCities] = useState([]);
+  const [locationLoading, setLocationLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(30);
 
+  // Filter states
+  const [filterMerchantType, setFilterMerchantType] = useState("");
+  const [filterStatus, setFilterStatus] = useState("");
+  const [filterArea, setFilterArea] = useState("");
+  const [filterDateFrom, setFilterDateFrom] = useState("");
+  const [filterDateTo, setFilterDateTo] = useState("");
+
+  // Areas state
+  const [areas, setAreas] = useState([]);
+  const [areasLoading, setAreasLoading] = useState(false);
+  const [showAreaDropdown, setShowAreaDropdown] = useState(false);
+  const [areaSearchQuery, setAreaSearchQuery] = useState("");
+
   useEffect(() => {
-  fetchMerchants();
-  fetchStates();
-}, []);
+    fetchMerchants();
+    fetchAreas();
+    fetchStatesList();
+  }, []);
+
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [bulkUploadLoading, setBulkUploadLoading] = useState(false);
+  const [bulkUploadResult, setBulkUploadResult] = useState(null);
+  const [showColumnsMenu, setShowColumnsMenu] = useState(false);
+
+  const [showDocModal, setShowDocModal] = useState(false);
+  const [selectedDocMerchant, setSelectedDocMerchant] = useState(null);
+  const [docModalLoading, setDocModalLoading] = useState(false);
+
+  const [showPicModal, setShowPicModal] = useState(false);
+  const [selectedPicMerchant, setSelectedPicMerchant] = useState(null);
+  const [selectedPicFile, setSelectedPicFile] = useState(null);
+  const [previewPicUrl, setPreviewPicUrl] = useState("");
+  const [updatingPic, setUpdatingPic] = useState(false);
+
+  const [visibleColumns, setVisibleColumns] = useState({
+    merchantInfo: true,
+    ownerInfo: true,
+    zone: true,
+    status: true,
+    adminCommission: true,
+    date: true,
+    documents: true,
+  });
 
   // ============================================================
-// MERCHANT TABLE COLUMNS
-// ============================================================
+  // FETCH AREAS
+  // ============================================================
+  const fetchAreas = async () => {
+    try {
+      setAreasLoading(true);
+      const response = await getAllAreas();
+      console.log("Areas API response:", response);
 
-const [selectedFile, setSelectedFile] = useState(null);
-const [bulkUploadLoading, setBulkUploadLoading] = useState(false);
-const [bulkUploadResult, setBulkUploadResult] = useState(null);
-const [showColumnsMenu, setShowColumnsMenu] = useState(false);
+      let list = [];
+      if (Array.isArray(response)) {
+        list = response;
+      } else if (Array.isArray(response?.data)) {
+        list = response.data;
+      } else if (Array.isArray(response?.content)) {
+        list = response.content;
+      } else if (response?.success && Array.isArray(response?.data)) {
+        list = response.data;
+      }
+      setAreas(list);
+    } catch (error) {
+      console.error("Error fetching areas:", error);
+      setAreas([]);
+    } finally {
+      setAreasLoading(false);
+    }
+  };
 
-const [visibleColumns, setVisibleColumns] = useState({
-  merchantInfo: true,
-  ownerInfo: true,
-  zone: true,
-  status: true,
-  adminCommission: true,
-  date: true,
-});
+  // ============================================================
+  // CHECKBOX HANDLERS
+  // ============================================================
+  const handleSelectAll = () => {
+    setSelectAll(!selectAll);
+    if (!selectAll) {
+      const allIds = currentMerchants.map(m => m.merchantId);
+      setSelectedMerchants(allIds);
+    } else {
+      setSelectedMerchants([]);
+    }
+  };
+
+  const handleSelectMerchant = (merchantId) => {
+    setSelectedMerchants(prev => {
+      if (prev.includes(merchantId)) {
+        return prev.filter(id => id !== merchantId);
+      } else {
+        return [...prev, merchantId];
+      }
+    });
+  };
+
+  // ============================================================
+  // BULK ACTION HANDLERS
+  // ============================================================
+  const handleBulkDelete = () => {
+    if (selectedMerchants.length === 0) {
+      alert("Please select at least one merchant to delete.");
+      return;
+    }
+    if (window.confirm(`Are you sure you want to delete ${selectedMerchants.length} merchant(s)?`)) {
+      console.log("Deleting merchants:", selectedMerchants);
+      setSelectedMerchants([]);
+      setSelectAll(false);
+    }
+  };
+
+  const handleBulkStatusToggle = (status) => {
+    if (selectedMerchants.length === 0) {
+      alert("Please select at least one merchant.");
+      return;
+    }
+    console.log(`Setting ${status} for merchants:`, selectedMerchants);
+    setSelectedMerchants([]);
+    setSelectAll(false);
+  };
+
+  const handleOpenPicModal = (merchant) => {
+    setSelectedPicMerchant(merchant);
+    setSelectedPicFile(null);
+    setPreviewPicUrl(merchant.profilePicUrl || "");
+    setShowPicModal(true);
+  };
+
+  const handlePicFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert("File size should be less than 5MB");
+        return;
+      }
+      setSelectedPicFile(file);
+      setPreviewPicUrl(URL.createObjectURL(file));
+    }
+  };
+
+  const handleSaveProfilePic = async () => {
+    if (!selectedPicMerchant) return;
+    if (!selectedPicFile) {
+      alert("Please select an image file to upload.");
+      return;
+    }
+    try {
+      setUpdatingPic(true);
+      const res = await updateMerchantProfilePic(selectedPicMerchant.merchantId, selectedPicFile);
+      console.log("Update profile pic response:", res);
+      const updatedUrl = res?.data?.profilePicUrl || res?.profilePicUrl || previewPicUrl;
+      setMerchants((prev) =>
+        prev.map((m) =>
+          m.merchantId === selectedPicMerchant.merchantId
+            ? { ...m, profilePicUrl: updatedUrl }
+            : m
+        )
+      );
+      setShowPicModal(false);
+      alert("Profile picture updated successfully!");
+      fetchMerchants();
+    } catch (err) {
+      console.error("Failed to update profile pic:", err);
+      alert("Failed to update profile picture: " + (err.response?.data?.message || err.message));
+    } finally {
+      setUpdatingPic(false);
+    }
+  };
+
+  const handleToggleStatus = async (merchant) => {
+    const currentIsActive = merchant.isActive === "Y" || merchant.isActive === true || merchant.status === "ACTIVE";
+    const nextIsActive = !currentIsActive;
+
+    setMerchants((prev) =>
+      prev.map((m) =>
+        m.merchantId === merchant.merchantId
+          ? {
+            ...m,
+            isActive: nextIsActive ? "Y" : "N",
+            status: nextIsActive ? "ACTIVE" : "INACTIVE",
+          }
+          : m
+      )
+    );
+
+    try {
+      await toggleMerchantStatus(merchant.merchantId, nextIsActive);
+    } catch (err) {
+      console.error("Failed to toggle merchant status:", err);
+      alert("Failed to update status: " + (err.response?.data?.message || err.message));
+      fetchMerchants();
+    }
+  };
+
+  const handleOpenDocumentsModal = async (merchant) => {
+    setSelectedDocMerchant(merchant);
+    setShowDocModal(true);
+    if (!merchantProfiles[merchant.merchantId]) {
+      setDocModalLoading(true);
+      try {
+        const profRes = await getMerchantProfile(merchant.merchantId);
+        if (profRes) {
+          setMerchantProfiles((prev) => ({
+            ...prev,
+            [merchant.merchantId]: profRes?.data || profRes,
+          }));
+        }
+      } catch (err) {
+        console.warn("Failed to load profile for documents modal:", err);
+      } finally {
+        setDocModalLoading(false);
+      }
+    }
+  };
 
   const openOutlets = (merchant) => {
     console.log("Saving merchantId to localStorage:", merchant.merchantId);
     localStorage.setItem("merchantId", merchant.merchantId);
-    
-    // Navigates to outlets page. Ensure this route matches your Dashboard subroute configuration.
-    navigate("/dashboard/view-outlets"); 
+    navigate("/dashboard/viewOutlets");
+  };
+
+  const handleViewMerchant = (merchant) => {
+    console.log("Viewing merchant details:", merchant);
+    localStorage.setItem("merchantId", merchant.merchantId);
+    navigate("/dashboard/viewMerchant");
+  };
+
+  const handleEditMerchant = (merchant) => {
+    console.log("Editing merchant:", merchant);
+    localStorage.setItem("merchantId", merchant.merchantId);
+    navigate("/dashboard/editMerchant");
   };
 
   const handleCreateMerchant = () => {
-  navigate("/dashboard/createMerchant");
-};
+    navigate("/dashboard/createMerchant");
+  };
 
   const fetchMerchants = async () => {
     try {
       setLoading(true);
-
       const response = await FM_API.get("/api/fm/merchants");
-
       if (response.data.success) {
-        setMerchants(response.data.data);
+        const list = response.data.data || [];
+        setMerchants(list);
+        fetchMerchantAddresses(list);
       } else {
         setMerchants([]);
       }
@@ -85,81 +290,117 @@ const [visibleColumns, setVisibleColumns] = useState({
     }
   };
 
-
   const handleStateChange = (e) => {
-  const stateId = e.target.value;
+    const stateId = e.target.value;
+    setSelectedState(stateId);
+    setSelectedCity("");
+    fetchCities(stateId);
+  };
 
-  setSelectedState(stateId);
+  const fetchStatesList = async () => {
+    try {
+      setLocationLoading(true);
+      const response = await FM_API.get("/api/fm/location/fetchStates");
+      console.log("States API response:", response.data);
+      setStates(response.data || []);
+    } catch (error) {
+      console.error("Error fetching states:", error);
+      setStates([]);
+    } finally {
+      setLocationLoading(false);
+    }
+  };
 
-  // Reset city whenever state changes
-  setSelectedCity("");
+  const fetchCities = async (stateId) => {
+    if (!stateId) {
+      setCities([]);
+      return;
+    }
+    try {
+      setLocationLoading(true);
+      const response = await FM_API.get(
+        `/api/fm/location/fetchCityInState?stateId=${stateId}`
+      );
+      console.log("Cities API response:", response.data);
+      setCities(response.data || []);
+    } catch (error) {
+      console.error("Error fetching cities:", error);
+      setCities([]);
+    } finally {
+      setLocationLoading(false);
+    }
+  };
 
-  // Fetch cities for selected state
-  fetchCities(stateId);
-};
+  const fetchMerchantAddresses = async (merchantList) => {
+    try {
+      const addressPromises = merchantList.map(async (m) => {
+        if (!m.merchantId) return null;
+        try {
+          const res = await getMerchantAddress(m.merchantId);
+          const data = res?.data || res;
+          return { merchantId: m.merchantId, address: data };
+        } catch {
+          return null;
+        }
+      });
+      const results = await Promise.all(addressPromises);
+      const addrMap = {};
+      results.forEach((item) => {
+        if (item && item.address) {
+          addrMap[item.merchantId] = item.address;
+        }
+      });
+      setMerchantAddresses((prev) => ({ ...prev, ...addrMap }));
+    } catch (err) {
+      console.warn("Could not batch load merchant addresses:", err);
+    }
+  };
 
-  const fetchStates = async () => {
-  try {
-    setLocationLoading(true);
-
-    const response = await FM_API.get(
-      "/api/fm/location/fetchStates"
-    );
-
-    console.log("States API response:", response.data);
-
-    setStates(response.data || []);
-  } catch (error) {
-    console.error("Error fetching states:", error);
-    setStates([]);
-  } finally {
-    setLocationLoading(false);
-  }
-};
-
-
-const fetchCities = async (stateId) => {
-  if (!stateId) {
-    setCities([]);
-    return;
-  }
-
-  try {
-    setLocationLoading(true);
-
-    const response = await FM_API.get(
-      `/api/fm/location/fetchCityInState?stateId=${stateId}`
-    );
-
-    console.log("Cities API response:", response.data);
-
-    setCities(response.data || []);
-  } catch (error) {
-    console.error("Error fetching cities:", error);
-    setCities([]);
-  } finally {
-    setLocationLoading(false);
-  }
-};
-
-  // ============================================================
-  // BULK MERCHANT FILE SELECTION
-  // ============================================================
+  const handleToggleExpand = async (merchantId) => {
+    if (expandedRow === merchantId) {
+      setExpandedRow(null);
+      return;
+    }
+    setExpandedRow(merchantId);
+    if (!merchantAddresses[merchantId]) {
+      try {
+        const addrRes = await getMerchantAddress(merchantId);
+        if (addrRes) {
+          setMerchantAddresses((prev) => ({
+            ...prev,
+            [merchantId]: addrRes?.data || addrRes,
+          }));
+        }
+      } catch (e) {
+        console.warn("Address fetch failed for row expand:", e);
+      }
+    }
+    if (!merchantProfiles[merchantId]) {
+      try {
+        const profRes = await getMerchantProfile(merchantId);
+        if (profRes) {
+          setMerchantProfiles((prev) => ({
+            ...prev,
+            [merchantId]: profRes?.data || profRes,
+          }));
+        }
+      } catch (e) {
+        console.warn("Profile fetch failed for row expand:", e);
+      }
+    }
+  };
   const handleBulkFileChange = (event) => {
     const file = event.target.files?.[0];
-
     if (!file) {
       setSelectedFile(null);
       setBulkUploadResult(null);
       return;
     }
-
     const fileName = file.name.toLowerCase();
     const isValidFile =
       fileName.endsWith(".csv") ||
       fileName.endsWith(".xlsx") ||
       fileName.endsWith(".xls");
-
     if (!isValidFile) {
       alert("Please select a CSV or Excel file (.csv, .xlsx, .xls).");
       event.target.value = "";
@@ -167,7 +408,6 @@ const fetchCities = async (stateId) => {
       setBulkUploadResult(null);
       return;
     }
-
     if (file.size === 0) {
       alert("The selected file is empty.");
       event.target.value = "";
@@ -175,33 +415,23 @@ const fetchCities = async (stateId) => {
       setBulkUploadResult(null);
       return;
     }
-
     setSelectedFile(file);
     setBulkUploadResult(null);
   };
 
-  // ============================================================
-  // BULK MERCHANT UPLOAD
-  // ============================================================
   const handleBulkUpdate = async () => {
     if (!selectedFile) {
       alert("Please select a CSV or Excel file first.");
       return;
     }
-
     try {
       setBulkUploadLoading(true);
       setBulkUploadResult(null);
-
       console.log("[MERCHANT BULK] Uploading:", selectedFile.name);
-
       const response = await uploadMerchants(selectedFile);
-
       console.log("[MERCHANT BULK] API response:", response);
-
       const resultData = response?.data || response;
       const success = response?.success !== false;
-
       setBulkUploadResult({
         success,
         message:
@@ -211,29 +441,19 @@ const fetchCities = async (stateId) => {
             : "Merchant upload failed."),
         data: resultData,
       });
-
-      // Refresh merchant list after API call
       if (success) {
         await fetchMerchants();
       }
-
-      // Clear selected file after successful request
       if (success) {
         setSelectedFile(null);
-
-        const fileInput = document.getElementById(
-          "merchant-bulk-file"
-        );
-
+        const fileInput = document.getElementById("merchant-bulk-file");
         if (fileInput) {
           fileInput.value = "";
         }
       }
     } catch (error) {
       console.error("[MERCHANT BULK] Upload failed:", error);
-
       const errorData = error?.response?.data;
-
       setBulkUploadResult({
         success: false,
         message:
@@ -248,80 +468,114 @@ const fetchCities = async (stateId) => {
     }
   };
 
-const filteredMerchants = merchants.filter((merchant) => {
-  const keyword = search.toLowerCase();
-
-  const matchesSearch =
-    merchant.merchantName?.toLowerCase().includes(keyword) ||
-    merchant.firstName?.toLowerCase().includes(keyword) ||
-    merchant.lastName?.toLowerCase().includes(keyword) ||
-    merchant.merchantEmail?.toLowerCase().includes(keyword) ||
-    merchant.merchantPhone?.toLowerCase().includes(keyword) ||
-    merchant.area?.toLowerCase().includes(keyword) ||
-    merchant.city?.toLowerCase().includes(keyword) ||
-    merchant.state?.toLowerCase().includes(keyword) ||
-    merchant.merchantBusinessType?.toLowerCase().includes(keyword) ||
-    merchant.status?.toLowerCase().includes(keyword);
-
-  const matchesMerchantType =
-    !selectedMerchantType ||
-    merchant.merchantBusinessType === selectedMerchantType;
-
-  const matchesState =
-    !selectedState ||
-    String(merchant.stateId) === String(selectedState);
-
-  const matchesCity =
-    !selectedCity ||
-    String(merchant.cityId) === String(selectedCity);
-
-  return (
-    matchesSearch &&
-    matchesMerchantType &&
-    matchesState &&
-    matchesCity
-  );
-});
-    
-
 
   // ============================================================
-// COLUMN OPTIONS
-// ============================================================
+  // FILTER FUNCTIONS
+  // ============================================================
+  // Apply all filters
+  const filteredMerchants = merchants.filter((merchant) => {
+    const keyword = search.toLowerCase();
+    const addr = merchantAddresses[merchant.merchantId];
 
-const merchantColumnOptions = [
-  ["merchantInfo", "Merchant Info"],
-  ["ownerInfo", "Owner Info"],
-  ["zone", "Zone"],
-  ["status", "Status"],
-  ["adminCommission", "Admin Commission"],
-  ["date", "Date"],
-];
+    // Search filter
+    const matchesSearch =
+      merchant.merchantName?.toLowerCase().includes(keyword) ||
+      merchant.firstName?.toLowerCase().includes(keyword) ||
+      merchant.lastName?.toLowerCase().includes(keyword) ||
+      merchant.merchantEmail?.toLowerCase().includes(keyword) ||
+      merchant.merchantPhone?.toLowerCase().includes(keyword) ||
+      merchant.area?.toLowerCase().includes(keyword) ||
+      merchant.city?.toLowerCase().includes(keyword) ||
+      merchant.state?.toLowerCase().includes(keyword) ||
+      addr?.areaName?.toLowerCase().includes(keyword) ||
+      addr?.cityName?.toLowerCase().includes(keyword) ||
+      addr?.stateName?.toLowerCase().includes(keyword) ||
+      merchant.merchantBusinessType?.toLowerCase().includes(keyword) ||
+      merchant.status?.toLowerCase().includes(keyword);
 
-// ============================================================
-// TOGGLE COLUMN
-// ============================================================
+    // Merchant Type filter
+    const activeTypeFilter = filterMerchantType || selectedMerchantType;
+    const matchesType = activeTypeFilter
+      ? (merchant.merchantBusinessType === activeTypeFilter ||
+         (activeTypeFilter === "Outlets" && merchant.merchantBusinessType === "Outlet") ||
+         (activeTypeFilter === "Outlet" && merchant.merchantBusinessType === "Outlets"))
+      : true;
 
-const toggleMerchantColumn = (columnKey) => {
-  setVisibleColumns((prev) => ({
-    ...prev,
-    [columnKey]: !prev[columnKey],
-  }));
-};
+    // State filter
+    const matchesState =
+      !selectedState ||
+      String(merchant.stateId) === String(selectedState) ||
+      String(addr?.stateId) === String(selectedState);
 
-// ============================================================
-// SHOW ALL COLUMNS
-// ============================================================
+    // City filter
+    const matchesCity =
+      !selectedCity ||
+      String(merchant.cityId) === String(selectedCity) ||
+      String(addr?.cityId) === String(selectedCity);
 
-const showAllMerchantColumns = () => {
-  const allColumns = {};
+    // Status filter - Active, Inactive, Pending
+    let matchesStatus = true;
+    if (filterStatus) {
+      if (filterStatus === "ACTIVE") {
+        matchesStatus = merchant.isActive === "Y" || merchant.isActive === true || merchant.status === "ACTIVE";
+      } else if (filterStatus === "INACTIVE") {
+        matchesStatus = merchant.isActive === "N" || merchant.isActive === false || merchant.status === "INACTIVE";
+      } else if (filterStatus === "PENDING") {
+        matchesStatus = merchant.isApproved === false || merchant.status === "PENDING";
+      }
+    }
 
-  merchantColumnOptions.forEach(([key]) => {
-    allColumns[key] = true;
+    // Area filter - from API fetched areas
+    const matchesArea = filterArea
+      ? (addr?.areaName === filterArea || merchant.area === filterArea || merchant.zone === filterArea)
+      : true;
+
+    // Date filter - From Date and To Date
+    let matchesDate = true;
+    const merchantDate = new Date(merchant.createdAt);
+
+    if (filterDateFrom) {
+      const fromDate = new Date(filterDateFrom);
+      fromDate.setHours(0, 0, 0, 0);
+      const merchantDateOnly = new Date(merchantDate.getFullYear(), merchantDate.getMonth(), merchantDate.getDate());
+      matchesDate = matchesDate && merchantDateOnly >= fromDate;
+    }
+
+    if (filterDateTo) {
+      const toDate = new Date(filterDateTo);
+      toDate.setHours(23, 59, 59, 999);
+      const merchantDateOnly = new Date(merchantDate.getFullYear(), merchantDate.getMonth(), merchantDate.getDate());
+      matchesDate = matchesDate && merchantDateOnly <= toDate;
+    }
+
+    return matchesSearch && matchesType && matchesState && matchesCity && matchesStatus && matchesArea && matchesDate;
   });
 
-  setVisibleColumns(allColumns);
-};
+  const merchantColumnOptions = [
+    ["merchantInfo", "Merchant Info"],
+    ["ownerInfo", "Contacts"],
+    ["zone", "Zone"],
+    ["status", "Status"],
+    ["adminCommission", "Admin Commission"],
+    ["date", "Date"],
+    ["documents", "Documents"],
+  ];
+
+  const toggleMerchantColumn = (columnKey) => {
+    setVisibleColumns((prev) => ({
+      ...prev,
+      [columnKey]: !prev[columnKey],
+    }));
+  };
+
+  const showAllMerchantColumns = () => {
+    const allColumns = {};
+    merchantColumnOptions.forEach(([key]) => {
+      allColumns[key] = true;
+    });
+    setVisibleColumns(allColumns);
+  };
+
   // Pagination calculations
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -335,6 +589,46 @@ const showAllMerchantColumns = () => {
 
   const handleEntriesChange = (e) => {
     setItemsPerPage(Number(e.target.value));
+    setCurrentPage(1);
+  };
+
+  // ============================================================
+  // FILTER HANDLERS
+  // ============================================================
+  const handleFilterTypeChange = (e) => {
+    setFilterMerchantType(e.target.value);
+    setCurrentPage(1);
+  };
+
+  const handleFilterStatusChange = (e) => {
+    setFilterStatus(e.target.value);
+    setCurrentPage(1);
+  };
+
+  const handleFilterAreaChange = (e) => {
+    setFilterArea(e.target.value);
+    setCurrentPage(1);
+  };
+
+  const handleFilterDateFromChange = (e) => {
+    setFilterDateFrom(e.target.value);
+    setCurrentPage(1);
+  };
+
+  const handleFilterDateToChange = (e) => {
+    setFilterDateTo(e.target.value);
+    setCurrentPage(1);
+  };
+
+  const handleClearFilters = () => {
+    setFilterMerchantType("");
+    setFilterStatus("");
+    setFilterArea("");
+    setFilterDateFrom("");
+    setFilterDateTo("");
+    setSearch("");
+    setAreaSearchQuery("");
+    setShowAreaDropdown(false);
     setCurrentPage(1);
   };
 
@@ -363,90 +657,170 @@ const showAllMerchantColumns = () => {
         </div>
 
         <div className="merchant-list-filters">
+          {/* Merchant Type - Outlet and Mart */}
+          <select
+            value={filterMerchantType || selectedMerchantType}
+            onChange={(e) => {
+              handleFilterTypeChange(e);
+              setSelectedMerchantType(e.target.value);
+            }}
+          >
+            <option value="">Merchant Type</option>
+            <option value="Outlet">Outlet</option>
+            <option value="Mart">Mart</option>
+          </select>
 
-  {/* MERCHANT TYPE */}
-  <select
-    value={selectedMerchantType}
-    onChange={(e) => setSelectedMerchantType(e.target.value)}
-  >
-    <option value="">Merchant Type</option>
-    <option value="Outlets">Outlets</option>
-    <option value="Mart">Mart</option>
-  </select>
+          {/* Status - Active, Inactive, Pending */}
+          <select
+            value={filterStatus}
+            onChange={handleFilterStatusChange}
+          >
+            <option value="">Select Status</option>
+            <option value="ACTIVE">Active</option>
+            <option value="INACTIVE">Inactive</option>
+            <option value="PENDING">Pending</option>
+          </select>
 
+          {/* Area - Searchable Dropdown */}
+          <div className="merchant-list-area-dropdown-wrapper">
+            <button
+              type="button"
+              className="merchant-list-area-btn"
+              onClick={() => setShowAreaDropdown((prev) => !prev)}
+            >
+              <span className="truncate">
+                {filterArea || "Select Area"}
+              </span>
+              <span>▾</span>
+            </button>
 
-  {/* STATE */}
-  <select
-    value={selectedState}
-    onChange={handleStateChange}
-    disabled={locationLoading}
-  >
-    <option value="">Select State</option>
+            {showAreaDropdown && (
+              <div className="merchant-list-area-menu">
+                <input
+                  type="text"
+                  className="merchant-list-area-search-input"
+                  placeholder="Search area..."
+                  value={areaSearchQuery}
+                  onChange={(e) => setAreaSearchQuery(e.target.value)}
+                  autoFocus
+                />
+                <div className="merchant-list-area-options">
+                  <div
+                    className={`merchant-list-area-option-item ${!filterArea ? "selected" : ""}`}
+                    onClick={() => {
+                      setFilterArea("");
+                      setShowAreaDropdown(false);
+                      setAreaSearchQuery("");
+                      setCurrentPage(1);
+                    }}
+                  >
+                    Select Area (All)
+                  </div>
+                  {areasLoading ? (
+                    <div className="merchant-list-area-no-results">Loading areas...</div>
+                  ) : (
+                    areas
+                      .filter((area) => {
+                        const name = (area.areaName || area.name || "").toLowerCase();
+                        return name.includes(areaSearchQuery.toLowerCase());
+                      })
+                      .map((area) => {
+                        const name = area.areaName || area.name;
+                        return (
+                          <div
+                            key={area.id || area.areaId || name}
+                            className={`merchant-list-area-option-item ${filterArea === name ? "selected" : ""}`}
+                            onClick={() => {
+                              setFilterArea(name);
+                              setShowAreaDropdown(false);
+                              setAreaSearchQuery("");
+                              setCurrentPage(1);
+                            }}
+                          >
+                            {name}
+                          </div>
+                        );
+                      })
+                  )}
+                  {!areasLoading &&
+                    areas.filter((area) =>
+                      (area.areaName || area.name || "").toLowerCase().includes(areaSearchQuery.toLowerCase())
+                    ).length === 0 && (
+                      <div className="merchant-list-area-no-results">No areas found</div>
+                    )}
+                </div>
+              </div>
+            )}
+          </div>
 
-    {states.map((state) => (
-      <option
-        key={state.stateId}
-        value={state.stateId}
-      >
-        {state.stateName}
-      </option>
-    ))}
-  </select>
+          {/* Date - From Date */}
+          <input
+            type="date"
+            className="merchant-list-date-input"
+            value={filterDateFrom}
+            onChange={handleFilterDateFromChange}
+            placeholder="From Date"
+          />
 
+          <span>To</span>
 
-  {/* CITY */}
-  <select
-    value={selectedCity}
-    onChange={(e) => setSelectedCity(e.target.value)}
-    disabled={!selectedState || locationLoading}
-  >
-    <option value="">Select City</option>
+          {/* Date - To Date */}
+          <input
+            type="date"
+            className="merchant-list-date-input"
+            value={filterDateTo}
+            onChange={handleFilterDateToChange}
+            placeholder="To Date"
+          />
 
-    {cities.map((city) => (
-      <option
-        key={city.cityId}
-        value={city.cityId}
-      >
-        {city.cityName}
-      </option>
-    ))}
-  </select>
-
-</div>
+          {(filterMerchantType || selectedMerchantType || selectedState || selectedCity || filterStatus || filterArea || filterDateFrom || filterDateTo || search) && (
+            <button
+              onClick={() => {
+                handleClearFilters();
+                setSelectedMerchantType("");
+                setSelectedState("");
+                setSelectedCity("");
+              }}
+              className="merchant-list-clear-filters-btn"
+            >
+              Clear Filters ✕
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* Statistics */}
+      {/* Statistics - Made more compact */}
       <div className="merchant-list-stats-row">
         <div className="merchant-list-stat-card merchant-list-total-card">
-          <h1>{merchants.length}</h1>
-          <p>Total Merchants</p>
+          <h1>{filteredMerchants.length}</h1>
+          <p>Filtered Merchants</p>
         </div>
 
         <div className="merchant-list-stat-card merchant-list-active-card">
           <h1>
             {
-              merchants.filter(
+              filteredMerchants.filter(
                 (m) => m.isActive === "Y" || m.isActive === true
               ).length
             }
           </h1>
-          <p>Active Merchants</p>
+          <p>Active</p>
         </div>
 
         <div className="merchant-list-stat-card merchant-list-inactive-card">
           <h1>
             {
-              merchants.filter(
+              filteredMerchants.filter(
                 (m) => m.isActive === "N" || m.isActive === false
               ).length
             }
           </h1>
-          <p>Inactive Merchants</p>
+          <p>Inactive</p>
         </div>
 
         <div className="merchant-list-stat-card merchant-list-new-card">
-          <h1>{merchants.filter((m) => m.isApproved).length}</h1>
-          <p>Newly Joined Merchants</p>
+          <h1>{filteredMerchants.filter((m) => m.isApproved).length}</h1>
+          <p>Approved</p>
         </div>
       </div>
 
@@ -455,7 +829,7 @@ const showAllMerchantColumns = () => {
         <div className="merchant-list-bulk-left">
           <h2>Bulk Import / Update Merchants</h2>
           <p>
-          Upload CSV or Excel file to import or update multiple merchants at once
+            Upload CSV or Excel file to import or update multiple merchants at once
           </p>
         </div>
 
@@ -488,13 +862,7 @@ const showAllMerchantColumns = () => {
           </small>
 
           {selectedFile && (
-            <div
-              style={{
-                marginTop: "8px",
-                fontSize: "12px",
-                color: "#333",
-              }}
-            >
+            <div className="merchant-list-selected-file">
               Selected File: <strong>{selectedFile.name}</strong>
             </div>
           )}
@@ -515,19 +883,8 @@ const showAllMerchantColumns = () => {
                   ? "upload-result upload-success"
                   : "upload-result upload-error"
               }
-              style={{
-                marginTop: "12px",
-                padding: "12px",
-                borderRadius: "8px",
-                backgroundColor: bulkUploadResult.success
-                  ? "#e8f5e9"
-                  : "#ffebee",
-                border: bulkUploadResult.success
-                  ? "1px solid #81c784"
-                  : "1px solid #ef9a9a",
-              }}
             >
-              <h4 style={{ margin: "0 0 8px 0" }}>
+              <h4>
                 {bulkUploadResult.success ? "✓ " : "✕ "}
                 {bulkUploadResult.message}
               </h4>
@@ -556,25 +913,13 @@ const showAllMerchantColumns = () => {
                   )}
 
                   {bulkUploadResult.data.errors?.length > 0 && (
-                    <div style={{ marginTop: "10px" }}>
+                    <div className="upload-errors-container">
                       <strong>Upload Errors:</strong>
-
-                      <div style={{ marginTop: "6px" }}>
+                      <div className="upload-errors-list">
                         {bulkUploadResult.data.errors.map((error, index) => {
                           if (typeof error === "string") {
                             return (
-                              <div
-                                key={index}
-                                style={{
-                                  marginBottom: "6px",
-                                  padding: "8px 10px",
-                                  background: "#fff",
-                                  border: "1px solid #ddd",
-                                  borderRadius: "5px",
-                                  fontSize: "14px",
-                                  color: "#000",
-                                }}
-                              >
+                              <div key={index} className="upload-error-item">
                                 {error}
                               </div>
                             );
@@ -599,18 +944,7 @@ const showAllMerchantColumns = () => {
                             JSON.stringify(error);
 
                           return (
-                            <div
-                              key={index}
-                              style={{
-                                marginBottom: "6px",
-                                padding: "8px 10px",
-                                background: "#fff",
-                                border: "1px solid #ddd",
-                                borderRadius: "5px",
-                                fontSize: "14px",
-                                color: "#000",
-                              }}
-                            >
+                            <div key={index} className="upload-error-item">
                               <strong>Row {rowNum}</strong>
                               {fieldName && <span>{` - ${fieldName}`}</span>}
                               {errorMsg && <span>{`: ${errorMsg}`}</span>}
@@ -625,8 +959,7 @@ const showAllMerchantColumns = () => {
             </div>
           )}
         </div>
-
-      </div> 
+      </div>
 
       {/* Merchant List */}
       <div className="merchant-list-container">
@@ -637,79 +970,65 @@ const showAllMerchantColumns = () => {
           </div>
 
           <div className="merchant-list-actions">
-           <div className="merchant-list-columns-wrapper">
+            <div className="merchant-list-columns-wrapper">
+              <button
+                type="button"
+                className="merchant-list-columns-btn"
+                onClick={() =>
+                  setShowColumnsMenu((prev) => !prev)
+                }
+              >
+                Columns ▾
+              </button>
 
-  <button
-    type="button"
-    className="merchant-list-columns-btn"
-    onClick={() =>
-      setShowColumnsMenu((prev) => !prev)
-    }
-  >
-    Columns ▾
-  </button>
+              {showColumnsMenu && (
+                <div className="merchant-list-columns-menu">
+                  <div className="merchant-list-columns-menu-header">
+                    <span>Choose Columns</span>
+                    <button
+                      type="button"
+                      className="merchant-list-columns-close"
+                      onClick={() => setShowColumnsMenu(false)}
+                    >
+                      ×
+                    </button>
+                  </div>
 
-  {showColumnsMenu && (
-    <div className="merchant-list-columns-menu">
+                  <div className="merchant-list-columns-title">
+                    General
+                  </div>
 
-      {/* HEADER */}
-      <div className="merchant-list-columns-menu-header">
+                  {merchantColumnOptions.map(
+                    ([key, label]) => (
+                      <label
+                        key={key}
+                        className="merchant-list-column-option"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={visibleColumns[key]}
+                          onChange={() =>
+                            toggleMerchantColumn(key)
+                          }
+                        />
+                        <span>{label}</span>
+                      </label>
+                    )
+                  )}
 
-        <span>Choose Columns</span>
+                  <div className="merchant-list-columns-divider" />
 
-        <button
-          type="button"
-          className="merchant-list-columns-close"
-          onClick={() => setShowColumnsMenu(false)}
-        >
-          ×
-        </button>
-
-      </div>
-
-      {/* CATEGORY */}
-      <div className="merchant-list-columns-title">
-        General
-      </div>
-
-      {/* CHECKBOXES */}
-      {merchantColumnOptions.map(
-        ([key, label]) => (
-          <label
-            key={key}
-            className="merchant-list-column-option"
-          >
-
-            <input
-              type="checkbox"
-              checked={visibleColumns[key]}
-              onChange={() =>
-                toggleMerchantColumn(key)
-              }
-            />
-
-            <span>{label}</span>
-
-          </label>
-        )
-      )}
-
-      <div className="merchant-list-columns-divider" />
-
-      {/* SHOW ALL */}
-      <button
-        type="button"
-        className="merchant-list-show-all-columns"
-        onClick={showAllMerchantColumns}
-      >
-        Show All
-      </button>
-
-    </div>
-  )}
-
-</div>
-            <button 
+                  <button
+                    type="button"
+                    className="merchant-list-show-all-columns"
+                    onClick={showAllMerchantColumns}
+                  >
+                    Show All
+                  </button>
+                </div>
+              )}
+            </div>
+            <button
               className="merchant-list-create-btn"
               onClick={handleCreateMerchant}
             >
@@ -743,53 +1062,49 @@ const showAllMerchantColumns = () => {
         </div>
 
         <table className="merchant-list-table">
-     
+          <thead>
+            <tr>
+              <th className="merchant-list-checkbox-col">
+                <input
+                  type="checkbox"
+                  checked={selectAll}
+                  onChange={handleSelectAll}
+                  title="Select all merchants"
+                />
+              </th>
 
-<thead>
-  <tr>
-    <th>
-      <input type="checkbox" />
-    </th>
+              {visibleColumns.merchantInfo && (
+                <th>Merchant Info</th>
+              )}
 
-    {visibleColumns.merchantInfo && (
-      <th>Merchant Info</th>
-    )}
+              {visibleColumns.ownerInfo && (
+                <th>Contacts</th>
+              )}
 
-    {visibleColumns.ownerInfo && (
-      <th>Owner Info</th>
-    )}
+              {visibleColumns.zone && (
+                <th>Zone</th>
+              )}
 
-    {visibleColumns.zone && (
-      <th>Zone</th>
-    )}
+              {visibleColumns.status && (
+                <th>Status</th>
+              )}
 
-    {visibleColumns.status && (
-      <th>Status</th>
-    )}
+              {visibleColumns.date && (
+                <th>Date</th>
+              )}
 
-    {visibleColumns.adminCommission && (
-      <th>Admin Commission</th>
-    )}
+              {visibleColumns.documents && (
+                <th>Documents</th>
+              )}
 
-    {visibleColumns.date && (
-      <th>Date</th>
-    )}
-
-    <th>Actions</th>
-  </tr>
-</thead>
-         
+              <th>Actions</th>
+            </tr>
+          </thead>
 
           <tbody>
             {loading ? (
               <tr>
-                <td
-                  colSpan="7"
-                  style={{
-                    textAlign: "center",
-                    padding: "20px",
-                  }}
-                >
+                <td className="merchant-list-loading-cell" colSpan="9">
                   Loading...
                 </td>
               </tr>
@@ -798,97 +1113,158 @@ const showAllMerchantColumns = () => {
                 <React.Fragment key={merchant.merchantId}>
                   <tr>
                     <td>
-                      <button
-                        className="merchant-list-expand-btn"
-                        onClick={() =>
-                          setExpandedRow(
-                            expandedRow === merchant.merchantId
-                              ? null
-                              : merchant.merchantId
-                          )
-                        }
-                      >
-                        {expandedRow === merchant.merchantId ? "−" : "+"}
-                      </button>
-                      <input type="checkbox" />
+                      <input
+                        type="checkbox"
+                        checked={selectedMerchants.includes(merchant.merchantId)}
+                        onChange={() => handleSelectMerchant(merchant.merchantId)}
+                      />
                     </td>
 
                     {visibleColumns.merchantInfo && (
-  <td>
-
-    <div className="merchant-list-info">
-
-      <img
-        src={
-          merchant.profilePicUrl ||
-          "/default-shop.png"
-        }
-        alt={merchant.merchantName}
-      />
-
-      <div>
-
-        <strong>
-          {merchant.merchantName}
-        </strong>
-
-        <br />
-
-        <small>
-          {merchant.merchantBusinessType}
-        </small>
-
-      </div>
-
-    </div>
-
-  </td>
-)}
+                      <td>
+                        <div className="merchant-list-info">
+                          <div
+                            className="merchant-list-avatar-wrapper"
+                            onClick={() => handleOpenPicModal(merchant)}
+                            title="Click to update profile picture"
+                          >
+                            {merchant.profilePicUrl ? (
+                              <img
+                                src={merchant.profilePicUrl}
+                                alt={merchant.merchantName}
+                                className="merchant-list-avatar-img"
+                              />
+                            ) : (
+                              <div className="merchant-list-avatar-placeholder">
+                                {(merchant.merchantName || merchant.firstName || "M").charAt(0).toUpperCase()}
+                              </div>
+                            )}
+                            <div className="merchant-list-avatar-camera">
+                              <FaCamera />
+                            </div>
+                          </div>
+                          <div>
+                            <strong
+                              onClick={() => handleViewMerchant(merchant)}
+                              className="merchant-name-link"
+                              title="Click to view merchant details"
+                            >
+                              {merchant.merchantName}
+                            </strong>
+                            <br />
+                            <small>
+                              {merchant.merchantBusinessType}
+                            </small>
+                          </div>
+                        </div>
+                      </td>
+                    )}
 
                     {visibleColumns.ownerInfo && (
-  <td>
+                      <td>
+                        {merchant.firstName} {merchant.lastName}
+                        <br />
+                        {merchant.merchantPhone}
+                        <br />
+                        <small>
+                          {merchant.merchantEmail}
+                        </small>
+                      </td>
+                    )}
 
-    {merchant.firstName} {merchant.lastName}
+                    {visibleColumns.zone && (
+                      <td>
+                        {merchantAddresses[merchant.merchantId] ? (
+                          <div>
+                            <strong>
+                              {merchantAddresses[merchant.merchantId].areaName ||
+                                merchant.area ||
+                                "-"}
+                            </strong>
+                            {(merchantAddresses[merchant.merchantId].cityName ||
+                              merchantAddresses[merchant.merchantId].stateName) && (
+                                <div className="merchant-list-zone-details">
+                                  {[
+                                    merchantAddresses[merchant.merchantId].cityName,
+                                    merchantAddresses[merchant.merchantId].stateName,
+                                  ]
+                                    .filter(Boolean)
+                                    .join(", ")}
+                                </div>
+                              )}
+                          </div>
+                        ) : (
+                          merchant.area || merchant.zone || "-"
+                        )}
+                      </td>
+                    )}
 
-    <br />
+                    {visibleColumns.status && (
+                      <td className="merchant-list-status-cell">
+                        <button
+                          type="button"
+                          onClick={() => handleToggleStatus(merchant)}
+                          className="merchant-list-toggle-btn"
+                          title={
+                            (merchant.isActive === "Y" || merchant.isActive === true || merchant.status === "ACTIVE")
+                              ? "Click to Deactivate Merchant"
+                              : "Click to Activate Merchant"
+                          }
+                        >
+                          <div
+                            className={`merchant-list-toggle-track ${(merchant.isActive === "Y" || merchant.isActive === true || merchant.status === "ACTIVE")
+                                ? "active"
+                                : "inactive"
+                              }`}
+                          >
+                            <div
+                              className={`merchant-list-toggle-thumb ${(merchant.isActive === "Y" || merchant.isActive === true || merchant.status === "ACTIVE")
+                                  ? "active"
+                                  : "inactive"
+                                }`}
+                            />
+                          </div>
+                        </button>
+                      </td>
+                    )}
 
-    {merchant.merchantPhone}
+                    {visibleColumns.date && (
+                      <td>
+                        {merchant.createdAt
+                          ? new Date(merchant.createdAt).toLocaleDateString()
+                          : "-"}
+                      </td>
+                    )}
 
-    <br />
+                    {visibleColumns.documents && (
+                      <td className="merchant-list-docs-cell">
+                        <button
+                          type="button"
+                          onClick={() => handleOpenDocumentsModal(merchant)}
+                          className="merchant-list-docs-btn"
+                          title="View Documents"
+                        >
+                          📄 Docs
+                        </button>
+                      </td>
+                    )}
 
-    <small>
-      {merchant.merchantEmail}
-    </small>
-
-  </td>
-)}
-{visibleColumns.zone && (
-  <td>{merchant.state || "-"}</td>
-)}
-
-{visibleColumns.status && (
-  <td>{merchant.status || "-"}</td>
-)}
-
-{visibleColumns.adminCommission && (
-  <td>{merchant.adminCommission ?? "-"}</td>
-)}
-
-{visibleColumns.date && (
-  <td>
-    {merchant.createdAt
-      ? new Date(merchant.createdAt).toLocaleDateString()
-      : "-"}
-  </td>
-)}
-
+                    <td>
+                      <div className="merchant-list-action-icons">
+                        <FaEdit
+                          onClick={() => handleEditMerchant(merchant)}
+                          title="Edit Merchant"
+                          className="merchant-list-edit-icon"
+                        />
+                      </div>
+                    </td>
                   </tr>
 
                   {expandedRow === merchant.merchantId && (
                     <tr className="merchant-list-expanded-row">
-                      <td colSpan="7">
+                      <td colSpan="9">
                         <div className="merchant-list-expand-container">
-                          <div className="merchant-list-left" style={{ flex: 1 }}>
+                          <div className="merchant-list-left">
                             <div className="merchant-list-item">
                               <span>Merchant ID</span>
                               <strong>{merchant.merchantId || "N/A"}</strong>
@@ -948,46 +1324,39 @@ const showAllMerchantColumns = () => {
                               <span
                                 className={
                                   merchant.isActive === "Y" ||
-                                  merchant.isActive === true
+                                    merchant.isActive === true
                                     ? "merchant-list-plan-badge"
                                     : "merchant-list-expired-badge"
                                 }
                               >
                                 {merchant.isActive === "Y" ||
-                                merchant.isActive === true
+                                  merchant.isActive === true
                                   ? "Active"
                                   : "Inactive"}
                               </span>
                             </div>
                           </div>
 
-                          <div
-                            className="merchant-list-right"
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              flex: "0 0 250px",
-                              padding: "20px",
-                            }}
-                          >
+                          <div className="merchant-list-right">
                             <button
                               onClick={() => openOutlets(merchant)}
-                              style={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "8px",
-                                backgroundColor: "#FF6A00",
-                                color: "#ffffff",
-                                border: "none",
-                                padding: "12px 20px",
-                                borderRadius: "8px",
-                                cursor: "pointer",
-                                fontWeight: "bold",
-                                fontSize: "14px",
-                              }}
+                              className="merchant-list-view-outlets-btn"
                             >
                               <FaStore /> View All Outlets
+                            </button>
+
+                            <button
+                              onClick={() => handleEditMerchant(merchant)}
+                              className="merchant-list-edit-btn"
+                            >
+                              <FaEdit /> Edit Merchant
+                            </button>
+
+                            <button
+                              onClick={() => handleViewMerchant(merchant)}
+                              className="merchant-list-view-btn"
+                            >
+                              <FaEye /> View Details
                             </button>
                           </div>
                         </div>
@@ -998,13 +1367,7 @@ const showAllMerchantColumns = () => {
               ))
             ) : (
               <tr>
-                <td
-                  colSpan="7"
-                  style={{
-                    textAlign: "center",
-                    padding: "20px",
-                  }}
-                >
+                <td className="merchant-list-no-data-cell" colSpan="9">
                   No Merchants Found
                 </td>
               </tr>
@@ -1012,18 +1375,17 @@ const showAllMerchantColumns = () => {
           </tbody>
         </table>
 
-        {/* Pagination Footer Controls */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "15px 20px" }}>
-          <div>
+        <div className="merchant-list-pagination">
+          <div className="merchant-list-pagination-info">
             Showing {filteredMerchants.length > 0 ? indexOfFirstItem + 1 : 0} to{" "}
             {Math.min(indexOfLastItem, filteredMerchants.length)} of {filteredMerchants.length} entries
           </div>
 
-          <div style={{ display: "flex", gap: "5px" }}>
+          <div className="merchant-list-pagination-buttons">
             <button
+              className="merchant-list-pagination-btn"
               onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
-              style={{ padding: "6px 12px", cursor: currentPage === 1 ? "not-allowed" : "pointer" }}
             >
               Previous
             </button>
@@ -1031,31 +1393,178 @@ const showAllMerchantColumns = () => {
             {Array.from({ length: totalPages }, (_, index) => (
               <button
                 key={index + 1}
+                className={`merchant-list-pagination-btn ${currentPage === index + 1 ? "active" : ""}`}
                 onClick={() => setCurrentPage(index + 1)}
-                style={{
-                  padding: "6px 12px",
-                  backgroundColor: currentPage === index + 1 ? "#FF6A00" : "#f0f0f0",
-                  color: currentPage === index + 1 ? "#fff" : "#000",
-                  border: "none",
-                  borderRadius: "4px",
-                  cursor: "pointer",
-                }}
               >
                 {index + 1}
               </button>
             ))}
 
             <button
+              className="merchant-list-pagination-btn"
               onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
               disabled={currentPage === totalPages}
-              style={{ padding: "6px 12px", cursor: currentPage === totalPages ? "not-allowed" : "pointer" }}
             >
               Next
             </button>
           </div>
         </div>
-
       </div>
+
+      {/* Documents Modal */}
+      {showDocModal && selectedDocMerchant && (
+        <div
+          className="doc-modal-backdrop"
+          onClick={() => setShowDocModal(false)}
+        >
+          <div
+            className="doc-modal-content"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="doc-modal-header">
+              <h3>
+                📄 Documents - {selectedDocMerchant.merchantName}
+              </h3>
+              <button
+                onClick={() => setShowDocModal(false)}
+                className="doc-modal-close"
+              >
+                ×
+              </button>
+            </div>
+
+            {docModalLoading ? (
+              <p className="doc-modal-loading">Loading documents...</p>
+            ) : (
+              <div className="doc-modal-body">
+                <div className="doc-section">
+                  <div className="doc-section-title">
+                    Aadhaar Card
+                  </div>
+                  <div className="doc-section-number">
+                    Number: <strong>{merchantProfiles[selectedDocMerchant.merchantId]?.aadharNumber || "N/A"}</strong>
+                  </div>
+                  {merchantProfiles[selectedDocMerchant.merchantId]?.aadhaarNumberUrl ? (
+                    <a
+                      href={merchantProfiles[selectedDocMerchant.merchantId].aadhaarNumberUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="doc-download-link"
+                    >
+                      📥 View / Download Aadhaar
+                    </a>
+                  ) : (
+                    <span className="doc-no-url">No document URL uploaded</span>
+                  )}
+                </div>
+
+                <div className="doc-section">
+                  <div className="doc-section-title">
+                    PAN Card
+                  </div>
+                  <div className="doc-section-number">
+                    Number: <strong>{merchantProfiles[selectedDocMerchant.merchantId]?.panNumber || "N/A"}</strong>
+                  </div>
+                  {merchantProfiles[selectedDocMerchant.merchantId]?.panNumberUrl ? (
+                    <a
+                      href={merchantProfiles[selectedDocMerchant.merchantId].panNumberUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="doc-download-link"
+                    >
+                      📥 View / Download PAN
+                    </a>
+                  ) : (
+                    <span className="doc-no-url">No document URL uploaded</span>
+                  )}
+                </div>
+              </div>
+            )}
+
+            <div className="doc-modal-footer">
+              <button
+                onClick={() => setShowDocModal(false)}
+                className="doc-modal-close-btn"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Profile Picture Modal */}
+      {showPicModal && selectedPicMerchant && (
+        <div
+          className="pic-modal-backdrop"
+          onClick={() => setShowPicModal(false)}
+        >
+          <div
+            className="pic-modal-content"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="pic-modal-header">
+              <h3>
+                🖼️ Profile Picture - {selectedPicMerchant.merchantName}
+              </h3>
+              <button
+                onClick={() => setShowPicModal(false)}
+                className="pic-modal-close"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="pic-modal-body">
+              {previewPicUrl ? (
+                <img
+                  src={previewPicUrl}
+                  alt="Preview"
+                  className="pic-modal-preview"
+                />
+              ) : (
+                <div className="pic-modal-placeholder">
+                  {(selectedPicMerchant?.merchantName || selectedPicMerchant?.firstName || "M").charAt(0).toUpperCase()}
+                </div>
+              )}
+
+              <div className="pic-modal-upload-section">
+                <label className="pic-modal-file-label">
+                  Select Image File (.png, .jpg, .jpeg)
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handlePicFileChange}
+                  className="pic-modal-file-input"
+                />
+                {selectedPicFile && (
+                  <small className="pic-modal-file-name">
+                    Selected: {selectedPicFile.name} ({(selectedPicFile.size / 1024).toFixed(1)} KB)
+                  </small>
+                )}
+              </div>
+            </div>
+
+            <div className="pic-modal-footer">
+              <button
+                onClick={() => setShowPicModal(false)}
+                disabled={updatingPic}
+                className="pic-modal-cancel-btn"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveProfilePic}
+                disabled={updatingPic}
+                className="pic-modal-save-btn"
+              >
+                {updatingPic ? "Saving..." : "Save Changes"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

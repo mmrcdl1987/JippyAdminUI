@@ -188,7 +188,7 @@ export const pageRegistry = {
   // MERCHANTS
   // =========================
 
-  outlets: {
+  merchants: {
     component: Merchants,
     permission: "RESTAURANT_READ",
   },
@@ -243,7 +243,7 @@ export const pageRegistry = {
     permission: "OUTLET_UPDATE",
   },
 
-  "view-outlets": {
+  viewOutlets: {
     component: ViewOutlets,
     permission: "RESTAURANT_READ",
   },

@@ -1,6 +1,11 @@
-import { useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FiArrowLeft, FiUploadCloud } from "react-icons/fi";
+import {
+  FiArrowLeft,
+  FiUploadCloud,
+  FiX,
+  FiImage,
+} from "react-icons/fi";
 import { updateCategory } from "../services/categoryService";
 import "../styles/CreateCategory.css";
 
@@ -8,178 +13,850 @@ function EditCategory({ selectedCategory }) {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
 
-  const [categoryName, setCategoryName] = useState(selectedCategory?.categoryName || "");
-  const [categoryType, setCategoryType] = useState(selectedCategory?.categoryType || "Food");
-  const [categoryImageUrl, setCategoryImageUrl] = useState(selectedCategory?.categoryImageUrl || "");
+  // ============================================================
+  // FORM STATE
+  // ============================================================
+  const [categoryName, setCategoryName] = useState(
+    selectedCategory?.categoryName || ""
+  );
+
+  const [categoryType, setCategoryType] = useState(
+    selectedCategory?.categoryType || "HOME"
+  );
+
+  // Existing image URL returned by backend/S3
+  const [existingImageUrl, setExistingImageUrl] = useState(
+    selectedCategory?.categoryImageUrl || ""
+  );
+
+  // Actual newly selected File
   const [selectedFile, setSelectedFile] = useState(null);
+
+  // Preview of either existing image or newly selected image
+  const [imagePreview, setImagePreview] = useState(
+    selectedCategory?.categoryImageUrl || ""
+  );
+
   const [loading, setLoading] = useState(false);
+  const [dragging, setDragging] = useState(false);
 
+  // ============================================================
+  // UPDATE STATE WHEN selectedCategory CHANGES
+  // ============================================================
+  useEffect(() => {
+    const imageUrl =
+      selectedCategory?.categoryImageUrl || "";
+
+    setCategoryName(
+      selectedCategory?.categoryName || ""
+    );
+
+    setCategoryType(
+      selectedCategory?.categoryType || "HOME"
+    );
+
+    setExistingImageUrl(imageUrl);
+    setSelectedFile(null);
+    setImagePreview(imageUrl);
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  }, [selectedCategory]);
+
+  // ============================================================
+  // IMAGE VALIDATION
+  // ============================================================
+  //
+  // Backend currently validates using ImageIO.
+  // Use JPG / JPEG / PNG.
+  //
+  // Backend max size = 5 MB.
+  // ============================================================
+  const validateImage = (file) => {
+    if (!file) {
+      return false;
+    }
+
+    const allowedMimeTypes = [
+      "image/jpeg",
+      "image/png",
+    ];
+
+    const allowedExtensions = [
+      ".jpg",
+      ".jpeg",
+      ".png",
+    ];
+
+    const fileName =
+      file.name?.toLowerCase() || "";
+
+    const validMimeType =
+      allowedMimeTypes.includes(file.type);
+
+    const validExtension =
+      allowedExtensions.some((extension) =>
+        fileName.endsWith(extension)
+      );
+
+    if (!validMimeType || !validExtension) {
+      alert(
+        "Only JPG, JPEG and PNG images are allowed."
+      );
+      return false;
+    }
+
+    // 5 MB
+    const maxSize = 5 * 1024 * 1024;
+
+    if (file.size > maxSize) {
+      alert(
+        "Category image size cannot exceed 5 MB."
+      );
+      return false;
+    }
+
+    return true;
+  };
+
+  // ============================================================
+  // HANDLE SELECTED FILE
+  // ============================================================
+  const handleFileSelect = (file) => {
+    if (!file || loading) {
+      return;
+    }
+
+    if (!validateImage(file)) {
+      return;
+    }
+
+    // Revoke previous local object URL only
+    // Do not revoke the existing S3 URL.
+    if (
+      imagePreview &&
+      imagePreview.startsWith("blob:")
+    ) {
+      URL.revokeObjectURL(imagePreview);
+    }
+
+    setSelectedFile(file);
+
+    const previewUrl =
+      URL.createObjectURL(file);
+
+    setImagePreview(previewUrl);
+  };
+
+  // ============================================================
+  // FILE INPUT CHANGE
+  // ============================================================
+  const handleFileChange = (event) => {
+    const file =
+      event.target.files?.[0];
+
+    if (file) {
+      handleFileSelect(file);
+    }
+
+    // Allow selecting the same file again
+    event.target.value = "";
+  };
+
+  // ============================================================
+  // OPEN FILE PICKER
+  // ============================================================
   const handleDropzoneClick = () => {
-    fileInputRef.current.click();
+    if (loading) {
+      return;
+    }
+
+    fileInputRef.current?.click();
   };
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setSelectedFile(file);
-      setCategoryImageUrl(URL.createObjectURL(file)); 
+  // ============================================================
+  // DRAG OVER
+  // ============================================================
+  const handleDragOver = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (!loading) {
+      setDragging(true);
     }
   };
 
-  const handleDragOver = (e) => {
-    e.preventDefault();
+  // ============================================================
+  // DRAG LEAVE
+  // ============================================================
+  const handleDragLeave = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    setDragging(false);
   };
 
-  const handleDrop = (e) => {
-    e.preventDefault();
-    const file = e.dataTransfer.files[0];
+  // ============================================================
+  // DROP
+  // ============================================================
+  const handleDrop = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    setDragging(false);
+
+    if (loading) {
+      return;
+    }
+
+    const file =
+      event.dataTransfer.files?.[0];
+
     if (file) {
-      setSelectedFile(file);
-      setCategoryImageUrl(URL.createObjectURL(file));
+      handleFileSelect(file);
     }
   };
 
+  // ============================================================
+  // REMOVE / CLEAR SELECTED IMAGE
+  // ============================================================
+  const handleRemoveImage = (event) => {
+    event.stopPropagation();
+
+    if (loading) {
+      return;
+    }
+
+    // If the current preview is a newly selected local file,
+    // revoke its object URL.
+    if (
+      imagePreview &&
+      imagePreview.startsWith("blob:")
+    ) {
+      URL.revokeObjectURL(imagePreview);
+    }
+
+    setSelectedFile(null);
+
+    // Restore existing S3 image.
+    //
+    // IMPORTANT:
+    // This does NOT delete the image from S3/database.
+    // It simply removes the newly selected file from the UI.
+    setImagePreview(existingImageUrl || "");
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  // ============================================================
+  // GET LOGGED-IN USER ID
+  // ============================================================
+  const getLoggedInUserId = () => {
+    let loggedInUserId =
+      localStorage.getItem("userId") ||
+      localStorage.getItem("id");
+
+    if (!loggedInUserId) {
+      try {
+        const userObj = JSON.parse(
+          localStorage.getItem("user") || "{}"
+        );
+
+        loggedInUserId =
+          userObj.id ||
+          userObj.userId;
+      } catch (error) {
+        console.warn(
+          "Unable to parse stored user object.",
+          error
+        );
+      }
+    }
+
+    // Development fallback
+    if (!loggedInUserId) {
+      loggedInUserId = "1";
+    }
+
+    return loggedInUserId;
+  };
+
+  // ============================================================
+  // UPDATE CATEGORY
+  // ============================================================
   const handleUpdate = async () => {
+    // ----------------------------------------------------------
+    // Validate category
+    // ----------------------------------------------------------
     if (!categoryName.trim()) {
       alert("Category Name is required.");
       return;
     }
 
-    // Robust user ID lookup preventing forced login redirects
-    let loggedInUserId = localStorage.getItem("userId") || localStorage.getItem("id");
+    if (!categoryType) {
+      alert("Category Type is required.");
+      return;
+    }
 
-    if (!loggedInUserId) {
-      try {
-        const userObj = JSON.parse(localStorage.getItem("user") || "{}");
-        loggedInUserId = userObj.id || userObj.userId;
-      } catch (e) {
-        // Safe catch
+    if (!selectedCategory?.categoryId) {
+      alert("Category ID is missing.");
+      return;
+    }
+
+    if (loading) {
+      return;
+    }
+
+    const loggedInUserId =
+      getLoggedInUserId();
+
+    // ----------------------------------------------------------
+    // Create FormData
+    // ----------------------------------------------------------
+    const formData = new FormData();
+
+    formData.append(
+      "categoryId",
+      String(selectedCategory.categoryId)
+    );
+
+    formData.append(
+      "categoryName",
+      categoryName.trim()
+    );
+
+    formData.append(
+      "categoryType",
+      categoryType
+    );
+
+    formData.append(
+      "updatedBy",
+      String(loggedInUserId)
+    );
+
+    // ==========================================================
+    // IMPORTANT
+    // ==========================================================
+    //
+    // UPDATE backend expects:
+    //
+    // request.getCategoryImage()
+    //
+    // Therefore:
+    //
+    // categoryImage = actual File
+    //
+    // DO NOT send the existing S3 URL as categoryImageUrl.
+    //
+    // If selectedFile is null, don't append any image field.
+    // The backend will preserve the existing image URL.
+    // ==========================================================
+    if (selectedFile) {
+      formData.append(
+        "categoryImage",
+        selectedFile,
+        selectedFile.name
+      );
+    }
+
+    // ----------------------------------------------------------
+    // Debug FormData
+    // ----------------------------------------------------------
+    console.log(
+      "========== UPDATE CATEGORY REQUEST =========="
+    );
+
+    for (const [key, value] of formData.entries()) {
+      if (value instanceof File) {
+        console.log(key, {
+          name: value.name,
+          type: value.type,
+          size: value.size,
+        });
+      } else {
+        console.log(key, value);
       }
     }
 
-    // Final safety fallback so it NEVER forces you to the login screen during development tests
-    if (!loggedInUserId) {
-      loggedInUserId = 1; 
-    }
+    console.log(
+      "=============================================="
+    );
 
     try {
       setLoading(true);
 
-      const formData = new FormData();
-      formData.append("categoryId", selectedCategory?.categoryId || ""); 
-      formData.append("categoryName", categoryName);
-      formData.append("categoryType", categoryType);
-      formData.append("updatedBy", loggedInUserId);
-      
-      if (selectedFile) {
-        formData.append("categoryImage", selectedFile);
-      } else if (categoryImageUrl) {
-        formData.append("categoryImageUrl", categoryImageUrl);
-      }
+      const response =
+        await updateCategory(formData);
 
-      await updateCategory(formData);
+      console.log(
+        "UPDATE CATEGORY RESPONSE:",
+        response
+      );
 
-      alert("Category updated successfully!");
-      navigate("/dashboard/categories");
+      alert(
+        response?.message ||
+          "Category updated successfully!"
+      );
+
+      navigate(
+        "/dashboard/categories"
+      );
+
     } catch (error) {
-      console.error("Error updating category:", error);
-      alert(error.response?.data?.message || "Failed to update category. Please check backend logs.");
+      console.error(
+        "ERROR UPDATING CATEGORY:",
+        error
+      );
+
+      const message =
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        "Failed to update category.";
+
+      alert(message);
+
     } finally {
       setLoading(false);
     }
   };
 
+  // ============================================================
+  // CANCEL
+  // ============================================================
+  const handleCancel = () => {
+    if (loading) {
+      return;
+    }
+
+    if (
+      imagePreview &&
+      imagePreview.startsWith("blob:")
+    ) {
+      URL.revokeObjectURL(imagePreview);
+    }
+
+    navigate(
+      "/dashboard/categories"
+    );
+  };
+
+  // ============================================================
+  // CLEANUP LOCAL PREVIEW
+  // ============================================================
+  useEffect(() => {
+    return () => {
+      if (
+        imagePreview &&
+        imagePreview.startsWith("blob:")
+      ) {
+        URL.revokeObjectURL(imagePreview);
+      }
+    };
+  }, [imagePreview]);
+
+  // ============================================================
+  // RENDER
+  // ============================================================
   return (
     <div className="create-category-page">
+
+      {/* ======================================================
+          PAGE HEADER
+          ====================================================== */}
       <div className="page-header-container">
-        <div className="breadcrumb-header" onClick={() => navigate("/dashboard/categories")}>
+
+        <div
+          className="breadcrumb-header"
+          onClick={handleCancel}
+        >
           <FiArrowLeft className="back-arrow-icon" />
-          <h2>Edit Category</h2>
+
+          <h2>
+            Edit Category
+          </h2>
         </div>
+
         <p className="breadcrumb-trail">
-          <span onClick={() => navigate("/dashboard/categories")}>Categories</span> &gt; Edit Category
+
+          <span onClick={handleCancel}>
+            Categories
+          </span>
+
+          {" > "}
+
+          Edit Category
+
         </p>
+
       </div>
 
+      {/* ======================================================
+          CATEGORY CARD
+          ====================================================== */}
       <div className="category-card">
+
         <div className="card-section-title">
-          <h3>Category Information</h3>
-          <p>Modify the details of your existing category below.</p>
+
+          <h3>
+            Category Information
+          </h3>
+
+          <p>
+            Modify the details of your
+            existing category below.
+          </p>
+
         </div>
 
         <div className="category-form">
+
+          {/* ==================================================
+              CATEGORY NAME + TYPE
+              ================================================== */}
           <div className="form-row">
+
+            {/* Category Name */}
             <div className="form-group">
-              <label>Category Name <span>*</span></label>
+
+              <label>
+                Category Name{" "}
+                <span>*</span>
+              </label>
+
               <input
                 type="text"
                 placeholder="Enter category name"
                 value={categoryName}
-                onChange={(e) => setCategoryName(e.target.value)}
+                onChange={(event) =>
+                  setCategoryName(
+                    event.target.value
+                  )
+                }
+                disabled={loading}
               />
+
             </div>
 
+            {/* Category Type */}
             <div className="form-group">
-              <label>Category Type <span>*</span></label>
+
+              <label>
+                Category Type{" "}
+                <span>*</span>
+              </label>
+
               <select
                 value={categoryType}
-                onChange={(e) => setCategoryType(e.target.value)}
+                onChange={(event) =>
+                  setCategoryType(
+                    event.target.value
+                  )
+                }
+                disabled={loading}
               >
-                <option value="Food">Food</option>
-                <option value="Non-Veg">Non-Veg</option>
-                <option value="Essentials">Essentials</option>
-                <option value="HOME">HOME</option>
+
+                <option value="HOME">
+                  HOME
+                </option>
+
+                <option value="ALL">
+                  ALL
+                </option>
+
               </select>
+
             </div>
+
           </div>
 
+          {/* ==================================================
+              CATEGORY IMAGE
+              ================================================== */}
           <div className="form-group">
-            <label>Category Image</label>
-            
+
+            <label>
+              Category Profile Image
+            </label>
+
+            {/* Hidden file input */}
             <input
               type="file"
               ref={fileInputRef}
-              style={{ display: "none" }}
-              accept="image/png, image/jpeg, image/webp"
-              onChange={handleFileChange}
+              style={{
+                display: "none",
+              }}
+              accept=".jpg,.jpeg,.png,image/jpeg,image/png"
+              onChange={
+                handleFileChange
+              }
+              disabled={loading}
             />
 
-            <div 
-              className="dropzone" 
-              onClick={handleDropzoneClick}
-              onDragOver={handleDragOver}
-              onDrop={handleDrop}
-              style={{ cursor: "pointer" }}
-            >
-              <div className="dropzone-content">
-                <FiUploadCloud className="upload-icon" />
-                <p>
-                  {selectedFile ? `Selected: ${selectedFile.name}` : <>Drag and drop your new image here, or <span>browse</span></>}
-                </p>
-                <small>Supports: PNG, JPG, WEBP (Max 2MB)</small>
+            {/* =================================================
+                DROPZONE
+                ================================================= */}
+            {!imagePreview && (
+              <div
+                className={`dropzone ${
+                  dragging
+                    ? "dragging"
+                    : ""
+                }`}
+                onClick={
+                  handleDropzoneClick
+                }
+                onDragOver={
+                  handleDragOver
+                }
+                onDragLeave={
+                  handleDragLeave
+                }
+                onDrop={handleDrop}
+                style={{
+                  cursor: loading
+                    ? "not-allowed"
+                    : "pointer",
+                }}
+              >
+
+                <div className="dropzone-content">
+
+                  <FiUploadCloud
+                    className="upload-icon"
+                  />
+
+                  <p>
+                    Drag and drop your
+                    image here, or{" "}
+                    <strong>
+                      browse
+                    </strong>
+                  </p>
+
+                  <small>
+                    Supports JPG, JPEG and PNG
+                    {" "}
+                    (Max 5 MB)
+                  </small>
+
+                </div>
+
               </div>
-            </div>
+            )}
 
-            <input
-              type="text"
-              placeholder="Or paste direct image URL here..."
-              value={categoryImageUrl}
-              onChange={(e) => setCategoryImageUrl(e.target.value)}
-              className="url-input-field"
-              style={{ marginTop: "10px" }}
-            />
+            {/* =================================================
+                IMAGE PREVIEW
+                ================================================= */}
+            {imagePreview && (
+              <div
+                className="category-image-preview"
+                style={{
+                  marginTop: "15px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "15px",
+                }}
+              >
+
+                {/* Image */}
+                <div
+                  style={{
+                    position: "relative",
+                  }}
+                >
+
+                  <img
+                    src={imagePreview}
+                    alt="Category"
+                    style={{
+                      width: "130px",
+                      height: "130px",
+                      objectFit: "cover",
+                      borderRadius: "8px",
+                      border:
+                        "1px solid #ddd",
+                      display: "block",
+                    }}
+                    onError={(event) => {
+                      console.error(
+                        "Unable to load category image:",
+                        imagePreview
+                      );
+
+                      event.currentTarget.style.display =
+                        "none";
+                    }}
+                  />
+
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "-8px",
+                      right: "-8px",
+                      width: "24px",
+                      height: "24px",
+                      borderRadius: "50%",
+                      background: "#fff",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      boxShadow:
+                        "0 1px 5px rgba(0,0,0,0.2)",
+                    }}
+                  >
+                    <FiImage size={14} />
+                  </div>
+
+                </div>
+
+                {/* Image information */}
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection:
+                      "column",
+                    gap: "5px",
+                  }}
+                >
+
+                  {selectedFile ? (
+                    <>
+                      <strong>
+                        {selectedFile.name}
+                      </strong>
+
+                      <small>
+                        {(
+                          selectedFile.size /
+                          (1024 * 1024)
+                        ).toFixed(2)}
+                        {" "}
+                        MB
+                      </small>
+
+                      <small>
+                        {selectedFile.type}
+                      </small>
+
+                      <small>
+                        New image selected
+                      </small>
+                    </>
+                  ) : (
+                    <>
+                      <strong>
+                        Current category image
+                      </strong>
+
+                      <small>
+                        Existing image
+                      </small>
+                    </>
+                  )}
+
+                  {/* Remove / Reset */}
+                  <button
+                    type="button"
+                    onClick={
+                      handleRemoveImage
+                    }
+                    disabled={loading}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "5px",
+                      width: "fit-content",
+                      marginTop: "5px",
+                      padding:
+                        "6px 10px",
+                      background:
+                        "#ef4444",
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: "5px",
+                      cursor: loading
+                        ? "not-allowed"
+                        : "pointer",
+                    }}
+                  >
+
+                    <FiX size={14} />
+
+                    {selectedFile
+                      ? "Cancel New Image"
+                      : "Remove"}
+
+                  </button>
+
+                </div>
+
+              </div>
+            )}
+
+            {/* =================================================
+                CHANGE IMAGE BUTTON
+                ================================================= */}
+            {imagePreview && (
+              <button
+                type="button"
+                onClick={
+                  handleDropzoneClick
+                }
+                disabled={loading}
+                style={{
+                  marginTop: "12px",
+                  padding:
+                    "8px 14px",
+                  border:
+                    "1px solid #ccc",
+                  background: "#fff",
+                  borderRadius: "6px",
+                  cursor: loading
+                    ? "not-allowed"
+                    : "pointer",
+                }}
+              >
+                Choose another image
+              </button>
+            )}
+
           </div>
 
+          {/* ==================================================
+              BUTTONS
+              ================================================== */}
           <div className="button-group-right">
-            <button className="cancel-btn" onClick={() => navigate("/dashboard/categories")}>
+
+            <button
+              type="button"
+              className="cancel-btn"
+              onClick={handleCancel}
+              disabled={loading}
+            >
               Cancel
             </button>
-            <button className="save-btn" onClick={handleUpdate} disabled={loading}>
-              {loading ? "Updating..." : "Update"}
+
+            <button
+              type="button"
+              className="save-btn"
+              onClick={handleUpdate}
+              disabled={loading}
+            >
+              {loading
+                ? "Updating..."
+                : "Update Category"}
             </button>
+
           </div>
+
         </div>
+
       </div>
+
     </div>
   );
 }

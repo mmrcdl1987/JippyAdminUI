@@ -39,11 +39,18 @@ function ApprovalSettings() {
   // State for Replace Approver Modal
   const [showReplaceModal, setShowReplaceModal] = useState(false);
   const [replaceTarget, setReplaceTarget] = useState(null);
+  const [replacing, setReplacing] = useState(false);
   const [replaceFormData, setReplaceFormData] = useState({
     approvalSettingsId: "",
     approverId: "",
     updatedBy: 1,
   });
+  // State for Area Assignment Modal
+  const [showAreaModal, setShowAreaModal] = useState(false);
+  const [modalApprover, setModalApprover] = useState(null);
+  const [modalSelectedAreaIds, setModalSelectedAreaIds] = useState([]);
+  const [modalAreaFilter, setModalAreaFilter] = useState("");
+  const [savingModalAreas, setSavingModalAreas] = useState(false);
   // Area state for Create Approver / Assign Areas
   const [areas, setAreas] = useState([]);
   const [loadingAreas, setLoadingAreas] = useState(false);

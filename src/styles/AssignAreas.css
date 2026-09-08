@@ -128,11 +128,70 @@
   box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
 }
 
+.asgn-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
 .asgn-lock-icon {
   position: absolute;
   right: 10px;
   font-size: 12px;
   pointer-events: none;
+}
+
+.asgn-search-spinner {
+  position: absolute;
+  right: 10px;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.asgn-helper-text {
+  font-size: 11px;
+  color: #64748b;
+  margin-top: 4px;
+}
+
+/* Dropdown Styles */
+.asgn-dropdown-list {
+  position: absolute;
+  z-index: 10;
+  background: white;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  width: 100%;
+  max-height: 180px;
+  overflow-y: auto;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  top: 105%;
+  left: 0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.asgn-dropdown-item {
+  padding: 10px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 13px;
+}
+
+.asgn-dropdown-item:hover {
+  background-color: #f8fafc;
+}
+
+.asgn-dropdown-id {
+  color: #64748b;
+}
+
+.asgn-dropdown-empty {
+  padding: 10px 12px;
+  list-style: none;
+  font-size: 13px;
+  color: #64748b;
 }
 
 /* Area Checklist */
@@ -180,6 +239,13 @@
   cursor: pointer;
 }
 
+.asgn-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
 .asgn-select-all-btn {
   background: #eff6ff;
   border: 1px solid #bfdbfe;
@@ -203,6 +269,10 @@
   font-size: 13px;
   color: #1e40af;
   margin-bottom: 18px;
+}
+
+.asgn-modal-info {
+  margin: 0 0 14px 0;
 }
 
 .asgn-btn-wrapper {
@@ -277,6 +347,12 @@
   vertical-align: middle;
 }
 
+.asgn-approver-name {
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 2px;
+}
+
 .asgn-role-badge {
   font-size: 11px;
   font-weight: 600;
@@ -284,6 +360,19 @@
   color: #475569;
   padding: 2px 8px;
   border-radius: 4px;
+  margin-right: 4px;
+  display: inline-block;
+  margin-bottom: 4px;
+}
+
+.asgn-entity-item {
+  margin-bottom: 4px;
+}
+
+.asgn-tag-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
 }
 
 .asgn-tag {
@@ -294,6 +383,12 @@
   border: 1px solid #a7f3d0;
   padding: 2px 6px;
   border-radius: 4px;
+}
+
+.asgn-no-areas {
+  color: #94a3b8;
+  font-size: 12px;
+  font-style: italic;
 }
 
 .asgn-more-tag {
@@ -313,6 +408,7 @@
   color: #0369a1;
 }
 
+/* Modal */
 .asgn-modal-overlay {
   position: fixed;
   top: 0;
@@ -363,6 +459,32 @@
   padding: 22px;
 }
 
+.asgn-modal-count {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.asgn-modal-areas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-height: 260px;
+  overflow-y: auto;
+  padding: 12px;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.asgn-modal-tag {
+  font-size: 12px;
+  padding: 4px 10px;
+}
+
 .asgn-modal-footer {
   display: flex;
   justify-content: flex-end;
@@ -397,5 +519,21 @@
 @media (max-width: 768px) {
   .asgn-grid-2 {
     grid-template-columns: 1fr;
+  }
+  
+  .asgn-header-flex {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .asgn-table-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  
+  .asgn-table-toolbar .asgn-input {
+    width: 100% !important;
   }
 }

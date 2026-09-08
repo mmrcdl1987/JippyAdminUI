@@ -99,7 +99,6 @@ export const uploadMerchants = async (file) => {
   }
 };
 
-
 export const fetchStates = async () => {
   const response = await FM_API.get(
     "/api/fm/location/fetchStates"
@@ -114,4 +113,115 @@ export const fetchCitiesByState = async (stateId) => {
   );
 
   return response.data;
+};
+
+// ============================================================
+// Get Merchant Address (State, City, Area details)
+// Endpoint: /api/fm/merchants/getMerchantAddress?merchantId={merchantId}
+// ============================================================
+export const getMerchantAddress = async (merchantId) => {
+  try {
+    const response = await FM_API.get(
+      `/api/fm/merchants/getMerchantAddress?merchantId=${merchantId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error(
+      `Error fetching merchant address for merchantId ${merchantId}:`,
+      error
+    );
+    throw error;
+  }
+};
+
+// ============================================================
+// Get Merchant Profile (Merchant & Bank details)
+// Endpoint: /api/fm/merchants/getMerchantProfile?merchantId={merchantId}
+// ============================================================
+export const getMerchantProfile = async (merchantId) => {
+  try {
+    const response = await FM_API.get(
+      `/api/fm/merchants/getMerchantProfile?merchantId=${merchantId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error(
+      `Error fetching merchant profile for merchantId ${merchantId}:`,
+      error
+    );
+    throw error;
+  }
+};
+
+// ============================================================
+// Toggle Merchant Active Status
+// Endpoint: PUT /api/fm/merchants/toggleMerchant
+// Body: { merchantId, isActive }
+// ============================================================
+export const toggleMerchantStatus = async (merchantId, isActive) => {
+  try {
+    const response = await FM_API.put("/api/fm/merchants/toggleMerchant", {
+      merchantId: Number(merchantId),
+      isActive: Boolean(isActive),
+    });
+    return response.data;
+  } catch (error) {
+    console.error(
+      `Error toggling merchant active status for merchantId ${merchantId}:`,
+      error
+    );
+    throw error;
+  }
+};
+
+// ============================================================
+// Update Merchant Profile Picture (Multipart File Upload)
+// Endpoint: PUT /api/fm/merchants/updateMerchantProfilePic
+// Request Params (Multipart): merchantId, file
+// ============================================================
+export const updateMerchantProfilePic = async (merchantId, file) => {
+  try {
+    const formData = new FormData();
+    formData.append("merchantId", merchantId);
+    formData.append("file", file);
+
+    const response = await FM_API.put(
+      "/api/fm/merchants/updateMerchantProfilePic",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error(
+      `Error updating profile pic for merchantId ${merchantId}:`,
+      error
+    );
+    throw error;
+  }
+};
+
+// ============================================================
+// Update Merchant Profile
+// Endpoint: PUT /api/fm/merchants/updateMerchantProfile
+// ============================================================
+export const updateMerchantProfile = async (formData) => {
+  try {
+    const response = await FM_API.put(
+      "/api/fm/merchants/updateMerchantProfile",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error updating merchant profile:", error);
+    throw error;
+  }
 };
