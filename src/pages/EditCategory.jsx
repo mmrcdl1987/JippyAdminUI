@@ -237,14 +237,19 @@ function EditCategory({ selectedCategory }) {
       URL.revokeObjectURL(imagePreview);
     }
 
+    // Clear the selected file
     setSelectedFile(null);
 
-    // Restore existing S3 image.
-    //
-    // IMPORTANT:
-    // This does NOT delete the image from S3/database.
-    // It simply removes the newly selected file from the UI.
-    setImagePreview(existingImageUrl || "");
+    // If there was a newly selected file, restore the existing image.
+    // If we're removing the existing image itself, clear everything.
+    if (selectedFile) {
+      // User is cancelling a newly picked file — restore existing image
+      setImagePreview(existingImageUrl || "");
+    } else {
+      // User is removing the existing image — clear it entirely
+      setImagePreview("");
+      setExistingImageUrl("");
+    }
 
     if (fileInputRef.current) {
       fileInputRef.current.value = "";

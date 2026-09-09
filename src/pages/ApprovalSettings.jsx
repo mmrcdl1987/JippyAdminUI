@@ -31,8 +31,8 @@ function ApprovalSettings() {
     workflowType: "CASCADE",
     timeToEscalateInHours: 24,
     triggersActivation: true,
-    requiredApprovalsCount: 1,
-    createdBy: 1,
+    requiredApprovalsCount: "",
+    createdBy: "",
     isActive: true,
   });
 
@@ -144,10 +144,29 @@ function ApprovalSettings() {
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
+    
+    // When workflow type changes, reset approval level if needed
+    if (name === "workflowType") {
+      const newFormData = {
+        ...formData,
+        [name]: value,
+      };
+      // If workflow is PARALLEL, set approval level to Level 1 and disable triggers activation
+      if (value === "PARALLEL") {
+        newFormData.approvalLevel = "Level 1";
+        newFormData.triggersActivation = false; // Disable triggers activation for PARALLEL
+      }
+      // If switching to CASCADE, clear requiredApprovalsCount
+      if (value === "CASCADE") {
+        newFormData.requiredApprovalsCount = "";
+      }
+      setFormData(newFormData);
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: type === "checkbox" ? checked : value,
+      }));
+    }
   };
 
   const handleReplaceInputChange = (e) => {
@@ -171,6 +190,14 @@ function ApprovalSettings() {
       return;
     }
 
+    // Validate required approvals count for PARALLEL
+    if (formData.workflowType === "PARALLEL") {
+      if (!formData.requiredApprovalsCount || isNaN(Number(formData.requiredApprovalsCount)) || Number(formData.requiredApprovalsCount) < 1) {
+        alert("Please enter a valid Required Approvals Count (minimum 1).");
+        return;
+      }
+    }
+
     try {
       setLoading(true);
 
@@ -182,8 +209,8 @@ function ApprovalSettings() {
         workflowType: formData.workflowType,
         timeToEscalateInHours: Number(formData.timeToEscalateInHours) || 0,
         triggersActivation: Boolean(formData.triggersActivation),
-        requiredApprovalsCount: Number(formData.requiredApprovalsCount) || 1,
-        createdBy: Number(formData.createdBy) || 1,
+        requiredApprovalsCount: formData.requiredApprovalsCount ? Number(formData.requiredApprovalsCount) : 1,
+        createdBy: formData.createdBy ? Number(formData.createdBy) : 1,
         isActive: Boolean(formData.isActive),
       };
 
@@ -211,8 +238,8 @@ function ApprovalSettings() {
         workflowType: "CASCADE",
         timeToEscalateInHours: 24,
         triggersActivation: true,
-        requiredApprovalsCount: 1,
-        createdBy: 1,
+        requiredApprovalsCount: "",
+        createdBy: "",
         isActive: true,
       });
     } catch (error) {
@@ -397,6 +424,9 @@ function ApprovalSettings() {
     }
   };
 
+  // Check if workflow is PARALLEL
+  const isParallel = formData.workflowType === "PARALLEL";
+
   return (
     <div className="appr-page-wrapper">
       <div className="appr-header-flex">
@@ -455,6 +485,11 @@ function ApprovalSettings() {
             <strong>4. Workflow Type</strong>
             <br />
             <em>Example: <code>OUTLET | Level 1 | 1 | CASCADE</code> is allowed only once. Changing any single field creates a valid allowed entry (e.g. PARALLEL, Level 2, or Approver 110).</em>
+            <br />
+            <strong>Workflow Rules:</strong>
+            <br />
+            • <strong>CASCADE:</strong> Sequential approvals with multiple levels (Level 1-5 available). Required Approvals Count is fixed at 1.
+            <br />
           </div>
         )}
       </div>
@@ -477,8 +512,6 @@ function ApprovalSettings() {
                 <option value="OUTLET">OUTLET</option>
                 <option value="MERCHANT">MERCHANT</option>
                 <option value="DRIVER">DRIVER</option>
-                <option value="STORE">STORE</option>
-                <option value="PRODUCT">PRODUCT</option>
               </select>
             </div>
 
@@ -491,12 +524,18 @@ function ApprovalSettings() {
                 name="approvalLevel"
                 value={formData.approvalLevel}
                 onChange={handleInputChange}
+                disabled={isParallel}
+                style={isParallel ? { background: "#f1f5f9", cursor: "not-allowed" } : {}}
               >
                 <option value="Level 1">Level 1</option>
-                <option value="Level 2">Level 2</option>
-                <option value="Level 3">Level 3</option>
-                <option value="Level 4">Level 4</option>
-                <option value="Level 5">Level 5</option>
+                {!isParallel && (
+                  <>
+                    <option value="Level 2">Level 2</option>
+                    <option value="Level 3">Level 3</option>
+                    <option value="Level 4">Level 4</option>
+                    <option value="Level 5">Level 5</option>
+                  </>
+                )}
               </select>
             </div>
 
@@ -555,17 +594,23 @@ function ApprovalSettings() {
               />
             </div>
 
-            <div className="appr-form-group">
-              <label className="appr-form-label">Required Approvals Count</label>
-              <input
-                type="number"
-                className="appr-form-input"
-                name="requiredApprovalsCount"
-                value={formData.requiredApprovalsCount}
-                onChange={handleInputChange}
-                placeholder="e.g. 1"
-              />
-            </div>
+            {/* Required Approvals Count - Only show for PARALLEL */}
+            {isParallel && (
+              <div className="appr-form-group">
+                <label className="appr-form-label">
+                  Required Approvals Count <span className="appr-required">*</span>
+                </label>
+                <input
+                  type="number"
+                  className="appr-form-input"
+                  name="requiredApprovalsCount"
+                  value={formData.requiredApprovalsCount}
+                  onChange={handleInputChange}
+                  placeholder="Enter number of approvers required"
+                  min="1"
+                />
+              </div>
+            )}
 
             <div className="appr-form-group">
               <label className="appr-form-label">Created By (User ID)</label>
@@ -575,37 +620,43 @@ function ApprovalSettings() {
                 name="createdBy"
                 value={formData.createdBy}
                 onChange={handleInputChange}
-                placeholder="Admin ID (Default 1)"
+                placeholder="Enter Admin/User ID (optional)"
               />
             </div>
 
             <div className="appr-form-group">
               <label className="appr-form-label">Workflow Activation & Status</label>
               <div className="appr-checkbox-group">
-                <input
-                  type="checkbox"
-                  id="triggersActivation"
-                  className="appr-checkbox-input"
-                  name="triggersActivation"
-                  checked={formData.triggersActivation}
-                  onChange={handleInputChange}
-                />
-                <label htmlFor="triggersActivation" className="appr-checkbox-label">
-                  Triggers Activation
-                </label>
+                {/* Triggers Activation - Only show for CASCADE */}
+                {!isParallel && (
+                  <>
+                    <input
+                      type="checkbox"
+                      id="triggersActivation"
+                      className="appr-checkbox-input"
+                      name="triggersActivation"
+                      checked={formData.triggersActivation}
+                      onChange={handleInputChange}
+                    />
+                    <label htmlFor="triggersActivation" className="appr-checkbox-label">
+                      Triggers Activation
+                    </label>
+                  </>
+                )}
 
                 <input
                   type="checkbox"
                   id="isActive"
                   className="appr-checkbox-input"
                   name="isActive"
-                  style={{ marginLeft: "15px" }}
+                  style={{ marginLeft: isParallel ? "0px" : "15px" }}
                   checked={formData.isActive}
                   onChange={handleInputChange}
                 />
                 <label htmlFor="isActive" className="appr-checkbox-label">
                   Is Active
                 </label>
+
               </div>
             </div>
           </div>
@@ -760,7 +811,7 @@ function ApprovalSettings() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="10" className="appr-empty-row">
+                  <td colSpan="11" className="appr-empty-row">
                     No Approval Settings Found.
                   </td>
                 </tr>

@@ -36,10 +36,12 @@ const CustomerWallet = () => {
       setLoading(true);
       const data = await getWalletByCustomerId(customerId.trim());
       setWallet(data);
-      setBalanceAmount(data.balanceAmount ?? "");
+      setBalanceAmount(""); // Always reset amount field to empty
+      setPoints(""); // Also reset points field for clean state
     } catch (err) {
       setWallet(null);
       setBalanceAmount("");
+      setPoints("");
 
       const is500 = err.response?.status === 500 || err.status === 500;
       if (is500) {

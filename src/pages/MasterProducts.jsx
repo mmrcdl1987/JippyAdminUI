@@ -8,6 +8,7 @@ import {
   getAllMasterProducts,
   getMasterProductById,
   deleteMasterProduct,
+  updateMasterProduct,
   filterMasterProducts,
   searchMasterProducts
 } from "../services/masterProductsService";
@@ -131,6 +132,21 @@ function MasterProducts({
     }
   };
 
+  // Toggle Publish Status Handler
+  const handleTogglePublish = async (product) => {
+    try {
+      const newPublishValue = product.publish === 1 ? 0 : 1;
+      await updateMasterProduct(product.masterProductId, {
+        ...product,
+        publish: newPublishValue,
+      });
+      // Refresh current page to reflect the change
+      fetchProducts(page);
+    } catch (error) {
+      console.error("Failed to toggle publish status:", error);
+    }
+  };
+
   // Delete Product Handler
   const handleDelete = async (masterProductId) => {
     if (!window.confirm("Are you sure you want to delete this product?")) return;
@@ -251,6 +267,7 @@ function MasterProducts({
         products={products}
         handleEdit={handleEdit}
         handleDelete={handleDelete}
+        onTogglePublish={handleTogglePublish}
       />
 
       {/* Server-Side Pagination Bar */}

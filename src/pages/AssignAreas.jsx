@@ -15,14 +15,14 @@ import { searchEmployees } from "../services/employeeService";
 import { isSuperAdmin, isFleetManager } from "../utils/permissionUtils";
 
 function AssignAreas() {
-  const storedUserId = localStorage.getItem("approverId") || localStorage.getItem("userId") || "1";
+  const storedUserId = localStorage.getItem("approverId") || localStorage.getItem("userId");
   const userRole = (localStorage.getItem("role") || "").trim().toUpperCase();
   const isSuper = isSuperAdmin();
-  const isFM = isFleetManager() || userRole === "ROLE_FLEET_MANAGER" || userRole === "FLEET_MANAGER";
+  const isFM = isFleetManager() || userRole === "ROLE_FLEET_MANAGER" || userRole === "ROLE_FLEET_MANAGER";
 
-  // Approver selection state
-  const [approverIdInput, setApproverIdInput] = useState(storedUserId);
-  const [activeApproverId, setActiveApproverId] = useState(Number(storedUserId));
+  // Approver selection state - Start empty
+  const [approverIdInput, setApproverIdInput] = useState("");
+  const [activeApproverId, setActiveApproverId] = useState(null);
 
   // Employee search state
   const [empSearchQuery, setEmpSearchQuery] = useState("");
@@ -88,10 +88,17 @@ function AssignAreas() {
     fetchInitialStates();
     fetchAllGlobalAreas();
     fetchApproversAndAreas();
+    
+    // For Fleet Managers, auto-load their ID but don't show it in input
+    if (!isSuper && storedUserId) {
+      setActiveApproverId(Number(storedUserId));
+      // Don't set approverIdInput - keep it empty
+    }
   }, []);
 
+  // Only fetch when user explicitly selects an approver (non-null)
   useEffect(() => {
-    if (activeApproverId) {
+    if (activeApproverId && !isNaN(Number(activeApproverId))) {
       fetchAssignedAreasForUser(activeApproverId);
     }
   }, [activeApproverId]);
@@ -257,7 +264,7 @@ function AssignAreas() {
 
   const handleSaveAreas = async () => {
     if (!activeApproverId || isNaN(Number(activeApproverId))) {
-      alert("Please enter a valid numeric Approver ID.");
+      alert("Please select an Approver first.");
       return;
     }
 
@@ -326,26 +333,70 @@ function AssignAreas() {
             Assign coverage areas by State, City, and Area for Approvers and Fleet Managers.
           </p>
         </div>
-        <button
-          className="asgn-refresh-btn"
-          onClick={() => {
-            fetchApproversAndAreas();
-            if (activeApproverId) fetchAssignedAreasForUser(activeApproverId);
-          }}
-          disabled={loadingOverview}
-        >
-          {loadingOverview ? "Refreshing..." : "🔄 Refresh Approvers"}
-        </button>
+        <div className="asgn-header-actions">
+          {/* Search Approver beside Refresh */}
+          <div className="asgn-search-wrapper">
+            <input
+              type="text"
+              className="asgn-search-input"
+              placeholder="Search Approver..."
+              value={empSearchQuery}
+              onChange={(e) => handleEmpSearch(e.target.value)}
+              disabled={!isSuper}
+              onBlur={() => setTimeout(() => setShowEmpDropdown(false), 200)}
+              onFocus={() => { if (empSearchResults.length > 0) setShowEmpDropdown(true); }}
+            />
+            {isSearchingEmp && <span className="asgn-search-spinner">⏳</span>}
+            
+            {showEmpDropdown && empSearchResults.length > 0 && (
+              <ul className="asgn-dropdown-list asgn-dropdown-header">
+                {empSearchResults.map(emp => (
+                  <li
+                    key={emp.employeeId || emp.id}
+                    className="asgn-dropdown-item"
+                    onMouseDown={() => {
+                      const id = emp.employeeId || emp.id;
+                      setApproverIdInput(id);
+                      setActiveApproverId(Number(id));
+                      setShowEmpDropdown(false);
+                      setEmpSearchQuery("");
+                    }}
+                  >
+                    <strong>{emp.employeeName || emp.name || emp.firstName}</strong>
+                    <span className="asgn-dropdown-id">(ID: {emp.employeeId || emp.id})</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {showEmpDropdown && empSearchResults.length === 0 && empSearchQuery.trim().length > 0 && !isSearchingEmp && (
+              <ul className="asgn-dropdown-list asgn-dropdown-header">
+                <li className="asgn-dropdown-empty">No employees found</li>
+              </ul>
+            )}
+          </div>
+          
+          <button
+            className="asgn-refresh-btn"
+            onClick={() => {
+              fetchApproversAndAreas();
+              if (activeApproverId) fetchAssignedAreasForUser(activeApproverId);
+            }}
+            disabled={loadingOverview}
+          >
+            {loadingOverview ? "Refreshing..." : "🔄 Refresh"}
+          </button>
+        </div>
       </div>
 
       {/* Main Assignment Card */}
       <div className="asgn-card">
         <div className="asgn-card-header">ASSIGN AREAS BY LOCATION</div>
 
-        {/* Step 1: Approver ID Selection */}
+        {/* Step 1: Approver ID, State, City in one line */}
         <div className="asgn-section-box">
-          <label className="asgn-section-title">1. Approver Identification</label>
-          <div className="asgn-grid-2" style={{ maxWidth: "840px" }}>
+          <label className="asgn-section-title">1. Select Approver & Location</label>
+          <div className="asgn-grid-3">
+            {/* Approver ID */}
             <div className="asgn-form-group">
               <label className="asgn-label">Approver ID <span className="asgn-required">*</span></label>
               <div className="asgn-input-wrapper">
@@ -357,84 +408,36 @@ function AssignAreas() {
                     setApproverIdInput(e.target.value);
                     if (e.target.value && !isNaN(Number(e.target.value))) {
                       setActiveApproverId(Number(e.target.value));
+                    } else {
+                      // Clear active approver if input is cleared
+                      setActiveApproverId(null);
+                      setSelectedAreaIds([]);
                     }
                   }}
                   disabled={!isSuper}
                   readOnly={!isSuper}
-                  placeholder="Enter Approver ID (e.g. 14, 80)"
+                  placeholder={isSuper ? "Enter ID" : `Your ID: ${storedUserId || "Not set"}`}
                 />
                 {!isSuper && <span className="asgn-lock-icon">🔒</span>}
               </div>
-              <span className="asgn-helper-text">
-                {!isSuper
-                  ? "Approver ID is locked to your account."
-                  : "Type an Approver ID to fetch and assign coverage areas."}
-              </span>
+              {/* Show active approver info for Fleet Managers */}
+              {!isSuper && activeApproverId && (
+                <span className="asgn-helper-text" style={{ color: '#10b981', fontWeight: '600' }}>
+                  ✓ Active Approver: #{activeApproverId}
+                </span>
+              )}
             </div>
 
-            <div className="asgn-form-group">
-              <label className="asgn-label">Search Approver</label>
-              <div className="asgn-input-wrapper">
-                <input
-                  type="text"
-                  className="asgn-input"
-                  placeholder="Search by name or ID..."
-                  value={empSearchQuery}
-                  onChange={(e) => handleEmpSearch(e.target.value)}
-                  disabled={!isSuper}
-                  onBlur={() => setTimeout(() => setShowEmpDropdown(false), 200)}
-                  onFocus={() => { if (empSearchResults.length > 0) setShowEmpDropdown(true); }}
-                />
-                {isSearchingEmp && <span className="asgn-search-spinner">⏳</span>}
-
-                {showEmpDropdown && empSearchResults.length > 0 && (
-                  <ul className="asgn-dropdown-list">
-                    {empSearchResults.map(emp => (
-                      <li
-                        key={emp.employeeId || emp.id}
-                        className="asgn-dropdown-item"
-                        onMouseDown={() => {
-                          const id = emp.employeeId || emp.id;
-                          setApproverIdInput(id);
-                          setActiveApproverId(Number(id));
-                          setShowEmpDropdown(false);
-                          setEmpSearchQuery("");
-                        }}
-                      >
-                        <strong>{emp.employeeName || emp.name || emp.firstName}</strong>
-                        <span className="asgn-dropdown-id">(ID: {emp.employeeId || emp.id})</span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-                {showEmpDropdown && empSearchResults.length === 0 && empSearchQuery.trim().length > 0 && !isSearchingEmp && (
-                  <ul className="asgn-dropdown-list">
-                    <li className="asgn-dropdown-empty">No employees found</li>
-                  </ul>
-                )}
-              </div>
-              <span className="asgn-helper-text">
-                {!isSuper
-                  ? "Search disabled for Fleet Managers."
-                  : "Search for an employee and click to select their ID."}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Step 2: Cascading State & City Dropdowns */}
-        <div className="asgn-section-box">
-          <label className="asgn-section-title">2. Select Location Hierarchy (State & City)</label>
-          <div className="asgn-grid-2">
+            {/* State */}
             <div className="asgn-form-group">
               <label className="asgn-label">State <span className="asgn-required">*</span></label>
               <select
                 className="asgn-select"
                 value={selectedStateId}
                 onChange={handleStateChange}
-                disabled={loadingLocation}
+                disabled={!activeApproverId || loadingLocation}
               >
-                <option value="">-- Select State --</option>
+                <option value="">-- Select --</option>
                 {states.map((s) => (
                   <option key={s.stateId || s.id} value={s.stateId || s.id}>
                     {s.stateName || s.name}
@@ -443,15 +446,16 @@ function AssignAreas() {
               </select>
             </div>
 
+            {/* City */}
             <div className="asgn-form-group">
               <label className="asgn-label">City <span className="asgn-required">*</span></label>
               <select
                 className="asgn-select"
                 value={selectedCityId}
                 onChange={handleCityChange}
-                disabled={!selectedStateId || loadingLocation}
+                disabled={!selectedStateId || !activeApproverId || loadingLocation}
               >
-                <option value="">-- Select City --</option>
+                <option value="">-- Select --</option>
                 {cities.map((c) => (
                   <option key={c.cityId || c.id || c.city_id} value={c.cityId || c.id || c.city_id}>
                     {c.cityName || c.name || c.city_name}
@@ -460,14 +464,21 @@ function AssignAreas() {
               </select>
             </div>
           </div>
+          <span className="asgn-helper-text" style={{ marginTop: "8px", display: "block" }}>
+            {!activeApproverId 
+              ? " "
+              : !isSuper 
+                ? `✅ Approver ID #${activeApproverId} is active. Select State and City to assign areas.`
+                : "Enter Approver ID or search above to assign coverage areas."}
+          </span>
         </div>
 
-        {/* Step 3: Areas Checklist for Selected City */}
+        {/* Step 2: Areas Checklist for Selected City */}
         {selectedCityId ? (
           <div className="asgn-section-box">
             <div className="asgn-section-header">
               <label className="asgn-section-title" style={{ margin: 0 }}>
-                3. Select Areas in City {selectedAreaIds.length > 0 && <span className="asgn-badge-count">({selectedAreaIds.length} Total Selected)</span>}
+                2. Select Areas in City {selectedAreaIds.length > 0 && <span className="asgn-badge-count">({selectedAreaIds.length} Total Selected)</span>}
               </label>
 
               {cityAreas.length > 0 && (
@@ -476,7 +487,7 @@ function AssignAreas() {
                   className="asgn-select-all-btn"
                   onClick={toggleSelectAllCityAreas}
                 >
-                  {cityAreas.every((a) => selectedAreaIds.includes(a.areaId || a.area_id)) ? "Deselect All City Areas" : "Select All City Areas"}
+                  {cityAreas.every((a) => selectedAreaIds.includes(a.areaId || a.area_id)) ? "Deselect All" : "Select All"}
                 </button>
               )}
             </div>
@@ -484,7 +495,7 @@ function AssignAreas() {
             <input
               type="text"
               className="asgn-input"
-              placeholder="🔍 Search areas in city by name..."
+              placeholder="Search areas in city by name..."
               value={areaSearchFilter}
               onChange={(e) => setAreaSearchFilter(e.target.value)}
               style={{ marginBottom: "12px", height: "38px" }}
@@ -511,7 +522,6 @@ function AssignAreas() {
                       />
                       <span>
                         <strong>{area.areaName || area.area_name}</strong>
-                        {(area.cityId || area.city_id) ? <small> (City ID: {area.cityId || area.city_id})</small> : ""}
                       </span>
                     </label>
                   );

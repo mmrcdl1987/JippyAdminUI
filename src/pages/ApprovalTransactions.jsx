@@ -9,21 +9,25 @@ function ApprovalTransactions() {
   const isSuper = isSuperAdmin();
   const isFM = isFleetManager() || userRole === "ROLE_FLEET_MANAGER" || userRole === "FLEET_MANAGER";
 
-  const [approverIdInput, setApproverIdInput] = useState(storedApproverId || "");
-  const [activeApproverId, setActiveApproverId] = useState(storedApproverId ? Number(storedApproverId) : null);
+  const [approverIdInput, setApproverIdInput] = useState("");
+  const [activeApproverId, setActiveApproverId] = useState(null);
   const [transactionList, setTransactionList] = useState([]);
   const [fetching, setFetching] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [entityFilter, setEntityFilter] = useState("ALL");
+  const [notification, setNotification] = useState(null);
 
   useEffect(() => {
     fetchTransactions();
   }, []);
 
+  const clearNotification = () => setNotification(null);
+
   const fetchTransactions = async () => {
     try {
       setFetching(true);
+      clearNotification();
       const res = await getAllApprovalTransactions();
       console.log("All Approval Transactions Response:", res);
 
@@ -42,17 +46,36 @@ function ApprovalTransactions() {
     } catch (error) {
       console.error("Error fetching approval transactions:", error);
       setTransactionList([]);
+      setNotification({
+        type: "error",
+        title: "Fetch Error",
+        message: error.response?.data?.message || "Failed to load approval transactions"
+      });
     } finally {
       setFetching(false);
     }
   };
 
-  const handleFetchClick = () => {
+  const handleFilterByApprover = () => {
     if (approverIdInput && !isNaN(Number(approverIdInput))) {
       setActiveApproverId(Number(approverIdInput));
     } else {
       setActiveApproverId(null);
+      setNotification({
+        type: "warning",
+        title: "Invalid Input",
+        message: "Please enter a valid Approver ID"
+      });
     }
+  };
+
+  const handleResetFilters = () => {
+    setApproverIdInput("");
+    setActiveApproverId(null);
+    setSearch("");
+    setStatusFilter("ALL");
+    setEntityFilter("ALL");
+    clearNotification();
   };
 
   const formatDateTime = (dateStr) => {
@@ -90,9 +113,16 @@ function ApprovalTransactions() {
   };
 
   const filteredTransactions = transactionList.filter((item) => {
-    // Access Boundary: Fleet Manager (or when activeApproverId is set) sees only transactions handled by him
-    if (!isSuper || activeApproverId) {
-      if (!isHandledByApprover(item, activeApproverId || Number(storedApproverId))) {
+    // Access Boundary: Fleet Manager sees only transactions handled by them
+    if (!isSuper && storedApproverId) {
+      if (!isHandledByApprover(item, Number(storedApproverId))) {
+        return false;
+      }
+    }
+
+    // SuperAdmin can filter by specific approver
+    if (isSuper && activeApproverId) {
+      if (!isHandledByApprover(item, activeApproverId)) {
         return false;
       }
     }
@@ -134,78 +164,101 @@ function ApprovalTransactions() {
         </div>
 
         <div style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-            <label style={{ fontSize: "13px", fontWeight: "600", color: "#475569" }}>
-              Approver ID:
-            </label>
-            <div style={{ position: "relative", display: "inline-flex", alignItems: "center" }}>
+          {isSuper && (
+            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+              <label style={{ fontSize: "13px", fontWeight: "600", color: "#475569" }}>
+                Approver ID:
+              </label>
               <input
                 type="number"
                 value={approverIdInput}
                 onChange={(e) => setApproverIdInput(e.target.value)}
-                disabled={!isSuper}
-                readOnly={!isSuper}
-                placeholder="All"
+                placeholder="Filter by approver"
                 style={{
-                  width: "80px",
+                  width: "140px",
                   padding: "6px 10px",
-                  paddingRight: !isSuper ? "22px" : "10px",
                   borderRadius: "6px",
                   border: "1px solid #cbd5e1",
                   fontSize: "13px",
-                  backgroundColor: !isSuper ? "#f1f5f9" : "#ffffff",
-                  color: !isSuper ? "#334155" : "#0f172a",
-                  fontWeight: "600",
-                  cursor: !isSuper ? "not-allowed" : "text",
+                  backgroundColor: "#ffffff",
+                  color: "#0f172a",
                 }}
-                title={
-                  !isSuper
-                    ? "Approver ID is locked to your Fleet Manager user account."
-                    : "SuperAdmin mode: Enter Approver ID to filter transactions or leave blank for all."
-                }
               />
-              {!isSuper && (
-                <span
-                  style={{
-                    position: "absolute",
-                    right: "6px",
-                    fontSize: "11px",
-                    color: "#64748b",
-                    pointerEvents: "none",
-                  }}
-                >
-                  🔒
-                </span>
-              )}
-            </div>
-            {isSuper && (
               <button
                 className="req-refresh-btn"
-                onClick={handleFetchClick}
+                onClick={handleFilterByApprover}
                 disabled={fetching}
                 style={{ padding: "6px 12px" }}
               >
                 Filter
               </button>
-            )}
-          </div>
+              {activeApproverId && (
+                <button
+                  className="req-refresh-btn"
+                  onClick={() => {
+                    setActiveApproverId(null);
+                    setApproverIdInput("");
+                  }}
+                  style={{ padding: "6px 12px", backgroundColor: "#ef4444", color: "white" }}
+                >
+                  ✕ Clear
+                </button>
+              )}
+            </div>
+          )}
 
           <button
             className="req-refresh-btn"
             onClick={fetchTransactions}
             disabled={fetching}
           >
-            {fetching ? "Refreshing..." : "🔄 Refresh Transactions"}
+            {fetching ? "⏳ Loading..." : "🔄 Refresh"}
           </button>
         </div>
       </div>
 
+      {/* Notification Banner */}
+      {notification && (
+        <div className={`tx-toast-notification ${notification.type}`}>
+          <div className="tx-toast-content">
+            <span className="tx-toast-icon">
+              {notification.type === "success" && "✅"}
+              {notification.type === "error" && "❌"}
+              {notification.type === "warning" && "⚠️"}
+            </span>
+            <div>
+              <div className="tx-toast-title">{notification.title}</div>
+              <div className="tx-toast-desc">{notification.message}</div>
+            </div>
+          </div>
+          <button
+            className="tx-toast-close"
+            onClick={clearNotification}
+            title="Close Notification"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
       {/* Main Table Card */}
       <div className="req-card">
-        <div className="req-card-header">APPROVAL TRANSACTIONS LOG</div>
+        <div className="req-card-header">
+          <span>APPROVAL TRANSACTIONS LOG</span>
+          {activeApproverId && (
+            <span style={{ fontSize: "13px", fontWeight: "500", color: "#2563eb" }}>
+              Filtered by Approver #{activeApproverId}
+            </span>
+          )}
+          {!isSuper && storedApproverId && (
+            <span style={{ fontSize: "13px", fontWeight: "500", color: "#7c3aed" }}>
+              Fleet Manager #{storedApproverId}
+            </span>
+          )}
+        </div>
 
         <div className="req-table-toolbar">
-          <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+          <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", flex: 1 }}>
             <div className="req-search-box">
               <input
                 type="text"
@@ -238,10 +291,20 @@ function ApprovalTransactions() {
               <option value="MERCHANT">MERCHANT</option>
               <option value="DRIVER">DRIVER</option>
             </select>
+
+            {(activeApproverId || search || statusFilter !== "ALL" || entityFilter !== "ALL") && (
+              <button
+                className="req-refresh-btn"
+                onClick={handleResetFilters}
+                style={{ padding: "6px 16px" }}
+              >
+                ✕ Reset Filters
+              </button>
+            )}
           </div>
 
-          <span className="req-batch-count" style={{ fontSize: "13px", color: "#475569" }}>
-            Total Found: {filteredTransactions.length}
+          <span className="req-batch-count" style={{ fontSize: "13px", color: "#475569", whiteSpace: "nowrap" }}>
+            Total: {filteredTransactions.length}
           </span>
         </div>
 
@@ -263,7 +326,10 @@ function ApprovalTransactions() {
               {fetching ? (
                 <tr>
                   <td colSpan="8" className="req-empty-row">
-                    Loading Approval Transactions...
+                    <div className="tx-loading">
+                      <div className="tx-loader"></div>
+                      <p>Loading Approval Transactions...</p>
+                    </div>
                   </td>
                 </tr>
               ) : filteredTransactions.length > 0 ? (
@@ -321,6 +387,16 @@ function ApprovalTransactions() {
                         ) : (
                           <span style={{ color: "#94a3b8" }}>-</span>
                         )}
+                        {(item.status === "PENDING" && (item.allLevelsApproved || item.isAllLevelsApproved || (item.level1Approved && item.level2Approved && item.level3Approved))) && (
+                          <div style={{ marginTop: "4px", fontSize: "11px", color: "#dc2626", fontWeight: "600" }}>
+                            ⚠️ DB status PENDING while Level 1, 2, 3 APPROVED
+                          </div>
+                        )}
+                        {(item.kycVerified === false || item.verified === false) && (item.approvalLevel === "Level 3" || item.approvalLevel === "3" || status === "APPROVED") && (
+                          <div style={{ marginTop: "4px", fontSize: "11px", color: "#d97706", fontWeight: "600" }}>
+                            ⚠️ KYC Not Verified (verified = false) but approved through Level 3
+                          </div>
+                        )}
                       </td>
                     </tr>
                   );
@@ -328,8 +404,10 @@ function ApprovalTransactions() {
               ) : (
                 <tr>
                   <td colSpan="8" className="req-empty-row">
-                    {!isSuper && (activeApproverId || storedApproverId)
-                      ? `No Approval Transactions found performed by Fleet Manager #${activeApproverId || storedApproverId}.`
+                    {activeApproverId
+                      ? `No Approval Transactions found for Approver #${activeApproverId}.`
+                      : !isSuper && storedApproverId
+                      ? `No Approval Transactions found for Fleet Manager #${storedApproverId}.`
                       : "No Approval Transactions found."}
                   </td>
                 </tr>
@@ -339,7 +417,7 @@ function ApprovalTransactions() {
         </div>
       </div>
     </div>
-  );
+  )
 }
 
 export default ApprovalTransactions;

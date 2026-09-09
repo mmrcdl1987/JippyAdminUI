@@ -3,6 +3,7 @@
   display: inline-block;
   width: 46px;
   height: 24px;
+  cursor: pointer;
 }
 
 .publish-switch input {
@@ -121,4 +122,57 @@
   pointer-events: none; 
   font-size: 16px;
   color: #6b7280;
+}
+/* Action Icons - Larger Version */
+.action-icons {
+  display: flex;
+  align-items: center;
+  gap: 12px; /* Increased gap */
+}
+
+.action-icons .edit-icon,
+.action-icons .delete-icon {
+  cursor: pointer;
+  font-size: 22px; /* Increased from 16px */
+  transition: all 0.2s ease;
+  padding: 8px; /* Increased from 4px */
+  border-radius: 6px;
+  width: 40px; /* Fixed width */
+  height: 40px; /* Fixed height */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-icons .edit-icon {
+  color: #3b82f6;
+  background: rgba(59, 130, 246, 0.08);
+}
+
+.action-icons .edit-icon:hover {
+  color: #1d4ed8;
+  background: rgba(59, 130, 246, 0.15);
+  transform: scale(1.1);
+}
+
+.action-icons .delete-icon {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.08);
+}
+
+.action-icons .delete-icon:hover {
+  color: #dc2626;
+  background: rgba(239, 68, 68, 0.15);
+  transform: scale(1.1);
+}
+
+/* Even larger for mobile (optional) */
+@media (max-width: 768px) {
+  .action-icons .edit-icon,
+  .action-icons .delete-icon {
+    font-size: 20px;
+    width: 36px;
+    height: 36px;
+    padding: 6px;
+  }
 }

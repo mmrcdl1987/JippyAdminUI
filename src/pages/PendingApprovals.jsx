@@ -68,6 +68,51 @@ export const isLevel2OrHigher = (obj) => {
   return false;
 };
 
+// Helper to format cuisine type IDs or comma-separated strings into human-readable labels
+export const formatCuisineType = (cuisineVal, map = {}) => {
+  if (cuisineVal === null || cuisineVal === undefined || cuisineVal === "") return null;
+  const defaultMap = {
+    1: "Italian",
+    2: "Chinese",
+    3: "Indian",
+    4: "Mexican",
+    5: "American",
+    6: "Fast Food",
+    7: "Bakery & Desserts",
+    8: "South Indian",
+    9: "North Indian",
+    10: "Multi-Cuisine",
+    ...map,
+  };
+
+  let ids = [];
+  if (Array.isArray(cuisineVal)) {
+    ids = cuisineVal;
+  } else if (typeof cuisineVal === "string") {
+    ids = cuisineVal.split(",").map((s) => s.trim()).filter(Boolean);
+  } else {
+    ids = [cuisineVal];
+  }
+
+  const mapped = ids.map((id) => defaultMap[id] || defaultMap[Number(id)] || id);
+  return mapped.join(", ");
+};
+
+// Helper to format dates reliably
+export const formatDateVal = (val) => {
+  if (!val) return null;
+  try {
+    const d = new Date(val);
+    if (isNaN(d.getTime())) return String(val);
+    return d.toLocaleString("en-IN", {
+      dateStyle: "medium",
+      timeStyle: "short",
+    });
+  } catch (e) {
+    return String(val);
+  }
+};
+
 // Top-level Helper to verify if request is pending Level 1 approval and can be approved by Level-1 approver / Fleet Manager
 export const canApproveLevel1 = (item, isSuper = false) => {
   if (!item) return false;
@@ -82,48 +127,20 @@ export const canApproveLevel1 = (item, isSuper = false) => {
     .trim()
     .toUpperCase();
 
-  const level = String(
-    item.currentLevel ??
-    item.current_level ??
-    item.approvalLevel ??
-    item.approval_level ??
-    item.level ??
-    item.pendingLevel ??
-    item.pending_level ??
-    item.requestLevel ??
-    item.levelName ??
-    item.approvalRequest?.currentLevel ??
-    item.approvalRequest?.approvalLevel ??
-    ""
-  )
-    .trim()
-    .toUpperCase();
-
-  const entityType = String(
-    item.entityType ??
-    item.entity_type ??
-    item.approvalRequest?.entityType ??
-    ""
-  )
-    .trim()
-    .toUpperCase();
+  // If request is completed, fully approved, or trigger level completed, skip remaining levels
+  if (status === "COMPLETED" || status === "APPROVED" || status === "REJECTED" || item.isCompleted || item.isTriggerActivated) {
+    return false;
+  }
 
   // Must be PENDING status
   if (status !== "PENDING" && status !== "") {
     return false;
   }
 
-  // Super Admin can see ALL pending requests (Level 1, Level 2, Level 3)
+  // Super Admin can see ALL pending requests
   if (isSuper) {
     return true;
   }
-
-  // Fleet Manager can see Level 1 and Level 2 (Reject Level 3, Level 4, Level 5)
-
-  // Fleet Manager can approve only DRIVER, MERCHANT, OUTLET entities
-  // if (entityType && !["DRIVER", "MERCHANT", "OUTLET"].includes(entityType)) {
-  //   return false;
-  // }
 
   return true;
 };
@@ -134,8 +151,8 @@ function PendingApprovals() {
   const isSuper = isSuperAdmin();
   const isFM = isFleetManager() || userRole === "ROLE_FLEET_MANAGER" || userRole === "FLEET_MANAGER";
 
-  const [approverIdInput, setApproverIdInput] = useState(storedApproverId);
-  const [activeApproverId, setActiveApproverId] = useState(Number(storedApproverId));
+  const [approverIdInput, setApproverIdInput] = useState("");
+  const [activeApproverId, setActiveApproverId] = useState(null);
   const [pendingList, setPendingList] = useState([]);
   const [fetching, setFetching] = useState(false);
   const [testingScheduler, setTestingScheduler] = useState(false);
@@ -167,22 +184,43 @@ function PendingApprovals() {
   const [showReopenModal, setShowReopenModal] = useState(false);
   const [reopenTarget, setReopenTarget] = useState(null);
   const [reopenUpdatedBy, setReopenUpdatedBy] = useState(
-    localStorage.getItem("userId") || "1"
+    localStorage.getItem("userId")
   );
   const [reopening, setReopening] = useState(false);
 
+  // ── Additional state for cuisine mapping (optional) ────────────────────────
+  // In a real app, you would fetch this from an API; here we use a static mapping for demo.
+  // This is a placeholder; you can replace with an actual API call.
+  const [cuisineMap, setCuisineMap] = useState({
+    1: "Italian",
+    2: "Chinese",
+    3: "Indian",
+    4: "Mexican",
+    5: "American",
+    // Add more as needed
+  });
+
   useEffect(() => {
-    fetchPendingApprovals(storedApproverId);
     fetchRejectedApprovals();
+    // Optionally fetch cuisine types from API
+    // fetchCuisineTypes();
   }, []);
 
+  // ── FIX: Handle 500 error gracefully when no pending requests ────────────
   const fetchPendingApprovals = async (approverId) => {
     try {
       setFetching(true);
       setSelectedIds([]);
 
       let dataList = [];
-      const numId = approverId && !isNaN(Number(approverId)) ? Number(approverId) : 1;
+
+      if (!approverId || isNaN(Number(approverId))) {
+        setPendingList([]);
+        setFetching(false);
+        return;
+      }
+
+      const numId = Number(approverId);
       setActiveApproverId(numId);
 
       // ── 1. Try the primary approval-requests endpoint ────────────────
@@ -201,7 +239,9 @@ function PendingApprovals() {
           dataList = res.data || res.pendingRequests || [];
         }
       } catch (levelErr) {
-        console.log("Pending Approvals fetch error:", levelErr);
+        // FIX: Treat any error (including 500) as empty list
+        console.warn("Primary endpoint error, assuming no pending requests:", levelErr);
+        dataList = [];
       }
 
       // ── 2. Fallback to transactions endpoint ─────────────────────────
@@ -230,21 +270,17 @@ function PendingApprovals() {
       }
 
       // ── 3. Enrich items with entity details if they are missing ──────
-      // Check first item to see if entity detail fields are already present
       const firstItem = Array.isArray(dataList) && dataList.length > 0 ? dataList[0] : null;
       const needsEnrichment = firstItem && !firstItem.outletName && !firstItem.merchantName && !firstItem.firstName;
 
       if (needsEnrichment && Array.isArray(dataList) && dataList.length > 0) {
         console.log("Enriching pending items with entity details...");
         try {
-          // Collect unique entity IDs by type
           const outletIds = [...new Set(dataList.filter(i => (i.entityType || "").toUpperCase() === "OUTLET").map(i => i.entityId).filter(Boolean))];
           const merchantIds = [...new Set(dataList.filter(i => (i.entityType || "").toUpperCase() === "MERCHANT").map(i => i.entityId).filter(Boolean))];
           const driverIds = [...new Set(dataList.filter(i => (i.entityType || "").toUpperCase() === "DRIVER").map(i => i.entityId).filter(Boolean))];
 
-          // Build lookup maps in parallel
           const [outletMap, merchantMap, driverMap] = await Promise.all([
-            // Fetch outlets individually
             (async () => {
               const map = {};
               await Promise.allSettled(
@@ -258,7 +294,6 @@ function PendingApprovals() {
               );
               return map;
             })(),
-            // Fetch all merchants and index by ID
             (async () => {
               const map = {};
               try {
@@ -271,7 +306,6 @@ function PendingApprovals() {
               } catch (e) { console.log("Could not fetch merchants:", e.message); }
               return map;
             })(),
-            // Fetch drivers individually
             (async () => {
               const map = {};
               await Promise.allSettled(
@@ -289,7 +323,7 @@ function PendingApprovals() {
 
           console.log("Outlet map:", Object.keys(outletMap).length, "Merchant map:", Object.keys(merchantMap).length, "Driver map:", Object.keys(driverMap).length);
 
-          // Merge entity details into each item
+          // ── FIX: Enrich with additional fields ──────────────────────
           dataList = dataList.map((item) => {
             const type = (item.entityType || "").toUpperCase();
             const eId = item.entityId;
@@ -297,21 +331,29 @@ function PendingApprovals() {
 
             if (type === "OUTLET" && outletMap[eId]) {
               const o = outletMap[eId];
+              const cuisineVal = o.cuisineType ?? item.cuisineType;
               return {
                 ...item,
                 outletId: o.outletId || o.id || eId,
-                outletName: o.outletName || o.name,
-                outletPhone: o.outletPhone || o.phone,
-                outletEmail: o.outletEmail || o.email,
-                outletImage: o.outletImage || o.image,
-                merchantId: o.merchantId,
-                merchantName: o.merchantName,
-                cuisineType: o.cuisineType,
-                latitude: o.latitude,
-                longitude: o.longitude,
-                fssaiNumber: o.fssaiNumber,
-                gstNumber: o.gstNumber,
-                outletApproved: o.outletApproved ?? o.approved,
+                outletName: o.outletName || o.name || item.outletName,
+                outletPhone: o.outletPhone || o.phone || item.outletPhone,
+                outletEmail: o.outletEmail || o.email || item.outletEmail,
+                outletImage: o.outletImage || o.image || item.outletImage,
+                merchantId: o.merchantId || o.merchant_id || o.merchant?.merchantId || o.merchant?.id || item.merchantId || item.merchant_id,
+                merchantName: o.merchantName || o.merchant?.merchantName || o.merchant?.name || item.merchantName,
+                cuisineType: cuisineVal,
+                cuisineTypeName: formatCuisineType(cuisineVal, cuisineMap),
+                latitude: o.latitude || item.latitude,
+                longitude: o.longitude || item.longitude,
+                fssaiNumber: o.fssaiNumber || o.fssai_number || item.fssaiNumber,
+                gstNumber: o.gstNumber || o.gst_number || item.gstNumber,
+                outletApproved: o.outletApproved ?? o.is_approved ?? o.approved ?? item.outletApproved ?? false,
+                outletKycVerified: o.kycVerified ?? o.documentVerified ?? o.document_verified ?? o.verified ?? item.outletKycVerified ?? false,
+                outletCreatedAt: o.createdAt || o.created_at || o.outletCreatedAt || item.createdAt || item.created_at,
+                operatingHours: o.operatingHours || o.operating_hours || item.operatingHours || [],
+                documents: o.documents || o.outletDocuments || item.documents || [],
+                previousApprover: o.previousApprover || item.previousApprover || item.previous_approver || item.lastApprover,
+                remarks: o.remarks || item.remarks || item.rejectionReason || item.approvalRemarks || item.comments,
               };
             }
 
@@ -319,14 +361,21 @@ function PendingApprovals() {
               const m = merchantMap[eId];
               return {
                 ...item,
-                merchantName: m.merchantName || m.name || m.firstName,
-                merchantEmail: m.merchantEmail || m.email,
-                merchantPhone: m.merchantPhone || m.phone || m.phoneNumber,
-                merchantBusinessType: m.merchantBusinessType || m.businessType,
-                merchantProfilePicUrl: m.merchantProfilePicUrl || m.profilePicUrl || m.profileImage,
-                merchantApproved: m.merchantApproved ?? m.approved,
-                aadhaarNumber: m.aadhaarNumber,
-                panNumber: m.panNumber,
+                merchantId: m.merchantId || m.merchant_id || m.id || item.merchantId || eId,
+                merchantName: m.merchantName || m.name || m.firstName || item.merchantName,
+                merchantEmail: m.merchantEmail || m.email || item.merchantEmail,
+                merchantPhone: m.merchantPhone || m.phone || m.phoneNumber || item.merchantPhone,
+                merchantBusinessType: m.merchantBusinessType || m.businessType || item.merchantBusinessType,
+                merchantProfilePicUrl: m.merchantProfilePicUrl || m.profilePicUrl || m.profileImage || item.merchantProfilePicUrl,
+                merchantApproved: m.merchantApproved ?? m.is_approved ?? m.approved ?? item.merchantApproved ?? false,
+                merchantKycVerified: m.kycVerified ?? m.documentVerified ?? m.document_verified ?? m.verified ?? item.merchantKycVerified ?? false,
+                aadhaarNumber: m.aadhaarNumber || m.aadhaar_number || m.aadhaarNo || m.aadhaar_no || item.aadhaarNumber,
+                panNumber: m.panNumber || m.pan_number || m.panNo || item.panNumber,
+                merchantCreatedAt: m.createdAt || m.created_at || m.merchantCreatedAt || item.createdAt || item.created_at,
+                merchantFssai: m.fssaiNumber || m.fssai_number || m.fssai || m.fssaiNo || item.merchantFssai || item.fssaiNumber,
+                merchantGst: m.gstNumber || m.gst_number || m.gst || m.gstin || item.merchantGst || item.gstNumber,
+                previousApprover: m.previousApprover || item.previousApprover || item.previous_approver || item.lastApprover,
+                remarks: m.remarks || item.remarks || item.rejectionReason || item.approvalRemarks || item.comments,
               };
             }
 
@@ -334,14 +383,26 @@ function PendingApprovals() {
               const dr = driverMap[eId];
               return {
                 ...item,
-                firstName: dr.firstName,
-                lastName: dr.lastName,
-                phoneNumber: dr.phoneNumber || dr.phone,
-                email: dr.email,
-                profilePicUrl: dr.profilePicUrl || dr.profileImage,
+                firstName: dr.firstName || item.firstName,
+                lastName: dr.lastName || item.lastName,
+                phoneNumber: dr.phoneNumber || dr.phone || item.phoneNumber,
+                email: dr.email || item.email,
+                profilePicUrl: dr.profilePicUrl || dr.profileImage || item.profilePicUrl,
                 driverId: dr.driverId || dr.id || eId,
-                nomineeName: dr.nomineeName,
-                nomineePhoneNumber: dr.nomineePhoneNumber,
+                nomineeName: dr.nomineeName || item.nomineeName,
+                nomineePhoneNumber: dr.nomineePhoneNumber || item.nomineePhoneNumber,
+                driverAadhaarNumber: dr.aadhaarNumber || dr.driverAadhaarNumber || dr.aadhaar_number || dr.aadhaarNo || dr.aadhaar_no || dr.identityNumber || dr.aadhaar || item.driverAadhaarNumber || item.aadhaarNumber,
+                driverCreatedAt: dr.createdAt || dr.created_at || dr.driverCreatedAt || item.createdAt || item.created_at,
+                driverKycVerified: dr.kycVerified ?? dr.documentVerified ?? dr.document_verified ?? dr.verified ?? item.driverKycVerified ?? false,
+                driverApproved: dr.isApproved ?? dr.is_approved ?? dr.approved ?? item.driverApproved ?? false,
+                driverKycId: dr.driverKycId || dr.kycId || item.driverKycId,
+                drivingLicenseNumber: dr.drivingLicenseNumber || dr.licenseNumber || item.drivingLicenseNumber,
+                rcCopy: dr.rcCopy || dr.rc_copy || item.rcCopy,
+                familyMemberName: dr.familyMemberName || item.familyMemberName,
+                familyMemberPhoneNumber: dr.familyMemberPhoneNumber || item.familyMemberPhoneNumber,
+                familyMemberVerified: dr.familyMemberVerified ?? item.familyMemberVerified,
+                previousApprover: dr.previousApprover || item.previousApprover || item.previous_approver || item.lastApprover,
+                remarks: dr.remarks || item.remarks || item.rejectionReason || item.approvalRemarks || item.comments,
               };
             }
 
@@ -365,6 +426,10 @@ function PendingApprovals() {
   };
 
   const handleFetchClick = () => {
+    if (!approverIdInput || isNaN(Number(approverIdInput))) {
+      alert("Please enter a valid Approver ID");
+      return;
+    }
     fetchPendingApprovals(approverIdInput);
   };
 
@@ -400,7 +465,7 @@ function PendingApprovals() {
         approvalRequestIds: idsToApprove.map((id) => Number(id)),
         status: "APPROVED",
         rejectedReason: null,
-        approverId: Number(activeApproverId) || Number(approverIdInput) || 1,
+        approverId: Number(activeApproverId) || Number(approverIdInput),
       };
 
       const res = await updateApprovalRequestsToApproved(payload);
@@ -408,7 +473,6 @@ function PendingApprovals() {
 
       alert(`Successfully APPROVED ${idsToApprove.length} request(s).`);
 
-      // Remove approved items from local list matching any ID field
       setPendingList((prev) =>
         prev.filter((item) => {
           const itemId = item.approvalRequestId ?? item.approval_request_id ?? item.id ?? item.approvalTransactionsId;
@@ -449,7 +513,7 @@ function PendingApprovals() {
         approvalRequestIds: targetRejectIds.map((id) => Number(id)),
         status: "REJECTED",
         rejectedReason: rejectionReason.trim(),
-        approverId: Number(activeApproverId) || Number(approverIdInput) || 1,
+        approverId: Number(activeApproverId) || Number(approverIdInput),
       };
 
       const res = await updateApprovalRequestsToApproved(payload);
@@ -457,7 +521,6 @@ function PendingApprovals() {
 
       alert(`Successfully REJECTED ${targetRejectIds.length} request(s).`);
 
-      // Remove rejected items from local pending list matching any ID field
       setPendingList((prev) =>
         prev.filter((item) => {
           const itemId = item.approvalRequestId ?? item.approval_request_id ?? item.id ?? item.approvalTransactionsId;
@@ -525,6 +588,16 @@ function PendingApprovals() {
         ? <span className="req-detail-bool-yes">Yes</span>
         : <span className="req-detail-bool-no">No</span>;
     }
+    if (Array.isArray(val)) {
+      // render array as list (for operating hours, documents)
+      return (
+        <ul className="req-detail-list">
+          {val.map((item, idx) => (
+            <li key={idx}>{typeof item === 'object' ? JSON.stringify(item) : item}</li>
+          ))}
+        </ul>
+      );
+    }
     return <span className="req-detail-value">{String(val)}</span>;
   };
 
@@ -536,7 +609,7 @@ function PendingApprovals() {
     </div>
   );
 
-  // Renders the full entity details modal
+  // ── UPDATED: Renders the full entity details modal with new fields ──────
   const renderEntityDetailModal = () => {
     const d = selectedDetailItem;
     if (!d) return null;
@@ -544,6 +617,33 @@ function PendingApprovals() {
     const imgUrl = getEntityImage(d);
     const entityName = getEntityName(d);
     const entityType = d.entityType || "UNKNOWN";
+
+    // Helper for operating hours display
+    const renderOperatingHours = (hours) => {
+      if (!hours || hours.length === 0) return <span className="req-detail-value empty">—</span>;
+      return (
+        <ul className="req-detail-list">
+          {hours.map((oh, idx) => (
+            <li key={idx}>{oh.day}: {oh.open} - {oh.close}</li>
+          ))}
+        </ul>
+      );
+    };
+
+    // Helper for documents display
+    const renderDocuments = (docs) => {
+      if (!docs || docs.length === 0) return <span className="req-detail-value empty">—</span>;
+      return (
+        <ul className="req-detail-list">
+          {docs.map((doc, idx) => (
+            <li key={idx}>
+              {doc.type}: {doc.verified ? '✅ Verified' : '❌ Not Verified'}
+              {doc.url && <a href={doc.url} target="_blank" rel="noreferrer"> View</a>}
+            </li>
+          ))}
+        </ul>
+      );
+    };
 
     return (
       <div className="req-modal-overlay" onClick={() => setShowDetailModal(false)}>
@@ -574,6 +674,11 @@ function PendingApprovals() {
           {/* Scrollable Body */}
           <div className="req-detail-modal-body">
 
+            {/* === Data Inconsistency Warning Banners === */}
+            
+
+            
+
             {/* === Approval Request === */}
             <div className="req-detail-section">
               <p className="req-detail-section-title">📋 Approval Request</p>
@@ -583,71 +688,90 @@ function PendingApprovals() {
                 <DetailField label="Entity ID" value={d.entityId} />
                 <DetailField label="Current Level" value={d.currentLevel} />
                 <DetailField label="Status" value={d.status} />
-                <DetailField label="Created At" value={d.requestCreatedAt ? new Date(d.requestCreatedAt).toLocaleString() : null} />
+                <DetailField label="Created At" value={formatDateVal(d.requestCreatedAt || d.createdAt || d.created_at)} />
+                <DetailField label="Previous Approver" value={d.previousApprover} />
+                <DetailField label="Remarks" value={d.remarks} />
               </div>
             </div>
 
             {/* === Outlet Details === */}
-            {(d.outletId || d.outletName || d.outletPhone || d.outletEmail) && (
+            {(d.outletId || d.outletName || d.outletPhone || d.outletEmail || d.entityType === "OUTLET") && (
               <div className="req-detail-section">
                 <p className="req-detail-section-title">🏪 Outlet Details</p>
                 <div className="req-detail-grid">
-                  <DetailField label="Outlet ID" value={d.outletId} />
+                  <DetailField label="Outlet ID" value={d.outletId || d.entityId} />
                   <DetailField label="Outlet Name" value={d.outletName} />
                   <DetailField label="Merchant ID" value={d.merchantId} />
                   <DetailField label="Merchant Name" value={d.merchantName} />
-                  <DetailField label="Cuisine Type" value={d.cuisineType} />
+                  <DetailField label="Cuisine Type" value={d.cuisineTypeName || formatCuisineType(d.cuisineType, cuisineMap)} />
                   <DetailField label="Phone" value={d.outletPhone} />
                   <DetailField label="Email" value={d.outletEmail} />
                   <DetailField label="Latitude" value={d.latitude} />
                   <DetailField label="Longitude" value={d.longitude} />
                   <DetailField label="FSSAI Number" value={d.fssaiNumber} />
                   <DetailField label="GST Number" value={d.gstNumber} />
-                  <DetailField label="Outlet Approved" value={d.outletApproved} />
+                  <DetailField label="Outlet Approved (DB)" value={d.outletApproved} />
+                  <DetailField label="KYC / Doc Verified" value={d.outletKycVerified} />
+                  <DetailField label="Outlet Created At" value={formatDateVal(d.outletCreatedAt || d.createdAt || d.created_at)} />
+                  <div className="req-detail-field">
+                    <span className="req-detail-label">Operating Hours</span>
+                    {renderOperatingHours(d.operatingHours)}
+                  </div>
+                  <div className="req-detail-field">
+                    <span className="req-detail-label">Verification Documents</span>
+                    {renderDocuments(d.documents)}
+                  </div>
                 </div>
               </div>
             )}
 
             {/* === Merchant Details === */}
-            {(d.merchantEmail || d.merchantPhone || d.merchantBusinessType) && (
+            {(d.merchantEmail || d.merchantPhone || d.merchantBusinessType || d.entityType === "MERCHANT") && (
               <div className="req-detail-section">
                 <p className="req-detail-section-title">🏬 Merchant Details</p>
                 <div className="req-detail-grid">
+                  <DetailField label="Merchant ID" value={d.merchantId || d.entityId} />
                   <DetailField label="Merchant Name" value={d.merchantName} />
                   <DetailField label="Email" value={d.merchantEmail} />
                   <DetailField label="Phone" value={d.merchantPhone} />
                   <DetailField label="Business Type" value={d.merchantBusinessType} />
                   <DetailField label="Aadhaar Number" value={d.aadhaarNumber} />
                   <DetailField label="PAN Number" value={d.panNumber} />
-                  <DetailField label="Merchant Approved" value={d.merchantApproved} />
-                  {d.merchantProfilePicUrl && (
+                  <DetailField label="Merchant Approved (DB)" value={d.merchantApproved} />
+                  <DetailField label="Merchant Created At" value={formatDateVal(d.merchantCreatedAt || d.createdAt || d.created_at)} />
+                  <DetailField label="FSSAI Number" value={d.merchantFssai || d.fssaiNumber} />
+                  <DetailField label="GST Number" value={d.merchantGst || d.gstNumber} />
+                  <DetailField label="KYC Verified" value={d.merchantKycVerified} />
+                  {/* {d.merchantProfilePicUrl && (
                     <div className="req-detail-field">
                       <span className="req-detail-label">Profile Picture</span>
                       <span className="req-detail-value">
                         <a href={d.merchantProfilePicUrl} target="_blank" rel="noreferrer">View Image ↗</a>
                       </span>
                     </div>
-                  )}
+                  )} */}
                 </div>
               </div>
             )}
 
             {/* === Driver Details === */}
-            {(d.firstName || d.phoneNumber || d.email) && (
+            {(d.firstName || d.phoneNumber || d.email || d.entityType === "DRIVER") && (
               <div className="req-detail-section">
                 <p className="req-detail-section-title">🚗 Driver Details</p>
                 <div className="req-detail-grid">
-                  <DetailField label="Driver ID" value={d.driverId} />
+                  <DetailField label="Driver ID" value={d.driverId || d.entityId} />
                   <DetailField label="First Name" value={d.firstName} />
                   <DetailField label="Last Name" value={d.lastName} />
                   <DetailField label="Phone" value={d.phoneNumber} />
                   <DetailField label="Email" value={d.email} />
+                  <DetailField label="Aadhaar Number" value={d.driverAadhaarNumber || d.aadhaarNumber} />
+                  <DetailField label="Driver Approved (DB)" value={d.driverApproved} />
+                  <DetailField label="Driver Created At" value={formatDateVal(d.driverCreatedAt || d.createdAt || d.created_at)} />
+                  <DetailField label="KYC Verified Status" value={d.driverKycVerified} />
                   <DetailField label="Nominee Name" value={d.nomineeName} />
                   <DetailField label="Nominee Phone" value={d.nomineePhoneNumber} />
-                  <DetailField label="Nominee Verified" value={d.nomineeVerified} />
                   <DetailField label="Family Member" value={d.familyMemberName} />
                   <DetailField label="Family Phone" value={d.familyMemberPhoneNumber} />
-                  <DetailField label="Family Verified" value={d.familyMemberVerified} />
                   {d.profilePicUrl && (
                     <div className="req-detail-field">
                       <span className="req-detail-label">Profile Picture</span>
@@ -666,7 +790,7 @@ function PendingApprovals() {
                 <p className="req-detail-section-title">🪪 Driver KYC</p>
                 <div className="req-detail-grid">
                   <DetailField label="KYC ID" value={d.driverKycId} />
-                  <DetailField label="Aadhaar Number" value={d.driverAadhaarNumber} />
+                  <DetailField label="Aadhaar Number" value={d.driverAadhaarNumber || d.aadhaarNumber} />
                   <DetailField label="Driving License" value={d.drivingLicenseNumber} />
                   <DetailField label="RC Copy" value={d.rcCopy} />
                 </div>
@@ -696,7 +820,6 @@ function PendingApprovals() {
   };
 
   const filteredList = pendingList.filter((item) => {
-    // Access Boundary: SuperAdmin sees all levels, Fleet Manager sees Level 1 only
     if (!canApproveLevel1(item, isSuper)) return false;
 
     const q = search.toLowerCase();
@@ -722,7 +845,7 @@ function PendingApprovals() {
       console.log("Auto Approval Scheduler Test Response:", res);
       const message = typeof res === "string" ? res : res?.message || "Auto Approval Scheduler Executed Successfully.";
       alert(`⚡ ${message}`);
-      fetchPendingApprovals(activeApproverId);
+      fetchPendingApprovals(activeApproverId || approverIdInput);
     } catch (error) {
       console.error("Auto Approval Test Error:", error);
       const errMsg =
@@ -765,7 +888,7 @@ function PendingApprovals() {
 
   const getRejectedEntityContact = (item) => {
     const phone = item.phone || item.outletPhone || item.merchantPhone || item.phoneNumber || "";
-    const alt   = item.alternatePhone ? ` / ${item.alternatePhone}` : "";
+    const alt = item.alternatePhone ? ` / ${item.alternatePhone}` : "";
     const email = item.email || item.outletEmail || item.merchantEmail || "";
     return `${phone}${alt}${email ? " • " + email : ""}`;
   };
@@ -784,18 +907,16 @@ function PendingApprovals() {
       setReopening(true);
       const payload = {
         approvalRequestId: Number(reopenTarget.approvalRequestId),
-        updatedBy: Number(reopenUpdatedBy) || 1,
+        updatedBy: Number(reopenUpdatedBy),
       };
       const res = await updateRejectedApprovalsToPending(payload);
       console.log("Re-open Response:", res);
       alert(`Approval Request #${reopenTarget.approvalRequestId} re-opened to PENDING successfully.`);
-      // Remove from local rejected list
       setRejectedList((prev) =>
         prev.filter((i) => i.approvalRequestId !== reopenTarget.approvalRequestId)
       );
       setShowReopenModal(false);
       setReopenTarget(null);
-      // Refresh pending list so the re-opened item appears
       fetchPendingApprovals(activeApproverId || approverIdInput);
     } catch (err) {
       console.error("Re-open Error:", err);
@@ -813,7 +934,7 @@ function PendingApprovals() {
   const renderRejectedDetailModal = () => {
     const d = selectedRejectedItem;
     if (!d) return null;
-    const imgUrl     = getRejectedEntityImage(d);
+    const imgUrl = getRejectedEntityImage(d);
     const entityName = getRejectedEntityName(d);
     const entityType = d.entityType || "UNKNOWN";
 
@@ -838,7 +959,7 @@ function PendingApprovals() {
         <div className="req-detail-modal" onClick={(e) => e.stopPropagation()}>
 
           {/* Header — red theme */}
-          <div className="req-detail-modal-header" style={{ background: "linear-gradient(135deg, #7f1d1d 0%, #b91c1c 100%)" }}>
+          <div className="req-detail-modal-header rejected">
             {imgUrl ? (
               <img src={imgUrl} alt={entityName} className="req-detail-modal-avatar"
                 onError={(e) => { e.target.style.display = "none"; }} />
@@ -852,7 +973,7 @@ function PendingApprovals() {
               <p>Tx #{d.approvalTransactionsId} &nbsp;•&nbsp; Req #{d.approvalRequestId} &nbsp;•&nbsp; {entityType}</p>
               <div className="req-detail-modal-badges">
                 <span className="req-detail-modal-badge">{d.approvalLevel || "Level 1"}</span>
-                <span className="req-detail-modal-badge" style={{ background: "rgba(239,68,68,0.4)" }}>REJECTED</span>
+                <span className="req-detail-modal-badge rejected">REJECTED</span>
                 {d.entityId && <span className="req-detail-modal-badge">Entity #{d.entityId}</span>}
               </div>
             </div>
@@ -865,10 +986,10 @@ function PendingApprovals() {
             {d.rejectedReason && (
               <div className="req-detail-section">
                 <p className="req-detail-section-title">❌ Rejection Details</p>
-                <div style={{ background: "#fff5f5", borderLeft: "4px solid #ef4444", padding: "10px 14px", borderRadius: "4px", fontSize: "13px", color: "#7f1d1d", marginBottom: "4px" }}>
+                <div className="req-info-box warning">
                   {d.rejectedReason}
                 </div>
-                <div className="req-detail-grid" style={{ marginTop: "10px" }}>
+                <div className="req-detail-grid">
                   <RDF label="Rejected By (User ID)" value={d.rejectedBy} />
                   <RDF label="Rejected At" value={d.rejectedAt ? new Date(d.rejectedAt).toLocaleString() : null} />
                 </div>
@@ -916,14 +1037,12 @@ function PendingApprovals() {
 
   // ── Filtered rejected list (access boundary + search) ─────────────────────
   const filteredRejectedList = rejectedList.filter((item) => {
-    // Access Boundary: Fleet Manager only sees rejections they handled
     if (!isSuper) {
       const myId = Number(activeApproverId || storedApproverId);
       if (myId && item.rejectedBy && Number(item.rejectedBy) !== myId) {
         return false;
       }
     }
-    // Search filter
     const q = rejectedSearch.toLowerCase();
     return (
       (item.entityName || "").toLowerCase().includes(q) ||
@@ -944,31 +1063,19 @@ function PendingApprovals() {
             Review and process pending approval requests assigned to your configured approval levels.
           </p>
         </div>
-        <div style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-            <label style={{ fontSize: "13px", fontWeight: "600", color: "#475569" }}>
+        <div className="req-btn-group">
+          <div className="req-approver-wrapper">
+            <label className="req-approver-label">
               Approver ID:
             </label>
-            <div style={{ position: "relative", display: "inline-flex", alignItems: "center" }}>
+            <div className="req-approver-input-wrap">
               <input
                 type="number"
                 value={approverIdInput}
                 onChange={(e) => setApproverIdInput(e.target.value)}
                 disabled={!isSuper}
                 readOnly={!isSuper}
-                placeholder="e.g. 14"
-                style={{
-                  width: "80px",
-                  padding: "6px 10px",
-                  paddingRight: !isSuper ? "22px" : "10px",
-                  borderRadius: "6px",
-                  border: "1px solid #cbd5e1",
-                  fontSize: "13px",
-                  backgroundColor: !isSuper ? "#f1f5f9" : "#ffffff",
-                  color: !isSuper ? "#334155" : "#0f172a",
-                  fontWeight: "600",
-                  cursor: !isSuper ? "not-allowed" : "text",
-                }}
+                className="req-approver-input"
                 title={
                   !isSuper
                     ? "Approver ID is locked to your user account."
@@ -976,15 +1083,7 @@ function PendingApprovals() {
                 }
               />
               {!isSuper && (
-                <span
-                  style={{
-                    position: "absolute",
-                    right: "6px",
-                    fontSize: "11px",
-                    color: "#64748b",
-                    pointerEvents: "none",
-                  }}
-                >
+                <span className="req-approver-lock">
                   🔒
                 </span>
               )}
@@ -993,14 +1092,12 @@ function PendingApprovals() {
               className="req-refresh-btn"
               onClick={handleFetchClick}
               disabled={fetching}
-              style={{ padding: "6px 12px" }}
             >
               Fetch Requests
             </button>
           </div>
           <button
-            className="req-refresh-btn"
-            style={{ background: "#eff6ff", borderColor: "#bfdbfe", color: "#1d4ed8" }}
+            className="req-refresh-btn req-btn-auto-approve"
             onClick={handleRunAutoApprovalTest}
             disabled={testingScheduler}
             title="Execute Auto Approval Scheduler manually for testing"
@@ -1008,15 +1105,14 @@ function PendingApprovals() {
             {testingScheduler ? "Executing Scheduler..." : "⚡ Run Auto-Approval Test"}
           </button>
           <button
-            className="req-refresh-btn"
+            className="req-refresh-btn req-btn-refresh-pending"
             onClick={() => fetchPendingApprovals(activeApproverId || approverIdInput)}
             disabled={fetching}
           >
             {fetching ? "Refreshing..." : "🔄 Refresh Pending"}
           </button>
           <button
-            className="req-refresh-btn"
-            style={{ background: "#fff1f2", borderColor: "#fecdd3", color: "#be123c" }}
+            className="req-refresh-btn req-btn-refresh-rejected"
             onClick={fetchRejectedApprovals}
             disabled={fetchingRejected}
           >
@@ -1024,7 +1120,6 @@ function PendingApprovals() {
           </button>
         </div>
       </div>
-
 
       {/* Batch Action Bar */}
       {selectedIds.length > 0 && (
@@ -1064,7 +1159,7 @@ function PendingApprovals() {
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          <span className="req-batch-count" style={{ fontSize: "13px", color: "#475569" }}>
+          <span className="req-total-count">
             Total Pending: {filteredList.length}
           </span>
         </div>
@@ -1193,7 +1288,7 @@ function PendingApprovals() {
                   <td colSpan="8" className="req-empty-row">
                     {activeApproverId
                       ? `No Pending Approval Requests found for Approver #${activeApproverId}.`
-                      : "No Pending Approval Requests found."}
+                      : "Please enter an Approver ID and click 'Fetch Requests' to view pending approvals."}
                   </td>
                 </tr>
               )}
@@ -1208,7 +1303,7 @@ function PendingApprovals() {
       {/* ================================================================
           REJECTED APPROVALS SECTION
           ================================================================ */}
-      <div className="req-card" style={{ marginTop: "12px" }}>
+      <div className="req-card">
         <div className="req-card-header red">REJECTED APPROVALS</div>
 
         <div className="req-table-toolbar">
@@ -1220,7 +1315,7 @@ function PendingApprovals() {
               onChange={(e) => setRejectedSearch(e.target.value)}
             />
           </div>
-          <span className="req-batch-count" style={{ fontSize: "13px", color: "#475569" }}>
+          <span className="req-total-count">
             Total Rejected: {filteredRejectedList.length}
           </span>
         </div>
@@ -1250,76 +1345,76 @@ function PendingApprovals() {
                 </tr>
               ) : filteredRejectedList.length > 0 ? (
                 filteredRejectedList.map((item) => {
-                      const imgUrl = getRejectedEntityImage(item);
-                      const entityName = getRejectedEntityName(item);
-                      return (
-                        <tr key={item.approvalTransactionsId || item.approvalRequestId || Math.random()}>
-                          <td><strong>#{item.approvalTransactionsId || "—"}</strong></td>
-                          <td><code>#{item.approvalRequestId || "—"}</code></td>
-                          <td>
-                            <div
-                              className="req-entity-cell req-entity-cell-clickable"
-                              onClick={() => {
-                                setSelectedRejectedItem(item);
-                                setShowRejectedDetailModal(true);
-                              }}
-                              title="Click to view full entity details"
-                            >
-                              {imgUrl ? (
-                                <img src={imgUrl} alt={entityName} className="req-avatar-img"
-                                  onError={(e) => { e.target.style.display = "none"; }} />
-                              ) : (
-                                <div className="req-avatar-fallback">
-                                  {entityName.charAt(0).toUpperCase()}
-                                </div>
-                              )}
-                              <div className="req-entity-info">
-                                <span className="req-entity-name">{entityName}</span>
-                                <span className="req-entity-meta">{getRejectedEntityContact(item)}</span>
-                                <span className="req-detail-view-hint">👁 Click to view all details</span>
-                              </div>
+                  const imgUrl = getRejectedEntityImage(item);
+                  const entityName = getRejectedEntityName(item);
+                  return (
+                    <tr key={item.approvalTransactionsId || item.approvalRequestId || Math.random()}>
+                      <td><strong>#{item.approvalTransactionsId || "—"}</strong></td>
+                      <td><code>#{item.approvalRequestId || "—"}</code></td>
+                      <td>
+                        <div
+                          className="req-entity-cell req-entity-cell-clickable"
+                          onClick={() => {
+                            setSelectedRejectedItem(item);
+                            setShowRejectedDetailModal(true);
+                          }}
+                          title="Click to view full entity details"
+                        >
+                          {imgUrl ? (
+                            <img src={imgUrl} alt={entityName} className="req-avatar-img"
+                              onError={(e) => { e.target.style.display = "none"; }} />
+                          ) : (
+                            <div className="req-avatar-fallback">
+                              {entityName.charAt(0).toUpperCase()}
                             </div>
-                          </td>
-                          <td>
-                            <span
-                              className={
-                                item.entityType === "OUTLET"
-                                  ? "req-badge-outlet"
-                                  : item.entityType === "MERCHANT"
-                                    ? "req-badge-merchant"
-                                    : "req-badge-driver"
-                              }
-                            >
-                              {item.entityType || "UNKNOWN"}
-                            </span>
-                          </td>
-                          <td><code>ID #{item.entityId}</code></td>
-                          <td><strong>{item.approvalLevel || "—"}</strong></td>
-                          <td style={{ maxWidth: "220px" }}>
-                            <div className="req-reason-box">
-                              {item.rejectedReason || "No reason provided"}
-                            </div>
-                          </td>
-                          <td style={{ whiteSpace: "nowrap", fontSize: "12px", color: "#64748b" }}>
-                            {item.rejectedAt
-                              ? new Date(item.rejectedAt).toLocaleString()
-                              : "—"}
-                          </td>
-                          <td>
-                            <span className="req-status-rejected">REJECTED</span>
-                          </td>
-                          <td>
-                            <button
-                              className="req-btn-reopen"
-                              onClick={() => openReopenModal(item)}
-                              title="Re-open this rejected request back to PENDING"
-                            >
-                              ↩ Re-open to Pending
-                            </button>
-                          </td>
-                        </tr>
-                      );
-                    })
+                          )}
+                          <div className="req-entity-info">
+                            <span className="req-entity-name">{entityName}</span>
+                            <span className="req-entity-meta">{getRejectedEntityContact(item)}</span>
+                            <span className="req-detail-view-hint">👁 Click to view all details</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <span
+                          className={
+                            item.entityType === "OUTLET"
+                              ? "req-badge-outlet"
+                              : item.entityType === "MERCHANT"
+                                ? "req-badge-merchant"
+                                : "req-badge-driver"
+                          }
+                        >
+                          {item.entityType || "UNKNOWN"}
+                        </span>
+                      </td>
+                      <td><code>ID #{item.entityId}</code></td>
+                      <td><strong>{item.approvalLevel || "—"}</strong></td>
+                      <td>
+                        <div className="req-reason-box">
+                          {item.rejectedReason || "No reason provided"}
+                        </div>
+                      </td>
+                      <td>
+                        {item.rejectedAt
+                          ? new Date(item.rejectedAt).toLocaleString()
+                          : "—"}
+                      </td>
+                      <td>
+                        <span className="req-status-rejected">REJECTED</span>
+                      </td>
+                      <td>
+                        <button
+                          className="req-btn-reopen"
+                          onClick={() => openReopenModal(item)}
+                          title="Re-open this rejected request back to PENDING"
+                        >
+                          ↩ Re-open to Pending
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
               ) : (
                 <tr>
                   <td colSpan="10" className="req-empty-row">
@@ -1341,7 +1436,7 @@ function PendingApprovals() {
       {showReopenModal && reopenTarget && (
         <div className="req-modal-overlay">
           <div className="req-modal">
-            <div className="req-modal-header" style={{ background: "linear-gradient(135deg, #0284c7 0%, #0369a1 100%)" }}>
+            <div className="req-modal-header reopen">
               <h3>Re-open Request #{reopenTarget.approvalRequestId} to PENDING</h3>
               <button
                 className="req-modal-close"
@@ -1352,11 +1447,11 @@ function PendingApprovals() {
             </div>
 
             <div className="req-modal-body">
-              <div style={{ background: "#f0f9ff", borderLeft: "4px solid #0284c7", padding: "12px", borderRadius: "4px", fontSize: "13px", color: "#0369a1", marginBottom: "16px" }}>
+              <div className="req-info-box">
                 <strong>Business Rule:</strong> Updating this request will change its status from{" "}
                 <strong>REJECTED</strong> back to <strong>PENDING</strong>. Entity ID, Entity Type, and Current Level will remain unchanged.
               </div>
-              <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "6px", padding: "12px", marginBottom: "16px", fontSize: "13px" }}>
+              <div className="req-entity-info-box">
                 <strong>Entity:</strong> {reopenTarget.entityName || `#${reopenTarget.entityId}`}&emsp;
                 <strong>Type:</strong> {reopenTarget.entityType}&emsp;
                 <strong>Level:</strong> {reopenTarget.approvalLevel}
@@ -1382,8 +1477,7 @@ function PendingApprovals() {
                 Cancel
               </button>
               <button
-                className="req-modal-submit-btn"
-                style={{ background: "#0284c7" }}
+                className="req-modal-submit-btn reopen"
                 onClick={handleReopenToPending}
                 disabled={reopening}
               >
@@ -1409,7 +1503,7 @@ function PendingApprovals() {
             </div>
 
             <div className="req-modal-body">
-              <p style={{ fontSize: "14px", color: "#334155", marginTop: 0 }}>
+              <p>
                 Please specify the reason for rejecting request ID(s):{" "}
                 <strong>{targetRejectIds.map((id) => `#${id}`).join(", ")}</strong>
               </p>
@@ -1419,8 +1513,7 @@ function PendingApprovals() {
                   Rejection Reason <span className="req-required">*</span>
                 </label>
                 <textarea
-                  className="req-form-input"
-                  style={{ height: "90px", padding: "10px" }}
+                  className="req-form-textarea"
                   value={rejectionReason}
                   onChange={(e) => setRejectionReason(e.target.value)}
                   placeholder="Provide detailed explanation for rejection..."

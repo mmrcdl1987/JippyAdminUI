@@ -66,11 +66,20 @@ export const getPendingApprovalRequests = async (approverId) => {
     );
     return response.data;
   } catch (error) {
-    // Fallback to the simpler endpoint (may not include entity details)
-    const response = await FM_API.get(
-      `/api/fm/approval-requests/getPendingApprovalRequestsByApproverId/${approverId}`
-    );
-    return response.data;
+    try {
+      // Fallback to the simpler endpoint (may not include entity details)
+      const response = await FM_API.get(
+        `/api/fm/approval-requests/getPendingApprovalRequestsByApproverId/${approverId}`
+      );
+      return response.data;
+    } catch (fallbackError) {
+      // Gracefully handle 500 or any error when no pending approval request exists for assigned area
+      console.warn(
+        `[approvalService] Pending approval fetch returned error (treating as empty list):`,
+        fallbackError?.response?.status || fallbackError?.message
+      );
+      return [];
+    }
   }
 };
 
@@ -81,10 +90,15 @@ export const getLevel1PendingApprovalRequests = getPendingApprovalRequests;
  * Endpoint: GET /api/fm/approval-requests/getAllPendingApprovals
  */
 export const getAllPendingApprovals = async () => {
-  const response = await FM_API.get(
-    "/api/fm/approval-requests/getAllPendingApprovals"
-  );
-  return response.data;
+  try {
+    const response = await FM_API.get(
+      "/api/fm/approval-requests/getAllPendingApprovals"
+    );
+    return response.data;
+  } catch (error) {
+    console.warn("[approvalService] getAllPendingApprovals error (treating as empty list):", error?.message);
+    return [];
+  }
 };
 
 /**

@@ -1688,3 +1688,163 @@
     margin-top: 4px;
   }
 }
+/* ============================================================
+   DATE RANGE PICKER STYLES
+   ============================================================ */
+
+.merchant-list-date-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.merchant-list-date-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 150px;
+  justify-content: space-between;
+  height: 38px;
+}
+
+.merchant-list-date-button:hover {
+  border-color: #ff6b00;
+  background: #fafafa;
+}
+
+.merchant-list-date-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 13px;
+}
+
+.merchant-list-date-arrow {
+  font-size: 10px;
+  color: #6b7280;
+}
+
+.merchant-list-calendar-popup {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 1000;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  padding: 16px;
+  min-width: 600px;
+  border: 1px solid #e5e7eb;
+}
+
+/* Override react-date-range styles */
+.merchant-list-calendar-popup .rdrCalendarWrapper {
+  background: transparent;
+}
+
+.merchant-list-calendar-popup .rdrDateRangeWrapper {
+  background: transparent;
+}
+
+.merchant-list-calendar-popup .rdrDateDisplay {
+  background: #f9fafb;
+  border-radius: 6px;
+}
+
+.merchant-list-calendar-popup .rdrDateDisplayItem {
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+}
+
+.merchant-list-calendar-popup .rdrMonth {
+  padding: 0 8px;
+}
+
+.merchant-list-calendar-popup .rdrDayToday .rdrDayNumber span:after {
+  background: #ff6b00;
+}
+
+.merchant-list-calendar-popup .rdrStartEdge,
+.merchant-list-calendar-popup .rdrEndEdge {
+  color: #ff6b00;
+}
+
+.merchant-list-calendar-popup .rdrInRange {
+  color: rgba(255, 107, 0, 0.2);
+}
+
+.merchant-list-calendar-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.merchant-list-calendar-actions button {
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.merchant-list-calendar-cancel {
+  background: #f3f4f6;
+  color: #4b5563;
+}
+
+.merchant-list-calendar-cancel:hover {
+  background: #e5e7eb;
+}
+
+.merchant-list-calendar-apply {
+  background: #ff6b00;
+  color: #ffffff;
+}
+
+.merchant-list-calendar-apply:hover {
+  background: #e85e00;
+}
+
+/* Responsive for date picker */
+@media (max-width: 768px) {
+  .merchant-list-calendar-popup {
+    min-width: unset;
+    width: 100vw;
+    right: -50%;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .merchant-list-calendar-popup .rdrMonths {
+    flex-direction: column;
+  }
+
+  .merchant-list-calendar-popup .rdrMonth {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .merchant-list-date-button {
+    min-width: 120px;
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+
+  .merchant-list-calendar-popup {
+    padding: 10px;
+    right: -80%;
+  }
+}
