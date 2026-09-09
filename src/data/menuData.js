@@ -12,7 +12,7 @@ export const menuData = [
           },
           {
             name: "Restaurant Tracking",
-            permission: "RESTAURANT_READ",
+            permission: "RESTAURANT_READ", 
           },
         ],
       },

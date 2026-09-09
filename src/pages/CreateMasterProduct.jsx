@@ -27,18 +27,8 @@ function CreateMasterProduct({ setActivePage }) {
   const [isOtherCategory, setIsOtherCategory] = useState(false);
   const [customCategoryName, setCustomCategoryName] = useState("");
 
-  const [subCategoryId, setSubCategoryId] = useState("");
-  const [subCategoryName, setSubCategoryName] = useState("");
-
-  const [foodType, setFoodType] = useState("");
-  const [cuisineType, setCuisineType] = useState("");
-
   const [veg, setVeg] = useState(0);
   const [publish, setPublish] = useState(0);
-
-  const [hasOptions, setHasOptions] = useState(0);
-  const [optionsEnabled, setOptionsEnabled] = useState(0);
-  const [options, setOptions] = useState("");
 
   const [calories, setCalories] = useState(0);
   const [protein, setProtein] = useState(0);
@@ -115,37 +105,7 @@ function CreateMasterProduct({ setActivePage }) {
         setCategoryName("");
       }
     }
-
-    setSubCategoryId("");
-    setSubCategoryName("");
   };
-
-  // Sub Category Change Handler
-  const handleSubCategoryChange = (e) => {
-    const selectedSubId = e.target.value;
-    setSubCategoryId(selectedSubId);
-
-    const currentCat = categories.find(
-      (cat) => String(cat.categoryId) === String(categoryId)
-    );
-
-    const subCats = currentCat?.subCategories || currentCat?.subCategoryList || [];
-    const selectedSub = subCats.find(
-      (sub) => String(sub.subCategoryId || sub.id) === String(selectedSubId)
-    );
-
-    if (selectedSub) {
-      setSubCategoryName(selectedSub.subCategoryName || selectedSub.name || "");
-    } else {
-      setSubCategoryName("");
-    }
-  };
-
-  const currentCategory = categories.find(
-    (cat) => String(cat.categoryId) === String(categoryId)
-  );
-  const availableSubCategories =
-    currentCategory?.subCategories || currentCategory?.subCategoryList || [];
 
   const clearForm = () => {
     setProductName("");
@@ -161,18 +121,8 @@ function CreateMasterProduct({ setActivePage }) {
     setIsOtherCategory(false);
     setCustomCategoryName("");
 
-    setSubCategoryId("");
-    setSubCategoryName("");
-
-    setFoodType("");
-    setCuisineType("");
-
     setVeg(0);
     setPublish(0);
-
-    setHasOptions(0);
-    setOptionsEnabled(0);
-    setOptions("");
 
     setCalories(0);
     setProtein(0);
@@ -192,9 +142,6 @@ function CreateMasterProduct({ setActivePage }) {
     const finalCategoryId = isOtherCategory ? null : categoryId ? Number(categoryId) : null;
     const finalCategoryName = isOtherCategory ? customCategoryName.trim() : categoryName.trim() || null;
 
-    const finalSubCategoryId = isOtherCategory || !subCategoryId ? null : Number(subCategoryId);
-    const finalSubCategoryName = isOtherCategory || !subCategoryName.trim() ? null : subCategoryName.trim();
-
     const payload = {
       masterProductName: productName.trim(),
       description: description.trim() || null,
@@ -207,18 +154,18 @@ function CreateMasterProduct({ setActivePage }) {
       categoryId: finalCategoryId,
       categoryName: finalCategoryName,
 
-      subCategoryId: finalSubCategoryId,
-      subCategoryName: finalSubCategoryName,
+      subCategoryId: null,
+      subCategoryName: null,
 
       veg: Number(veg),
       nonVeg: veg ? 0 : 1,
 
-      foodType: foodType.trim() || null,
-      cuisineType: cuisineType.trim() || null,
+      foodType: null,
+      cuisineType: null,
 
-      hasOptions: Number(hasOptions),
-      optionsEnabled: Number(optionsEnabled),
-      options: options?.trim() ? options.trim() : null,
+      hasOptions: 0,
+      optionsEnabled: 0,
+      options: null,
 
       calories: Number(calories),
       protein: Number(protein),
@@ -320,7 +267,7 @@ function CreateMasterProduct({ setActivePage }) {
             )}
 
             <div className="form-group">
-              <label>Photo</label>
+              <label>Photo URL</label>
               <input
                 type="text"
                 value={photo}
@@ -329,7 +276,7 @@ function CreateMasterProduct({ setActivePage }) {
             </div>
 
             <div className="form-group">
-              <label>Photos</label>
+              <label>Photos List</label>
               <input
                 type="text"
                 value={photos}
@@ -338,7 +285,7 @@ function CreateMasterProduct({ setActivePage }) {
             </div>
 
             <div className="form-group">
-              <label>Thumbnail</label>
+              <label>Thumbnail URL</label>
               <input
                 type="text"
                 value={thumbnail}
@@ -347,25 +294,7 @@ function CreateMasterProduct({ setActivePage }) {
             </div>
 
             <div className="form-group">
-              <label>Food Type</label>
-              <input
-                type="text"
-                value={foodType}
-                onChange={(e) => setFoodType(e.target.value)}
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Cuisine Type</label>
-              <input
-                type="text"
-                value={cuisineType}
-                onChange={(e) => setCuisineType(e.target.value)}
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Veg</label>
+              <label>Dietary Type</label>
               <select
                 value={veg}
                 onChange={(e) => setVeg(Number(e.target.value))}
@@ -376,7 +305,7 @@ function CreateMasterProduct({ setActivePage }) {
             </div>
 
             <div className="form-group">
-              <label>Publish</label>
+              <label>Publish Status</label>
               <select
                 value={publish}
                 onChange={(e) => setPublish(Number(e.target.value))}
@@ -406,43 +335,7 @@ function CreateMasterProduct({ setActivePage }) {
           </div>
         </div>
 
-        {/* ================= OPTIONS ================= */}
-        <div className="form-card">
-          <h2>⚙️ Options</h2>
 
-          <div className="form-grid">
-            <div className="form-group">
-              <label>Has Options</label>
-              <select
-                value={hasOptions}
-                onChange={(e) => setHasOptions(Number(e.target.value))}
-              >
-                <option value={1}>Yes</option>
-                <option value={0}>No</option>
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label>Options Enabled</label>
-              <select
-                value={optionsEnabled}
-                onChange={(e) => setOptionsEnabled(Number(e.target.value))}
-              >
-                <option value={1}>Yes</option>
-                <option value={0}>No</option>
-              </select>
-            </div>
-
-            <div className="form-group full-width">
-              <label>Options</label>
-              <textarea
-                rows="3"
-                value={options}
-                onChange={(e) => setOptions(e.target.value)}
-              />
-            </div>
-          </div>
-        </div>
 
         {/* ================= NUTRITION ================= */}
         <div className="form-card">
@@ -459,7 +352,7 @@ function CreateMasterProduct({ setActivePage }) {
             </div>
 
             <div className="form-group">
-              <label>Protein</label>
+              <label>Protein (g)</label>
               <input
                 type="number"
                 value={protein}
@@ -468,7 +361,7 @@ function CreateMasterProduct({ setActivePage }) {
             </div>
 
             <div className="form-group">
-              <label>Fats</label>
+              <label>Fats (g)</label>
               <input
                 type="number"
                 value={fats}
@@ -477,7 +370,7 @@ function CreateMasterProduct({ setActivePage }) {
             </div>
 
             <div className="form-group">
-              <label>Carbs</label>
+              <label>Carbs (g)</label>
               <input
                 type="number"
                 value={carbs}
@@ -486,7 +379,7 @@ function CreateMasterProduct({ setActivePage }) {
             </div>
 
             <div className="form-group">
-              <label>Grams</label>
+              <label>Grams (g)</label>
               <input
                 type="number"
                 value={grams}
@@ -496,45 +389,7 @@ function CreateMasterProduct({ setActivePage }) {
           </div>
         </div>
 
-        {/* ================= CATEGORY / SUB-CATEGORY ================= */}
-        <div className="form-card">
-          <h2>📂 Sub Category</h2>
 
-          <div className="form-grid">
-            <div className="form-group">
-              <label>Sub Category</label>
-              <select
-                value={subCategoryId}
-                onChange={handleSubCategoryChange}
-                disabled={
-                  loadingCategories ||
-                  isOtherCategory ||
-                  (!categoryId && availableSubCategories.length === 0)
-                }
-              >
-                <option value="">
-                  {isOtherCategory
-                    ? "N/A (Creating New Category)"
-                    : !categoryId
-                    ? "Select a main category first"
-                    : availableSubCategories.length === 0
-                    ? "No Sub Categories Available"
-                    : "-- Select Sub Category --"}
-                </option>
-
-                {availableSubCategories.map((sub) => {
-                  const sId = String(sub.subCategoryId || sub.id);
-                  const sName = sub.subCategoryName || sub.name;
-                  return (
-                    <option key={sId} value={sId}>
-                      {sName}
-                    </option>
-                  );
-                })}
-              </select>
-            </div>
-          </div>
-        </div>
 
         {/* ================= BUTTONS ================= */}
         <div className="button-group">

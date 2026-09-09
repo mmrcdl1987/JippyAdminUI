@@ -12,6 +12,9 @@ import {
 } from "../../services/merchantService";
 import { getAllAreas } from "../../services/managerAreaService";
 import { FaStore, FaEdit, FaEye, FaCamera } from "react-icons/fa";
+import { DateRange } from "react-date-range";
+import "react-date-range/dist/styles.css";
+import "react-date-range/dist/theme/default.css";
 
 function Merchants() {
   const navigate = useNavigate();
@@ -41,6 +44,16 @@ function Merchants() {
   const [filterArea, setFilterArea] = useState("");
   const [filterDateFrom, setFilterDateFrom] = useState("");
   const [filterDateTo, setFilterDateTo] = useState("");
+
+  // Date Range Picker states
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [range, setRange] = useState([
+    {
+      startDate: new Date(),
+      endDate: new Date(),
+      key: "selection",
+    },
+  ]);
 
   // Areas state
   const [areas, setAreas] = useState([]);
@@ -78,6 +91,50 @@ function Merchants() {
     date: true,
     documents: true,
   });
+
+  // ============================================================
+  // DATE RANGE HANDLERS
+  // ============================================================
+  const handleApplyRange = () => {
+    const start = range[0]?.startDate;
+    const end = range[0]?.endDate;
+
+    if (start) {
+      const formattedStart = start.toISOString().split("T")[0];
+      setFilterDateFrom(formattedStart);
+    }
+    if (end) {
+      const formattedEnd = end.toISOString().split("T")[0];
+      setFilterDateTo(formattedEnd);
+    }
+
+    setShowCalendar(false);
+    setCurrentPage(1);
+  };
+
+  const handleCancelRange = () => {
+    setRange([
+      {
+        startDate: new Date(),
+        endDate: new Date(),
+        key: "selection",
+      },
+    ]);
+    setShowCalendar(false);
+  };
+
+  const handleClearDateRange = () => {
+    setFilterDateFrom("");
+    setFilterDateTo("");
+    setRange([
+      {
+        startDate: new Date(),
+        endDate: new Date(),
+        key: "selection",
+      },
+    ]);
+    setCurrentPage(1);
+  };
 
   // ============================================================
   // FETCH AREAS
@@ -497,8 +554,8 @@ function Merchants() {
     const activeTypeFilter = filterMerchantType || selectedMerchantType;
     const matchesType = activeTypeFilter
       ? (merchant.merchantBusinessType === activeTypeFilter ||
-         (activeTypeFilter === "Outlets" && merchant.merchantBusinessType === "Outlet") ||
-         (activeTypeFilter === "Outlet" && merchant.merchantBusinessType === "Outlets"))
+        (activeTypeFilter === "Outlets" && merchant.merchantBusinessType === "Outlet") ||
+        (activeTypeFilter === "Outlet" && merchant.merchantBusinessType === "Outlets"))
       : true;
 
     // State filter
@@ -610,26 +667,29 @@ function Merchants() {
     setCurrentPage(1);
   };
 
-  const handleFilterDateFromChange = (e) => {
-    setFilterDateFrom(e.target.value);
-    setCurrentPage(1);
-  };
-
-  const handleFilterDateToChange = (e) => {
-    setFilterDateTo(e.target.value);
-    setCurrentPage(1);
-  };
-
   const handleClearFilters = () => {
     setFilterMerchantType("");
     setFilterStatus("");
     setFilterArea("");
-    setFilterDateFrom("");
-    setFilterDateTo("");
+    handleClearDateRange();
     setSearch("");
     setAreaSearchQuery("");
     setShowAreaDropdown(false);
     setCurrentPage(1);
+  };
+
+  // Helper to format date range display
+  const getDateRangeDisplay = () => {
+    if (filterDateFrom && filterDateTo) {
+      const from = new Date(filterDateFrom).toLocaleDateString();
+      const to = new Date(filterDateTo).toLocaleDateString();
+      return `${from} - ${to}`;
+    } else if (filterDateFrom) {
+      return `From: ${new Date(filterDateFrom).toLocaleDateString()}`;
+    } else if (filterDateTo) {
+      return `To: ${new Date(filterDateTo).toLocaleDateString()}`;
+    }
+    return "Select Range";
   };
 
   return (
@@ -753,25 +813,49 @@ function Merchants() {
             )}
           </div>
 
-          {/* Date - From Date */}
-          <input
-            type="date"
-            className="merchant-list-date-input"
-            value={filterDateFrom}
-            onChange={handleFilterDateFromChange}
-            placeholder="From Date"
-          />
+          {/* DATE RANGE PICKER */}
+          <div className="merchant-list-date-wrapper">
+            <button
+              type="button"
+              className="merchant-list-date-button"
+              onClick={() => setShowCalendar(!showCalendar)}
+            >
+              <span className="merchant-list-date-label">
+                {getDateRangeDisplay()}
+              </span>
+              <span className="merchant-list-date-arrow">▼</span>
+            </button>
 
-          <span>To</span>
+            {showCalendar && (
+              <div className="merchant-list-calendar-popup">
+                <DateRange
+                  editableDateInputs
+                  ranges={range}
+                  onChange={(item) => setRange([item.selection])}
+                  months={2}
+                  direction="horizontal"
+                  rangeColors={["#ff6b00"]}
+                />
 
-          {/* Date - To Date */}
-          <input
-            type="date"
-            className="merchant-list-date-input"
-            value={filterDateTo}
-            onChange={handleFilterDateToChange}
-            placeholder="To Date"
-          />
+                <div className="merchant-list-calendar-actions">
+                  <button
+                    type="button"
+                    onClick={handleCancelRange}
+                    className="merchant-list-calendar-cancel"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleApplyRange}
+                    className="merchant-list-calendar-apply"
+                  >
+                    Apply
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
 
           {(filterMerchantType || selectedMerchantType || selectedState || selectedCity || filterStatus || filterArea || filterDateFrom || filterDateTo || search) && (
             <button
@@ -1213,14 +1297,14 @@ function Merchants() {
                         >
                           <div
                             className={`merchant-list-toggle-track ${(merchant.isActive === "Y" || merchant.isActive === true || merchant.status === "ACTIVE")
-                                ? "active"
-                                : "inactive"
+                              ? "active"
+                              : "inactive"
                               }`}
                           >
                             <div
                               className={`merchant-list-toggle-thumb ${(merchant.isActive === "Y" || merchant.isActive === true || merchant.status === "ACTIVE")
-                                  ? "active"
-                                  : "inactive"
+                                ? "active"
+                                : "inactive"
                                 }`}
                             />
                           </div>
