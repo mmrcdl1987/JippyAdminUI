@@ -208,20 +208,14 @@ export const updateMerchantProfilePic = async (merchantId, file) => {
 // Update Merchant Profile
 // Endpoint: PUT /api/fm/merchants/updateMerchantProfile
 // ============================================================
-export const updateMerchantProfile = async (formData) => {
-  try {
-    const response = await FM_API.put(
-      "/api/fm/merchants/updateMerchantProfile",
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
-    return response.data;
-  } catch (error) {
-    console.error("Error updating merchant profile:", error);
-    throw error;
-  }
+// services/merchantService.js
+export const updateMerchantProfile = async (payload) => {
+  const response = await FM_API.put(
+    `/api/fm/merchants/updateMerchantProfile`,
+    payload,
+    {
+      headers: { "Content-Type": "application/json" },
+    }
+  );
+  return response.data;
 };
