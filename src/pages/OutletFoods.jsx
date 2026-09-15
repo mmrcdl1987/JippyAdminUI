@@ -11,7 +11,9 @@ import {
   setProductUnavailable,
   restoreProductUnavailable,
 } from "../services/outletListService";
+
 import { getProductDetailById } from "../services/productDetailService";
+
 import AddToOutletProducts from "./AddToOutletProducts";
 
 import {
@@ -35,55 +37,99 @@ function OutletFoods({
 
   const [selectedFood, setSelectedFood] = useState(null);
 
-  const [foodAvailabilityMode, setFoodAvailabilityMode] =
-  useState("create");
+  const [
+    foodAvailabilityMode,
+    setFoodAvailabilityMode,
+  ] = useState("create");
 
-  const [foodAvailabilityModal, setFoodAvailabilityModal] =
-    useState(false);
+  const [
+    foodAvailabilityModal,
+    setFoodAvailabilityModal,
+  ] = useState(false);
 
-  const [foodUnavailabilityForm, setFoodUnavailabilityForm] =
-    useState({
-      fromDate: "",
-      toDate: "",
-      reason: "",
-    });
+  const [
+    foodUnavailabilityForm,
+    setFoodUnavailabilityForm,
+  ] = useState({
+    fromDate: "",
+    toDate: "",
+    reason: "",
+  });
 
+  const [
+    savingFoodAvailability,
+    setSavingFoodAvailability,
+  ] = useState(false);
 
+  const [
+    foodUnavailabilityData,
+    setFoodUnavailabilityData,
+  ] = useState({});
 
-  const [savingFoodAvailability, setSavingFoodAvailability] =
-    useState(false);
-
-  const [foodUnavailabilityData, setFoodUnavailabilityData] =
-    useState({});
-
-  const [expandedFoodId, setExpandedFoodId] = useState(null);
+  const [
+    expandedFoodId,
+    setExpandedFoodId,
+  ] = useState(null);
 
   const [outlet, setOutlet] = useState(
     outletFromParent || null
   );
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] =
+    useState(true);
 
-  const [errorMessage, setErrorMessage] =
-    useState("");
+  const [
+    errorMessage,
+    setErrorMessage,
+  ] = useState("");
 
-  const [foodSearch, setFoodSearch] =
-    useState("");
+  const [
+    foodSearch,
+    setFoodSearch,
+  ] = useState("");
 
-  const [foodEntries, setFoodEntries] =
-    useState(10);
+  const [
+    foodEntries,
+    setFoodEntries,
+  ] = useState(10);
 
-  const [foodPage, setFoodPage] =
-    useState(1);
-  // P/PV toggle: false = P (all products), true = PV (products with variants)
-  const [isPvToggle, setIsPvToggle] = useState(false);
+  const [
+    foodPage,
+    setFoodPage,
+  ] = useState(1);
 
+  // P/PV toggle
+  // false = all products
+  // true = products having variants
+  const [
+    isPvToggle,
+    setIsPvToggle,
+  ] = useState(false);
 
-  const [variantProduct, setVariantProduct] = useState(null);
-  const [variantLoading, setVariantLoading] = useState(false);
-  const [variantError, setVariantError] = useState("");
-  const [foodForVariants, setFoodForVariants] = useState(null);
-  const [preparingVariantForm, setPreparingVariantForm] = useState(false);
+  const [
+    variantProduct,
+    setVariantProduct,
+  ] = useState(null);
+
+  const [
+    variantLoading,
+    setVariantLoading,
+  ] = useState(false);
+
+  const [
+    variantError,
+    setVariantError,
+  ] = useState("");
+
+  const [
+    foodForVariants,
+    setFoodForVariants,
+  ] = useState(null);
+
+  const [
+    preparingVariantForm,
+    setPreparingVariantForm,
+  ] = useState(false);
 
   // ============================================================
   // GET SELECTED OUTLET ID
@@ -251,7 +297,6 @@ function OutletFoods({
         setOutlet(
           restoredResponse
         );
-
       } catch (error) {
         console.error(
           "OutletFoods - Failed to load foods:",
@@ -284,149 +329,150 @@ function OutletFoods({
     outletFromParent?.outletId,
   ]);
 
-// ============================================================
-// FOOD AVAILABILITY TOGGLE
-// ============================================================
+  // ============================================================
+  // FOOD AVAILABILITY TOGGLE
+  // ============================================================
 
-const handleFoodAvailabilityToggle = (food) => {
-  if (!food?.productId) {
-    return;
-  }
+  const handleFoodAvailabilityToggle = (
+    food
+  ) => {
+    if (!food?.productId) {
+      return;
+    }
 
-  // ON → OFF
-  // Open normal unavailability form
-  if (isTrue(food?.isToggle)) {
+    // ON → OFF
+    if (isTrue(food?.isToggle)) {
+      setSelectedFood(food);
+
+      setFoodAvailabilityMode(
+        "create"
+      );
+
+      setFoodUnavailabilityForm({
+        fromDate: "",
+        toDate: "",
+        reason: "",
+      });
+
+      setFoodAvailabilityModal(true);
+
+      return;
+    }
+
+    // OFF → ON
     setSelectedFood(food);
 
-    setFoodAvailabilityMode("create");
-
-    setFoodUnavailabilityForm({
-      fromDate: "",
-      toDate: "",
-      reason: "",
-    });
+    setFoodAvailabilityMode(
+      "restore"
+    );
 
     setFoodAvailabilityModal(true);
+  };
 
-    return;
-  }
+  // ============================================================
+  // CONFIRM FOOD RESTORE
+  // ============================================================
 
-  // OFF → ON
-  // Open restore confirmation
-  setSelectedFood(food);
+  const handleConfirmFoodRestore =
+    async () => {
+      if (!selectedFood?.productId) {
+        return;
+      }
 
-  setFoodAvailabilityMode("restore");
-
-  setFoodAvailabilityModal(true);
-};
-
-// ============================================================
-// CONFIRM FOOD RESTORE
-// OFF → ON
-// ============================================================
-
-const handleConfirmFoodRestore = async () => {
-  if (!selectedFood?.productId) {
-    return;
-  }
-
-  try {
-    setSavingFoodAvailability(true);
-
-    console.log(
-      "RESTORING FOOD:",
-      selectedFood.productId
-    );
-
-    // ============================================================
-    // CALL PATCH RESTORE API
-    // ============================================================
-
-    const response = await restoreProductUnavailable(
-      selectedFood.productId,
-      "stock restored"
-    );
-
-    console.log(
-      "FOOD RESTORE RESPONSE:",
-      response
-    );
-
-    // ============================================================
-    // ONLY AFTER API SUCCESS → TURN FOOD ON
-    // ============================================================
-
-    setOutlet((previous) => ({
-      ...previous,
-
-      categories:
-        previous.categories?.map(
-          (category) => ({
-            ...category,
-
-            products:
-              category.products?.map(
-                (product) =>
-                  Number(product.productId) ===
-                  Number(selectedFood.productId)
-                    ? {
-                        ...product,
-                        isToggle: true,
-                      }
-                    : product
-              ),
-          })
-        ),
-    }));
-
-    // ============================================================
-    // REMOVE SAVED UNAVAILABILITY DETAILS
-    // ============================================================
-
-    setFoodUnavailabilityData(
-      (previous) => {
-        const updated = {
-          ...previous,
-        };
-
-        delete updated[
-          selectedFood.productId
-        ];
-
-        localStorage.setItem(
-          "jippy_food_unavailability",
-          JSON.stringify(updated)
+      try {
+        setSavingFoodAvailability(
+          true
         );
 
-        return updated;
+        console.log(
+          "RESTORING FOOD:",
+          selectedFood.productId
+        );
+
+        const response =
+          await restoreProductUnavailable(
+            selectedFood.productId,
+            "stock restored"
+          );
+
+        console.log(
+          "FOOD RESTORE RESPONSE:",
+          response
+        );
+
+        setOutlet((previous) => ({
+          ...previous,
+
+          categories:
+            previous.categories?.map(
+              (category) => ({
+                ...category,
+
+                products:
+                  category.products?.map(
+                    (product) =>
+                      Number(
+                        product.productId
+                      ) ===
+                      Number(
+                        selectedFood.productId
+                      )
+                        ? {
+                            ...product,
+                            isToggle:
+                              true,
+                          }
+                        : product
+                  ),
+              })
+            ),
+        }));
+
+        setFoodUnavailabilityData(
+          (previous) => {
+            const updated = {
+              ...previous,
+            };
+
+            delete updated[
+              selectedFood.productId
+            ];
+
+            localStorage.setItem(
+              "jippy_food_unavailability",
+              JSON.stringify(
+                updated
+              )
+            );
+
+            return updated;
+          }
+        );
+
+        setFoodAvailabilityModal(
+          false
+        );
+
+        setSelectedFood(null);
+
+        setExpandedFoodId(null);
+      } catch (error) {
+        console.error(
+          "Failed to restore food availability:",
+          error
+        );
+
+        alert(
+          error?.response?.data
+            ?.message ||
+            "Failed to restore food availability."
+        );
+      } finally {
+        setSavingFoodAvailability(
+          false
+        );
       }
-    );
-
-    // ============================================================
-    // CLOSE POPUP
-    // ============================================================
-
-    setFoodAvailabilityModal(false);
-
-    setSelectedFood(null);
-
-    // Close expanded unavailability details
-    setExpandedFoodId(null);
-
-  } catch (error) {
-    console.error(
-      "Failed to restore food availability:",
-      error
-    );
-
-    alert(
-      error?.response?.data?.message ||
-        "Failed to restore food availability."
-    );
-  } finally {
-    setSavingFoodAvailability(false);
-  }
-};
+    };
 
   // ============================================================
   // CONFIRM FOOD UNAVAILABILITY
@@ -434,17 +480,15 @@ const handleConfirmFoodRestore = async () => {
 
   const handleConfirmFoodUnavailability =
     async () => {
-      if (!selectedFood?.productId) return;
+      if (!selectedFood?.productId) {
+        return;
+      }
 
       const {
         fromDate,
         toDate,
         reason,
       } = foodUnavailabilityForm;
-
-      // ============================================================
-      // VALIDATION
-      // ============================================================
 
       if (
         !fromDate ||
@@ -474,10 +518,6 @@ const handleConfirmFoodRestore = async () => {
           true
         );
 
-        // ============================================================
-        // CALL PRODUCT UNAVAILABILITY API
-        // ============================================================
-
         const response =
           await setProductUnavailable(
             selectedFood.productId,
@@ -490,10 +530,6 @@ const handleConfirmFoodRestore = async () => {
           "PRODUCT UNAVAILABILITY RESPONSE:",
           response
         );
-
-        // ============================================================
-        // SAVE UNAVAILABILITY DETAILS
-        // ============================================================
 
         const newUnavailability = {
           productId:
@@ -531,10 +567,6 @@ const handleConfirmFoodRestore = async () => {
           }
         );
 
-        // ============================================================
-        // MARK PRODUCT TOGGLE OFF
-        // ============================================================
-
         setOutlet((previous) => ({
           ...previous,
 
@@ -563,23 +595,17 @@ const handleConfirmFoodRestore = async () => {
             ),
         }));
 
-        // ============================================================
-        // OPEN EXPANDED UNAVAILABILITY ROW
-        // ============================================================
-
         setExpandedFoodId(
           Number(
             selectedFood.productId
           )
         );
 
-        // Close modal
         setFoodAvailabilityModal(
           false
         );
 
         setSelectedFood(null);
-
       } catch (error) {
         console.error(
           "Failed to mark food unavailable:",
@@ -633,6 +659,8 @@ const handleConfirmFoodRestore = async () => {
 
         return products.map(
           (product) => ({
+            // IMPORTANT:
+            // This keeps imageLink from the API response.
             ...product,
 
             categoryId:
@@ -665,14 +693,18 @@ const handleConfirmFoodRestore = async () => {
   const filteredFoods = useMemo(() => {
     let result = allFoods;
 
-    // Filter based on P/PV toggle state.
-    // OFF = all products (P), ON = products having variants (PV).
     if (isPvToggle) {
       result = result.filter(
         (food) =>
-          food?.hasProductVariants === true ||
-          food?.hasProductVariants === "true" ||
-          (Array.isArray(food?.variants) && food.variants.length > 0)
+          food?.hasProductVariants ===
+            true ||
+          food?.hasProductVariants ===
+            "true" ||
+          (Array.isArray(
+            food?.variants
+          ) &&
+            food.variants.length >
+              0)
       );
     }
 
@@ -836,6 +868,58 @@ const handleConfirmFoodRestore = async () => {
   };
 
   // ============================================================
+  // PRODUCT IMAGE
+  // ============================================================
+
+  const renderProductImage = (
+    food
+  ) => {
+    const imageLink =
+      food?.imageLink;
+
+    if (!imageLink) {
+      return (
+        <span className="jippy-outlet-foods-no-image">
+          No Image
+        </span>
+      );
+    }
+
+    return (
+      <a
+        href={imageLink}
+        target="_blank"
+        rel="noopener noreferrer"
+        title="Open product image"
+        className="jippy-outlet-foods-image-link"
+      >
+        <img
+          src={imageLink}
+          alt={
+            food?.productName ||
+            "Food"
+          }
+          className="jippy-outlet-foods-product-image"
+          loading="lazy"
+          onError={(event) => {
+            event.currentTarget.style.display =
+              "none";
+
+            const parent =
+              event.currentTarget
+                .parentElement;
+
+            if (parent) {
+              parent.innerHTML =
+                '<span class="jippy-outlet-foods-no-image">No Image</span>';
+            }
+          }}
+        />
+      </a>
+    );
+  };
+
+  // ============================================================
   // PRODUCT TIMINGS
   // ============================================================
 
@@ -875,7 +959,9 @@ const handleConfirmFoodRestore = async () => {
                 {formatTime(
                   timing?.startTime
                 )}
+
                 {" - "}
+
                 {formatTime(
                   timing?.endTime
                 )}
@@ -901,71 +987,138 @@ const handleConfirmFoodRestore = async () => {
         ? food.variants
         : [];
 
+    return null;
   };
 
-  const handleViewVariants = async (food) => {
-    const productId = Number(food?.productId ?? food?.id);
-    if (!productId) {
-      setVariantError("This food item does not have a valid product ID.");
-      return;
-    }
+  // ============================================================
+  // VIEW VARIANTS
+  // ============================================================
 
-    setVariantProduct(null);
-    setVariantError("");
-    setVariantLoading(true);
+  const handleViewVariants =
+    async (food) => {
+      const productId =
+        Number(
+          food?.productId ??
+            food?.id
+        );
 
-    try {
-      const response = await getProductDetailById(productId);
-      const product = response?.data ?? response;
-      setVariantProduct(product);
-    } catch (error) {
-      setVariantError(
-        error?.response?.data?.message ||
-          error?.message ||
-          "Unable to load product variants."
+      if (!productId) {
+        setVariantError(
+          "This food item does not have a valid product ID."
+        );
+
+        return;
+      }
+
+      setVariantProduct(null);
+      setVariantError("");
+      setVariantLoading(true);
+
+      try {
+        const response =
+          await getProductDetailById(
+            productId
+          );
+
+        const product =
+          response?.data ??
+          response;
+
+        setVariantProduct(
+          product
+        );
+      } catch (error) {
+        setVariantError(
+          error?.response?.data
+            ?.message ||
+            error?.message ||
+            "Unable to load product variants."
+        );
+      } finally {
+        setVariantLoading(
+          false
+        );
+      }
+    };
+
+  // ============================================================
+  // ADD VARIANTS
+  // ============================================================
+
+  const handleAddVariants =
+    async (food) => {
+      const productId =
+        Number(
+          food?.productId ??
+            food?.id
+        );
+
+      if (!productId) {
+        setVariantError(
+          "This food item does not have a valid product ID."
+        );
+
+        return;
+      }
+
+      setPreparingVariantForm(
+        true
       );
-    } finally {
-      setVariantLoading(false);
-    }
-  };
 
-  const handleAddVariants = async (food) => {
-    const productId = Number(food?.productId ?? food?.id);
-    if (!productId) {
-      setVariantError("This food item does not have a valid product ID.");
-      return;
-    }
+      setVariantError("");
 
-    setPreparingVariantForm(true);
-    setVariantError("");
-    try {
-      // Fetch complete product data first, then retain the food-row category,
-      // timings, and product ID needed by the mapping request.
-      const response = await getProductDetailById(productId);
-      const detail = response?.data ?? response ?? {};
-      setFoodForVariants({
-        ...food,
-        ...detail,
-        masterProductId:
-          detail.masterProductId ??
-          food.masterProductId ??
-          food.master_product_id ??
-          productId,
-        productName: detail.productName ?? food.productName,
-        categoryId: detail.categoryId ?? food.categoryId,
-        timings: detail.timings ?? food.productTimings ?? [],
-        variantGroups: detail.variantGroups ?? food.variantGroups ?? [],
-      });
-    } catch (error) {
-      setVariantError(
-        error?.response?.data?.message ||
-          error?.message ||
-          "Unable to load this food item for variant mapping."
-      );
-    } finally {
-      setPreparingVariantForm(false);
-    }
-  };
+      try {
+        const response =
+          await getProductDetailById(
+            productId
+          );
+
+        const detail =
+          response?.data ??
+          response ??
+          {};
+
+        setFoodForVariants({
+          ...food,
+          ...detail,
+
+          masterProductId:
+            detail.masterProductId ??
+            food.masterProductId ??
+            food.master_product_id ??
+            productId,
+
+          productName:
+            detail.productName ??
+            food.productName,
+
+          categoryId:
+            detail.categoryId ??
+            food.categoryId,
+
+          timings:
+            detail.timings ??
+            food.productTimings ??
+            [],
+
+          variantGroups:
+            detail.variantGroups ??
+            food.variantGroups ??
+            [],
+        });
+      } catch (error) {
+        setVariantError(
+          error?.response?.data
+            ?.message ||
+            error?.message ||
+            "Unable to load this food item for variant mapping."
+        );
+      } finally {
+        setPreparingVariantForm(
+          false
+        );
+      }
+    };
 
   // ============================================================
   // BACK
@@ -1024,6 +1177,7 @@ const handleConfirmFoodRestore = async () => {
           </p>
 
         </div>
+
       </div>
     );
   }
@@ -1091,8 +1245,23 @@ const handleConfirmFoodRestore = async () => {
         </div>
 
         {/* P/PV TOGGLE + FOOD COUNT */}
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "12px",
+          }}
+        >
+
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+            }}
+          >
+
             <span
               style={{
                 fontSize: "12px",
@@ -1105,17 +1274,28 @@ const handleConfirmFoodRestore = async () => {
 
             <label
               style={{
-                position: "relative",
-                display: "inline-block",
+                position:
+                  "relative",
+                display:
+                  "inline-block",
                 width: "36px",
                 height: "20px",
-                cursor: "pointer",
+                cursor:
+                  "pointer",
               }}
             >
+
               <input
                 type="checkbox"
-                checked={isPvToggle}
-                onChange={() => setIsPvToggle((previous) => !previous)}
+                checked={
+                  isPvToggle
+                }
+                onChange={() =>
+                  setIsPvToggle(
+                    (previous) =>
+                      !previous
+                  )
+                }
                 style={{
                   opacity: 0,
                   width: 0,
@@ -1125,39 +1305,60 @@ const handleConfirmFoodRestore = async () => {
 
               <span
                 style={{
-                  position: "absolute",
-                  cursor: "pointer",
+                  position:
+                    "absolute",
+                  cursor:
+                    "pointer",
                   top: 0,
                   left: 0,
                   right: 0,
                   bottom: 0,
-                  backgroundColor: isPvToggle ? "#ff5722" : "#ccc",
-                  transition: ".4s",
-                  borderRadius: "20px",
+                  backgroundColor:
+                    isPvToggle
+                      ? "#ff5722"
+                      : "#ccc",
+                  transition:
+                    ".4s",
+                  borderRadius:
+                    "20px",
                 }}
               >
+
                 <span
                   style={{
-                    position: "absolute",
-                    height: "14px",
-                    width: "14px",
+                    position:
+                      "absolute",
+                    height:
+                      "14px",
+                    width:
+                      "14px",
                     left: "3px",
                     bottom: "3px",
-                    backgroundColor: "white",
-                    transition: ".4s",
-                    borderRadius: "50%",
-                    transform: isPvToggle
-                      ? "translateX(16px)"
-                      : "translateX(0)",
+                    backgroundColor:
+                      "white",
+                    transition:
+                      ".4s",
+                    borderRadius:
+                      "50%",
+                    transform:
+                      isPvToggle
+                        ? "translateX(16px)"
+                        : "translateX(0)",
                   }}
                 />
+
               </span>
+
             </label>
+
           </div>
 
           <div className="jippy-outlet-foods-count-badge">
+
             {filteredFoods.length} Foods
+
           </div>
+
         </div>
 
       </div>
@@ -1260,7 +1461,17 @@ const handleConfirmFoodRestore = async () => {
 
               <tr>
 
+                {/* EXPAND */}
+
                 <th className="food-expand-header">
+                </th>
+
+                {/* =================================================
+                    NEW PRODUCT IMAGE COLUMN
+                ================================================= */}
+
+                <th className="jippy-outlet-foods-image-column">
+                  Product Image
                 </th>
 
                 <th>
@@ -1296,7 +1507,7 @@ const handleConfirmFoodRestore = async () => {
                 </th>
 
                 <th>
-                 isToggle
+                  isToggle
                 </th>
 
                 <th>
@@ -1375,6 +1586,18 @@ const handleConfirmFoodRestore = async () => {
                                 ? "−"
                                 : "+"}
                             </button>
+
+                          </td>
+
+                          {/* =================================================
+                              PRODUCT IMAGE
+                          ================================================= */}
+
+                          <td className="jippy-outlet-foods-image-cell">
+
+                            {renderProductImage(
+                              food
+                            )}
 
                           </td>
 
@@ -1479,18 +1702,34 @@ const handleConfirmFoodRestore = async () => {
                           {/* VARIANTS */}
 
                           <td>
+
                             <div className="jippy-food-variants-cell">
-                              {renderVariants(food)}
+
+                              {renderVariants(
+                                food
+                              )}
+
                               <button
                                 type="button"
                                 className="jippy-food-variants-btn"
-                                onClick={() => handleViewVariants(food)}
-                                disabled={variantLoading}
+                                onClick={() =>
+                                  handleViewVariants(
+                                    food
+                                  )
+                                }
+                                disabled={
+                                  variantLoading
+                                }
                               >
+
                                 <FiLayers />
+
                                 View variants
+
                               </button>
+
                             </div>
+
                           </td>
 
                           {/* AVAILABLE */}
@@ -1542,34 +1781,45 @@ const handleConfirmFoodRestore = async () => {
                           {/* PRODUCT TYPE */}
 
                           <td>
+
                             <span className="jippy-food-product-type">
-                              {food?.productType || "-"}
+
+                              {food?.productType ||
+                                "-"}
+
                             </span>
+
                           </td>
 
                           {/* ADD VARIANTS */}
 
                           <td>
+
                             <button
                               type="button"
                               className="jippy-food-add-variants-btn"
-                              onClick={() => handleAddVariants(food)}
-                              disabled={preparingVariantForm}
+                              onClick={() =>
+                                handleAddVariants(
+                                  food
+                                )
+                              }
+                              disabled={
+                                preparingVariantForm
+                              }
                               title="Edit product variants"
                               aria-label="Edit product variants"
                             >
+
                               <FiEdit2 />
+
                             </button>
+
                           </td>
 
                         </tr>
 
                         {/* ==================================================
                             FOOD UNAVAILABILITY EXPANDED ROW
-
-                            DETAILS SHOWN ONLY WHEN:
-                            1. FOOD IS UNAVAILABLE
-                            2. USER CLICKED EXPAND
                         ================================================== */}
 
                         {isExpanded &&
@@ -1581,7 +1831,7 @@ const handleConfirmFoodRestore = async () => {
                             <tr className="food-expanded-row">
 
                               <td
-                                colSpan={13}
+                                colSpan={14}
                                 className="jippy-food-expanded-cell"
                               >
 
@@ -1609,29 +1859,39 @@ const handleConfirmFoodRestore = async () => {
                                       type="button"
                                       className="jippy-edit-unavailability-btn"
                                       onClick={() => {
+
                                         const saved =
                                           foodUnavailabilityData[
                                             food?.productId
                                           ];
 
-                                        setSelectedFood(food);
+                                        setSelectedFood(
+                                          food
+                                        );
 
-                                        setFoodUnavailabilityForm({
-                                          fromDate:
-                                            saved?.fromDate || "",
+                                        setFoodUnavailabilityForm(
+                                          {
+                                            fromDate:
+                                              saved?.fromDate ||
+                                              "",
 
-                                          toDate:
-                                            saved?.toDate || "",
+                                            toDate:
+                                              saved?.toDate ||
+                                              "",
 
-                                          reason:
-                                            saved?.reason || "",
-                                        });
+                                            reason:
+                                              saved?.reason ||
+                                              "",
+                                          }
+                                        );
 
-                                        // IMPORTANT:
-                                        // Edit must open the form, NOT restore popup
-                                        setFoodAvailabilityMode("edit");
+                                        setFoodAvailabilityMode(
+                                          "edit"
+                                        );
 
-                                        setFoodAvailabilityModal(true);
+                                        setFoodAvailabilityModal(
+                                          true
+                                        );
                                       }}
                                     >
                                       Edit Unavailability
@@ -1639,17 +1899,25 @@ const handleConfirmFoodRestore = async () => {
 
                                   </div>
 
-                                  {/* HORIZONTAL DETAILS */}
+                                  {/* DETAILS */}
 
                                   <div
                                     className="jippy-food-unavailability-content"
                                     style={{
-                                      display: "grid",
+                                      display:
+                                        "grid",
+
                                       gridTemplateColumns:
                                         "repeat(4, minmax(0, 1fr))",
-                                      gap: "24px",
-                                      alignItems: "start",
-                                      width: "100%",
+
+                                      gap:
+                                        "24px",
+
+                                      alignItems:
+                                        "start",
+
+                                      width:
+                                        "100%",
                                     }}
                                   >
 
@@ -1662,12 +1930,14 @@ const handleConfirmFoodRestore = async () => {
                                       </span>
 
                                       <strong>
+
                                         {
                                           foodUnavailabilityData[
                                             food?.productId
                                           ]?.fromDate ||
                                           "-"
                                         }
+
                                       </strong>
 
                                     </div>
@@ -1681,12 +1951,14 @@ const handleConfirmFoodRestore = async () => {
                                       </span>
 
                                       <strong>
+
                                         {
                                           foodUnavailabilityData[
                                             food?.productId
                                           ]?.toDate ||
                                           "-"
                                         }
+
                                       </strong>
 
                                     </div>
@@ -1700,12 +1972,14 @@ const handleConfirmFoodRestore = async () => {
                                       </span>
 
                                       <strong>
+
                                         {
                                           foodUnavailabilityData[
                                             food?.productId
                                           ]?.reason ||
                                           "-"
                                         }
+
                                       </strong>
 
                                     </div>
@@ -1719,12 +1993,14 @@ const handleConfirmFoodRestore = async () => {
                                       </span>
 
                                       <strong>
+
                                         {
                                           foodUnavailabilityData[
                                             food?.productId
                                           ]?.markedOn ||
                                           "-"
                                         }
+
                                       </strong>
 
                                     </div>
@@ -1749,7 +2025,7 @@ const handleConfirmFoodRestore = async () => {
                 <tr>
 
                   <td
-                    colSpan={13}
+                    colSpan={14}
                     className="jippy-outlet-foods-empty"
                   >
 
@@ -1760,12 +2036,10 @@ const handleConfirmFoodRestore = async () => {
                     </div>
 
                     {foodSearch && (
-
                       <small>
                         Try another search
                         term.
                       </small>
-
                     )}
 
                   </td>
@@ -1845,58 +2119,195 @@ const handleConfirmFoodRestore = async () => {
         </div>
 
       </div>
-      {(variantLoading || variantProduct || variantError) && (
-        <div className="jippy-food-variants-modal" role="dialog" aria-modal="true" aria-label="Product variants">
+
+      {/* ======================================================
+          PRODUCT VARIANTS MODAL
+      ====================================================== */}
+
+      {(variantLoading ||
+        variantProduct ||
+        variantError) && (
+
+        <div
+          className="jippy-food-variants-modal"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Product variants"
+        >
+
           <div className="jippy-food-variants-dialog">
+
             <div className="jippy-food-variants-dialog-header">
+
               <div>
-                <p>PRODUCT VARIANTS</p>
-                <h3>{variantProduct?.productName || "Loading product variants"}</h3>
+
+                <p>
+                  PRODUCT VARIANTS
+                </p>
+
+                <h3>
+                  {variantProduct?.productName ||
+                    "Loading product variants"}
+                </h3>
+
               </div>
-              <button type="button" onClick={() => { setVariantProduct(null); setVariantError(""); }} aria-label="Close variants">
+
+              <button
+                type="button"
+                onClick={() => {
+                  setVariantProduct(
+                    null
+                  );
+
+                  setVariantError(
+                    ""
+                  );
+                }}
+                aria-label="Close variants"
+              >
                 <FiX />
               </button>
+
             </div>
 
-            {variantLoading && <div className="jippy-food-variants-state">Loading variants...</div>}
-            {variantError && <div className="jippy-food-variants-error">{variantError}</div>}
-
-            {variantProduct && !variantLoading && (
-              <div className="jippy-food-variants-content">
-                {Array.isArray(variantProduct.variantGroups) && variantProduct.variantGroups.length > 0 ? (
-                  variantProduct.variantGroups.map((group) => (
-                    <section className="jippy-food-variant-group" key={group.productVariantGroupsId}>
-                      <h3>{group.groupName || `Group #${group.productVariantGroupsId}`}</h3>
-                      <div className="jippy-food-variant-options">
-                        {(group.options || []).map((option) => (
-                          <div className="jippy-food-variant-option" key={option.productVariantOptionsId}>
-                            <strong>{option.variantName || `Option #${option.productVariantOptionsId}`}</strong>
-                            <span>{option.priceType || "FIXED"}</span>
-                            <b>{formatPrice(option.variantPrice)}</b>
-                          </div>
-                        ))}
-                      </div>
-                    </section>
-                  ))
-                ) : (
-                  <div className="jippy-food-variants-state">No variants are configured for this food item.</div>
-                )}
+            {variantLoading && (
+              <div className="jippy-food-variants-state">
+                Loading variants...
               </div>
             )}
+
+            {variantError && (
+              <div className="jippy-food-variants-error">
+                {variantError}
+              </div>
+            )}
+
+            {variantProduct &&
+              !variantLoading && (
+
+                <div className="jippy-food-variants-content">
+
+                  {Array.isArray(
+                    variantProduct.variantGroups
+                  ) &&
+                  variantProduct
+                    .variantGroups
+                    .length >
+                    0 ? (
+
+                    variantProduct.variantGroups.map(
+                      (
+                        group
+                      ) => (
+
+                        <section
+                          className="jippy-food-variant-group"
+                          key={
+                            group.productVariantGroupsId
+                          }
+                        >
+
+                          <h3>
+                            {group.groupName ||
+                              `Group #${group.productVariantGroupsId}`}
+                          </h3>
+
+                          <div className="jippy-food-variant-options">
+
+                            {(group.options ||
+                              []).map(
+                              (
+                                option
+                              ) => (
+
+                                <div
+                                  className="jippy-food-variant-option"
+                                  key={
+                                    option.productVariantOptionsId
+                                  }
+                                >
+
+                                  <strong>
+                                    {option.variantName ||
+                                      `Option #${option.productVariantOptionsId}`}
+                                  </strong>
+
+                                  <span>
+                                    {option.priceType ||
+                                      "FIXED"}
+                                  </span>
+
+                                  <b>
+                                    {formatPrice(
+                                      option.variantPrice
+                                    )}
+                                  </b>
+
+                                </div>
+
+                              )
+                            )}
+
+                          </div>
+
+                        </section>
+
+                      )
+                    )
+
+                  ) : (
+
+                    <div className="jippy-food-variants-state">
+
+                      No variants are configured
+                      for this food item.
+
+                    </div>
+
+                  )}
+
+                </div>
+
+              )}
+
           </div>
+
         </div>
+
       )}
 
+      {/* ======================================================
+          ADD VARIANTS MODAL
+      ====================================================== */}
+
       {foodForVariants && (
+
         <AddToOutletProducts
-          selectedProducts={[foodForVariants]}
-          initialOutletId={outlet?.outletId ?? outlet?.id}
-          initialOutletName={outlet?.outletName ?? outlet?.name}
-          initialOutletCategoryId={foodForVariants.outletCategoryId}
-          initialCategoryId={foodForVariants.categoryId}
+          selectedProducts={[
+            foodForVariants,
+          ]}
+          initialOutletId={
+            outlet?.outletId ??
+            outlet?.id
+          }
+          initialOutletName={
+            outlet?.outletName ??
+            outlet?.name
+          }
+          initialOutletCategoryId={
+            foodForVariants.outletCategoryId
+          }
+          initialCategoryId={
+            foodForVariants.categoryId
+          }
           asModal
-          setShowOutletPopup={() => setFoodForVariants(null)}
+          setShowOutletPopup={() =>
+            setFoodForVariants(
+              null
+            )
+          }
         />
+
       )}
 
       {/* ======================================================
@@ -1904,18 +2315,6 @@ const handleConfirmFoodRestore = async () => {
       ====================================================== */}
 
       <div className="jippy-outlet-foods-bottom">
-
-        {/* <button
-          type="button"
-          className="jippy-outlet-foods-back-btn"
-          onClick={
-            handleBack
-          }
-        >
-          <FiChevronLeft />
-          Back to Outlets
-        </button> */}
-
       </div>
 
       {/* ======================================================
@@ -1923,246 +2322,302 @@ const handleConfirmFoodRestore = async () => {
       ====================================================== */}
 
       {foodAvailabilityModal && (
-  <div className="jippy-food-unavailability-overlay">
 
-    <div className="jippy-food-unavailability-modal">
+        <div className="jippy-food-unavailability-overlay">
 
-      {/* ======================================================
-          OFF → ON : RESTORE CONFIRMATION
-      ====================================================== */}
+          <div className="jippy-food-unavailability-modal">
 
-{foodAvailabilityMode === "restore" ? (
+            {/* =================================================
+                RESTORE
+            ================================================= */}
 
-        <>
-          <div className="jippy-food-unavailability-header">
+            {foodAvailabilityMode ===
+            "restore" ? (
 
-            <div>
+              <>
 
-              <h3>
-                Make Food Available
-              </h3>
+                <div className="jippy-food-unavailability-header">
 
-              <p>
-                {selectedFood?.productName || "-"}
-              </p>
+                  <div>
 
-            </div>
+                    <h3>
+                      Make Food Available
+                    </h3>
 
-            <button
-              type="button"
-              className="jippy-food-unavailability-close"
-              onClick={() => {
-                setFoodAvailabilityModal(false);
-                setSelectedFood(null);
-              }}
-            >
-              ×
-            </button>
+                    <p>
+                      {selectedFood?.productName ||
+                        "-"}
+                    </p>
+
+                  </div>
+
+                  <button
+                    type="button"
+                    className="jippy-food-unavailability-close"
+                    onClick={() => {
+
+                      setFoodAvailabilityModal(
+                        false
+                      );
+
+                      setSelectedFood(
+                        null
+                      );
+
+                    }}
+                  >
+                    ×
+                  </button>
+
+                </div>
+
+                <div className="jippy-food-unavailability-info">
+
+                  This food is currently
+                  unavailable. Do you want
+                  to make this food available
+                  again?
+
+                </div>
+
+                <div className="jippy-food-unavailability-modal-actions">
+
+                  <button
+                    type="button"
+                    className="jippy-food-unavailability-cancel-btn"
+                    onClick={() => {
+
+                      setFoodAvailabilityModal(
+                        false
+                      );
+
+                      setSelectedFood(
+                        null
+                      );
+
+                    }}
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    type="button"
+                    className="jippy-food-unavailability-confirm-btn"
+                    onClick={
+                      handleConfirmFoodRestore
+                    }
+                    disabled={
+                      savingFoodAvailability
+                    }
+                  >
+
+                    {savingFoodAvailability
+                      ? "Restoring..."
+                      : "Confirm & Turn ON"}
+
+                  </button>
+
+                </div>
+
+              </>
+
+            ) : (
+
+              /* =================================================
+                 CREATE / EDIT
+              ================================================= */
+
+              <>
+
+                <div className="jippy-food-unavailability-header">
+
+                  <div>
+
+                    <h3>
+                      {foodAvailabilityMode ===
+                      "edit"
+                        ? "Edit Food Unavailability"
+                        : "Mark Food as Unavailable"}
+                    </h3>
+
+                    <p>
+                      {selectedFood?.productName ||
+                        "-"}
+                    </p>
+
+                  </div>
+
+                  <button
+                    type="button"
+                    className="jippy-food-unavailability-close"
+                    onClick={() => {
+
+                      setFoodAvailabilityModal(
+                        false
+                      );
+
+                      setSelectedFood(
+                        null
+                      );
+
+                    }}
+                  >
+                    ×
+                  </button>
+
+                </div>
+
+                <div className="jippy-food-unavailability-info">
+
+                  Please select the
+                  unavailability period and
+                  reason. This food will be
+                  unavailable during this time.
+
+                </div>
+
+                <div className="jippy-food-unavailability-grid">
+
+                  <div>
+
+                    <label>
+                      From Date & Time *
+                    </label>
+
+                    <input
+                      type="datetime-local"
+                      value={
+                        foodUnavailabilityForm.fromDate
+                      }
+                      onChange={(e) =>
+                        setFoodUnavailabilityForm(
+                          (
+                            previous
+                          ) => ({
+                            ...previous,
+
+                            fromDate:
+                              e.target
+                                .value,
+                          })
+                        )
+                      }
+                    />
+
+                  </div>
+
+                  <div>
+
+                    <label>
+                      To Date & Time *
+                    </label>
+
+                    <input
+                      type="datetime-local"
+                      value={
+                        foodUnavailabilityForm.toDate
+                      }
+                      onChange={(e) =>
+                        setFoodUnavailabilityForm(
+                          (
+                            previous
+                          ) => ({
+                            ...previous,
+
+                            toDate:
+                              e.target
+                                .value,
+                          })
+                        )
+                      }
+                    />
+
+                  </div>
+
+                </div>
+
+                <div className="jippy-food-unavailability-field">
+
+                  <label>
+                    Reason *
+                  </label>
+
+                  <textarea
+                    value={
+                      foodUnavailabilityForm.reason
+                    }
+                    onChange={(e) =>
+                      setFoodUnavailabilityForm(
+                        (
+                          previous
+                        ) => ({
+                          ...previous,
+
+                          reason:
+                            e.target
+                              .value,
+                        })
+                      )
+                    }
+                    placeholder="Enter reason for food unavailability"
+                    rows={4}
+                  />
+
+                </div>
+
+                <div className="jippy-food-unavailability-modal-actions">
+
+                  <button
+                    type="button"
+                    className="jippy-food-unavailability-cancel-btn"
+                    onClick={() => {
+
+                      setFoodAvailabilityModal(
+                        false
+                      );
+
+                      setSelectedFood(
+                        null
+                      );
+
+                    }}
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    type="button"
+                    className="jippy-food-unavailability-confirm-btn"
+                    onClick={
+                      handleConfirmFoodUnavailability
+                    }
+                    disabled={
+                      savingFoodAvailability
+                    }
+                  >
+
+                    {savingFoodAvailability
+                      ? "Saving..."
+                      : foodAvailabilityMode ===
+                        "edit"
+                      ? "Update & Save"
+                      : "Confirm & Turn OFF"}
+
+                  </button>
+
+                </div>
+
+              </>
+
+            )}
 
           </div>
 
+        </div>
 
-          <div className="jippy-food-unavailability-info">
+      )}
 
-            This food is currently unavailable.
-            Do you want to make this food available again?
-
-          </div>
-
-
-          <div className="jippy-food-unavailability-modal-actions">
-
-            <button
-              type="button"
-              className="jippy-food-unavailability-cancel-btn"
-              onClick={() => {
-                setFoodAvailabilityModal(false);
-                setSelectedFood(null);
-              }}
-            >
-              Cancel
-            </button>
-
-
-            <button
-              type="button"
-              className="jippy-food-unavailability-confirm-btn"
-              onClick={handleConfirmFoodRestore}
-              disabled={savingFoodAvailability}
-            >
-              {savingFoodAvailability
-                ? "Restoring..."
-                : "Confirm & Turn ON"}
-            </button>
-
-          </div>
-
-        </>
-
-      ) : (
-
-        /* ======================================================
-           ON → OFF : YOUR EXISTING POPUP
-           KEEP THIS PART EXACTLY AS YOUR CURRENT CODE
-        ====================================================== */
-
-        <>
-          <div className="jippy-food-unavailability-header">
-
-            <div>
-
-              <h3>
-                Mark Food as Unavailable
-              </h3>
-
-              <p>
-                {selectedFood?.productName || "-"}
-              </p>
-
-            </div>
-
-            <button
-              type="button"
-              className="jippy-food-unavailability-close"
-              onClick={() => {
-                setFoodAvailabilityModal(false);
-                setSelectedFood(null);
-              }}
-            >
-              ×
-            </button>
-
-          </div>
-
-
-          <div className="jippy-food-unavailability-info">
-
-            Please select the unavailability period and
-            reason. This food will be unavailable during
-            this time.
-
-          </div>
-
-
-          <div className="jippy-food-unavailability-grid">
-
-            <div>
-
-              <label>
-                From Date & Time *
-              </label>
-
-              <input
-                type="datetime-local"
-                value={
-                  foodUnavailabilityForm.fromDate
-                }
-                onChange={(e) =>
-                  setFoodUnavailabilityForm(
-                    (previous) => ({
-                      ...previous,
-                      fromDate:
-                        e.target.value,
-                    })
-                  )
-                }
-              />
-
-            </div>
-
-
-            <div>
-
-              <label>
-                To Date & Time *
-              </label>
-
-              <input
-                type="datetime-local"
-                value={
-                  foodUnavailabilityForm.toDate
-                }
-                onChange={(e) =>
-                  setFoodUnavailabilityForm(
-                    (previous) => ({
-                      ...previous,
-                      toDate:
-                        e.target.value,
-                    })
-                  )
-                }
-              />
-
-            </div>
-
-          </div>
-
-
-          <div className="jippy-food-unavailability-field">
-
-            <label>
-              Reason *
-            </label>
-
-            <textarea
-              value={
-                foodUnavailabilityForm.reason
-              }
-              onChange={(e) =>
-                setFoodUnavailabilityForm(
-                  (previous) => ({
-                    ...previous,
-                    reason:
-                      e.target.value,
-                  })
-                )
-              }
-              placeholder="Enter reason for food unavailability"
-              rows={4}
-            />
-
-          </div>
-
-
-          <div className="jippy-food-unavailability-modal-actions">
-
-            <button
-              type="button"
-              className="jippy-food-unavailability-cancel-btn"
-              onClick={() => {
-                setFoodAvailabilityModal(false);
-                setSelectedFood(null);
-              }}
-            >
-              Cancel
-            </button>
-
-
-            <button
-              type="button"
-              className="jippy-food-unavailability-confirm-btn"
-              onClick={
-                handleConfirmFoodUnavailability
-              }
-              disabled={
-                savingFoodAvailability
-              }
-            >
-              {savingFoodAvailability
-                ? "Saving..."
-                : "Confirm & Turn OFF"}
-            </button>
-
-          </div>
-
-                </>
-
-          )}
     </div>
-  </div>
-)}
-</div>
-
   );
 }
 

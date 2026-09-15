@@ -23,9 +23,9 @@ export default function ProductPriceUpdate() {
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
   // Outlet-Level Bulk Price Adjustment State
-  const [adjustmentType, setAdjustmentType] = useState("percentage"); // "percentage" or "flat"
+  const [adjustmentType, setAdjustmentType] = useState("percentage");
   const [adjustmentValue, setAdjustmentValue] = useState("");
-  const [operationDirection, setOperationDirection] = useState("INCREASE"); // "INCREASE" or "DECREASE"
+  const [operationDirection, setOperationDirection] = useState("INCREASE");
 
   // Dynamic Location Lists
   const [statesList, setStatesList] = useState([]);
@@ -58,32 +58,45 @@ export default function ProductPriceUpdate() {
     }
   };
 
-  const loadCampaignLocationData = useCallback(async (stateId, cityId, areaId) => {
-    setLoadingOutlets(true);
-    try {
-      const data = await fetchCampaignLocations(stateId, cityId, areaId);
+  const loadCampaignLocationData = useCallback(
+    async (stateId, cityId, areaId) => {
+      setLoadingOutlets(true);
 
-      if (Array.isArray(data?.cities) && data.cities.length > 0) {
-        setCitiesList(data.cities);
+      try {
+        const data = await fetchCampaignLocations(
+          stateId,
+          cityId,
+          areaId
+        );
+
+        if (Array.isArray(data?.cities) && data.cities.length > 0) {
+          setCitiesList(data.cities);
+        }
+
+        if (Array.isArray(data?.areas) && data.areas.length > 0) {
+          setAreasList(data.areas);
+        }
+
+        const outletData =
+          data.outlets ||
+          data.cityOutlets ||
+          data.areaOutlets ||
+          data.stateOutlets ||
+          [];
+
+        setOutlets(Array.isArray(outletData) ? outletData : []);
+        setSelectedOutletIds([]);
+        setActiveOutlet(null);
+        setCurrentPage(1);
+      } catch (error) {
+        console.error("Error fetching campaign location data:", error);
+        setOutlets([]);
+      } finally {
+        setLoadingOutlets(false);
       }
-
-      if (Array.isArray(data?.areas) && data.areas.length > 0) {
-        setAreasList(data.areas);
-      }
-
-      const outletData =
-        data.outlets || data.cityOutlets || data.areaOutlets || data.stateOutlets || [];
-      setOutlets(Array.isArray(outletData) ? outletData : []);
-      setSelectedOutletIds([]);
-      setActiveOutlet(null);
-      setCurrentPage(1);
-    } catch (error) {
-      console.error("Error fetching campaign location data:", error);
-      setOutlets([]);
-    } finally {
-      setLoadingOutlets(false);
-    }
-  }, []);
+    },
+    []
+  );
 
   useEffect(() => {
     if (!selectedState) {
@@ -98,8 +111,17 @@ export default function ProductPriceUpdate() {
       return;
     }
 
-    loadCampaignLocationData(selectedState, selectedCity, selectedArea);
-  }, [selectedState, selectedCity, selectedArea, loadCampaignLocationData]);
+    loadCampaignLocationData(
+      selectedState,
+      selectedCity,
+      selectedArea
+    );
+  }, [
+    selectedState,
+    selectedCity,
+    selectedArea,
+    loadCampaignLocationData,
+  ]);
 
   const handleStateChange = (e) => {
     setSelectedState(e.target.value);
@@ -121,7 +143,10 @@ export default function ProductPriceUpdate() {
 
   // Pagination Calculation
   const totalPages = useMemo(() => {
-    return Math.max(1, Math.ceil(outlets.length / itemsPerPage));
+    return Math.max(
+      1,
+      Math.ceil(outlets.length / itemsPerPage)
+    );
   }, [outlets.length, itemsPerPage]);
 
   useEffect(() => {
@@ -132,6 +157,7 @@ export default function ProductPriceUpdate() {
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+
   const currentOutlets = useMemo(() => {
     return outlets.slice(indexOfFirstItem, indexOfLastItem);
   }, [outlets, indexOfFirstItem, indexOfLastItem]);
@@ -144,7 +170,9 @@ export default function ProductPriceUpdate() {
 
   const handleSelectAllOutlets = (e) => {
     if (e.target.checked) {
-      setSelectedOutletIds(outlets.map((o) => o.outletId));
+      setSelectedOutletIds(
+        outlets.map((o) => o.outletId)
+      );
     } else {
       setSelectedOutletIds([]);
     }
@@ -163,9 +191,16 @@ export default function ProductPriceUpdate() {
     setLoadingProducts(true);
 
     try {
-      const response = await fetchOutletProductsForUpdate(outlet.outletId);
+      const response =
+        await fetchOutletProductsForUpdate(
+          outlet.outletId
+        );
+
       const rawData = response?.data || response;
-      const productsList = Array.isArray(rawData) ? rawData : (rawData?.products || []);
+
+      const productsList = Array.isArray(rawData)
+        ? rawData
+        : rawData?.products || [];
 
       setActiveOutlet({
         ...outlet,
@@ -173,7 +208,10 @@ export default function ProductPriceUpdate() {
       });
 
       if (!selectedOutletIds.includes(outlet.outletId)) {
-        setSelectedOutletIds((prev) => [...prev, outlet.outletId]);
+        setSelectedOutletIds((prev) => [
+          ...prev,
+          outlet.outletId,
+        ]);
       }
 
       const initialPrices = {};
@@ -181,15 +219,25 @@ export default function ProductPriceUpdate() {
 
       productsList.forEach((prod, index) => {
         const key = `p_${prod.productId}_${index}`;
-        initialPrices[key] = prod.onlinePrice ?? prod.price ?? 0;
-        initialMerchantPrices[key] = prod.merchantPrice ?? prod.mrp ?? 0;
+
+        initialPrices[key] =
+          prod.onlinePrice ?? prod.price ?? 0;
+
+        initialMerchantPrices[key] =
+          prod.merchantPrice ?? prod.mrp ?? 0;
       });
 
       setNewPrices(initialPrices);
       setNewMerchantPrices(initialMerchantPrices);
     } catch (error) {
-      console.error("Error fetching outlet products pricing:", error);
-      alert("Failed to load outlet product pricing details.");
+      console.error(
+        "Error fetching outlet products pricing:",
+        error
+      );
+
+      alert(
+        "Failed to load outlet product pricing details."
+      );
     } finally {
       setLoadingProducts(false);
     }
@@ -207,23 +255,39 @@ export default function ProductPriceUpdate() {
     }
 
     const val = Number(adjustmentValue);
+
     setUpdatingPrices(true);
 
     try {
       const payload = {
         outletIds: selectedOutletIds,
-        priceModel: adjustmentType === "percentage" ? "PERCENTAGE" : "FLAT",
+        priceModel:
+          adjustmentType === "percentage"
+            ? "PERCENTAGE"
+            : "FLAT",
         value: val,
-        priceType: adjustmentType === "percentage" ? "PERCENTAGE" : "FLAT",
+        priceType:
+          adjustmentType === "percentage"
+            ? "PERCENTAGE"
+            : "FLAT",
         locationType: "OUTLET",
         operationType: operationDirection,
       };
 
       await bulkUpdateOutletPricing(payload, true);
-      alert(`Successfully performed bulk price update for ${selectedOutletIds.length} outlet(s)!`);
+
+      alert(
+        `Successfully performed bulk price update for ${selectedOutletIds.length} outlet(s)!`
+      );
     } catch (error) {
-      console.error("Error applying bulk price adjustment:", error);
-      alert("Failed to apply bulk update for selected outlets.");
+      console.error(
+        "Error applying bulk price adjustment:",
+        error
+      );
+
+      alert(
+        "Failed to apply bulk update for selected outlets."
+      );
     } finally {
       setUpdatingPrices(false);
     }
@@ -232,14 +296,24 @@ export default function ProductPriceUpdate() {
   const handlePriceChange = (key, value) => {
     setNewPrices((prev) => ({
       ...prev,
-      [key]: value === "" ? "" : isNaN(Number(value)) ? prev[key] : Number(value),
+      [key]:
+        value === ""
+          ? ""
+          : isNaN(Number(value))
+          ? prev[key]
+          : Number(value),
     }));
   };
 
   const handleMerchantPriceChange = (key, value) => {
     setNewMerchantPrices((prev) => ({
       ...prev,
-      [key]: value === "" ? "" : isNaN(Number(value)) ? prev[key] : Number(value),
+      [key]:
+        value === ""
+          ? ""
+          : isNaN(Number(value))
+          ? prev[key]
+          : Number(value),
     }));
   };
 
@@ -254,9 +328,12 @@ export default function ProductPriceUpdate() {
       return;
     }
 
-    // Retrieve current session credentials dynamically (adjust keys as needed)
-    const currentRole = localStorage.getItem("userRole") || "ROLE_SUPERADMIN";
-    const currentUserId = Number(localStorage.getItem("userId")) || 0;
+    const currentRole =
+      localStorage.getItem("userRole") ||
+      "ROLE_SUPERADMIN";
+
+    const currentUserId =
+      Number(localStorage.getItem("userId")) || 0;
 
     try {
       const changedItems = [];
@@ -264,69 +341,118 @@ export default function ProductPriceUpdate() {
 
       activeOutlet.products.forEach((prod, index) => {
         const key = `p_${prod.productId}_${index}`;
+
         const val = newPrices[key];
         const merchVal = newMerchantPrices[key];
 
-        const currentPrice = prod.onlinePrice ?? prod.price ?? 0;
-        const currentMerchantPrice = prod.merchantPrice ?? prod.mrp ?? 0;
+        const currentPrice =
+          prod.onlinePrice ?? prod.price ?? 0;
 
-        const numericVal = val !== "" && val !== undefined && !isNaN(val) ? Number(val) : currentPrice;
-        const numericMerchVal = merchVal !== "" && merchVal !== undefined && !isNaN(merchVal) ? Number(merchVal) : currentMerchantPrice;
+        const currentMerchantPrice =
+          prod.merchantPrice ?? prod.mrp ?? 0;
 
-        // Track Online Price changes for batch update
+        const numericVal =
+          val !== "" &&
+          val !== undefined &&
+          !isNaN(val)
+            ? Number(val)
+            : currentPrice;
+
+        const numericMerchVal =
+          merchVal !== "" &&
+          merchVal !== undefined &&
+          !isNaN(merchVal)
+            ? Number(merchVal)
+            : currentMerchantPrice;
+
+        // Track Online Price changes
         if (numericVal !== currentPrice) {
           changedItems.push({
             productId: prod.productId,
-            productVariantId: prod.productVariantId ?? null,
+            productVariantId:
+              prod.productVariantId ?? null,
             newPrice: numericVal,
           });
         }
 
-        // Track Merchant Price changes with current session role and user ID payload
-        if (numericMerchVal !== currentMerchantPrice) {
+        // Track Merchant Price changes
+        if (
+          numericMerchVal !== currentMerchantPrice
+        ) {
           merchantPricePromises.push(
-            updateMerchantPrice(prod.productId, numericMerchVal, currentRole, currentUserId)
+            updateMerchantPrice(
+              prod.productId,
+              numericMerchVal,
+              currentRole,
+              currentUserId
+            )
           );
         }
       });
 
-      if (changedItems.length === 0 && merchantPricePromises.length === 0) {
+      if (
+        changedItems.length === 0 &&
+        merchantPricePromises.length === 0
+      ) {
         alert("No price changes detected to save.");
         return;
       }
 
-      // Execute Online Price batch update if changes exist
+      // Online Price batch update
       if (changedItems.length > 0) {
         const payload = {
           outletIds: selectedOutletIds,
           items: changedItems,
         };
+
         await updateOutletPricing(payload, true);
       }
 
-      // Execute Merchant Price updates if changes exist
+      // Merchant Price updates
       if (merchantPricePromises.length > 0) {
         await Promise.all(merchantPricePromises);
       }
 
-      alert(`Successfully updated product pricing details across ${selectedOutletIds.length} outlet(s)!`);
+      alert(
+        `Successfully updated product pricing details across ${selectedOutletIds.length} outlet(s)!`
+      );
     } catch (error) {
-      console.error("Error updating prices:", error);
+      console.error(
+        "Error updating prices:",
+        error
+      );
+
       alert("Failed to update product prices.");
     }
   };
 
   const allProducts = useMemo(() => {
     const products = [];
-    if (!activeOutlet || !Array.isArray(activeOutlet.products)) return products;
+
+    if (
+      !activeOutlet ||
+      !Array.isArray(activeOutlet.products)
+    ) {
+      return products;
+    }
 
     activeOutlet.products.forEach((prod, index) => {
       const key = `p_${prod.productId}_${index}`;
+
       products.push({
         key,
-        name: prod.productName || prod.name || "Unnamed Product",
-        merchantPrice: prod.merchantPrice ?? prod.mrp ?? 0,
-        currentPrice: prod.onlinePrice ?? prod.price ?? 0,
+        name:
+          prod.productName ||
+          prod.name ||
+          "Unnamed Product",
+        merchantPrice:
+          prod.merchantPrice ??
+          prod.mrp ??
+          0,
+        currentPrice:
+          prod.onlinePrice ??
+          prod.price ??
+          0,
       });
     });
 
@@ -335,7 +461,9 @@ export default function ProductPriceUpdate() {
 
   const filteredProducts = useMemo(() => {
     return allProducts.filter((p) =>
-      p.name?.toLowerCase().includes(searchQuery.toLowerCase())
+      p.name
+        ?.toLowerCase()
+        .includes(searchQuery.toLowerCase())
     );
   }, [allProducts, searchQuery]);
 
@@ -343,17 +471,30 @@ export default function ProductPriceUpdate() {
     <div className="price-update-page">
       <div className="page-header">
         <h2>Product Price Update</h2>
-        <p>Dashboard / Price Management / Product Price Update</p>
+
+        <p>
+          Dashboard / Price Management / Product Price Update
+        </p>
       </div>
 
       <div className="filter-card">
         <div className="filter-grid">
           <div>
             <label>State</label>
-            <select value={selectedState} onChange={handleStateChange}>
-              <option value="">Select State</option>
+
+            <select
+              value={selectedState}
+              onChange={handleStateChange}
+            >
+              <option value="">
+                Select State
+              </option>
+
               {statesList.map((st) => (
-                <option key={st.stateId || st.id} value={st.stateId || st.id}>
+                <option
+                  key={st.stateId || st.id}
+                  value={st.stateId || st.id}
+                >
                   {st.stateName || st.name}
                 </option>
               ))}
@@ -362,14 +503,21 @@ export default function ProductPriceUpdate() {
 
           <div>
             <label>City</label>
+
             <select
               value={selectedCity}
               onChange={handleCityChange}
               disabled={!selectedState}
             >
-              <option value="">Select City</option>
+              <option value="">
+                Select City
+              </option>
+
               {citiesList.map((ct) => (
-                <option key={ct.cityId || ct.id} value={ct.cityId || ct.id}>
+                <option
+                  key={ct.cityId || ct.id}
+                  value={ct.cityId || ct.id}
+                >
                   {ct.cityName || ct.name}
                 </option>
               ))}
@@ -378,14 +526,24 @@ export default function ProductPriceUpdate() {
 
           <div>
             <label>Area</label>
+
             <select
               value={selectedArea}
               onChange={handleAreaChange}
-              disabled={!selectedCity && citiesList.length > 0}
+              disabled={
+                !selectedCity &&
+                citiesList.length > 0
+              }
             >
-              <option value="">Select Area</option>
+              <option value="">
+                Select Area
+              </option>
+
               {areasList.map((ar) => (
-                <option key={ar.areaId || ar.id} value={ar.areaId || ar.id}>
+                <option
+                  key={ar.areaId || ar.id}
+                  value={ar.areaId || ar.id}
+                >
                   {ar.areaName || ar.name}
                 </option>
               ))}
@@ -395,17 +553,28 @@ export default function ProductPriceUpdate() {
       </div>
 
       <div className="main-content-grid">
-        <div className={`outlets-section ${activeOutlet ? "split-view" : ""}`}>
+        <div
+          className={`outlets-section ${
+            activeOutlet ? "split-view" : ""
+          }`}
+        >
           <div className="table-card">
             <div className="table-header-bar">
               <h3>Outlets List</h3>
+
               <span className="badge">
-                {selectedOutletIds.length} / {outlets.length} Selected
+                {selectedOutletIds.length} /{" "}
+                {outlets.length} Selected
               </span>
             </div>
 
             {loadingOutlets ? (
-              <div style={{ padding: "20px", textAlign: "center" }}>
+              <div
+                style={{
+                  padding: "20px",
+                  textAlign: "center",
+                }}
+              >
                 Loading outlets...
               </div>
             ) : (
@@ -418,85 +587,144 @@ export default function ProductPriceUpdate() {
                           type="checkbox"
                           checked={
                             outlets.length > 0 &&
-                            selectedOutletIds.length === outlets.length
+                            selectedOutletIds.length ===
+                              outlets.length
                           }
-                          onChange={handleSelectAllOutlets}
-                          disabled={outlets.length === 0}
+                          onChange={
+                            handleSelectAllOutlets
+                          }
+                          disabled={
+                            outlets.length === 0
+                          }
                         />
                       </th>
+
                       <th>Outlet Name</th>
+
                       <th>Area</th>
-                      <th style={{ textAlign: "right" }}>Actions</th>
+
+                      <th
+                        style={{
+                          textAlign: "right",
+                        }}
+                      >
+                        Actions
+                      </th>
                     </tr>
                   </thead>
+
                   <tbody>
                     {outlets.length === 0 ? (
                       <tr>
                         <td
                           colSpan="4"
-                          style={{ textAlign: "center", padding: "20px" }}
+                          style={{
+                            textAlign: "center",
+                            padding: "20px",
+                          }}
                         >
-                          Select State, City, and Area to fetch outlets.
+                          Select State, City, and Area
+                          to fetch outlets.
                         </td>
                       </tr>
                     ) : (
-                      currentOutlets.map((outlet) => {
-                        const isChecked = selectedOutletIds.includes(
-                          outlet.outletId
-                        );
-                        const isSelected =
-                          activeOutlet?.outletId === outlet.outletId;
-                        const isDropdownOpen =
-                          openDropdownId === outlet.outletId;
+                      currentOutlets.map(
+                        (outlet) => {
+                          const isChecked =
+                            selectedOutletIds.includes(
+                              outlet.outletId
+                            );
 
-                        return (
-                          <tr
-                            key={outlet.outletId}
-                            className={isSelected ? "selected-row" : ""}
-                          >
-                            <td>
-                              <input
-                                type="checkbox"
-                                checked={isChecked}
-                                onChange={() =>
-                                  handleToggleOutletCheckbox(outlet.outletId)
-                                }
-                              />
-                            </td>
-                            <td>
-                              <strong>{outlet.outletName}</strong>
-                            </td>
-                            <td>{outlet.areaName || "N/A"}</td>
-                            <td style={{ textAlign: "right" }}>
-                              <div className="dropdown-wrapper">
-                                <button
-                                  type="button"
-                                  className="options-btn"
-                                  onClick={() =>
-                                    setOpenDropdownId(
-                                      isDropdownOpen ? null : outlet.outletId
+                          const isSelected =
+                            activeOutlet?.outletId ===
+                            outlet.outletId;
+
+                          const isDropdownOpen =
+                            openDropdownId ===
+                            outlet.outletId;
+
+                          return (
+                            <tr
+                              key={
+                                outlet.outletId
+                              }
+                              className={
+                                isSelected
+                                  ? "selected-row"
+                                  : ""
+                              }
+                            >
+                              <td>
+                                <input
+                                  type="checkbox"
+                                  checked={
+                                    isChecked
+                                  }
+                                  onChange={() =>
+                                    handleToggleOutletCheckbox(
+                                      outlet.outletId
                                     )
                                   }
-                                >
-                                  Options ▼
-                                </button>
+                                />
+                              </td>
 
-                                {isDropdownOpen && (
-                                  <div className="dropdown-menu">
-                                    <button
-                                      type="button"
-                                      className="dropdown-item"
-                                      onClick={() => handleSelectOutlet(outlet)}
-                                    >
-                                      ✏️ Update Product Prices
-                                    </button>
-                                  </div>
-                                )}
-                              </div>
-                            </td>
-                          </tr>
-                        );
-                      })
+                              <td>
+                                <strong>
+                                  {
+                                    outlet.outletName
+                                  }
+                                </strong>
+                              </td>
+
+                              <td>
+                                {outlet.areaName ||
+                                  "N/A"}
+                              </td>
+
+                              <td
+                                style={{
+                                  textAlign:
+                                    "right",
+                                }}
+                              >
+                                <div className="dropdown-wrapper">
+                                  <button
+                                    type="button"
+                                    className="options-btn"
+                                    onClick={() =>
+                                      setOpenDropdownId(
+                                        isDropdownOpen
+                                          ? null
+                                          : outlet.outletId
+                                      )
+                                    }
+                                  >
+                                    Options ▼
+                                  </button>
+
+                                  {isDropdownOpen && (
+                                    <div className="dropdown-menu">
+                                      <button
+                                        type="button"
+                                        className="dropdown-item"
+                                        onClick={() =>
+                                          handleSelectOutlet(
+                                            outlet
+                                          )
+                                        }
+                                      >
+                                        ✏️ Update
+                                        Product
+                                        Prices
+                                      </button>
+                                    </div>
+                                  )}
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        }
+                      )
                     )}
                   </tbody>
                 </table>
@@ -505,46 +733,84 @@ export default function ProductPriceUpdate() {
                   <>
                     <div className="pagination-container">
                       <div className="pagination-info">
-                        Showing {indexOfFirstItem + 1} to{" "}
-                        {Math.min(indexOfLastItem, outlets.length)} of{" "}
-                        {outlets.length} entries
+                        Showing{" "}
+                        {indexOfFirstItem + 1}{" "}
+                        to{" "}
+                        {Math.min(
+                          indexOfLastItem,
+                          outlets.length
+                        )}{" "}
+                        of {outlets.length} entries
                       </div>
 
                       <div className="pagination-controls">
                         <div className="rows-per-page">
-                          <label>Rows per page:</label>
+                          <label>
+                            Rows per page:
+                          </label>
+
                           <select
                             value={itemsPerPage}
                             onChange={(e) => {
-                              setItemsPerPage(Number(e.target.value));
+                              setItemsPerPage(
+                                Number(
+                                  e.target.value
+                                )
+                              );
+
                               setCurrentPage(1);
                             }}
                           >
-                            <option value={5}>5</option>
-                            <option value={10}>10</option>
-                            <option value={20}>20</option>
-                            <option value={50}>50</option>
+                            <option value={5}>
+                              5
+                            </option>
+
+                            <option value={10}>
+                              10
+                            </option>
+
+                            <option value={20}>
+                              20
+                            </option>
+
+                            <option value={50}>
+                              50
+                            </option>
                           </select>
                         </div>
 
                         <button
                           type="button"
                           className="page-btn"
-                          onClick={() => handlePageChange(currentPage - 1)}
-                          disabled={currentPage <= 1}
+                          onClick={() =>
+                            handlePageChange(
+                              currentPage - 1
+                            )
+                          }
+                          disabled={
+                            currentPage <= 1
+                          }
                         >
                           Previous
                         </button>
 
                         <span className="page-number">
-                          Page {currentPage} of {totalPages}
+                          Page {currentPage} of{" "}
+                          {totalPages}
                         </span>
 
                         <button
                           type="button"
                           className="page-btn"
-                          onClick={() => handlePageChange(currentPage + 1)}
-                          disabled={currentPage >= totalPages}
+                          onClick={() =>
+                            handlePageChange(
+                              currentPage + 1
+                            )
+                          }
+                          disabled={
+                            currentPage >=
+                            totalPages
+                          }
                         >
                           Next
                         </button>
@@ -553,48 +819,93 @@ export default function ProductPriceUpdate() {
 
                     <div className="bottom-bulk-adjustment-container">
                       <div className="bulk-adjustment-bar">
-                        <label>Action:</label>
+                        <label>
+                          Action:
+                        </label>
+
                         <select
-                          value={operationDirection}
-                          onChange={(e) => setOperationDirection(e.target.value)}
-                          disabled={updatingPrices || activeOutlet !== null}
+                          value={
+                            operationDirection
+                          }
+                          onChange={(e) =>
+                            setOperationDirection(
+                              e.target.value
+                            )
+                          }
+                          disabled={
+                            updatingPrices ||
+                            activeOutlet !== null
+                          }
                         >
-                          <option value="INCREASE">Increase By</option>
-                          <option value="DECREASE">Decrease By</option>
+                          <option value="INCREASE">
+                            Increase By
+                          </option>
+
+                          <option value="DECREASE">
+                            Decrease By
+                          </option>
                         </select>
 
                         <label>Type:</label>
+
                         <select
                           value={adjustmentType}
-                          onChange={(e) => setAdjustmentType(e.target.value)}
-                          disabled={updatingPrices || activeOutlet !== null}
+                          onChange={(e) =>
+                            setAdjustmentType(
+                              e.target.value
+                            )
+                          }
+                          disabled={
+                            updatingPrices ||
+                            activeOutlet !== null
+                          }
                         >
-                          <option value="percentage">Percentage (%)</option>
-                          <option value="flat">Flat Amount (₹)</option>
+                          <option value="percentage">
+                            Percentage (%)
+                          </option>
+
+                          <option value="flat">
+                            Flat Amount (₹)
+                          </option>
                         </select>
 
                         <input
                           type="number"
                           placeholder={
-                            adjustmentType === "percentage" ? "e.g. 20" : "e.g. 50"
+                            adjustmentType ===
+                            "percentage"
+                              ? "e.g. 20"
+                              : "e.g. 50"
                           }
                           value={adjustmentValue}
-                          onChange={(e) => setAdjustmentValue(e.target.value)}
-                          disabled={updatingPrices || activeOutlet !== null}
+                          onChange={(e) =>
+                            setAdjustmentValue(
+                              e.target.value
+                            )
+                          }
+                          disabled={
+                            updatingPrices ||
+                            activeOutlet !== null
+                          }
                         />
 
                         <button
                           type="button"
                           className="apply-bulk-btn"
-                          onClick={handleApplyOutletBulkAdjustment}
+                          onClick={
+                            handleApplyOutletBulkAdjustment
+                          }
                           disabled={
                             updatingPrices ||
                             activeOutlet !== null ||
-                            selectedOutletIds.length === 0 ||
+                            selectedOutletIds.length ===
+                              0 ||
                             !adjustmentValue
                           }
                         >
-                          {updatingPrices ? "Applying..." : "Apply"}
+                          {updatingPrices
+                            ? "Applying..."
+                            : "Apply"}
                         </button>
                       </div>
                     </div>
@@ -611,15 +922,25 @@ export default function ProductPriceUpdate() {
               <div className="panel-header">
                 <div>
                   <p className="outlet-count-tag">
-                    Managing menu pricing for <strong>{activeOutlet.outletName || ""}</strong>
+                    Managing menu pricing for{" "}
+                    <strong>
+                      {activeOutlet.outletName ||
+                        ""}
+                    </strong>
                   </p>
                 </div>
+
+                {/* Close button - X only */}
                 <button
                   type="button"
                   className="close-btn"
-                  onClick={() => setActiveOutlet(null)}
+                  aria-label="Close product pricing panel"
+                  title="Close"
+                  onClick={() =>
+                    setActiveOutlet(null)
+                  }
                 >
-                  ✕ Close
+                  ✕
                 </button>
               </div>
 
@@ -628,84 +949,157 @@ export default function ProductPriceUpdate() {
                   type="text"
                   placeholder="Search Product..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) =>
+                    setSearchQuery(
+                      e.target.value
+                    )
+                  }
                 />
               </div>
 
               <div className="table-card">
                 {loadingProducts ? (
-                  <div style={{ padding: "20px", textAlign: "center" }}>
+                  <div
+                    style={{
+                      padding: "20px",
+                      textAlign: "center",
+                    }}
+                  >
                     Loading products...
                   </div>
                 ) : (
                   <table>
                     <thead>
                       <tr>
-                        <th>Product / Variant</th>
+                        <th>
+                          Product / Variant
+                        </th>
+
                         <th>Merchant Price</th>
+
                         <th>Current Price</th>
+
                         <th>New Price</th>
-                        <th style={{ textAlign: "right" }}>Difference</th>
+
+                        <th
+                          style={{
+                            textAlign: "right",
+                          }}
+                        >
+                          Difference
+                        </th>
                       </tr>
                     </thead>
+
                     <tbody>
-                      {filteredProducts.length === 0 ? (
+                      {filteredProducts.length ===
+                      0 ? (
                         <tr>
                           <td
                             colSpan="5"
-                            style={{ textAlign: "center", padding: "20px" }}
+                            style={{
+                              textAlign: "center",
+                              padding: "20px",
+                            }}
                           >
-                            No products found in the response.
+                            No products found in
+                            the response.
                           </td>
                         </tr>
                       ) : (
-                        filteredProducts.map((prod) => {
-                          const userPrice = newPrices[prod.key];
-                          const userMerchantPrice = newMerchantPrices[prod.key];
-                          const diff =
-                            userPrice !== "" && userPrice !== undefined && !isNaN(userPrice)
-                              ? userPrice - prod.currentPrice
-                              : 0;
+                        filteredProducts.map(
+                          (prod) => {
+                            const userPrice =
+                              newPrices[
+                                prod.key
+                              ];
 
-                          return (
-                            <tr key={prod.key}>
-                              <td>
-                                <strong>{prod.name}</strong>
-                              </td>
-                              <td>
-                                <input
-                                  type="number"
-                                  value={userMerchantPrice ?? ""}
-                                  onChange={(e) =>
-                                    handleMerchantPriceChange(prod.key, e.target.value)
-                                  }
-                                />
-                              </td>
-                              <td>₹ {prod.currentPrice}</td>
-                              <td>
-                                <input
-                                  type="number"
-                                  value={userPrice ?? ""}
-                                  onChange={(e) =>
-                                    handlePriceChange(prod.key, e.target.value)
-                                  }
-                                />
-                              </td>
-                              <td
-                                style={{ textAlign: "right" }}
-                                className={
-                                  diff >= 0
-                                    ? "difference-positive"
-                                    : "difference-negative"
-                                }
+                            const userMerchantPrice =
+                              newMerchantPrices[
+                                prod.key
+                              ];
+
+                            const diff =
+                              userPrice !== "" &&
+                              userPrice !==
+                                undefined &&
+                              !isNaN(userPrice)
+                                ? userPrice -
+                                  prod.currentPrice
+                                : 0;
+
+                            return (
+                              <tr
+                                key={prod.key}
                               >
-                                {diff >= 0
-                                  ? `+₹ ${diff}`
-                                  : `-₹ ${Math.abs(diff)}`}
-                              </td>
-                            </tr>
-                          );
-                        })
+                                <td>
+                                  <strong>
+                                    {prod.name}
+                                  </strong>
+                                </td>
+
+                                <td>
+                                  <input
+                                    type="number"
+                                    value={
+                                      userMerchantPrice ??
+                                      ""
+                                    }
+                                    onChange={(e) =>
+                                      handleMerchantPriceChange(
+                                        prod.key,
+                                        e.target
+                                          .value
+                                      )
+                                    }
+                                  />
+                                </td>
+
+                                <td>
+                                  ₹{" "}
+                                  {
+                                    prod.currentPrice
+                                  }
+                                </td>
+
+                                <td>
+                                  <input
+                                    type="number"
+                                    value={
+                                      userPrice ??
+                                      ""
+                                    }
+                                    onChange={(e) =>
+                                      handlePriceChange(
+                                        prod.key,
+                                        e.target
+                                          .value
+                                      )
+                                    }
+                                  />
+                                </td>
+
+                                <td
+                                  style={{
+                                    textAlign:
+                                      "right",
+                                  }}
+                                  className={
+                                    diff >= 0
+                                      ? "difference-positive"
+                                      : "difference-negative"
+                                  }
+                                >
+                                  {diff >= 0
+                                    ? `+₹ ${diff}`
+                                    : `-₹ ${Math.abs(
+                                        diff
+                                      )}`}
+                                </td>
+                              </tr>
+                            );
+                          }
+                        )
                       )}
                     </tbody>
                   </table>
@@ -716,10 +1110,13 @@ export default function ProductPriceUpdate() {
                 <button
                   type="button"
                   className="cancel-btn"
-                  onClick={() => setActiveOutlet(null)}
+                  onClick={() =>
+                    setActiveOutlet(null)
+                  }
                 >
                   Cancel
                 </button>
+
                 <button
                   type="button"
                   className="save-btn"

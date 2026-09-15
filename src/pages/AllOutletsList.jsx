@@ -1,19 +1,12 @@
 import "../styles/AllOutletsList.css";
 
-import { Fragment } from "react";
 import React, { useEffect, useMemo, useState } from "react";
-import Select from "react-select";
 
 import {
   getAllOutlets,
-  getOutletById,
   getOutletDetails,
-  updateOutletDetailsByMerchant,
-  createOutlet,
   getOutletCount,
-
   uploadOutletsBulk,
-
   setOutletUnavailable,
   restoreOutletUnavailability,
 
@@ -28,8 +21,6 @@ import {
   FiCheck,
   FiEdit2,
   FiTrash2,
-  FiChevronRight,
-  FiChevronDown,
   FiPlus,
   FiMinus,
   FiX,
@@ -38,66 +29,61 @@ import {
 } from "react-icons/fi";
 
 function AllOutletsList({ setActivePage }) {
+  const [unavailabilityModal, setUnavailabilityModal] =
+    useState({
+      open: false,
+      outlet: null,
+      mode: "create",
+    });
 
+  const [unavailabilityForm, setUnavailabilityForm] =
+    useState({
+      fromDate: "",
+      toDate: "",
+      reason: "",
+    });
 
-  
+  const [unavailabilityData, setUnavailabilityData] =
+    useState(() => {
+      try {
+        const saved = localStorage.getItem(
+          "jippy_outlet_unavailability"
+        );
 
+        return saved ? JSON.parse(saved) : {};
+      } catch (error) {
+        console.error(
+          "Failed to load outlet unavailability data:",
+          error
+        );
 
-const [unavailabilityModal, setUnavailabilityModal] = useState({
-  open: false,
-  outlet: null,
-  mode: "create",
-});
+        return {};
+      }
+    });
 
-const [unavailabilityForm, setUnavailabilityForm] = useState({
-  fromDate: "",
-  toDate: "",
-  reason: "",
-});
+  const [savingUnavailability, setSavingUnavailability] =
+    useState(false);
 
-const [unavailabilityData, setUnavailabilityData] = useState(() => {
-  try {
-    const saved = localStorage.getItem(
-      "jippy_outlet_unavailability"
-    );
-
-    return saved ? JSON.parse(saved) : {};
-  } catch (error) {
-    console.error(
-      "Failed to load outlet unavailability data:",
-      error
-    );
-
-    return {};
-  }
-});
-const [savingUnavailability, setSavingUnavailability] =
-  useState(false);
- 
   const [outlets, setOutlets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [outletCount, setOutletCount] = useState(0);
 
-
-const [selectedOutlet, setSelectedOutlet] = useState(null);
-const [expandedOutletId, setExpandedOutletId] = useState(null);
-
-
+  const [selectedOutlet, setSelectedOutlet] = useState(null);
+  const [expandedOutletId, setExpandedOutletId] =
+    useState(null);
 
   const [search, setSearch] = useState("");
   const [entries, setEntries] = useState(30);
 
-
-
-  
   // PAGINATION
   const [currentPage, setCurrentPage] = useState(1);
 
   const [outletStatus, setOutletStatus] = useState(null);
   const [outletType, setOutletType] = useState(null);
-
-  const [showExportMenu, setShowExportMenu] = useState(false);
   const [globalStatus, setGlobalStatus] = useState("OPEN");
+
+  const [showExportMenu, setShowExportMenu] =
+    useState(false);
 
   const [showTurnOnConfirm, setShowTurnOnConfirm] = useState(false);
 const [turnOnOutlet, setTurnOnOutlet] = useState(null);
@@ -110,44 +96,16 @@ const [turnOnSuccessMessage, setTurnOnSuccessMessage] = useState("");
   const [isDragging, setIsDragging] = useState(false);
   const [bulkFile, setBulkFile] = useState(null);
   const [uploading, setUploading] = useState(false);
-  const [uploadResult, setUploadResult] = useState(null); // <-- Added state for upload results/errors
-
-
-
-
-
-
+  const [uploadResult, setUploadResult] = useState(null);
 
   // =========================================================
   // COLUMNS
   // =========================================================
 
-  const [showColumnsMenu, setShowColumnsMenu] = useState(false);
+  const [showColumnsMenu, setShowColumnsMenu] =
+    useState(false);
 
   const [visibleColumns, setVisibleColumns] = useState({
-  outletId: true,
-  outletName: true,
-  merchantId: true,
-  cuisineType: true,
-  outletPhone: true,
-  status: true,
-  menuItemCount: true,
-  areaId: true,
-  stateId: true,
-  availability: true,
-});
-
-
-
-  const toggleColumn = (column) => {
-    setVisibleColumns((prev) => ({
-      ...prev,
-      [column]: !prev[column],
-    }));
-  };
-
-const showAllColumns = () => {
-  setVisibleColumns({
     outletId: true,
     outletName: true,
     merchantId: true,
@@ -159,71 +117,101 @@ const showAllColumns = () => {
     stateId: true,
     availability: true,
   });
-};
 
-const handleExpandOutlet = (outletId) => {
-  const id = Number(outletId);
+  const toggleColumn = (column) => {
+    setVisibleColumns((prev) => ({
+      ...prev,
+      [column]: !prev[column],
+    }));
+  };
 
-  if (!id) {
-    console.error("Outlet ID not found:", outletId);
-    return;
-  }
+  const showAllColumns = () => {
+    setVisibleColumns({
+      outletId: true,
+      outletName: true,
+      merchantId: true,
+      cuisineType: true,
+      outletPhone: true,
+      status: true,
+      menuItemCount: true,
+      areaId: true,
+      stateId: true,
+      availability: true,
+    });
+  };
 
-  setExpandedOutletId((prev) =>
-    prev === id ? null : id
-  );
-};
   // =========================================================
-// TOGGLE OUTLET AVAILABILITY
-// =========================================================
+  // EXPAND OUTLET
+  // =========================================================
 
-const handleEditUnavailability = (outlet) => {
-  const existing =
-    unavailabilityData[outlet.outletId];
+  const handleExpandOutlet = (outletId) => {
+    const id = Number(outletId);
 
-  if (!existing) {
-    console.log(
-      "No unavailability data available for this outlet"
+    if (!id) {
+      console.error(
+        "Outlet ID not found:",
+        outletId
+      );
+      return;
+    }
+
+    setExpandedOutletId((prev) =>
+      prev === id ? null : id
     );
-    return;
-  }
+  };
 
-  setSelectedOutlet(outlet);
+  // =========================================================
+  // EDIT UNAVAILABILITY
+  // =========================================================
 
-  setUnavailabilityForm({
-    fromDate: existing.fromDate || "",
-    toDate: existing.toDate || "",
-    reason: existing.reason || "",
-  });
+  const handleEditUnavailability = (outlet) => {
+    const existing =
+      unavailabilityData[outlet.outletId];
 
-  setUnavailabilityModal({
-    open: true,
-    outlet,
-    mode: "edit",
-  });
-};
+    if (!existing) {
+      console.log(
+        "No unavailability data available for this outlet"
+      );
+      return;
+    }
 
+    setSelectedOutlet(outlet);
 
+    setUnavailabilityForm({
+      fromDate: existing.fromDate || "",
+      toDate: existing.toDate || "",
+      reason: existing.reason || "",
+    });
 
+    setUnavailabilityModal({
+      open: true,
+      outlet,
+      mode: "edit",
+    });
+  };
 
-const formatUnavailabilityDate = (dateValue) => {
-  if (!dateValue) return "-";
+  // =========================================================
+  // FORMAT DATE
+  // =========================================================
 
-  const date = new Date(dateValue);
+  const formatUnavailabilityDate = (dateValue) => {
+    if (!dateValue) return "-";
 
-  if (Number.isNaN(date.getTime())) {
-    return dateValue;
-  }
+    const date = new Date(dateValue);
 
-  return date.toLocaleString("en-IN", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: true,
-  });
-};
+    if (Number.isNaN(date.getTime())) {
+      return dateValue;
+    }
+
+    return date.toLocaleString("en-IN", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+  };
 
 // const handleOutletToggle = (outlet) => {
 //   if (!outlet?.outletId) {
@@ -445,12 +433,10 @@ const handleOutletToggle = async (outlet) => {
     setSelectedOutlet(null);
 
     // Don't use alert
-    setPopupMessage(
+    alert(
       error?.response?.data?.message ||
-      "Unable to fetch outlet availability. Please try again."
+        "Unable to fetch outlet availability. Please try again."
     );
-
-    setShowErrorPopup(true);
   }
 };
 
@@ -522,241 +508,241 @@ const handleCancelTurnOn = () => {
   setTurnOnOutlet(null);
 };  
 
-const handleConfirmUnavailability = async () => {
-  const outlet = unavailabilityModal.outlet;
+  const handleConfirmUnavailability = async () => {
+    const outlet =
+      unavailabilityModal.outlet;
 
-  if (!outlet) {
-    console.error("No outlet selected");
-    return;
-  }
+    if (!outlet) {
+      console.error("No outlet selected");
+      return;
+    }
 
-  const {
-    fromDate,
-    toDate,
-    reason,
-  } = unavailabilityForm;
-
-  // ==========================================
-  // VALIDATION
-  // ==========================================
-
-  if (!fromDate || !toDate || !reason.trim()) {
-    alert(
-      "Please select From Date, To Date and Reason."
-    );
-    return;
-  }
-
-  if (
-    new Date(fromDate) >=
-    new Date(toDate)
-  ) {
-    alert(
-      "To Date & Time must be after From Date & Time."
-    );
-    return;
-  }
-
-  try {
-    setSavingUnavailability(true);
-
-    // ==========================================
-    // POST OUTLET UNAVAILABILITY
-    // ==========================================
-
-    const response = await setOutletUnavailable(
-      Number(outlet.outletId),
+    const {
       fromDate,
       toDate,
-      reason.trim()
-    );
+      reason,
+    } = unavailabilityForm;
 
-    console.log(
-      "OUTLET UNAVAILABILITY RESPONSE:",
-      response
-    );
+    // =======================================================
+    // VALIDATION
+    // =======================================================
 
-    // ==========================================
-    // SAVE UNAVAILABILITY DETAILS
-    // ==========================================
+    if (
+      !fromDate ||
+      !toDate ||
+      !reason.trim()
+    ) {
+      alert(
+        "Please select From Date, To Date and Reason."
+      );
+      return;
+    }
 
-    const savedData = {
-      fromDate,
-      toDate,
-      reason: reason.trim(),
+    if (
+      new Date(fromDate) >=
+      new Date(toDate)
+    ) {
+      alert(
+        "To Date & Time must be after From Date & Time."
+      );
+      return;
+    }
 
-      markedOn:
-        response?.timestamp ||
-        new Date().toISOString(),
-    };
+    try {
+      setSavingUnavailability(true);
 
-    setUnavailabilityData((prev) => {
-      const updated = {
-        ...prev,
-        [outlet.outletId]: savedData,
-      };
+      // =====================================================
+      // POST OUTLET UNAVAILABILITY
+      // =====================================================
 
-      // Persist after refresh
-      localStorage.setItem(
-        "jippy_outlet_unavailability",
-        JSON.stringify(updated)
+      const response =
+        await setOutletUnavailable(
+          Number(outlet.outletId),
+          fromDate,
+          toDate,
+          reason.trim()
+        );
+
+      console.log(
+        "OUTLET UNAVAILABILITY RESPONSE:",
+        response
       );
 
-      return updated;
-    });
+      // =====================================================
+      // SAVE LOCAL DATA
+      // =====================================================
 
-    // ==========================================
-    // UPDATE TOGGLE UI
-    // ==========================================
+      const savedData = {
+        fromDate,
+        toDate,
+        reason: reason.trim(),
 
-    setOutlets((prev) =>
-      prev.map((item) =>
-        Number(item.outletId) ===
+        markedOn:
+          response?.timestamp ||
+          new Date().toISOString(),
+      };
+
+      setUnavailabilityData((prev) => {
+        const updated = {
+          ...prev,
+          [outlet.outletId]: savedData,
+        };
+
+        localStorage.setItem(
+          "jippy_outlet_unavailability",
+          JSON.stringify(updated)
+        );
+
+        return updated;
+      });
+
+      // =====================================================
+      // UPDATE TOGGLE
+      // =====================================================
+
+      setOutlets((prev) =>
+        prev.map((item) =>
+          Number(item.outletId) ===
+          Number(outlet.outletId)
+            ? {
+                ...item,
+                isToggle: false,
+                isAvailable: false,
+              }
+            : item
+        )
+      );
+
+      // =====================================================
+      // CLOSE MODAL
+      // =====================================================
+
+      setUnavailabilityModal({
+        open: false,
+        outlet: null,
+        mode: "create",
+      });
+
+      setSelectedOutlet(null);
+
+      setUnavailabilityForm({
+        fromDate: "",
+        toDate: "",
+        reason: "",
+      });
+
+      // Keep outlet expanded.
+      setExpandedOutletId(
         Number(outlet.outletId)
-          ? {
-              ...item,
-              isToggle: false,
-              isAvailable: false,
-            }
-          : item
-      )
-    );
-
-    // ==========================================
-    // CLOSE POPUP
-    // ==========================================
-
-    setUnavailabilityModal({
-      open: false,
-      outlet: null,
-      mode: "create",
-    });
-
-    setSelectedOutlet(null);
-
-    setUnavailabilityForm({
-      fromDate: "",
-      toDate: "",
-      reason: "",
-    });
-
-    // ==========================================
-    // KEEP OUTLET EXPANDED
-    // ==========================================
-
-    setExpandedOutletId(
-      Number(outlet.outletId)
-    );
-
-  } catch (error) {
-    console.error(
-      "Failed to mark outlet unavailable:",
-      error
-    );
-
-    alert(
-      error?.response?.data?.message ||
-      "Failed to mark outlet unavailable."
-    );
-  } finally {
-    setSavingUnavailability(false);
-  }
-};
-
-
-// =========================================================
-// CONFIRM OUTLET RESTORE
-// OFF → ON
-// =========================================================
-
-const handleConfirmOutletRestore = async () => {
-  if (!selectedOutlet?.outletId) {
-    return;
-  }
-
-  try {
-    setSavingUnavailability(true);
-
-    const response = await restoreOutletUnavailability(
-      selectedOutlet.outletId
-    );
-
-    console.log(
-      "OUTLET RESTORE RESPONSE:",
-      response
-    );
-
-    // =========================================================
-    // TURN OUTLET ON AFTER SUCCESSFUL API CALL
-    // =========================================================
-
-    setOutlets((prev) =>
-      prev.map((item) =>
-        Number(item.outletId) ===
-        Number(selectedOutlet.outletId)
-          ? {
-              ...item,
-              isToggle: true,
-              isAvailable: true,
-            }
-          : item
-      )
-    );
-
-    // =========================================================
-    // REMOVE OUTLET UNAVAILABILITY DATA
-    // =========================================================
-
-    setUnavailabilityData((prev) => {
-      const updated = {
-        ...prev,
-      };
-
-      delete updated[selectedOutlet.outletId];
-
-      localStorage.setItem(
-        "jippy_outlet_unavailability",
-        JSON.stringify(updated)
+      );
+    } catch (error) {
+      console.error(
+        "Failed to mark outlet unavailable:",
+        error
       );
 
-      return updated;
-    });
+      alert(
+        error?.response?.data?.message ||
+          "Failed to mark outlet unavailable."
+      );
+    } finally {
+      setSavingUnavailability(false);
+    }
+  };
 
-    // =========================================================
-    // CLOSE RESTORE POPUP
-    // =========================================================
+  // =========================================================
+  // CONFIRM OUTLET RESTORE
+  // OFF -> ON
+  // =========================================================
 
-    setUnavailabilityModal({
-      open: false,
-      outlet: null,
-      mode: "create",
-    });
+  const handleConfirmOutletRestore =
+    async () => {
+      if (!selectedOutlet?.outletId) {
+        return;
+      }
 
-    setSelectedOutlet(null);
+      try {
+        setSavingUnavailability(true);
 
-    // =========================================================
-    // CLOSE EXPANDED OUTLET DETAILS
-    // =========================================================
+        const response =
+          await restoreOutletUnavailability(
+            selectedOutlet.outletId
+          );
 
-    setExpandedOutletId(null);
+        console.log(
+          "OUTLET RESTORE RESPONSE:",
+          response
+        );
 
-  } catch (error) {
-    console.error(
-      "OUTLET RESTORE ERROR:",
-      error
-    );
+        // ===================================================
+        // TURN OUTLET ON
+        // ===================================================
 
-    alert(
-      error?.response?.data?.message ||
-      "Failed to restore outlet availability."
-    );
-  } finally {
-    setSavingUnavailability(false);
-  }
-};
-  // const API_BASE_URL =
-  //   "http://srv1617582.hstgr.cloud:8084";
+        setOutlets((prev) =>
+          prev.map((item) =>
+            Number(item.outletId) ===
+            Number(selectedOutlet.outletId)
+              ? {
+                  ...item,
+                  isToggle: true,
+                  isAvailable: true,
+                }
+              : item
+          )
+        );
 
+        // ===================================================
+        // REMOVE LOCAL UNAVAILABILITY
+        // ===================================================
+
+        setUnavailabilityData((prev) => {
+          const updated = {
+            ...prev,
+          };
+
+          delete updated[
+            selectedOutlet.outletId
+          ];
+
+          localStorage.setItem(
+            "jippy_outlet_unavailability",
+            JSON.stringify(updated)
+          );
+
+          return updated;
+        });
+
+        // ===================================================
+        // CLOSE MODAL
+        // ===================================================
+
+        setUnavailabilityModal({
+          open: false,
+          outlet: null,
+          mode: "create",
+        });
+
+        setSelectedOutlet(null);
+
+        // ===================================================
+        // CLOSE EXPANDED OUTLET DETAILS
+        // ===================================================
+
+        setExpandedOutletId(null);
+      } catch (error) {
+        console.error(
+          "OUTLET RESTORE ERROR:",
+          error
+        );
+
+        alert(
+          error?.response?.data?.message ||
+            "Failed to restore outlet availability."
+        );
+      } finally {
+        setSavingUnavailability(false);
+      }
+    };
 
   // =========================================================
   // FETCH OUTLET COUNT
@@ -765,9 +751,14 @@ const handleConfirmOutletRestore = async () => {
   const fetchOutletCount = async () => {
     try {
       const count = await getOutletCount();
+
       setOutletCount(count);
     } catch (error) {
-      console.error("Failed to fetch outlet count:", error);
+      console.error(
+        "Failed to fetch outlet count:",
+        error
+      );
+
       setOutletCount(0);
     }
   };
@@ -852,10 +843,10 @@ const fetchOutlets = async () => {
     // 1. Load all outlets first
     const data = await getAllOutlets();
 
-    if (!Array.isArray(data)) {
-      setOutlets([]);
-      return;
-    }
+      if (!Array.isArray(data)) {
+        setOutlets([]);
+        return;
+      }
 
     // 2. Show outlets immediately
     setOutlets(data);
@@ -901,9 +892,11 @@ const fetchOutlets = async () => {
   }
 };
 
-// =========================================================
-// INITIAL LOAD
-// =========================================================
+  // =========================================================
+  // INITIAL LOAD
+  //
+  // Only ONE useEffect.
+  // =========================================================
 
 useEffect(() => {
   fetchOutlets();
@@ -950,6 +943,18 @@ useEffect(() => {
       .trim();
 
     return outlets.filter((outlet) => {
+      const cuisineNames = Array.isArray(
+        outlet.cuisineNames
+      )
+        ? outlet.cuisineNames.join(", ")
+        : "";
+
+      const cuisineType = Array.isArray(
+        outlet.cuisineType
+      )
+        ? outlet.cuisineType.join(", ")
+        : String(outlet.cuisineType || "");
+
       const matchesSearch =
         !keyword ||
         String(outlet.outletId || "")
@@ -961,7 +966,22 @@ useEffect(() => {
         String(outlet.merchantId || "")
           .toLowerCase()
           .includes(keyword) ||
+        String(outlet.merchantName || "")
+          .toLowerCase()
+          .includes(keyword) ||
+        cuisineNames
+          .toLowerCase()
+          .includes(keyword) ||
+        cuisineType
+          .toLowerCase()
+          .includes(keyword) ||
         String(outlet.outletPhone || "")
+          .toLowerCase()
+          .includes(keyword) ||
+        String(outlet.areaName || "")
+          .toLowerCase()
+          .includes(keyword) ||
+        String(outlet.stateName || "")
           .toLowerCase()
           .includes(keyword) ||
         String(outlet.road || "")
@@ -973,7 +993,8 @@ useEffect(() => {
 
       const matchesStatus =
         !outletStatus ||
-        outlet.isActive === outletStatus.value;
+        outlet.isActive ===
+          outletStatus.value;
 
       const matchesType =
         !outletType ||
@@ -1033,38 +1054,49 @@ useEffect(() => {
   // COUNTS
   // =========================================================
 
-  const activeOutletCount = outlets.filter(
-    (outlet) => outlet.isActive === "Y"
-  ).length;
+  const activeOutletCount =
+    outlets.filter(
+      (outlet) =>
+        outlet.isActive === "Y"
+    ).length;
 
-  const inactiveOutletCount = outlets.filter(
-    (outlet) => outlet.isActive !== "Y"
-  ).length;
+  const inactiveOutletCount =
+    outlets.filter(
+      (outlet) =>
+        outlet.isActive !== "Y"
+    ).length;
+
   // =========================================================
-// OPEN OUTLET PROFILE DETAILS
-// =========================================================
+  // OPEN OUTLET PROFILE
+  // =========================================================
 
-const handleOutletProfile = (outlet) => {
-  if (!outlet?.outletId) {
-    console.error("Outlet ID not found:", outlet);
-    return;
-  }
+  const handleOutletProfile = (
+    outlet
+  ) => {
+    if (!outlet?.outletId) {
+      console.error(
+        "Outlet ID not found:",
+        outlet
+      );
+      return;
+    }
 
-  // Store selected outlet for OutletProfileDetails.jsx
-  sessionStorage.setItem(
-    "selectedOutlet",
-    JSON.stringify(outlet)
-  );
+    sessionStorage.setItem(
+      "selectedOutlet",
+      JSON.stringify(outlet)
+    );
 
-  console.log(
-    "OPENING OUTLET PROFILE:",
-    outlet.outletId
-  );
+    console.log(
+      "OPENING OUTLET PROFILE:",
+      outlet.outletId
+    );
 
-  if (setActivePage) {
-    setActivePage("outletProfileDetails");
-  }
-};
+    if (setActivePage) {
+      setActivePage(
+        "outletProfileDetails"
+      );
+    }
+  };
 
   // =========================================================
   // EDIT OUTLET
@@ -1096,15 +1128,20 @@ const handleOutletProfile = (outlet) => {
   // DELETE OUTLET
   // =========================================================
 
-  const handleDeleteOutlet = (outlet) => {
+  const handleDeleteOutlet = (
+    outlet
+  ) => {
     if (!outlet?.outletId) {
-      alert("Outlet ID not available.");
+      alert(
+        "Outlet ID not available."
+      );
       return;
     }
 
-    const confirmed = window.confirm(
-      `Are you sure you want to delete "${outlet.outletName}"?`
-    );
+    const confirmed =
+      window.confirm(
+        `Are you sure you want to delete "${outlet.outletName}"?`
+      );
 
     if (!confirmed) {
       return;
@@ -1126,44 +1163,59 @@ const handleOutletProfile = (outlet) => {
 
   const exportCSV = () => {
     if (!filteredOutlets.length) {
-      alert("No outlets available to export.");
+      alert(
+        "No outlets available to export."
+      );
       return;
     }
 
     const headers = [
       "Outlet ID",
-      "Merchant ID",
+      "Merchant Name",
       "Outlet Name",
       "Cuisine Type",
       "Outlet Phone",
       "Status",
       "Menu Items",
-      "State ID",
-      "Area ID",
+      "State Name",
+      "Area Name",
       "Road",
       "Landmark",
       "Building Number",
       "Availability",
     ];
 
-    const rows = filteredOutlets.map(
-      (outlet) => [
-        outlet.outletId,
-        outlet.merchantId,
-        outlet.outletName,
-        outlet.cuisineType,
-        outlet.outletPhone,
-        outlet.isActive === "Y"
-          ? "Active"
-          : "Inactive",
-        outlet.menuItemCount,
-        outlet.stateId,
-        outlet.areaId,
-        outlet.road,
-        outlet.landmark,
-        outlet.buildingNumber,
-      ]
-    );
+    const rows =
+      filteredOutlets.map(
+        (outlet) => [
+          outlet.outletId,
+          outlet.merchantName ||
+            "-",
+          outlet.outletName,
+          Array.isArray(
+            outlet.cuisineNames
+          )
+            ? outlet.cuisineNames.join(
+                ", "
+              )
+            : "-",
+          outlet.outletPhone,
+          outlet.isActive === "Y"
+            ? "Active"
+            : "Inactive",
+          outlet.menuItemCount,
+          outlet.stateName ||
+            "-",
+          outlet.areaName ||
+            "-",
+          outlet.road,
+          outlet.landmark,
+          outlet.buildingNumber,
+          outlet.isToggle === true
+            ? "Available"
+            : "Unavailable",
+        ]
+      );
 
     const csvContent = [
       headers,
@@ -1171,11 +1223,14 @@ const handleOutletProfile = (outlet) => {
     ]
       .map((row) =>
         row
-          .map((value) =>
-            `"${String(value ?? "").replace(
-              /"/g,
-              '""'
-            )}"`
+          .map(
+            (value) =>
+              `"${String(
+                value ?? ""
+              ).replace(
+                /"/g,
+                '""'
+              )}"`
           )
           .join(",")
       )
@@ -1195,11 +1250,18 @@ const handleOutletProfile = (outlet) => {
       document.createElement("a");
 
     link.href = url;
-    link.download = "outlets.csv";
+    link.download =
+      "outlets.csv";
 
-    document.body.appendChild(link);
+    document.body.appendChild(
+      link
+    );
+
     link.click();
-    document.body.removeChild(link);
+
+    document.body.removeChild(
+      link
+    );
 
     URL.revokeObjectURL(url);
 
@@ -1207,10 +1269,12 @@ const handleOutletProfile = (outlet) => {
   };
 
   // =========================================================
-  // BULK UPLOAD & DRAG DROP (Supports Excel + CSV)
+  // BULK UPLOAD
   // =========================================================
 
-  const handleBulkUpload = (event) => {
+  const handleBulkUpload = (
+    event
+  ) => {
     const file =
       event.target.files?.[0];
 
@@ -1219,66 +1283,132 @@ const handleOutletProfile = (outlet) => {
     }
 
     setBulkFile(file);
+
     console.log(
       "Selected outlet bulk upload file:",
       file
     );
   };
 
-  const submitBulkUpload = async () => {
-    if (!bulkFile) {
-      alert("Please select an Excel or CSV file first.");
-      return;
-    }
-
-    try {
-      setUploading(true);
-      setUploadResult(null); // Clear previous results
-
-      const response = await uploadOutletsBulk(bulkFile);
-      console.log("Bulk upload response:", response);
-
-      // Save full response object to display stats and validation/duplicate errors
-      setUploadResult(response);
-
-      if (response?.data?.successCount > 0 && response?.data?.failureCount === 0) {
-        alert("Outlets uploaded/updated successfully!");
-        setBulkFile(null);
-        const fileInput = document.getElementById("outlet-file-input");
-        if (fileInput) fileInput.value = "";
+  const submitBulkUpload =
+    async () => {
+      if (!bulkFile) {
+        alert(
+          "Please select an Excel or CSV file first."
+        );
+        return;
       }
 
-      // Refresh outlets and counts
-      fetchOutlets();
-      fetchOutletCount();
-    } catch (error) {
-      console.error("Bulk upload error:", error);
-      alert(`Failed to upload file: ${error.response?.data?.message || error.message}`);
-    } finally {
-      setUploading(false);
-    }
-  };
+      try {
+        setUploading(true);
+        setUploadResult(null);
 
-  const handleDragOver = (e) => {
+        const response =
+          await uploadOutletsBulk(
+            bulkFile
+          );
+
+        console.log(
+          "Bulk upload response:",
+          response
+        );
+
+        setUploadResult(
+          response
+        );
+
+        if (
+          response?.data
+            ?.successCount > 0 &&
+          response?.data
+            ?.failureCount === 0
+        ) {
+          alert(
+            "Outlets uploaded/updated successfully!"
+          );
+
+          setBulkFile(null);
+
+          const fileInput =
+            document.getElementById(
+              "outlet-file-input"
+            );
+
+          if (fileInput) {
+            fileInput.value =
+              "";
+          }
+        }
+
+        // Refresh only the list API.
+        fetchOutlets();
+        fetchOutletCount();
+      } catch (error) {
+        console.error(
+          "Bulk upload error:",
+          error
+        );
+
+        alert(
+          `Failed to upload file: ${
+            error.response?.data
+              ?.message ||
+            error.message
+          }`
+        );
+      } finally {
+        setUploading(false);
+      }
+    };
+
+  // =========================================================
+  // DRAG OVER
+  // =========================================================
+
+  const handleDragOver = (
+    e
+  ) => {
     e.preventDefault();
     e.stopPropagation();
+
     setIsDragging(true);
   };
 
-  const handleDragLeave = (e) => {
+  // =========================================================
+  // DRAG LEAVE
+  // =========================================================
+
+  const handleDragLeave = (
+    e
+  ) => {
     e.preventDefault();
     e.stopPropagation();
+
     setIsDragging(false);
   };
 
-  const handleDrop = (e) => {
+  // =========================================================
+  // DROP
+  // =========================================================
+
+  const handleDrop = (
+    e
+  ) => {
     e.preventDefault();
     e.stopPropagation();
+
     setIsDragging(false);
 
-    const files = e.dataTransfer.files;
-    if (files && files.length > 0) {
-      handleBulkUpload({ target: { files } });
+    const files =
+      e.dataTransfer.files;
+
+    if (
+      files &&
+      files.length > 0
+    ) {
+      handleBulkUpload({
+        target: { files },
+      });
     }
   };
 
@@ -1286,29 +1416,60 @@ const handleOutletProfile = (outlet) => {
   // GLOBAL STATUS
   // =========================================================
 
-  const handleApplyGlobalStatus = () => {
-    console.log(
-      "Global outlet status:",
-      globalStatus
-    );
-  };
+  const handleApplyGlobalStatus =
+    () => {
+      console.log(
+        "Global outlet status:",
+        globalStatus
+      );
+    };
 
   // =========================================================
   // COLUMN OPTIONS
   // =========================================================
 
-const columnOptions = [
-  ["outletId", "Outlet ID"],
-  ["outletName", "Outlet Name"],
-  ["merchantId", "Merchant ID"],
-  ["cuisineType", "Cuisine Type"],
-  ["outletPhone", "Phone Number"],
-  ["status", "Status"],
-  ["menuItemCount", "Menu Items"],
-  ["areaId", "Area ID"],
-  ["stateId", "State ID"],
-  ["availability", "Availability"],
-];
+  const columnOptions = [
+    [
+      "outletId",
+      "Outlet ID",
+    ],
+    [
+      "outletName",
+      "Outlet Name",
+    ],
+    [
+      "merchantId",
+      "Merchant Name",
+    ],
+    [
+      "cuisineType",
+      "Cuisine Type",
+    ],
+    [
+      "outletPhone",
+      "Phone Number",
+    ],
+    [
+      "status",
+      "Status",
+    ],
+    [
+      "menuItemCount",
+      "Menu Items",
+    ],
+    [
+      "areaId",
+      "Area Name",
+    ],
+    [
+      "stateId",
+      "State Name",
+    ],
+    [
+      "availability",
+      "Availability",
+    ],
+  ];
 
   // =========================================================
   // UI
@@ -1321,7 +1482,9 @@ const columnOptions = [
 
       <div className="jippy-all-outlets-page-header">
         <div>
-          <h1>Outlets</h1>
+          <h1>
+            Outlets
+          </h1>
 
           <p>
             Manage and monitor all restaurant outlets
@@ -1333,7 +1496,9 @@ const columnOptions = [
 
       <div className="jippy-all-outlets-title-row">
         <div className="jippy-all-outlets-title">
-          <h2>🏪 Outlets</h2>
+          <h2>
+            🏪 Outlets
+          </h2>
 
           <span className="jippy-all-outlets-count">
             {outletCount}
@@ -1346,18 +1511,33 @@ const columnOptions = [
       <div className="jippy-all-outlets-summary-grid">
 
         <div className="jippy-all-outlets-summary-card jippy-all-outlets-total-card">
-          <strong>{outletCount}</strong>
-          <span>Total Outlets</span>
+          <strong>
+            {outletCount}
+          </strong>
+
+          <span>
+            Total Outlets
+          </span>
         </div>
 
         <div className="jippy-all-outlets-summary-card jippy-all-outlets-active-card">
-          <strong>{activeOutletCount}</strong>
-          <span>Active Outlets</span>
+          <strong>
+            {activeOutletCount}
+          </strong>
+
+          <span>
+            Active Outlets
+          </span>
         </div>
 
         <div className="jippy-all-outlets-summary-card jippy-all-outlets-inactive-card">
-          <strong>{inactiveOutletCount}</strong>
-          <span>Inactive Outlets</span>
+          <strong>
+            {inactiveOutletCount}
+          </strong>
+
+          <span>
+            Inactive Outlets
+          </span>
         </div>
 
         <div className="jippy-all-outlets-summary-card jippy-all-outlets-menu-card">
@@ -1366,13 +1546,16 @@ const columnOptions = [
               (total, outlet) =>
                 total +
                 Number(
-                  outlet.menuItemCount || 0
+                  outlet.menuItemCount ||
+                    0
                 ),
               0
             )}
           </strong>
 
-          <span>Total Menu Items</span>
+          <span>
+            Total Menu Items
+          </span>
         </div>
 
       </div>
@@ -1397,15 +1580,24 @@ const columnOptions = [
             className="jippy-all-outlets-template-btn"
           >
             <FiDownloadCloud />
+
             Download Template
           </button>
 
         </div>
 
-        <div 
-          className={`jippy-all-outlets-upload-area ${isDragging ? "jippy-drag-active" : ""}`}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
+        <div
+          className={`jippy-all-outlets-upload-area ${
+            isDragging
+              ? "jippy-drag-active"
+              : ""
+          }`}
+          onDragOver={
+            handleDragOver
+          }
+          onDragLeave={
+            handleDragLeave
+          }
           onDrop={handleDrop}
         >
 
@@ -1417,35 +1609,43 @@ const columnOptions = [
             id="outlet-file-input"
             type="file"
             accept=".xls,.xlsx,.csv"
-            onChange={handleBulkUpload}
+            onChange={
+              handleBulkUpload
+            }
           />
 
           <small>
-            {bulkFile ? `Selected: ${bulkFile.name}` : "File should contain Outlet Name, Phone, Address, Merchant ID, Status and Outlet ID for updates."}
+            {bulkFile
+              ? `Selected: ${bulkFile.name}`
+              : "File should contain Outlet Name, Phone, Address, Merchant ID, Status and Outlet ID for updates."}
           </small>
 
           <button
             type="button"
             className="jippy-all-outlets-bulk-btn"
-            onClick={submitBulkUpload}
+            onClick={
+              submitBulkUpload
+            }
             disabled={uploading}
           >
             <FiUpload />
-            {uploading ? "Uploading..." : "Bulk Update"}
+
+            {uploading
+              ? "Uploading..."
+              : "Bulk Update"}
           </button>
 
         </div>
 
       </div>
 
-      {/* =========================================================
-          BULK UPLOAD RESULT / DUPLICATE DETAILS
-      ========================================================= */}
+      {/* BULK UPLOAD RESULT */}
 
       {uploadResult && (
         <div
           className={`jippy-upload-feedback-card ${
-            uploadResult.data?.failureCount > 0
+            uploadResult.data
+              ?.failureCount > 0
               ? "jippy-upload-has-errors"
               : "jippy-upload-success"
           }`}
@@ -1454,145 +1654,218 @@ const columnOptions = [
             margin: "15px 0",
             borderRadius: "8px",
             background:
-              uploadResult.data?.failureCount > 0
+              uploadResult.data
+                ?.failureCount > 0
                 ? "#fff5f5"
                 : "#f0fff4",
             border:
-              uploadResult.data?.failureCount > 0
+              uploadResult.data
+                ?.failureCount > 0
                 ? "1px solid #feb2b2"
                 : "1px solid #9ae6b4",
           }}
         >
-          {/* SUMMARY */}
+
           <h3
             style={{
-              margin: "0 0 8px 0",
+              margin:
+                "0 0 8px 0",
               color:
-                uploadResult.data?.failureCount > 0
+                uploadResult.data
+                  ?.failureCount > 0
                   ? "#c53030"
                   : "#22543d",
             }}
           >
-            {uploadResult.data?.failureCount > 0
+            {uploadResult.data
+              ?.failureCount > 0
               ? "Upload Completed with Errors"
               : "Upload Successful"}
           </h3>
 
           <p
             style={{
-              margin: "0 0 12px 0",
+              margin:
+                "0 0 12px 0",
               fontSize: "14px",
             }}
           >
-            {uploadResult.message || "Upload Summary"}
+            {uploadResult.message ||
+              "Upload Summary"}
           </p>
 
-          {/* COUNTS */}
           <div
             style={{
               display: "flex",
               gap: "20px",
-              marginBottom: "15px",
+              marginBottom:
+                "15px",
               fontSize: "14px",
-              flexWrap: "wrap",
+              flexWrap:
+                "wrap",
             }}
           >
+
             <span>
               Total Rows:{" "}
               <strong>
-                {uploadResult.data?.totalRows ?? 0}
+                {uploadResult.data
+                  ?.totalRows ??
+                  0}
               </strong>
             </span>
 
-            <span style={{ color: "#15803d" }}>
+            <span
+              style={{
+                color:
+                  "#15803d",
+              }}
+            >
               Success:{" "}
               <strong>
-                {uploadResult.data?.successCount ?? 0}
+                {uploadResult.data
+                  ?.successCount ??
+                  0}
               </strong>
             </span>
 
-            <span style={{ color: "#dc2626" }}>
+            <span
+              style={{
+                color:
+                  "#dc2626",
+              }}
+            >
               Failed:{" "}
               <strong>
-                {uploadResult.data?.failureCount ?? 0}
+                {uploadResult.data
+                  ?.failureCount ??
+                  0}
               </strong>
             </span>
+
           </div>
 
-          {/* DUPLICATE / FAILURE DETAILS */}
-          {uploadResult.data?.errors?.length > 0 && (
+          {uploadResult.data
+            ?.errors?.length >
+            0 && (
             <div
               className="jippy-upload-error-list"
               style={{
-                marginTop: "10px",
-                padding: "12px",
-                background: "#ffffff",
-                border: "1px solid #f5c2c7",
-                borderRadius: "6px",
+                marginTop:
+                  "10px",
+                padding:
+                  "12px",
+                background:
+                  "#ffffff",
+                border:
+                  "1px solid #f5c2c7",
+                borderRadius:
+                  "6px",
               }}
             >
+
               <h4
                 style={{
-                  margin: "0 0 10px 0",
-                  color: "#b91c1c",
-                  fontSize: "15px",
+                  margin:
+                    "0 0 10px 0",
+                  color:
+                    "#b91c1c",
+                  fontSize:
+                    "15px",
                 }}
               >
                 Duplicate / Failed Rows
               </h4>
 
-              {uploadResult.data.errors.map((err, idx) => (
-                <div
-                  key={idx}
-                  style={{
-                    padding: "10px",
-                    marginBottom:
-                      idx < uploadResult.data.errors.length - 1
-                        ? "8px"
-                        : "0",
-                    background: "#fff7f7",
-                    border: "1px solid #fecaca",
-                    borderRadius: "5px",
-                  }}
-                >
+              {uploadResult.data.errors.map(
+                (err, idx) => (
                   <div
+                    key={idx}
                     style={{
-                      fontWeight: "600",
-                      color: "#991b1b",
-                      marginBottom: "5px",
+                      padding:
+                        "10px",
+                      marginBottom:
+                        idx <
+                        uploadResult
+                          .data
+                          .errors
+                          .length -
+                          1
+                          ? "8px"
+                          : "0",
+                      background:
+                        "#fff7f7",
+                      border:
+                        "1px solid #fecaca",
+                      borderRadius:
+                        "5px",
                     }}
                   >
-                    ❌ Duplicate / Failed Row
+
+                    <div
+                      style={{
+                        fontWeight:
+                          "600",
+                        color:
+                          "#991b1b",
+                        marginBottom:
+                          "5px",
+                      }}
+                    >
+                      ❌ Duplicate / Failed Row
+                    </div>
+
+                    <div
+                      style={{
+                        fontSize:
+                          "13px",
+                        color:
+                          "#374151",
+                        lineHeight:
+                          "1.6",
+                      }}
+                    >
+
+                      <div>
+                        <strong>
+                          Excel Row:
+                        </strong>{" "}
+                        {err.rowNumber ??
+                          "-"}
+                      </div>
+
+                      <div>
+                        <strong>
+                          Outlet Name:
+                        </strong>{" "}
+                        {err.outletName ??
+                          "-"}
+                      </div>
+
+                      <div>
+                        <strong>
+                          Reason:
+                        </strong>{" "}
+                        <span
+                          style={{
+                            color:
+                              "#b91c1c",
+                          }}
+                        >
+                          {err.reason ??
+                            "Unknown error"}
+                        </span>
+                      </div>
+
+                    </div>
+
                   </div>
+                )
+              )}
 
-                  <div
-                    style={{
-                      fontSize: "13px",
-                      color: "#374151",
-                      lineHeight: "1.6",
-                    }}
-                  >
-                    <div>
-                      <strong>Excel Row:</strong>{" "}
-                      {err.rowNumber ?? "-"}
-                    </div>
-
-                    <div>
-                      <strong>Outlet Name:</strong>{" "}
-                      {err.outletName ?? "-"}
-                    </div>
-
-                    <div>
-                      <strong>Reason:</strong>{" "}
-                      <span style={{ color: "#b91c1c" }}>
-                        {err.reason ?? "Unknown error"}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))}
             </div>
           )}
+
         </div>
       )}
 
@@ -1617,30 +1890,38 @@ const columnOptions = [
           <button
             type="button"
             className={`jippy-all-outlets-status-option ${
-              globalStatus === "OPEN"
+              globalStatus ===
+              "OPEN"
                 ? "jippy-all-outlets-status-selected"
                 : ""
             }`}
             onClick={() =>
-              setGlobalStatus("OPEN")
+              setGlobalStatus(
+                "OPEN"
+              )
             }
           >
             <span className="jippy-all-outlets-status-dot jippy-all-outlets-status-dot-open" />
+
             All Open
           </button>
 
           <button
             type="button"
             className={`jippy-all-outlets-status-option ${
-              globalStatus === "CLOSED"
+              globalStatus ===
+              "CLOSED"
                 ? "jippy-all-outlets-status-selected"
                 : ""
             }`}
             onClick={() =>
-              setGlobalStatus("CLOSED")
+              setGlobalStatus(
+                "CLOSED"
+              )
             }
           >
             <span className="jippy-all-outlets-status-dot jippy-all-outlets-status-dot-closed" />
+
             All Closed
           </button>
 
@@ -1652,6 +1933,7 @@ const columnOptions = [
             }
           >
             <FiCheck />
+
             Apply to All Outlets
           </button>
 
@@ -1679,8 +1961,6 @@ const columnOptions = [
 
           </div>
 
-          {/* COLUMNS + CREATE */}
-
           <div className="jippy-all-outlets-header-actions">
 
             {/* COLUMNS */}
@@ -1691,7 +1971,10 @@ const columnOptions = [
                 type="button"
                 className="jippy-all-outlets-columns-btn"
                 onClick={() =>
-                  setShowColumnsMenu((prev) => !prev)
+                  setShowColumnsMenu(
+                    (prev) =>
+                      !prev
+                  )
                 }
               >
                 Columns ▾
@@ -1700,45 +1983,71 @@ const columnOptions = [
               {showColumnsMenu && (
                 <div className="jippy-all-outlets-columns-menu">
 
-                  {/* HEADER */}
                   <div className="jippy-all-outlets-columns-menu-header">
-                    <span>Choose Columns</span>
+
+                    <span>
+                      Choose Columns
+                    </span>
 
                     <button
                       type="button"
                       className="jippy-all-outlets-columns-close"
-                      onClick={() => setShowColumnsMenu(false)}
+                      onClick={() =>
+                        setShowColumnsMenu(
+                          false
+                        )
+                      }
                       aria-label="Close columns"
                     >
                       ×
                     </button>
+
                   </div>
 
                   <div className="jippy-all-outlets-columns-title">
                     General
                   </div>
 
-                  {columnOptions.map(([key, label]) => (
-                    <label
-                      key={key}
-                      className="jippy-all-outlets-column-option"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={visibleColumns[key]}
-                        onChange={() => toggleColumn(key)}
-                      />
+                  {columnOptions.map(
+                    ([
+                      key,
+                      label,
+                    ]) => (
+                      <label
+                        key={key}
+                        className="jippy-all-outlets-column-option"
+                      >
 
-                      <span>{label}</span>
-                    </label>
-                  ))}
+                        <input
+                          type="checkbox"
+                          checked={
+                            visibleColumns[
+                              key
+                            ]
+                          }
+                          onChange={() =>
+                            toggleColumn(
+                              key
+                            )
+                          }
+                        />
+
+                        <span>
+                          {label}
+                        </span>
+
+                      </label>
+                    )
+                  )}
 
                   <div className="jippy-all-outlets-columns-divider" />
 
                   <button
                     type="button"
                     className="jippy-all-outlets-show-all-columns"
-                    onClick={showAllColumns}
+                    onClick={
+                      showAllColumns
+                    }
                   >
                     Show All
                   </button>
@@ -1754,7 +2063,9 @@ const columnOptions = [
               type="button"
               className="jippy-all-outlets-create-btn"
               onClick={() =>
-                setActivePage("createOutletNew")
+                setActivePage(
+                  "createOutletNew"
+                )
               }
             >
               + Create Outlet
@@ -1776,12 +2087,18 @@ const columnOptions = [
 
             <select
               value={entries}
-              onChange={(event) =>
+              onChange={(
+                event
+              ) =>
                 setEntries(
-                  Number(event.target.value)
+                  Number(
+                    event.target
+                      .value
+                  )
                 )
               }
             >
+
               <option value="10">
                 10
               </option>
@@ -1797,6 +2114,7 @@ const columnOptions = [
               <option value="100">
                 100
               </option>
+
             </select>
 
             <span>
@@ -1813,9 +2131,12 @@ const columnOptions = [
                 type="text"
                 placeholder="Search outlets..."
                 value={search}
-                onChange={(event) =>
+                onChange={(
+                  event
+                ) =>
                   setSearch(
-                    event.target.value
+                    event.target
+                      .value
                   )
                 }
               />
@@ -1836,16 +2157,18 @@ const columnOptions = [
                 }
               >
                 <FiDownloadCloud />
+
                 Export as
               </button>
 
               {showExportMenu && (
-
                 <div className="jippy-all-outlets-export-menu">
 
                   <button
                     type="button"
-                    onClick={exportCSV}
+                    onClick={
+                      exportCSV
+                    }
                   >
                     Export CSV
                   </button>
@@ -1873,7 +2196,6 @@ const columnOptions = [
                   </button>
 
                 </div>
-
               )}
 
             </div>
@@ -1882,248 +2204,294 @@ const columnOptions = [
 
         </div>
 
-        {/* TABLE */}
+        {/* ====================================================
+            OUTLETS TABLE
+        ==================================================== */}
 
-        {/* TABLE */}
+        <div className="jippy-all-outlets-table-scroll">
 
-{/* TABLE */}
+          <table className="jippy-all-outlets-table">
 
-{/* ============================================================
-    OUTLETS TABLE
-============================================================ */}
+            <thead>
 
-<div className="jippy-all-outlets-table-scroll">
+              <tr>
 
-  <table className="jippy-all-outlets-table">
+                {/* EXPAND */}
 
-    {/* ========================================================
-        TABLE HEADER
-    ======================================================== */}
+                <th className="jippy-all-outlets-expand-header">
+                  <span className="jippy-all-outlets-expand-header-space">
+                    &nbsp;
+                  </span>
+                </th>
 
-   <thead>
-  <tr>
+                {visibleColumns.outletId && (
+                  <th>
+                    Outlet ID
+                  </th>
+                )}
 
-    {/* EXPAND */}
-    <th className="jippy-all-outlets-expand-header">
-      <span className="jippy-all-outlets-expand-header-space">
-        &nbsp;
-      </span>
-    </th>
+                {visibleColumns.outletName && (
+                  <th>
+                    Outlet Name
+                  </th>
+                )}
 
-    {visibleColumns.outletId && (
-      <th>Outlet ID</th>
-    )}
+                {visibleColumns.merchantId && (
+                  <th>
+                    Merchant Name
+                  </th>
+                )}
 
-    {visibleColumns.outletName && (
-      <th>Outlet Name</th>
-    )}
+                {visibleColumns.cuisineType && (
+                  <th>
+                    Cuisine Type
+                  </th>
+                )}
 
-    {visibleColumns.merchantId && (
-      <th>Merchant ID</th>
-    )}
+                {visibleColumns.outletPhone && (
+                  <th>
+                    Phone Number
+                  </th>
+                )}
 
-    {visibleColumns.cuisineType && (
-      <th>Cuisine Type</th>
-    )}
+                {visibleColumns.status && (
+                  <th>
+                    Status
+                  </th>
+                )}
 
-    {visibleColumns.outletPhone && (
-      <th>Phone Number</th>
-    )}
+                {visibleColumns.menuItemCount && (
+                  <th>
+                    Menu Items
+                  </th>
+                )}
 
-    {visibleColumns.status && (
-      <th>Status</th>
-    )}
+                {visibleColumns.areaId && (
+                  <th>
+                    Area Name
+                  </th>
+                )}
 
-               
-    {visibleColumns.menuItemCount && (
-      <th>Menu Items</th>
-    )}
+                {visibleColumns.stateId && (
+                  <th>
+                    State Name
+                  </th>
+                )}
 
-    {visibleColumns.areaId && (
-      <th>Area ID</th>
-    )}
+                <th className="jippy-all-outlets-availability-header">
+                  isToggle
+                </th>
 
-    {visibleColumns.stateId && (
-      <th>State ID</th>
-    )}
+                <th className="jippy-all-outlets-actions-header">
+                  Actions
+                </th>
 
-    {/* AVAILABILITY */}
-    <th className="jippy-all-outlets-availability-header">
-      isToggle
-    </th>
+              </tr>
 
-    {/* ACTIONS */}
-    <th className="jippy-all-outlets-actions-header">
-      Actions
-    </th>
+            </thead>
 
-  </tr>
-</thead>
+            <tbody>
 
+              {loading ? (
+                <tr>
 
-    {/* ========================================================
-        TABLE BODY
-    ======================================================== */}
+                  <td
+                    colSpan="12"
+                    className="jippy-all-outlets-message"
+                  >
+                    Loading outlets...
+                  </td>
 
-    <tbody>
-  {loading ? (
-    <tr>
-      <td
-        colSpan="12"
-        className="jippy-all-outlets-message"
-      >
-        Loading outlets...
-      </td>
-    </tr>
-  ) : displayedOutlets.length === 0 ? (
-    <tr>
-      <td
-        colSpan="12"
-        className="jippy-all-outlets-message"
-      >
-        No outlets found
-      </td>
-    </tr>
-  ) : (
-    displayedOutlets.map((outlet) => {
+                </tr>
+              ) : displayedOutlets.length ===
+                0 ? (
+                <tr>
 
-      const isExpanded =
-        expandedOutletId ===
-        Number(outlet.outletId);
+                  <td
+                    colSpan="12"
+                    className="jippy-all-outlets-message"
+                  >
+                    No outlets found
+                  </td>
 
-      const savedUnavailability =
-        unavailabilityData[
-          outlet.outletId
-        ];
+                </tr>
+              ) : (
+                displayedOutlets.map(
+                  (outlet) => {
 
-      return (
-        <React.Fragment
-          key={outlet.outletId}
-        >
+                    const isExpanded =
+                      expandedOutletId ===
+                      Number(
+                        outlet.outletId
+                      );
 
-          {/* ================================================= */}
-          {/* MAIN OUTLET ROW */}
-          {/* ================================================= */}
+                    const savedUnavailability =
+                      unavailabilityData[
+                        outlet.outletId
+                      ];
 
-          <tr
-            className={
-              isExpanded
-                ? "jippy-all-outlets-main-row expanded"
-                : "jippy-all-outlets-main-row"
-            }
-          >
+                    return (
+                      <React.Fragment
+                        key={
+                          outlet.outletId
+                        }
+                      >
 
-            {/* EXPAND BUTTON */}
-            <td className="jippy-all-outlets-expand-cell">
-             <button
-  type="button"
-  className="jippy-all-outlets-expand-btn"
- onClick={() =>
-  handleExpandOutlet(outlet.outletId)
-}
-  title={
-    isExpanded
-      ? "Collapse"
-      : "Expand"
-  }
-  aria-label={
-    isExpanded
-      ? "Collapse outlet details"
-      : "Expand outlet details"
-  }
->
-  {isExpanded ? (
-    <FiMinus />
-  ) : (
-    <FiPlus />
-  )}
-</button>
-            </td>
+                        {/* MAIN OUTLET ROW */}
 
-            {/* OUTLET ID */}
-            {visibleColumns.outletId && (
-              <td>
-                {outlet.outletId}
-              </td>
-            )}
+                        <tr
+                          className={
+                            isExpanded
+                              ? "jippy-all-outlets-main-row expanded"
+                              : "jippy-all-outlets-main-row"
+                          }
+                        >
 
+                          {/* EXPAND */}
 
-                    
-                     
+                          <td className="jippy-all-outlets-expand-cell">
 
-            {/* OUTLET NAME */}
-            {visibleColumns.outletName && (
-  <td>
-    <strong
-      className="jippy-outlet-name-link"
-      onClick={() => handleOutletProfile(outlet)}
-      title="View Outlet Details"
-    >
-      {outlet.outletName || "-"}
-    </strong>
-  </td>
-)}
+                            <button
+                              type="button"
+                              className="jippy-all-outlets-expand-btn"
+                              onClick={() =>
+                                handleExpandOutlet(
+                                  outlet.outletId
+                                )
+                              }
+                              title={
+                                isExpanded
+                                  ? "Collapse"
+                                  : "Expand"
+                              }
+                              aria-label={
+                                isExpanded
+                                  ? "Collapse outlet details"
+                                  : "Expand outlet details"
+                              }
+                            >
+                              {isExpanded ? (
+                                <FiMinus />
+                              ) : (
+                                <FiPlus />
+                              )}
+                            </button>
 
-            {/* MERCHANT ID */}
-            {visibleColumns.merchantId && (
-              <td>
-                {outlet.merchantId ?? "-"}
-              </td>
-            )}
+                          </td>
 
-           {/* CUISINE TYPE */}
-{visibleColumns.cuisineType && (
-  <td>
-    {Array.isArray(outlet.cuisineType)
-      ? outlet.cuisineType.join(", ")
-      : outlet.cuisineType || "-"}
-  </td>
-)}
+                          {/* OUTLET ID */}
 
-            {/* PHONE */}
-            {visibleColumns.outletPhone && (
-              <td>
-                {outlet.outletPhone || "-"}
-              </td>
-            )}
+                          {visibleColumns.outletId && (
+                            <td>
+                              {outlet.outletId}
+                            </td>
+                          )}
 
-            {/* STATUS */}
-            {visibleColumns.status && (
-              <td>
-                <span
-                  className={`jippy-all-outlets-status ${
-                    outlet.isActive === "Y"
-                      ? "active"
-                      : "inactive"
-                  }`}
-                >
-                  {outlet.isActive === "Y"
-                    ? "Active"
-                    : "Inactive"}
-                </span>
-              </td>
-            )}
+                          {/* OUTLET NAME */}
 
-            {/* MENU ITEMS */}
-            {visibleColumns.menuItemCount && (
-              <td>
-                {outlet.menuItemCount ?? 0}
-              </td>
-            )}
+                          {visibleColumns.outletName && (
+                            <td>
 
-            {/* AREA */}
-            {visibleColumns.areaId && (
-              <td>
-                {outlet.areaId ?? "-"}
-              </td>
-            )}
+                              <strong
+                                className="jippy-outlet-name-link"
+                                onClick={() =>
+                                  handleOutletProfile(
+                                    outlet
+                                  )
+                                }
+                                title="View Outlet Details"
+                              >
+                                {outlet.outletName ||
+                                  "-"}
+                              </strong>
 
-            {/* STATE */}
-            {visibleColumns.stateId && (
-              <td>
-                {outlet.stateId ?? "-"}
-              </td>
-            )}
+                            </td>
+                          )}
+
+                          {/* MERCHANT NAME */}
+
+                          {visibleColumns.merchantId && (
+                            <td>
+                              {outlet.merchantName ||
+                                "-"}
+                            </td>
+                          )}
+
+                          {/* CUISINE NAME */}
+
+                          {visibleColumns.cuisineType && (
+                            <td>
+
+                              {Array.isArray(
+                                outlet.cuisineNames
+                              ) &&
+                              outlet.cuisineNames.length >
+                                0
+                                ? outlet.cuisineNames.join(
+                                    ", "
+                                  )
+                                : "-"}
+
+                            </td>
+                          )}
+
+                          {/* PHONE */}
+
+                          {visibleColumns.outletPhone && (
+                            <td>
+                              {outlet.outletPhone ||
+                                "-"}
+                            </td>
+                          )}
+
+                          {/* STATUS */}
+
+                          {visibleColumns.status && (
+                            <td>
+
+                              <span
+                                className={`jippy-all-outlets-status ${
+                                  outlet.isActive ===
+                                  "Y"
+                                    ? "active"
+                                    : "inactive"
+                                }`}
+                              >
+                                {outlet.isActive ===
+                                "Y"
+                                  ? "Active"
+                                  : "Inactive"}
+                              </span>
+
+                            </td>
+                          )}
+
+                          {/* MENU ITEMS */}
+
+                          {visibleColumns.menuItemCount && (
+                            <td>
+                              {outlet.menuItemCount ??
+                                0}
+                            </td>
+                          )}
+
+                          {/* AREA NAME */}
+
+                          {visibleColumns.areaId && (
+                            <td>
+                              {outlet.areaName ||
+                                "-"}
+                            </td>
+                          )}
+
+                          {/* STATE NAME */}
+
+                          {visibleColumns.stateId && (
+                            <td>
+                              {outlet.stateName ||
+                                "-"}
+                            </td>
+                          )}
 
 {/* AVAILABILITY */}
 {visibleColumns.availability && (
@@ -2135,278 +2503,327 @@ const columnOptions = [
         onChange={() => handleOutletToggle(outlet)}
       />
 
-      <span className="jippy-outlet-toggle-slider" />
-    </label>
-  </td>
-)}
+                                <span className="jippy-outlet-toggle-slider" />
 
+                              </label>
 
+                            </td>
+                          )}
 
+                          {/* ACTIONS */}
 
+                          <td className="jippy-all-outlets-actions-cell">
 
+                            <div className="jippy-all-outlets-actions">
 
-            {/* ACTIONS */}
-            <td className="jippy-all-outlets-actions-cell">
-              <div className="jippy-all-outlets-actions">
+                              <button
+                                type="button"
+                                className="jippy-all-outlets-edit-btn"
+                                title="Edit Outlet"
+                                aria-label="Edit Outlet"
+                                onClick={() =>
+                                  handleEditOutlet(
+                                    outlet
+                                  )
+                                }
+                              >
+                                <FiEdit2 />
+                              </button>
 
-                <button
-                  type="button"
-                  className="jippy-all-outlets-edit-btn"
-                  title="Edit Outlet"
-                  aria-label="Edit Outlet"
-                  onClick={() =>
-                    handleEditOutlet(outlet)
+                              <button
+                                type="button"
+                                className="jippy-all-outlets-delete-btn"
+                                title="Delete Outlet"
+                                aria-label="Delete Outlet"
+                                onClick={() =>
+                                  handleDeleteOutlet(
+                                    outlet
+                                  )
+                                }
+                              >
+                                <FiTrash2 />
+                              </button>
+
+                            </div>
+
+                          </td>
+
+                        </tr>
+
+                        {/* EXPANDED DETAILS */}
+
+                        {isExpanded && (
+                          <tr className="jippy-all-outlets-expanded-row">
+
+                            <td
+                              colSpan="12"
+                              className="jippy-all-outlets-expanded-cell"
+                            >
+
+                              <div className="jippy-all-outlets-expanded-content">
+
+                                {/* ADDRESS */}
+
+                                <div className="jippy-all-outlets-address-grid">
+
+                                  <div className="jippy-outlet-detail-item">
+
+                                    <span className="jippy-outlet-detail-label">
+                                      🏠 Building No.
+                                    </span>
+
+                                    <strong>
+                                      {outlet.buildingNumber ||
+                                        "-"}
+                                    </strong>
+
+                                  </div>
+
+                                  <div className="jippy-outlet-detail-item">
+
+                                    <span className="jippy-outlet-detail-label">
+                                      🛣️ Road
+                                    </span>
+
+                                    <strong>
+                                      {outlet.road ||
+                                        "-"}
+                                    </strong>
+
+                                  </div>
+
+                                  <div className="jippy-outlet-detail-item">
+
+                                    <span className="jippy-outlet-detail-label">
+                                      📍 Landmark
+                                    </span>
+
+                                    <strong>
+                                      {outlet.landmark ||
+                                        "-"}
+                                    </strong>
+
+                                  </div>
+
+                                  {/* AREA NAME */}
+
+                                  <div className="jippy-outlet-detail-item">
+
+                                    <span className="jippy-outlet-detail-label">
+                                      🗺️ Area Name
+                                    </span>
+
+                                    <strong>
+                                      {outlet.areaName ||
+                                        "-"}
+                                    </strong>
+
+                                  </div>
+
+                                  {/* STATE NAME */}
+
+                                  <div className="jippy-outlet-detail-item">
+
+                                    <span className="jippy-outlet-detail-label">
+                                      🏛️ State Name
+                                    </span>
+
+                                    <strong>
+                                      {outlet.stateName ||
+                                        "-"}
+                                    </strong>
+
+                                  </div>
+
+                                  <div className="jippy-outlet-detail-item jippy-outlet-full-address">
+
+                                    <span className="jippy-outlet-detail-label">
+                                      📍 Full Address
+                                    </span>
+
+                                    <strong>
+                                      {[
+                                        outlet.buildingNumber,
+                                        outlet.road,
+                                        outlet.landmark,
+                                      ]
+                                        .filter(
+                                          Boolean
+                                        )
+                                        .join(
+                                          ", "
+                                        ) ||
+                                        "-"}
+                                    </strong>
+
+                                  </div>
+
+                                </div>
+
+                                {/* UNAVAILABILITY */}
+
+                                {savedUnavailability && (
+                                  <div className="jippy-outlet-unavailability-card">
+
+                                    <div className="jippy-outlet-unavailability-heading">
+
+                                      <div>
+
+                                        <FiCalendar />
+
+                                        <span>
+
+                                          Outlet Unavailability{" "}
+
+                                          <span className="jippy-outlet-unavailable-status">
+                                            (Currently Unavailable)
+                                          </span>
+
+                                        </span>
+
+                                      </div>
+
+                                    </div>
+
+                                    <div className="jippy-outlet-unavailability-content">
+
+                                      <div className="jippy-unavailability-info">
+
+                                        <span>
+                                          From Date & Time
+                                        </span>
+
+                                        <strong>
+                                          {formatUnavailabilityDate(
+                                            savedUnavailability.fromDate
+                                          )}
+                                        </strong>
+
+                                      </div>
+
+                                      <div className="jippy-unavailability-info">
+
+                                        <span>
+                                          To Date & Time
+                                        </span>
+
+                                        <strong>
+                                          {formatUnavailabilityDate(
+                                            savedUnavailability.toDate
+                                          )}
+                                        </strong>
+
+                                      </div>
+
+                                      <div className="jippy-unavailability-info reason">
+
+                                        <span>
+                                          Reason
+                                        </span>
+
+                                        <strong>
+                                          {
+                                            savedUnavailability.reason
+                                          }
+                                        </strong>
+
+                                      </div>
+
+                                      <div className="jippy-unavailability-info">
+
+                                        <button
+                                          type="button"
+                                          className="jippy-all-outlets-edit-btn"
+                                          title="Edit Outlet"
+                                          aria-label="Edit Outlet"
+                                          onClick={() =>
+                                            handleEditOutlet(
+                                              outlet
+                                            )
+                                          }
+                                        >
+                                          <FiEdit2 />
+                                        </button>
+
+                                        <span>
+                                          Marked On
+                                        </span>
+
+                                        <strong>
+                                          {formatUnavailabilityDate(
+                                            savedUnavailability.markedOn
+                                          )}
+                                        </strong>
+
+                                      </div>
+
+                                      <div className="jippy-unavailability-edit-wrapper">
+
+                                        <button
+                                          type="button"
+                                          className="jippy-edit-unavailability-btn"
+                                          onClick={() =>
+                                            handleEditUnavailability(
+                                              outlet
+                                            )
+                                          }
+                                        >
+                                          <FiEdit2 />
+
+                                          Edit Unavailability
+                                        </button>
+
+                                      </div>
+
+                                    </div>
+
+                                  </div>
+                                )}
+
+                              </div>
+
+                            </td>
+
+                          </tr>
+                        )}
+
+                      </React.Fragment>
+                    );
                   }
-                >
-                  <FiEdit2 />
-                </button>
+                )
+              )}
 
-                <button
-                  type="button"
-                  className="jippy-all-outlets-delete-btn"
-                  title="Delete Outlet"
-                  aria-label="Delete Outlet"
-                  onClick={() =>
-                    handleDeleteOutlet(outlet)
-                  }
-                >
-                  <FiTrash2 />
-                </button>
+            </tbody>
 
-              </div>
-            </td>
+          </table>
 
-          </tr>
-
-
-            {/* ================================================= */}
-            {/* EXPANDED DETAILS */}
-            {/* ================================================= */}
-
-            {isExpanded && (
-              <tr className="jippy-all-outlets-expanded-row">
-
-                <td
-                  colSpan="12"
-                  className="jippy-all-outlets-expanded-cell"
-                >
-
-                  <div className="jippy-all-outlets-expanded-content">
-
-                    {/* ADDRESS DETAILS */}
-
-                    <div className="jippy-all-outlets-address-grid">
-
-                      <div className="jippy-outlet-detail-item">
-                        <span className="jippy-outlet-detail-label">
-                          🏠 Building No.
-                        </span>
-
-                        <strong>
-                          {outlet.buildingNumber ||
-                            "-"}
-                        </strong>
-                      </div>
-
-
-                      <div className="jippy-outlet-detail-item">
-                        <span className="jippy-outlet-detail-label">
-                          🛣️ Road
-                        </span>
-
-                        <strong>
-                          {outlet.road || "-"}
-                        </strong>
-                      </div>
-
-
-                    <div className="jippy-outlet-detail-item">
-                      <span className="jippy-outlet-detail-label">
-                        📍 Landmark
-                      </span>
-
-                      <strong>
-                        {outlet.landmark || "-"}
-                      </strong>
-                    </div>
-
-
-                    <div className="jippy-outlet-detail-item">
-                      <span className="jippy-outlet-detail-label">
-                        🗺️ Area ID
-                      </span>
-
-                      <strong>
-                        {outlet.areaId ?? "-"}
-                      </strong>
-                    </div>
-
-
-                    <div className="jippy-outlet-detail-item">
-                      <span className="jippy-outlet-detail-label">
-                        🏛️ State ID
-                      </span>
-
-                      <strong>
-                        {outlet.stateId ?? "-"}
-                      </strong>
-                    </div>
-
-
-                    <div className="jippy-outlet-detail-item jippy-outlet-full-address">
-                      <span className="jippy-outlet-detail-label">
-                        📍 Full Address
-                      </span>
-
-                      <strong>
-                        {[
-                          outlet.buildingNumber,
-                          outlet.road,
-                          outlet.landmark,
-                        ]
-                          .filter(Boolean)
-                          .join(", ") || "-"}
-                      </strong>
-                    </div>
-
-                  </div>
-
-
-                  {/* ================================================= */}
-                  {/* UNAVAILABILITY DETAILS */}
-                  {/* ================================================= */}
-
-                  {savedUnavailability && (
-                    <div className="jippy-outlet-unavailability-card">
-
-                      <div className="jippy-outlet-unavailability-heading">
-
-                        <div>
-                          <FiCalendar />
-
-                          <span>
-                            Outlet Unavailability
-                            {" "}
-                            <span className="jippy-outlet-unavailable-status">
-                              (Currently Unavailable)
-                            </span>
-                          </span>
-                        </div>
-
-                      </div>
-
-
-                     <div className="jippy-outlet-unavailability-content">
-
-  <div className="jippy-unavailability-info">
-    <span>
-      From Date & Time
-    </span>
-
-    <strong>
-      {formatUnavailabilityDate(
-        savedUnavailability.fromDate
-      )}
-    </strong>
-  </div>
-
-  <div className="jippy-unavailability-info">
-    <span>
-      To Date & Time
-    </span>
-
-    <strong>
-      {formatUnavailabilityDate(
-        savedUnavailability.toDate
-      )}
-    </strong>
-  </div>
-
-  <div className="jippy-unavailability-info reason">
-    <span>
-      Reason
-    </span>
-
-    <strong>
-      {savedUnavailability.reason}
-    </strong>
-  </div>
-
-  <div className="jippy-unavailability-info">
-    <button
-      type="button"
-      className="jippy-all-outlets-edit-btn"
-      title="Edit Outlet"
-      aria-label="Edit Outlet"
-      onClick={() => handleEditOutlet(outlet)}
-    >
-      <FiEdit2 />
-    </button>
-
-    <span>
-      Marked On
-    </span>
-
-    <strong>
-      {formatUnavailabilityDate(
-        savedUnavailability.markedOn
-      )}
-    </strong>
-  </div>
-
-  <div className="jippy-unavailability-edit-wrapper">
-    <button
-      type="button"
-      className="jippy-edit-unavailability-btn"
-      onClick={() =>
-        handleEditUnavailability(outlet)
-      }
-    >
-      <FiEdit2 />
-      Edit Unavailability
-    </button>
-  </div>
-
-</div>
-
-                    </div>
-                  )}
-
-                </div>
-
-              </td>
-
-            </tr>
-          )}
-
-        </React.Fragment>
-      );
-    })
-  )}
-</tbody>
-
-  </table>
-
-</div>
+        </div>
 
         {/* PAGINATION FOOTER */}
 
         {!loading &&
-          filteredOutlets.length > 0 && (
-
+          filteredOutlets.length >
+            0 && (
             <div className="jippy-all-outlets-table-footer">
 
               <div className="jippy-all-outlets-showing-text">
 
                 Showing{" "}
-                {startIndex + 1} to{" "}
+
+                {startIndex + 1}
+
+                {" "}to{" "}
+
                 {Math.min(
                   endIndex,
                   filteredOutlets.length
-                )}{" "}
-                of{" "}
-                {filteredOutlets.length}{" "}
-                outlets
+                )}
+
+                {" "}of{" "}
+
+                {filteredOutlets.length}
+
+                {" "}outlets
 
               </div>
 
@@ -2416,11 +2833,13 @@ const columnOptions = [
                   type="button"
                   className="jippy-all-outlets-page-btn"
                   disabled={
-                    currentPage === 1
+                    currentPage ===
+                    1
                   }
                   onClick={() =>
                     setCurrentPage(
-                      (prev) => prev - 1
+                      (prev) =>
+                        prev - 1
                     )
                   }
                 >
@@ -2429,28 +2848,35 @@ const columnOptions = [
 
                 {Array.from(
                   {
-                    length: totalPages,
+                    length:
+                      totalPages,
                   },
-                  (_, index) =>
+                  (
+                    _,
+                    index
+                  ) =>
                     index + 1
-                ).map((page) => (
-
-                  <button
-                    key={page}
-                    type="button"
-                    className={`jippy-all-outlets-page-btn ${
-                      currentPage === page
-                        ? "jippy-all-outlets-page-btn-active"
-                        : ""
-                    }`}
-                    onClick={() =>
-                      setCurrentPage(page)
-                    }
-                  >
-                    {page}
-                  </button>
-
-                ))}
+                ).map(
+                  (page) => (
+                    <button
+                      key={page}
+                      type="button"
+                      className={`jippy-all-outlets-page-btn ${
+                        currentPage ===
+                        page
+                          ? "jippy-all-outlets-page-btn-active"
+                          : ""
+                      }`}
+                      onClick={() =>
+                        setCurrentPage(
+                          page
+                        )
+                      }
+                    >
+                      {page}
+                    </button>
+                  )
+                )}
 
                 <button
                   type="button"
@@ -2461,7 +2887,8 @@ const columnOptions = [
                   }
                   onClick={() =>
                     setCurrentPage(
-                      (prev) => prev + 1
+                      (prev) =>
+                        prev + 1
                     )
                   }
                 >
@@ -2471,248 +2898,315 @@ const columnOptions = [
               </div>
 
             </div>
-
-            
-            
           )}
 
-{unavailabilityModal.open && (
-  <div className="jippy-unavailability-modal-overlay">
-    <div className="jippy-unavailability-modal">
+        {/* =====================================================
+            UNAVAILABILITY MODAL
+        ===================================================== */}
 
-      {unavailabilityModal.mode === "restore" ? (
+        {unavailabilityModal.open && (
+          <div className="jippy-unavailability-modal-overlay">
 
-        <>
-          <div className="jippy-unavailability-modal-header">
+            <div className="jippy-unavailability-modal">
 
-            <h2>
-              Make Outlet Available
-            </h2>
+              {/* =================================================
+                  RESTORE MODAL
+              ================================================= */}
 
-            <button
-              type="button"
-              className="jippy-unavailability-modal-close"
-              onClick={() => {
-                setUnavailabilityModal({
-                  open: false,
-                  outlet: null,
-                  mode: "create",
-                });
+              {unavailabilityModal.mode ===
+              "restore" ? (
+                <>
 
-                setSelectedOutlet(null);
-              }}
-            >
-              <FiX />
-            </button>
+                  <div className="jippy-unavailability-modal-header">
 
-          </div>
+                    <h2>
+                      Make Outlet Available
+                    </h2>
 
-          <div className="jippy-unavailability-modal-info">
+                    <button
+                      type="button"
+                      className="jippy-unavailability-modal-close"
+                      onClick={() => {
+                        setUnavailabilityModal(
+                          {
+                            open: false,
+                            outlet: null,
+                            mode: "create",
+                          }
+                        );
 
-            <FiInfo />
+                        setSelectedOutlet(
+                          null
+                        );
+                      }}
+                    >
+                      <FiX />
+                    </button>
 
-            <span>
-              This outlet is currently unavailable.
-              Do you want to make this outlet available again?
-            </span>
+                  </div>
 
-          </div>
+                  <div className="jippy-unavailability-modal-info">
 
-          <div className="jippy-unavailability-modal-actions">
+                    <FiInfo />
 
-            <button
-              type="button"
-              className="jippy-unavailability-cancel-btn"
-              onClick={() => {
-                setUnavailabilityModal({
-                  open: false,
-                  outlet: null,
-                  mode: "create",
-                });
+                    <span>
+                      This outlet is currently unavailable.
+                      Do you want to make this outlet available again?
+                    </span>
 
-                setSelectedOutlet(null);
-              }}
-            >
-              Cancel
-            </button>
+                  </div>
 
-            <button
-              type="button"
-              className="jippy-unavailability-confirm-btn"
-              onClick={handleConfirmOutletRestore}
-              disabled={savingUnavailability}
-            >
-              {savingUnavailability
-                ? "Restoring..."
-                : "Confirm & Turn ON"}
-            </button>
+                  <div className="jippy-unavailability-modal-actions">
 
-          </div>
-        </>
+                    <button
+                      type="button"
+                      className="jippy-unavailability-cancel-btn"
+                      onClick={() => {
+                        setUnavailabilityModal(
+                          {
+                            open: false,
+                            outlet: null,
+                            mode: "create",
+                          }
+                        );
 
-      ) : (
+                        setSelectedOutlet(
+                          null
+                        );
+                      }}
+                    >
+                      Cancel
+                    </button>
 
-        <>
-          {/* =========================================
-              YOUR EXISTING MARK UNAVAILABLE MODAL
-              KEEP THIS EXACTLY AS IT WAS
-          ========================================= */}
+                    <button
+                      type="button"
+                      className="jippy-unavailability-confirm-btn"
+                      onClick={
+                        handleConfirmOutletRestore
+                      }
+                      disabled={
+                        savingUnavailability
+                      }
+                    >
+                      {savingUnavailability
+                        ? "Restoring..."
+                        : "Confirm & Turn ON"}
+                    </button>
 
-          <div className="jippy-unavailability-modal-header">
+                  </div>
 
-            <h2>
-              {unavailabilityModal.mode === "edit"
-                ? "Edit Outlet Unavailability"
-                : "Mark Outlet as Unavailable"}
-            </h2>
+                </>
+              ) : (
+                <>
 
-            <button
-              type="button"
-              className="jippy-unavailability-modal-close"
-              onClick={() => {
-                setUnavailabilityModal({
-                  open: false,
-                  outlet: null,
-                  mode: "create",
-                });
+                  {/* =================================================
+                      CREATE / EDIT UNAVAILABILITY MODAL
+                  ================================================= */}
 
-                setSelectedOutlet(null);
-              }}
-            >
-              <FiX />
-            </button>
+                  <div className="jippy-unavailability-modal-header">
 
-          </div>
+                    <h2>
+                      {unavailabilityModal.mode ===
+                      "edit"
+                        ? "Edit Outlet Unavailability"
+                        : "Mark Outlet as Unavailable"}
+                    </h2>
 
-          <div className="jippy-unavailability-modal-info">
+                    <button
+                      type="button"
+                      className="jippy-unavailability-modal-close"
+                      onClick={() => {
+                        setUnavailabilityModal(
+                          {
+                            open: false,
+                            outlet: null,
+                            mode: "create",
+                          }
+                        );
 
-            <FiInfo />
+                        setSelectedOutlet(
+                          null
+                        );
+                      }}
+                    >
+                      <FiX />
+                    </button>
 
-            <span>
-              Please select the unavailability period and reason.
-              The outlet will be marked as unavailable during this time.
-            </span>
+                  </div>
 
-          </div>
+                  <div className="jippy-unavailability-modal-info">
 
-          {/* FROM + TO */}
+                    <FiInfo />
 
-          <div className="jippy-unavailability-form-row">
+                    <span>
+                      Please select the unavailability period and reason.
+                      The outlet will be marked as unavailable during this time.
+                    </span>
 
-            <div className="jippy-unavailability-field">
+                  </div>
 
-              <label>
-                From Date & Time <span>*</span>
-              </label>
+                  {/* FROM + TO */}
 
-              <div className="jippy-unavailability-input-wrapper">
+                  <div className="jippy-unavailability-form-row">
 
-                <input
-                  type="datetime-local"
-                  value={unavailabilityForm.fromDate}
-                  onChange={(event) =>
-                    setUnavailabilityForm((prev) => ({
-                      ...prev,
-                      fromDate: event.target.value,
-                    }))
-                  }
-                />
+                    <div className="jippy-unavailability-field">
 
-                <FiCalendar />
+                      <label>
+                        From Date & Time{" "}
+                        <span>
+                          *
+                        </span>
+                      </label>
 
-              </div>
+                      <div className="jippy-unavailability-input-wrapper">
+
+                        <input
+                          type="datetime-local"
+                          value={
+                            unavailabilityForm.fromDate
+                          }
+                          onChange={(
+                            event
+                          ) =>
+                            setUnavailabilityForm(
+                              (prev) => ({
+                                ...prev,
+                                fromDate:
+                                  event
+                                    .target
+                                    .value,
+                              })
+                            )
+                          }
+                        />
+
+                        <FiCalendar />
+
+                      </div>
+
+                    </div>
+
+                    <div className="jippy-unavailability-field">
+
+                      <label>
+                        To Date & Time{" "}
+                        <span>
+                          *
+                        </span>
+                      </label>
+
+                      <div className="jippy-unavailability-input-wrapper">
+
+                        <input
+                          type="datetime-local"
+                          value={
+                            unavailabilityForm.toDate
+                          }
+                          onChange={(
+                            event
+                          ) =>
+                            setUnavailabilityForm(
+                              (prev) => ({
+                                ...prev,
+                                toDate:
+                                  event
+                                    .target
+                                    .value,
+                              })
+                            )
+                          }
+                        />
+
+                        <FiCalendar />
+
+                      </div>
+
+                    </div>
+
+                  </div>
+
+                  {/* REASON */}
+
+                  <div className="jippy-unavailability-field">
+
+                    <label>
+                      Reason{" "}
+                      <span>
+                        *
+                      </span>
+                    </label>
+
+                    <textarea
+                      value={
+                        unavailabilityForm.reason
+                      }
+                      onChange={(
+                        event
+                      ) =>
+                        setUnavailabilityForm(
+                          (prev) => ({
+                            ...prev,
+                            reason:
+                              event
+                                .target
+                                .value,
+                          })
+                        )
+                      }
+                      placeholder="Enter reason for outlet unavailability"
+                      rows={4}
+                    />
+
+                  </div>
+
+                  {/* ACTIONS */}
+
+                  <div className="jippy-unavailability-modal-actions">
+
+                    <button
+                      type="button"
+                      className="jippy-unavailability-cancel-btn"
+                      onClick={() => {
+                        setUnavailabilityModal(
+                          {
+                            open: false,
+                            outlet: null,
+                            mode: "create",
+                          }
+                        );
+
+                        setSelectedOutlet(
+                          null
+                        );
+                      }}
+                    >
+                      Cancel
+                    </button>
+
+                    <button
+                      type="button"
+                      className="jippy-unavailability-confirm-btn"
+                      onClick={
+                        handleConfirmUnavailability
+                      }
+                      disabled={
+                        savingUnavailability
+                      }
+                    >
+                      {savingUnavailability
+                        ? "Saving..."
+                        : unavailabilityModal.mode ===
+                          "edit"
+                        ? "Update & Save"
+                        : "Confirm & Turn OFF"}
+                    </button>
+
+                  </div>
+
+                </>
+              )}
 
             </div>
-
-            <div className="jippy-unavailability-field">
-
-              <label>
-                To Date & Time <span>*</span>
-              </label>
-
-              <div className="jippy-unavailability-input-wrapper">
-
-                <input
-                  type="datetime-local"
-                  value={unavailabilityForm.toDate}
-                  onChange={(event) =>
-                    setUnavailabilityForm((prev) => ({
-                      ...prev,
-                      toDate: event.target.value,
-                    }))
-                  }
-                />
-
-                <FiCalendar />
-
-              </div>
-
-            </div>
-
-          </div>
-
-          {/* REASON */}
-
-          <div className="jippy-unavailability-field">
-
-            <label>
-              Reason <span>*</span>
-            </label>
-
-            <textarea
-              value={unavailabilityForm.reason}
-              onChange={(event) =>
-                setUnavailabilityForm((prev) => ({
-                  ...prev,
-                  reason: event.target.value,
-                }))
-              }
-              placeholder="Enter reason for outlet unavailability"
-              rows={4}
-            />
-
-          </div>
-
-          {/* ACTIONS */}
-
-          <div className="jippy-unavailability-modal-actions">
-
-            <button
-              type="button"
-              className="jippy-unavailability-cancel-btn"
-              onClick={() => {
-                setUnavailabilityModal({
-                  open: false,
-                  outlet: null,
-                  mode: "create",
-                });
-
-                setSelectedOutlet(null);
-              }}
-            >
-              Cancel
-            </button>
-
-            <button
-              type="button"
-              className="jippy-unavailability-confirm-btn"
-              onClick={handleConfirmUnavailability}
-              disabled={savingUnavailability}
-            >
-              {savingUnavailability
-                ? "Saving..."
-                : unavailabilityModal.mode === "edit"
-                  ? "Update & Save"
-                  : "Confirm & Turn OFF"}
-            </button>
-
-          </div>
-
-        </>
-
-      )}
-
-    </div>
 
   </div>
 )}
@@ -2802,10 +3296,9 @@ const columnOptions = [
   </div>
 )}
 
-  </div>
-  </div>
-);
-
+      </div>
+    </div>
+  );
 }
 
 export default AllOutletsList;

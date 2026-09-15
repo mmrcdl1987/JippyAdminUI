@@ -329,24 +329,25 @@ export const menuData = [
   },
 
   {
-    title: "REPORT & ANALYTICS",
-    permission: "PAYMENT_READ",
-    items: [
-      {
-        name: "Settlement Reports",
-        children: [
-          {
-            name: "Merchant Settlement",
-            permission: "PAYMENT_READ",
-          },
-          {
-            name: "Driver Settlement",
-            permission: "PAYMENT_READ",
-          },
-        ],
-      },
-    ],
-  },
+  title: "REPORT & ANALYTICS",
+  permission: "PAYMENT_READ",
+  items: [
+    {
+      name: "Settlement Reports",
+      children: [
+        {
+          name: "Merchant Settlement",
+          pageKey: "merchantSettlement",
+          permission: "PAYMENT_READ",
+        },
+        {
+          name: "Driver Settlement",
+          permission: "PAYMENT_READ",
+        },
+      ],
+    },
+  ],
+},
 
   {
     title: "NOTIFICATION MANAGEMENT",

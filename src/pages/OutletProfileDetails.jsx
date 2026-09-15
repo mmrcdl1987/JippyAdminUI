@@ -1126,7 +1126,7 @@ const getMapUrl = () => {
 
               {/* EMAIL */}
 
-              <div>
+              {/* <div>
 
                 <span>
                   Email
@@ -1138,12 +1138,12 @@ const getMapUrl = () => {
                   )}
                 </strong>
 
-              </div>
+              </div> */}
 
 
               {/* PHONE */}
 
-              <div>
+              {/* <div>
 
                 <span>
                   Phone
@@ -1155,12 +1155,12 @@ const getMapUrl = () => {
                   )}
                 </strong>
 
-              </div>
+              </div> */}
 
 
               {/* ALTERNATE PHONE */}
 
-              <div>
+              {/* <div>
 
                 <span>
                   Alternate Phone
@@ -1172,7 +1172,7 @@ const getMapUrl = () => {
                   )}
                 </strong>
 
-              </div>
+              </div> */}
 
 
               {/* CUISINE */}
@@ -1263,144 +1263,180 @@ const getMapUrl = () => {
               CONTACT DETAILS
           ====================================================== */}
 
-          <div className="jippy-outlet-profile-main-card">
+          {/* ======================================================
+    CONTACT DETAILS
+====================================================== */}
 
-            <div className="jippy-outlet-profile-card-heading">
+<div className="jippy-outlet-profile-main-card">
 
-              <FiUser />
+  <div className="jippy-outlet-profile-card-heading">
 
-              <span>
-                Contact & Account Details
-              </span>
+    <FiUser />
 
-            </div>
+    <span>
+      Contact & Account Details
+    </span>
 
-
-            <div className="jippy-outlet-profile-details-grid">
-
-
-              <div>
-
-                <span>
-                  Email
-                </span>
-
-                <strong>
-                  {displayValue(
-                    outlet?.outletEmail
-                  )}
-                </strong>
-
-              </div>
+  </div>
 
 
-              <div>
+  <div className="jippy-outlet-profile-details-grid">
 
-                <span>
-                  Phone Number
-                </span>
+    {/* EMAIL */}
 
-                <strong>
-                  {displayValue(
-                    outlet?.outletPhone
-                  )}
-                </strong>
+    <div>
 
-              </div>
+      <span>
+        Email
+      </span>
 
+      <strong>
+        {displayValue(
+          outlet?.outletEmail
+        )}
+      </strong>
 
-              <div>
-
-                <span>
-                  Alternate Phone
-                </span>
-
-                <strong>
-                  {displayValue(
-                    outlet?.alternateOutletPhone
-                  )}
-                </strong>
-
-              </div>
+    </div>
 
 
-              <div>
+    {/* PHONE NUMBER */}
 
-                <span>
-                  Account Number
-                </span>
+    <div>
 
-                <strong>
-                  {displayValue(
-                    outlet?.accountNumber
-                  )}
-                </strong>
+      <span>
+        Phone Number
+      </span>
 
-              </div>
+      <strong>
+        {displayValue(
+          outlet?.outletPhone
+        )}
+      </strong>
 
-
-              <div>
-
-                <span>
-                  Account Holder
-                </span>
-
-                <strong>
-                  {displayValue(
-                    outlet?.accountHolderName
-                  )}
-                </strong>
-
-              </div>
+    </div>
 
 
-              <div>
+    {/* ALTERNATE PHONE */}
 
-                <span>
-                  Bank Name
-                </span>
+    <div>
 
-                <strong>
-                  {displayValue(
-                    outlet?.bankName
-                  )}
-                </strong>
+      <span>
+        Alternate Phone
+      </span>
 
-              </div>
+      <strong>
+        {displayValue(
+          outlet?.alternateOutletPhone
+        )}
+      </strong>
 
-
-              <div>
-
-                <span>
-                  IFSC Code
-                </span>
-
-                <strong>
-                  {displayValue(
-                    outlet?.ifscCode
-                  )}
-                </strong>
-
-              </div>
+    </div>
 
 
-              <div>
+    {/* ACCOUNT NUMBER */}
 
-                <span>
-                  City ID
-                </span>
+    <div>
 
-                <strong>
-                  {displayValue(
-                    outlet?.cityId
-                  )}
-                </strong>
+      <span>
+        Account Number
+      </span>
 
-              </div>
+      <strong>
+        {displayValue(
+          outlet?.accountNumber
+        )}
+      </strong>
 
-            </div>
+    </div>
 
-          </div>
+
+    {/* ACCOUNT HOLDER */}
+
+    <div>
+
+      <span>
+        Account Holder
+      </span>
+
+      <strong>
+        {displayValue(
+          outlet?.accountHolderName
+        )}
+      </strong>
+
+    </div>
+
+
+    {/* BANK NAME */}
+
+    <div>
+
+      <span>
+        Bank Name
+      </span>
+
+      <strong>
+        {displayValue(
+          outlet?.bankName
+        )}
+      </strong>
+
+    </div>
+
+
+    {/* IFSC CODE */}
+
+    <div>
+
+      <span>
+        IFSC Code
+      </span>
+
+      <strong>
+        {displayValue(
+          outlet?.ifscCode
+        )}
+      </strong>
+
+    </div>
+
+
+    {/* FSSAI NUMBER */}
+
+    <div>
+
+      <span>
+        FSSAI Number
+      </span>
+
+      <strong>
+        {displayValue(
+          outlet?.fssaiNumber
+        )}
+      </strong>
+
+    </div>
+
+
+    {/* GST NUMBER */}
+
+    <div>
+
+      <span>
+        GST Number
+      </span>
+
+      <strong>
+        {displayValue(
+          outlet?.gstNumber
+        )}
+      </strong>
+
+    </div>
+
+  </div>
+
+</div>
 
 
           {/* ======================================================
@@ -1488,7 +1524,7 @@ const getMapUrl = () => {
                 </div>
 
 
-                <div>
+                {/* <div>
 
                   <span>
                     Area ID
@@ -1500,7 +1536,7 @@ const getMapUrl = () => {
                     )}
                   </strong>
 
-                </div>
+                </div> */}
 
 
                 <div>
@@ -1517,22 +1553,6 @@ const getMapUrl = () => {
 
                 </div>
 
-
-                <div>
-
-                  <span>
-                    City ID
-                  </span>
-
-                  <strong>
-                    {displayValue(
-                      outlet?.cityId
-                    )}
-                  </strong>
-
-                </div>
-
-
                 <div>
 
                   <span>
@@ -1548,7 +1568,7 @@ const getMapUrl = () => {
                 </div>
 
 
-                <div>
+                {/* <div>
 
                   <span>
                     State ID
@@ -1560,7 +1580,7 @@ const getMapUrl = () => {
                     )}
                   </strong>
 
-                </div>
+                </div> */}
 
 
                 <div>

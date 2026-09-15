@@ -6,7 +6,7 @@ import EditPromotionSettings from "../pages/EditPromotionSettings";
 
 import RolesPermissions from "../pages/RolesPermissions";
 import AdminUsers from "../pages/AdminUsers";
-
+import MerchantSettlement from "../pages/MerchantSettlement";
 import UsersCustomers from "../pages/UsersCustomers";
 import CreateUser from "../pages/CreateUser";
 
@@ -471,5 +471,8 @@ editPromotionSettings: {
     component: DriverSettings,
     permission: "SETTINGS_READ",
   },
-
+merchantSettlement: {
+  component: MerchantSettlement,
+  permission: "SETTINGS_READ",
+},
 };
