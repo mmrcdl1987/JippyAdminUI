@@ -70,6 +70,66 @@ function Orders({ setActivePage, setSelectedOrderId }) {
   const [cities, setCities] = useState([]);
   const [areas, setAreas] = useState([]);
 
+
+  const [showColumns, setShowColumns] = useState(false);
+
+const [visibleColumns, setVisibleColumns] = useState({
+  orderId: true,
+  restaurant: true,
+  driver: true,
+  customer: true,
+  date: true,
+  amount: true,
+  orderStatus: true,
+  area: true,
+  actions: true,
+});
+
+const orderColumns = [
+  {
+    key: "orderId",
+    label: "Order ID",
+  },
+  {
+    key: "restaurant",
+    label: "Restaurant",
+  },
+  {
+    key: "driver",
+    label: "Driver",
+  },
+  {
+    key: "customer",
+    label: "Customer",
+  },
+  {
+    key: "date",
+    label: "Date",
+  },
+  {
+    key: "amount",
+    label: "Amount",
+  },
+  {
+    key: "orderStatus",
+    label: "Order Status",
+  },
+  {
+    key: "area",
+    label: "Area",
+  },
+  {
+    key: "actions",
+    label: "Actions",
+  },
+];
+const handleColumnToggle = (columnKey) => {
+  setVisibleColumns((prev) => ({
+    ...prev,
+    [columnKey]: !prev[columnKey],
+  }));
+};
+
   const [selectedState, setSelectedState] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
   const [selectedArea, setSelectedArea] = useState("");
@@ -993,12 +1053,44 @@ ordersData = ordersWithCreatedAt;
 
             </div>
 
-            <button
-              type="button"
-              className="orders-columns-button"
-            >
-              Columns ▾
-            </button>
+        <div className="orders-columns-wrapper">
+
+  <button
+    type="button"
+    className="orders-columns-button"
+    onClick={() => setShowColumns((prev) => !prev)}
+  >
+    Columns ▾
+  </button>
+
+  {showColumns && (
+    <div className="orders-columns-dropdown">
+
+      <div className="orders-columns-title">
+        <span>General</span>
+      </div>
+
+      {orderColumns.map((column) => (
+        <label
+          key={column.key}
+          className="orders-column-option"
+        >
+          <input
+            type="checkbox"
+            checked={visibleColumns[column.key]}
+            onChange={() =>
+              handleColumnToggle(column.key)
+            }
+          />
+
+          <span>{column.label}</span>
+        </label>
+      ))}
+
+    </div>
+  )}
+
+</div>
 
           </div>
 
@@ -1069,36 +1161,52 @@ ordersData = ordersWithCreatedAt;
 
             <table className="orders-table">
 
-              <thead>
+             <thead>
+  <tr>
 
-                <tr>
+    <th>
+      <input type="checkbox" />
+      <span>All</span>
+    </th>
 
-                  <th>
-                    <input type="checkbox" />
-                    <span>All</span>
-                  </th>
+    {visibleColumns.orderId && (
+      <th>Order ID</th>
+    )}
 
-                  <th>Order ID</th>
+    {visibleColumns.restaurant && (
+      <th>Restaurant</th>
+    )}
 
-                  <th>Restaurant</th>
+    {visibleColumns.driver && (
+      <th>Driver</th>
+    )}
 
-                  <th>Driver</th>
+    {visibleColumns.customer && (
+      <th>Customer</th>
+    )}
 
-                  <th>Customer</th>
+    {visibleColumns.date && (
+      <th>Date</th>
+    )}
 
-                  <th>Date</th>
+    {visibleColumns.amount && (
+      <th>Amount</th>
+    )}
 
-                  <th>Amount</th>
+    {visibleColumns.orderStatus && (
+      <th>Order Status</th>
+    )}
 
-                  <th>Order Status</th>
+    {visibleColumns.area && (
+      <th>Area</th>
+    )}
 
-                  <th>Area</th>
+    {visibleColumns.actions && (
+      <th>Actions</th>
+    )}
 
-                  <th>Actions</th>
-
-                </tr>
-
-              </thead>
+  </tr>
+</thead>
 
               <tbody>
 
@@ -1133,99 +1241,93 @@ ordersData = ordersWithCreatedAt;
                   paginatedOrders.map(
                     (order) => (
 
-                      <tr
-                        key={order.orderId}
-                      >
+                   <tr key={order.orderId}>
 
-                        {/* CHECKBOX */}
+  {/* CHECKBOX - ALWAYS VISIBLE */}
+  <td>
+    <input type="checkbox" />
+  </td>
 
-                        <td>
-                          <input
-                            type="checkbox"
-                          />
-                        </td>
+  {/* ORDER ID */}
+  {visibleColumns.orderId && (
+    <td>
+      {order.orderId || "-"}
+    </td>
+  )}
 
-                        {/* ORDER ID */}
+  {/* RESTAURANT */}
+  {visibleColumns.restaurant && (
+    <td>
+      {order.outletName || "-"}
+    </td>
+  )}
 
-                        <td>
-                          {order.orderId || "-"}
-                        </td>
+  {/* DRIVER */}
+  {visibleColumns.driver && (
+    <td>
+      {order.driverName || "-"}
+    </td>
+  )}
 
-                        {/* RESTAURANT */}
+  {/* CUSTOMER */}
+  {visibleColumns.customer && (
+    <td>
+      {order.customerName || "-"}
+    </td>
+  )}
 
-                        <td>
-                          {order.outletName || "-"}
-                        </td>
+  {/* DATE */}
+  {visibleColumns.date && (
+    <td>
+      {formatDate(order.createdAt)}
+    </td>
+  )}
 
-                        {/* DRIVER */}
+  {/* AMOUNT */}
+  {visibleColumns.amount && (
+    <td>
+      {formatCurrency(order.orderAmount)}
+    </td>
+  )}
 
-                        <td>
-                          {order.driverName || "-"}
-                        </td>
+  {/* STATUS */}
+  {visibleColumns.orderStatus && (
+    <td>
+      <span
+        className={`orders-status ${getStatusClass(
+          order.orderStatus
+        )}`}
+      >
+        {formatOrderStatus(order.orderStatus)}
+      </span>
+    </td>
+  )}
 
-                        {/* CUSTOMER */}
+  {/* AREA */}
+  {visibleColumns.area && (
+    <td>
+      {order.areaName || "-"}
+    </td>
+  )}
 
-                        <td>
-                          {order.customerName || "-"}
-                        </td>
+  {/* ACTIONS */}
+  {visibleColumns.actions && (
+    <td>
+      <button
+        type="button"
+        className="orders-view-button"
+        onClick={() => {
+          setSelectedOrderId(order.orderId);
+          setActivePage("orderDetails");
+        }}
+      >
+        <FaEye />
+        View
+      </button>
+    </td>
+  )}
 
-                        {/* DATE */}
-
-                        <td>
-                          {formatDate(
-                            order.createdAt
-                          )}
-                        </td>
-
-                        {/* AMOUNT */}
-
-                        <td>
-                          {formatCurrency(
-                            order.orderAmount
-                          )}
-                        </td>
-
-                        {/* STATUS */}
-  
-                        <td>
-
-                          <span
-                            className={`orders-status ${getStatusClass(
-                              order.orderStatus
-                            )}`}
-                          >
-                            {formatOrderStatus(
-                              order.orderStatus
-                            )}
-                          </span>
-
-                        </td>
-
-                        {/* AREA NAME */}
-
-                        <td>
-                          {order.areaName || "-"}
-                        </td>
-
-                        {/* ACTION */}
-
-                        <td>
-
-                        <button
-  type="button"
-  className="orders-view-button"
-  onClick={() => {
-    setSelectedOrderId(order.orderId);
-    setActivePage("orderDetails");
-  }}
->
-  <FaEye />
-  View
-</button>
-
-                        </td>
-
-                      </tr>
+</tr>
 
                     )
                   )
