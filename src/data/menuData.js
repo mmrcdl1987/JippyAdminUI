@@ -180,6 +180,27 @@ export const menuData = [
     ],
   },
 
+
+
+
+
+  // =========================================================
+// ORDER MANAGEMENT
+// =========================================================
+
+{
+  title: "ORDER MANAGEMENT",
+  permission: "ORDER_READ",
+  items: [
+    {
+      name: "Orders",
+      pageKey: "orders",
+      permission: "ORDER_READ",
+    },
+  ],
+},
+
+
   {
     title: "MENU & FOOD MANAGEMENT",
     permission: "RESTAURANT_READ",

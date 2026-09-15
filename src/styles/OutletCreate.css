@@ -619,14 +619,14 @@
 
 @media (max-width: 1000px) {
 
-    .jippy-outlet-create-day-row {
+     .jippy-outlet-create-custom-row {
         grid-template-columns:
             130px
             100px
             1fr
-            1fr;
+            1fr
+            40px;
     }
-
     .jippy-outlet-create-time {
         flex-direction: column;
         align-items: flex-start;
@@ -640,6 +640,49 @@
 
 
 @media (max-width: 768px) {
+
+
+    .jippy-outlet-create-custom-row {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.jippy-outlet-create-custom-day-select {
+    width: 100%;
+}
+
+.jippy-outlet-create-custom-row
+.jippy-outlet-create-delete-timing-btn {
+    justify-self: end;
+}
+
+
+        .jippy-outlet-create-section-header {
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .jippy-outlet-create-add-timing-btn {
+        flex-shrink: 0;
+    }
+
+    .jippy-outlet-create-timing-form {
+        grid-template-columns: 1fr;
+    }
+
+    .jippy-outlet-create-timing-modal {
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    .jippy-outlet-create-timing-actions {
+        flex-direction: column;
+    }
+
+    .jippy-outlet-create-timing-cancel-btn,
+    .jippy-outlet-create-timing-submit-btn {
+        width: 100%;
+    }
 
     .jippy-outlet-create-page {
         padding: 20px 16px 60px;
@@ -708,4 +751,350 @@
     .jippy-outlet-create-time input {
         width: 100%;
     }
+}
+
+
+/* ================= Add Timing ================= */
+
+.jippy-outlet-create-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.jippy-outlet-create-section-header h2 {
+    margin: 0;
+}
+
+.jippy-outlet-create-add-timing-btn {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 15px;
+    border: 1px solid #ff6b00;
+    background: #fff;
+    color: #ff6b00;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.jippy-outlet-create-add-timing-btn span {
+    font-size: 18px;
+    line-height: 1;
+}
+
+.jippy-outlet-create-add-timing-btn:hover {
+    background: #ff6b00;
+    color: #fff;
+}
+
+
+/* ================= Custom Timing Rows ================= */
+
+/* ================= Additional Timings ================= */
+
+.jippy-outlet-create-additional-section {
+    margin-top: 25px;
+}
+
+.jippy-outlet-create-additional-description {
+    margin: -12px 0 20px;
+    color: #777;
+    font-size: 12px;
+}
+
+
+/* Additional timing list */
+
+.jippy-outlet-create-custom-timings {
+    width: 100%;
+}
+
+
+/* Additional timing row */
+
+.jippy-outlet-create-custom-row {
+    display: grid;
+
+    grid-template-columns:
+        150px
+        110px
+        minmax(170px, 1fr)
+        minmax(170px, 1fr)
+        40px;
+
+    align-items: center;
+
+    gap: 18px;
+
+    min-height: 68px;
+
+    padding: 11px 18px;
+
+    box-sizing: border-box;
+
+    border: 1px solid #eeeeee;
+
+    border-radius: 10px;
+
+    background: #ffffff;
+
+    margin-bottom: 10px;
+}
+
+
+/* Day dropdown */
+
+.jippy-outlet-create-custom-day-select {
+    width: 150px;
+    height: 38px;
+
+    padding: 0 10px;
+
+    border: 1px solid #d8d8d8;
+    border-radius: 7px;
+
+    outline: none;
+
+    background: #ffffff;
+    color: #333;
+
+    font-size: 12px;
+
+    cursor: pointer;
+}
+
+.jippy-outlet-create-custom-day-select:focus {
+    border-color: #ff6b00;
+
+    box-shadow:
+        0 0 0 3px rgba(255, 107, 0, 0.10);
+}
+
+
+/* Delete */
+
+.jippy-outlet-create-delete-timing-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 36px;
+    height: 36px;
+
+    border: none;
+
+    background: transparent;
+
+    color: #e53935;
+
+    font-size: 17px;
+
+    cursor: pointer;
+
+    border-radius: 6px;
+
+    transition: 0.2s ease;
+}
+
+.jippy-outlet-create-delete-timing-btn:hover {
+    background: #fff1f1;
+    color: #c62828;
+}
+
+.jippy-outlet-create-delete-timing-btn:hover {
+    color: #d92d25;
+}
+
+
+/* ================= Add Timing Modal ================= */
+
+.jippy-outlet-create-timing-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 20px;
+}
+
+.jippy-outlet-create-timing-modal {
+    width: 100%;
+    max-width: 560px;
+    background: #fff;
+    border-radius: 14px;
+    padding: 25px;
+    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.2);
+}
+
+.jippy-outlet-create-timing-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 25px;
+}
+
+.jippy-outlet-create-timing-modal-header h3 {
+    margin: 0 0 6px;
+    font-size: 22px;
+    color: #222;
+}
+
+.jippy-outlet-create-timing-modal-header p {
+    margin: 0;
+    color: #737981;
+    font-size: 13px;
+}
+
+.jippy-outlet-create-timing-close {
+    border: none;
+    background: transparent;
+    font-size: 25px;
+    color: #555;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.jippy-outlet-create-timing-close:hover {
+    color: #ff6b00;
+}
+
+.jippy-outlet-create-timing-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.jippy-outlet-create-timing-field {
+    display: flex;
+    flex-direction: column;
+}
+
+.jippy-outlet-create-timing-field label {
+    margin-bottom: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #444;
+}
+
+.jippy-outlet-create-timing-field label span {
+    color: #ff3b30;
+}
+
+.jippy-outlet-create-timing-field input,
+.jippy-outlet-create-timing-field select {
+    height: 44px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 0 12px;
+    outline: none;
+    background: #fff;
+    font-size: 14px;
+}
+
+.jippy-outlet-create-timing-field input:focus,
+.jippy-outlet-create-timing-field select:focus {
+    border-color: #ff6b00;
+}
+
+.jippy-outlet-create-timing-field input:disabled {
+    background: #f3f3f3;
+    cursor: not-allowed;
+}
+
+.jippy-outlet-create-modal-toggle {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center;
+    gap: 10px;
+    margin-top: 5px;
+    cursor: pointer;
+}
+
+.jippy-outlet-create-modal-toggle input {
+    display: none;
+}
+
+.jippy-outlet-create-toggle-slider {
+    width: 44px;
+    height: 24px;
+    background: #cfd3d8;
+    border-radius: 20px;
+    position: relative;
+    transition: 0.2s;
+}
+
+.jippy-outlet-create-toggle-slider::after {
+    content: "";
+    width: 18px;
+    height: 18px;
+    background: #fff;
+    border-radius: 50%;
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    transition: 0.2s;
+}
+
+.jippy-outlet-create-modal-toggle input:checked
++ .jippy-outlet-create-toggle-slider {
+    background: #ff6b00;
+}
+
+.jippy-outlet-create-modal-toggle input:checked
++ .jippy-outlet-create-toggle-slider::after {
+    transform: translateX(20px);
+}
+
+.jippy-outlet-create-toggle-text {
+    margin: 0 !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: #333 !important;
+}
+
+
+.jippy-outlet-create-timing-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.jippy-outlet-create-timing-cancel-btn {
+    min-width: 110px;
+    padding: 11px 20px;
+    border: 1px solid #ddd;
+    background: #fff;
+    color: #555;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.jippy-outlet-create-timing-cancel-btn:hover {
+    background: #f5f5f5;
+}
+
+.jippy-outlet-create-timing-submit-btn {
+    min-width: 130px;
+    padding: 11px 20px;
+    border: none;
+    background: #ff6b00;
+    color: #fff;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.jippy-outlet-create-timing-submit-btn:hover {
+    background: #e85f00;
 }
