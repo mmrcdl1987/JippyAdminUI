@@ -1,9 +1,18 @@
 import React, { useEffect, useMemo, useState } from "react";
+
+import Select from "react-select";
 import {
   getOutletDetails,
   getOutletById,
   updateOutletDetailsByMerchant,
 } from "../services/outletListService";
+
+import {
+  getStates,
+  getCitiesByState,
+  getAreasByCity,
+   getCuisineTypes,
+} from "../services/outletService";
 
 import "../styles/OutletEdit.css";
 
@@ -17,6 +26,9 @@ const JIPPY_EDIT_DAYS = [
   { id: 7, name: "Sunday", short: "SU" },
 ];
 
+
+
+
 /*
  * IMPORTANT:
  * PUT API expects cuisineType as IDs.
@@ -24,13 +36,6 @@ const JIPPY_EDIT_DAYS = [
  * If your backend already returns cuisine names + IDs,
  * this component will use the IDs.
  */
-const JIPPY_EDIT_CUISINES = [
-  { id: 1, name: "Cuisine 1" },
-  { id: 2, name: "Cuisine 2" },
-  { id: 3, name: "Cuisine 3" },
-  { id: 4, name: "Cuisine 4" },
-  { id: 5, name: "Cuisine 5" },
-];
 
 const createEmptyDays = () =>
   JIPPY_EDIT_DAYS.map((day) => ({
@@ -230,6 +235,168 @@ function OutletEdit({
   selectedOutlet: propSelectedOutlet,
   setActivePage,
 }) {
+
+
+  const [cuisineOptions, setCuisineOptions] = useState([]);
+  const [cuisineDropdownOpen, setCuisineDropdownOpen] =
+  useState(false);
+
+const [cuisineSearch, setCuisineSearch] =
+  useState("");
+
+useEffect(() => {
+  const fetchCuisineTypes = async () => {
+    try {
+      const response = await getCuisineTypes();
+
+      const cuisines =
+        response?.data?.data ||
+        response?.data ||
+        [];
+
+      setCuisineOptions(
+        cuisines.map((cuisine) => ({
+          value: cuisine.cuisineTypeId,
+          label: cuisine.cuisineTypeName,
+        }))
+      );
+    } catch (error) {
+      console.error(
+        "Failed to fetch cuisine types:",
+        error
+      );
+    }
+  };
+
+  fetchCuisineTypes();
+}, []);
+
+
+  const loggedInUserId = localStorage.getItem("userId");
+  const loggedInRole = localStorage.getItem("role");
+
+  const displayUpdatedBy =
+  loggedInRole
+    ?.replace("ROLE_", "")
+    ?.replace(/_/g, " ")
+    ?.toLowerCase()
+    ?.replace(/\b\w/g, (char) => char.toUpperCase()) || "";
+
+  const [states, setStates] = useState([]);
+const [cities, setCities] = useState([]);
+const [areas, setAreas] = useState([]);
+
+const [loadingStates, setLoadingStates] = useState(false);
+const [loadingCities, setLoadingCities] = useState(false);
+const [loadingAreas, setLoadingAreas] = useState(false);
+
+const stateOptions = states.map((state) => ({
+  value: state.stateId,
+  label: state.stateName,
+}));
+
+const cityOptions = cities.map((city) => ({
+  value: city.cityId,
+  label: city.cityName,
+}));
+
+const areaOptions = areas.map((area) => ({
+  value: area.areaId,
+  label: area.areaName,
+}));
+
+// useEffect(() => {
+//   const fetchStates = async () => {
+//     try {
+//       const response = await getStates();
+//       setStates(response.data);
+//     } catch (error) {
+//       console.error("Error fetching states:", error);
+//     }
+//   };
+
+//   fetchStates();
+// }, []);
+
+const handleStateChange = async (selected) => {
+  const stateId = selected?.value || "";
+
+  setFormData((current) => ({
+    ...current,
+    stateId,
+    cityId: "",
+    areaId: "",
+  }));
+
+  setCities([]);
+  setAreas([]);
+
+  if (!stateId) return;
+
+  setLoadingCities(true);
+
+  try {
+    const response = await getCitiesByState(stateId);
+    setCities(response.data || []);
+  } catch (error) {
+    console.error("Failed to fetch cities:", error);
+  } finally {
+    setLoadingCities(false);
+  }
+};
+
+
+const handleCityChange = async (selected) => {
+  const cityId = selected?.value || "";
+
+  setFormData((current) => ({
+    ...current,
+    cityId,
+    areaId: "",
+  }));
+
+  setAreas([]);
+
+  if (!cityId) return;
+
+  setLoadingAreas(true);
+
+  try {
+    const response = await getAreasByCity(cityId);
+    setAreas(response.data || []);
+  } catch (error) {
+    console.error("Failed to fetch areas:", error);
+  } finally {
+    setLoadingAreas(false);
+  }
+};
+
+
+const handleAreaChange = (selected) => {
+  setFormData((current) => ({
+    ...current,
+    areaId: selected?.value || "",
+  }));
+};
+useEffect(() => {
+  const fetchStates = async () => {
+    setLoadingStates(true);
+
+    try {
+      const response = await getStates();
+      setStates(response.data || []);
+    } catch (error) {
+      console.error("Error fetching states:", error);
+    } finally {
+      setLoadingStates(false);
+    }
+  };
+
+  fetchStates();
+}, []);
+
+
+
   const storedOutlet = useMemo(
     () => getStoredOutlet(),
     []
@@ -261,6 +428,17 @@ function OutletEdit({
   const [popupMessage, setPopupMessage] =
     useState("");
 
+
+    const [customTimings, setCustomTimings] = useState([]);
+const [showTimingModal, setShowTimingModal] = useState(false);
+
+const [newTiming, setNewTiming] = useState({
+  dayOfWeekId: "",
+  isOpen: true,
+  openingTime: "09:00",
+  closingTime: "13:00",
+});
+
   const [formData, setFormData] =
     useState({
       outletName: "",
@@ -268,8 +446,13 @@ function OutletEdit({
       outletEmail: "",
       outletPhone: "",
       alternateOutletPhone: "",
+updatedBy: loggedInUserId || "",
+
 
       isGstApplied: false,
+      fssaiNumber: "",
+gstNumber: "",
+
 
       accountNumber: "",
       ifscCode: "",
@@ -292,8 +475,13 @@ function OutletEdit({
       operatingDays:
         createEmptyDays(),
 
-      updatedBy: "",
+    
     });
+
+
+
+
+
 
   const showError = (message) => {
     setPopupMessage(
@@ -307,257 +495,127 @@ function OutletEdit({
   /*
    * LOAD ALL OUTLET DETAILS
    */
-  useEffect(() => {
-    let mounted = true;
+ useEffect(() => {
+  let mounted = true;
 
-    const loadOutlet = async () => {
-      if (!outletId) {
-        if (mounted) {
-          setLoadError(
-            "Outlet ID not found. Please select the outlet again."
-          );
+  const loadOutlet = async () => {
+    if (!outletId) {
+      setLoadError("Outlet ID not found.");
+      setLoading(false);
+      return;
+    }
 
-          setLoading(false);
-        }
+    try {
+      setLoading(true);
+      setLoadError("");
 
-        return;
+      const response = await getOutletDetails(outletId);
+
+      const data = unwrapResponse(response);
+
+      console.log("GET OUTLET DETAILS:", data);
+
+      if (!data) {
+        throw new Error("No outlet details received.");
       }
 
-      try {
-        setLoading(true);
-        setLoadError("");
+      if (!mounted) return;
 
-        console.log(
-          "===================================="
+      console.log("FSSAI FROM API:", data.fssaiNumber);
+      console.log("GST FROM API:", data.gstNumber);
+
+      setFormData({
+        outletName: data.outletName || "",
+        merchantId: data.merchantId || "",
+
+        outletEmail: data.outletEmail || "",
+        outletPhone: data.outletPhone || "",
+        alternateOutletPhone:
+          data.alternateOutletPhone || "",
+
+        updatedBy: loggedInUserId || "",
+
+        isGstApplied:
+          data.isGstApplied === true,
+
+        fssaiNumber:
+          data.fssaiNumber || "",
+
+        gstNumber:
+          data.gstNumber || "",
+
+        accountNumber:
+          data.accountNumber || "",
+
+        ifscCode:
+          data.ifscCode || "",
+
+        bankName:
+          data.bankName || "",
+
+        accountHolderName:
+          data.accountHolderName || "",
+
+        buildingNumber:
+          data.buildingNumber || "",
+
+        road:
+          data.road || "",
+
+        landmark:
+          data.landmark || "",
+
+        stateId:
+          data.stateId || "",
+
+        cityId:
+          data.cityId || "",
+
+        areaId:
+          data.areaId || "",
+
+        latitude:
+          data.latitude ?? "",
+
+        longitude:
+          data.longitude ?? "",
+
+        cuisineType:
+          extractCuisineIds(data),
+
+        operatingDays:
+          extractOperatingDays(data),
+      });
+
+      console.log("FORM DATA LOADED");
+
+    } catch (error) {
+      console.error(
+        "FAILED TO LOAD OUTLET:",
+        error
+      );
+
+      if (mounted) {
+        setLoadError(
+          error?.response?.data?.message ||
+          error?.message ||
+          "Failed to load outlet details."
         );
-
-        console.log(
-          "EDIT OUTLET"
-        );
-
-        console.log(
-          "Outlet ID:",
-          outletId
-        );
-
-        console.log(
-          "===================================="
-        );
-
-        let outlet = null;
-
-        /*
-         * FIRST:
-         * Try the detailed outlet API.
-         */
-        try {
-          const response =
-            await getOutletDetails(
-              Number(outletId)
-            );
-
-          outlet =
-            unwrapResponse(response);
-
-          console.log(
-            "GET OUTLET DETAILS:",
-            outlet
-          );
-        } catch (detailsError) {
-          console.warn(
-            "getOutletDetails failed:",
-            detailsError
-          );
-        }
-
-        /*
-         * FALLBACK:
-         * Try getOutletById.
-         */
-        if (!outlet) {
-          try {
-            const response =
-              await getOutletById(
-                Number(outletId)
-              );
-
-            outlet =
-              unwrapResponse(response);
-
-            console.log(
-              "GET OUTLET BY ID:",
-              outlet
-            );
-          } catch (byIdError) {
-            console.warn(
-              "getOutletById failed:",
-              byIdError
-            );
-          }
-        }
-
-        /*
-         * LAST FALLBACK:
-         * Use the outlet already present
-         * in the table.
-         */
-        if (!outlet) {
-          outlet =
-            propSelectedOutlet ||
-            storedOutlet ||
-            null;
-        }
-
-        if (!outlet) {
-          throw new Error(
-            "No outlet details found."
-          );
-        }
-
-        /*
-         * VERY IMPORTANT:
-         * Merchant ID can come from:
-         *
-         * 1. detailed API
-         * 2. selected table row
-         * 3. stored outlet
-         */
-        const merchantId =
-          outlet?.merchantId ??
-          propSelectedOutlet?.merchantId ??
-          storedOutlet?.merchantId ??
-          "";
-
-        /*
-         * Updated By:
-         * use backend value if available.
-         * Otherwise preserve existing stored value.
-         */
-        const updatedBy =
-          outlet?.updatedBy ??
-          propSelectedOutlet?.updatedBy ??
-          storedOutlet?.updatedBy ??
-          "";
-
-        const cuisineType =
-          extractCuisineIds(outlet);
-
-        const operatingDays =
-          extractOperatingDays(outlet);
-
-        if (!mounted) {
-          return;
-        }
-
-        setFormData({
-          outletName:
-            outlet?.outletName || "",
-
-          merchantId:
-            merchantId !== null &&
-            merchantId !== undefined
-              ? String(merchantId)
-              : "",
-
-          outletEmail:
-            outlet?.outletEmail || "",
-
-          outletPhone:
-            outlet?.outletPhone || "",
-
-          alternateOutletPhone:
-            outlet?.alternateOutletPhone ||
-            "",
-
-          isGstApplied:
-            outlet?.isGstApplied === true ||
-            outlet?.isGstApplied === "true" ||
-            outlet?.isGstApplied === "Y",
-
-          accountNumber:
-            outlet?.accountNumber || "",
-
-          ifscCode:
-            outlet?.ifscCode || "",
-
-          bankName:
-            outlet?.bankName || "",
-
-          accountHolderName:
-            outlet?.accountHolderName || "",
-
-          buildingNumber:
-            outlet?.buildingNumber || "",
-
-          road:
-            outlet?.road || "",
-
-          landmark:
-            outlet?.landmark || "",
-
-          stateId:
-            outlet?.stateId ?? "",
-
-          cityId:
-            outlet?.cityId ?? "",
-
-          areaId:
-            outlet?.areaId ?? "",
-
-          latitude:
-            outlet?.latitude ?? "",
-
-          longitude:
-            outlet?.longitude ?? "",
-
-          cuisineType,
-
-          operatingDays,
-
-          updatedBy:
-            updatedBy !== null &&
-            updatedBy !== undefined
-              ? String(updatedBy)
-              : "",
-        });
-
-        console.log(
-          "FORM DATA LOADED:",
-          {
-            merchantId,
-            cuisineType,
-            operatingDays,
-          }
-        );
-      } catch (error) {
-        console.error(
-          "FAILED TO LOAD OUTLET:",
-          error
-        );
-
-        if (mounted) {
-          setLoadError(
-            error?.response?.data?.message ||
-              error?.message ||
-              "Failed to load outlet details."
-          );
-        }
-      } finally {
-        if (mounted) {
-          setLoading(false);
-        }
       }
-    };
 
-    loadOutlet();
+    } finally {
+      if (mounted) {
+        setLoading(false);
+      }
+    }
+  };
 
-    return () => {
-      mounted = false;
-    };
-  }, [
-    outletId,
-    propSelectedOutlet,
-  ]);
+  loadOutlet();
+
+  return () => {
+    mounted = false;
+  };
+}, [outletId]);
 
   /*
    * NORMAL INPUT
@@ -578,31 +636,25 @@ function OutletEdit({
           ? checked
           : value,
     }));
+    console.log("LOGGED IN USER ID:", loggedInUserId);
+console.log("LOGGED IN ROLE:", loggedInRole);
   };
 
   /*
    * CUISINE
    */
-  const handleCuisineChange = (
-    event
-  ) => {
-    const values =
-      Array.from(
-        event.target.selectedOptions
-      )
-        .map((option) =>
-          Number(option.value)
-        )
-        .filter(
-          (id) =>
-            !Number.isNaN(id)
-        );
+const handleCuisineChange = (event) => {
+  const values = Array.from(
+    event.target.selectedOptions
+  )
+    .map((option) => Number(option.value))
+    .filter((id) => !Number.isNaN(id));
 
-    setFormData((previous) => ({
-      ...previous,
-      cuisineType: values,
-    }));
-  };
+  setFormData((previous) => ({
+    ...previous,
+    cuisineType: values,
+  }));
+};
 
   /*
    * OPERATING DAYS
@@ -639,58 +691,117 @@ function OutletEdit({
     }));
   };
 
+
+
+  const handleNewTimingChange = (field, value) => {
+  setNewTiming((previous) => ({
+    ...previous,
+    [field]: value,
+  }));
+};
+
+
+const handleAddTiming = () => {
+  if (!newTiming.dayOfWeekId) {
+    showError("Please select a day.");
+    return;
+  }
+
+  if (
+    newTiming.isOpen &&
+    (!newTiming.openingTime || !newTiming.closingTime)
+  ) {
+    showError("Please select opening and closing time.");
+    return;
+  }
+
+  setCustomTimings((previous) => [
+    ...previous,
+    {
+      ...newTiming,
+      dayOfWeekId: Number(newTiming.dayOfWeekId),
+    },
+  ]);
+
+  setNewTiming({
+    dayOfWeekId: "",
+    isOpen: true,
+    openingTime: "09:00",
+    closingTime: "13:00",
+  });
+
+  setShowTimingModal(false);
+};
+
+
+const handleDeleteCustomTiming = (index) => {
+  setCustomTimings((previous) =>
+    previous.filter((_, currentIndex) => currentIndex !== index)
+  );
+};
+
   /*
    * VALIDATION
    */
-  const validateForm = () => {
-    if (
-      !formData.outletName.trim()
-    ) {
-      showError(
-        "Outlet name is required."
-      );
+const validateForm = () => {
+  if (!formData.outletName.trim()) {
+    showError("Outlet name is required.");
+    return false;
+  }
 
-      return false;
-    }
+  if (!formData.outletEmail.trim()) {
+    showError("Outlet email is required.");
+    return false;
+  }
 
-    if (
-      !formData.outletEmail.trim()
-    ) {
-      showError(
-        "Outlet email is required."
-      );
+  if (!formData.outletPhone.trim()) {
+    showError("Outlet phone is required.");
+    return false;
+  }
 
-      return false;
-    }
+  if (!formData.accountNumber.trim()) {
+    showError("Account number is required.");
+    return false;
+  }
 
-    if (
-      !formData.outletPhone.trim()
-    ) {
-      showError(
-        "Outlet phone is required."
-      );
+  if (!formData.ifscCode.trim()) {
+    showError("IFSC code is required.");
+    return false;
+  }
 
-      return false;
-    }
+  if (!formData.bankName.trim()) {
+    showError("Bank name is required.");
+    return false;
+  }
 
-    if (!formData.merchantId) {
-      showError(
-        "Merchant ID was not fetched."
-      );
+  if (!formData.accountHolderName.trim()) {
+    showError("Account holder name is required.");
+    return false;
+  }
 
-      return false;
-    }
+  if (!formData.buildingNumber.trim()) {
+    showError("Building number is required.");
+    return false;
+  }
 
-    if (!formData.updatedBy) {
-      showError(
-        "Updated By is required."
-      );
+  if (!formData.road.trim()) {
+    showError("Road is required.");
+    return false;
+  }
 
-      return false;
-    }
+  if (!formData.merchantId) {
+    showError("Merchant ID was not fetched.");
+    return false;
+  }
 
-    return true;
-  };
+  if (!formData.updatedBy) {
+    showError("Updated By is required.");
+    return false;
+  }
+
+
+  return true;
+}; 
 
   /*
    * UPDATE OUTLET
@@ -748,6 +859,9 @@ function OutletEdit({
         Boolean(
           formData.isGstApplied
         ),
+
+        fssaiNumber: formData.fssaiNumber,
+    gstNumber: formData.gstNumber,
 
       accountNumber:
         formData.accountNumber.trim() ||
@@ -835,8 +949,8 @@ function OutletEdit({
         "FULL_DAY",
     })),
 
-      updatedBy:
-        Number(formData.updatedBy),
+      // updatedBy:
+      //   Number(formData.updatedBy),
     };
 
     console.log(
@@ -1146,7 +1260,7 @@ function OutletEdit({
                   <span>*</span>
                 </label>
 
-                <input
+                <input  
                   type="text"
                   name="outletName"
                   value={
@@ -1238,17 +1352,12 @@ function OutletEdit({
                   <span>*</span>
                 </label>
 
-                <input
-                  type="number"
-                  name="updatedBy"
-                  value={
-                    formData.updatedBy
-                  }
-                  onChange={
-                    handleChange
-                  }
-                />
-
+  <input
+  type="text"
+  name="updatedBy"
+  value={displayUpdatedBy}
+  readOnly
+/>
                 <small>
                   User ID performing
                   this update
@@ -1259,75 +1368,158 @@ function OutletEdit({
 
           </section>
 
-          {/* CUISINE */}
-          <section className="jippy-outlet-edit-v2-section">
+          
+{/* CUISINE */}
+<section className="jippy-outlet-edit-v2-section">
 
-            <div className="jippy-outlet-edit-v2-section-header">
-              <div>
-                <h2>
-                  Cuisine Types
-                </h2>
+  <div className="jippy-outlet-edit-v2-section-header">
+    <div>
+      <h2>Cuisine Types</h2>
 
-                <p>
-                  Select all cuisines
-                  applicable to this outlet
-                </p>
-              </div>
-            </div>
+      <p>
+        Select all cuisines applicable to this outlet
+      </p>
+    </div>
+  </div>
 
-            <div className="jippy-outlet-edit-v2-cuisine-box">
+<div className="jippy-outlet-edit-v2-cuisine-box">
 
-              <select
-                multiple
-                value={formData.cuisineType.map(
-                  String
-                )}
-                onChange={
-                  handleCuisineChange
-                }
-              >
-                {JIPPY_EDIT_CUISINES.map(
-                  (cuisine) => (
-                    <option
-                      key={cuisine.id}
-                      value={cuisine.id}
-                    >
-                      {cuisine.name}
-                    </option>
-                  )
-                )}
-              </select>
+  <div
+    className="cuisine-dropdown"
+    onClick={() => setCuisineDropdownOpen((prev) => !prev)}
+  >
+    <div className="cuisine-dropdown-header">
+      <span>
+        {formData.cuisineType.length > 0
+          ? `${formData.cuisineType.length} cuisine(s) selected`
+          : "Select cuisines"}
+      </span>
 
-              <small>
-                Hold Ctrl/Cmd to select
-                multiple cuisines.
-              </small>
+      <span className="cuisine-dropdown-arrow">
+        {cuisineDropdownOpen ? "▲" : "▼"}
+      </span>
+    </div>
 
-              <div className="jippy-outlet-edit-v2-selected-cuisines">
+    {cuisineDropdownOpen && (
+      <div
+        className="cuisine-dropdown-menu"
+        onClick={(e) => e.stopPropagation()}
+      >
 
-                {formData.cuisineType.length ===
-                0 ? (
+        <input
+          type="text"
+          placeholder="Search cuisine..."
+          className="cuisine-search"
+          value={cuisineSearch}
+          onChange={(e) =>
+            setCuisineSearch(e.target.value)
+          }
+        />
+
+        <div className="cuisine-options">
+
+          {cuisineOptions
+            .filter((cuisine) =>
+              cuisine.label
+                .toLowerCase()
+                .includes(cuisineSearch.toLowerCase())
+            )
+            .map((cuisine) => {
+
+              const isSelected =
+                formData.cuisineType.includes(
+                  Number(cuisine.value)
+                );
+
+              return (
+                <div
+                  key={cuisine.value}
+                  className={`cuisine-option ${
+                    isSelected ? "selected" : ""
+                  }`}
+                  onClick={() => {
+                    setFormData((prev) => ({
+                      ...prev,
+                      cuisineType: isSelected
+                        ? prev.cuisineType.filter(
+                            (id) =>
+                              Number(id) !==
+                              Number(cuisine.value)
+                          )
+                        : [
+                            ...prev.cuisineType,
+                            Number(cuisine.value),
+                          ],
+                    }));
+                  }}
+                >
                   <span>
-                    No cuisines selected
+                    {cuisine.label}
                   </span>
-                ) : (
-                  formData.cuisineType.map(
-                    (id) => (
-                      <span
-                        key={id}
-                        className="jippy-outlet-edit-v2-cuisine-chip"
-                      >
-                        Cuisine {id}
-                      </span>
-                    )
-                  )
-                )}
 
-              </div>
+                  {isSelected && (
+                    <span className="cuisine-check">
+                      ✓
+                    </span>
+                  )}
+                </div>
+              );
+            })}
 
-            </div>
+        </div>
+      </div>
+    )}
+  </div>
 
-          </section>
+  {/* SELECTED CUISINES */}
+
+  <div className="jippy-outlet-edit-v2-selected-cuisines">
+
+    {formData.cuisineType.length === 0 ? (
+      <span className="no-cuisines">
+        No cuisines selected
+      </span>
+    ) : (
+      formData.cuisineType.map((id) => {
+
+        const cuisine = cuisineOptions.find(
+          (item) =>
+            Number(item.value) === Number(id)
+        );
+
+        return (
+          <span
+            key={id}
+            className="jippy-outlet-edit-v2-cuisine-chip"
+          >
+            {cuisine?.label || `Cuisine ${id}`}
+
+            <button
+              type="button"
+              onClick={() => {
+                setFormData((prev) => ({
+                  ...prev,
+                  cuisineType:
+                    prev.cuisineType.filter(
+                      (cuisineId) =>
+                        Number(cuisineId) !==
+                        Number(id)
+                    ),
+                }));
+              }}
+            >
+              ×
+            </button>
+          </span>
+        );
+      })
+    )}
+
+  </div>
+
+</div>
+
+</section>
 
           {/* GST */}
           <section className="jippy-outlet-edit-v2-section">
@@ -1365,6 +1557,26 @@ function OutletEdit({
 
           </section>
 
+          <div className="jippy-outlet-edit-v2-field">
+  <label>FSSAI Number</label>
+  <input
+    type="text"
+    name="fssaiNumber"
+    value={formData.fssaiNumber}
+    onChange={handleChange}
+  />
+</div>
+
+<div className="jippy-outlet-edit-v2-field">
+  <label>GST Number</label>
+  <input
+    type="text"
+    name="gstNumber"
+    value={formData.gstNumber}
+    onChange={handleChange}
+  />
+</div>
+
           {/* BANK DETAILS */}
           <section className="jippy-outlet-edit-v2-section">
 
@@ -1385,7 +1597,8 @@ function OutletEdit({
 
               <div className="jippy-outlet-edit-v2-field">
                 <label>
-                  Account Number
+                 Account Number
+                  <span>*</span>
                 </label>
 
                 <input
@@ -1401,8 +1614,9 @@ function OutletEdit({
               </div>
 
               <div className="jippy-outlet-edit-v2-field">
-                <label>
+               <label>
                   IFSC Code
+                  <span>*</span>
                 </label>
 
                 <input
@@ -1418,8 +1632,9 @@ function OutletEdit({
               </div>
 
               <div className="jippy-outlet-edit-v2-field">
-                <label>
+              <label>
                   Bank Name
+                  <span>*</span>
                 </label>
 
                 <input
@@ -1437,6 +1652,7 @@ function OutletEdit({
               <div className="jippy-outlet-edit-v2-field">
                 <label>
                   Account Holder Name
+                  <span>*</span>
                 </label>
 
                 <input
@@ -1473,8 +1689,9 @@ function OutletEdit({
             <div className="jippy-outlet-edit-v2-grid">
 
               <div className="jippy-outlet-edit-v2-field">
-                <label>
-                  Building Number
+               <label>
+                  Building Number 
+                  <span>*</span>
                 </label>
 
                 <input
@@ -1490,8 +1707,9 @@ function OutletEdit({
               </div>
 
               <div className="jippy-outlet-edit-v2-field">
-                <label>
+               <label>
                   Road
+                  <span>*</span>
                 </label>
 
                 <input
@@ -1523,56 +1741,69 @@ function OutletEdit({
                 />
               </div>
 
-              <div className="jippy-outlet-edit-v2-field">
-                <label>
-                  State ID
-                </label>
+            <div className="jippy-outlet-edit-v2-field">
+  <label>State</label>
 
-                <input
-                  type="number"
-                  name="stateId"
-                  value={
-                    formData.stateId
-                  }
-                  onChange={
-                    handleChange
-                  }
-                />
-              </div>
+  <Select
+    className="jippy-outlet-edit-v2-select"
+    classNamePrefix="jippy-outlet-edit-v2-select"
+    options={stateOptions}
+    value={
+      stateOptions.find(
+        (item) =>
+          item.value === Number(formData.stateId)
+      ) || null
+    }
+    onChange={handleStateChange}
+    isLoading={loadingStates}
+    isSearchable
+    isClearable
+    placeholder="Select State"
+  />
+</div>
 
-              <div className="jippy-outlet-edit-v2-field">
-                <label>
-                  City ID
-                </label>
+            <div className="jippy-outlet-edit-v2-field">
+  <label>City</label>
 
-                <input
-                  type="number"
-                  name="cityId"
-                  value={
-                    formData.cityId
-                  }
-                  onChange={
-                    handleChange
-                  }
-                />
-              </div>
+  <Select
+    className="jippy-outlet-edit-v2-select"
+    classNamePrefix="jippy-outlet-edit-v2-select"
+    options={cityOptions}
+    value={
+      cityOptions.find(
+        (item) =>
+          item.value === Number(formData.cityId)
+      ) || null
+    }
+    onChange={handleCityChange}
+    isLoading={loadingCities}
+    isDisabled={!formData.stateId}
+    isSearchable
+    isClearable
+    placeholder="Select City"
+  />
+</div>
+             <div className="jippy-outlet-edit-v2-field">
+  <label>Area</label>
 
-              <div className="jippy-outlet-edit-v2-field">
-                <label>
-                  Area ID
-                </label>
-
-                <input
-                  type="number"
-                  name="areaId"
-                  value={
-                    formData.areaId
-                  }
-                  onChange={
-                    handleChange
-                  }
-                />
-              </div>
+  <Select
+    className="jippy-outlet-edit-v2-select"
+    classNamePrefix="jippy-outlet-edit-v2-select"
+    options={areaOptions}
+    value={
+      areaOptions.find(
+        (item) =>
+          item.value === Number(formData.areaId)
+      ) || null
+    }
+    onChange={handleAreaChange}
+    isLoading={loadingAreas}
+    isDisabled={!formData.cityId}
+    isSearchable
+    isClearable
+    placeholder="Select Area"
+  />
+</div>
 
             </div>
 
@@ -1778,34 +2009,7 @@ function OutletEdit({
 
                       </div>
 
-                      <select
-                        value={
-                          day.slotType ||
-                          "FULL_DAY"
-                        }
-                        disabled={
-                          !day.isOpen
-                        }
-                        onChange={(event) =>
-                          handleDayChange(
-                            day.dayOfWeekId,
-                            "slotType",
-                            event.target.value
-                          )
-                        }
-                      >
-                        <option value="FULL_DAY">
-                          Full Day
-                        </option>
-
-                        <option value="MORNING">
-                          Morning
-                        </option>
-
-                        <option value="EVENING">
-                          Evening
-                        </option>
-                      </select>
+                    
 
                     </div>
                   );
@@ -1815,6 +2019,377 @@ function OutletEdit({
             </div>
 
           </section>
+
+          {/* =================================================
+    ADDITIONAL TIMINGS
+    ================================================= */}
+
+<section className="jippy-outlet-edit-v2-section jippy-outlet-edit-v2-additional-section">
+
+  <div className="jippy-outlet-edit-v2-section-header">
+
+    <div>
+      <h2>
+        Additional Timings
+      </h2>
+
+      <p>
+        Add extra working hours for any day (e.g. different shift).
+      </p>
+    </div>
+
+    <button
+      type="button"
+      className="jippy-outlet-edit-v2-add-timing-button"
+      onClick={() => setShowTimingModal(true)}
+      disabled={saving}
+    >
+      <span>+</span>
+      Add Timing
+    </button>
+
+  </div>
+
+
+  {customTimings.length > 0 && (
+    <div className="jippy-outlet-edit-v2-custom-timings">
+
+      {customTimings.map((timing, index) => {
+
+        const selectedDay = JIPPY_EDIT_DAYS.find(
+          (day) =>
+            day.id === Number(timing.dayOfWeekId)
+        );
+
+        return (
+          <div
+            key={`custom-${index}`}
+            className="jippy-outlet-edit-v2-custom-row"
+          >
+
+            {/* DAY */}
+
+            <select
+              value={timing.dayOfWeekId}
+              onChange={(event) => {
+
+                const updated = [...customTimings];
+
+                updated[index] = {
+                  ...updated[index],
+                  dayOfWeekId: Number(event.target.value),
+                };
+
+                setCustomTimings(updated);
+              }}
+              disabled={saving}
+              className="jippy-outlet-edit-v2-custom-day-select"
+            >
+
+              {JIPPY_EDIT_DAYS.map((day) => (
+                <option
+                  key={day.id}
+                  value={day.id}
+                >
+                  {day.name}
+                </option>
+              ))}
+
+            </select>
+
+
+            {/* OPEN / CLOSED */}
+
+            <label className="jippy-outlet-edit-v2-custom-toggle">
+
+              <input
+                type="checkbox"
+                checked={timing.isOpen}
+                disabled={saving}
+                onChange={(event) => {
+
+                  const updated = [...customTimings];
+
+                  updated[index] = {
+                    ...updated[index],
+                    isOpen: event.target.checked,
+                  };
+
+                  setCustomTimings(updated);
+                }}
+              />
+
+              <span className="jippy-outlet-edit-v2-custom-toggle-slider" />
+
+              <span className="jippy-outlet-edit-v2-custom-toggle-text">
+                {timing.isOpen ? "Open" : "Closed"}
+              </span>
+
+            </label>
+
+
+            {/* OPENING */}
+
+            <div className="jippy-outlet-edit-v2-custom-time-box">
+
+              <label>
+                Opening
+              </label>
+
+              <input
+                type="time"
+                value={timing.openingTime}
+                disabled={!timing.isOpen || saving}
+                onChange={(event) => {
+
+                  const updated = [...customTimings];
+
+                  updated[index] = {
+                    ...updated[index],
+                    openingTime: event.target.value,
+                  };
+
+                  setCustomTimings(updated);
+                }}
+              />
+
+            </div>
+
+
+            {/* CLOSING */}
+
+            <div className="jippy-outlet-edit-v2-custom-time-box">
+
+              <label>
+                Closing
+              </label>
+
+              <input
+                type="time"
+                value={timing.closingTime}
+                disabled={!timing.isOpen || saving}
+                onChange={(event) => {
+
+                  const updated = [...customTimings];
+
+                  updated[index] = {
+                    ...updated[index],
+                    closingTime: event.target.value,
+                  };
+
+                  setCustomTimings(updated);
+                }}
+              />
+
+            </div>
+
+
+            {/* DELETE */}
+
+            <button
+              type="button"
+              className="jippy-outlet-edit-v2-delete-timing-button"
+              onClick={() =>
+                handleDeleteCustomTiming(index)
+              }
+              disabled={saving}
+              title="Delete timing"
+            >
+              🗑
+            </button>
+
+          </div>
+        );
+      })}
+
+    </div>
+  )}
+
+</section>
+
+
+{/* =================================================
+    ADD TIMING MODAL
+    ================================================= */}
+
+{showTimingModal && (
+  <div
+    className="jippy-outlet-edit-v2-timing-overlay"
+    onClick={() => setShowTimingModal(false)}
+  >
+
+    <div
+      className="jippy-outlet-edit-v2-timing-modal"
+      onClick={(event) => event.stopPropagation()}
+    >
+
+      <div className="jippy-outlet-edit-v2-timing-modal-header">
+
+        <div>
+          <h3>
+            Add Custom Timing
+          </h3>
+
+          <p>
+            Add a custom day and time for this outlet.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          className="jippy-outlet-edit-v2-timing-close"
+          onClick={() => setShowTimingModal(false)}
+        >
+          ×
+        </button>
+
+      </div>
+
+
+      <div className="jippy-outlet-edit-v2-timing-form">
+
+        {/* DAY */}
+
+        <div className="jippy-outlet-edit-v2-timing-field">
+
+          <label>
+            Day <span>*</span>
+          </label>
+
+          <select
+            value={newTiming.dayOfWeekId}
+            onChange={(event) =>
+              handleNewTimingChange(
+                "dayOfWeekId",
+                event.target.value
+              )
+            }
+          >
+
+            <option value="">
+              Select Day
+            </option>
+
+            {JIPPY_EDIT_DAYS.map((day) => (
+              <option
+                key={day.id}
+                value={day.id}
+              >
+                {day.name}
+              </option>
+            ))}
+
+          </select>
+
+        </div>
+
+
+        {/* STATUS */}
+
+        <div className="jippy-outlet-edit-v2-timing-field">
+
+          <label>
+            Status
+          </label>
+
+          <label className="jippy-outlet-edit-v2-modal-toggle">
+
+            <input
+              type="checkbox"
+              checked={newTiming.isOpen}
+              onChange={(event) =>
+                handleNewTimingChange(
+                  "isOpen",
+                  event.target.checked
+                )
+              }
+            />
+
+            <span className="jippy-outlet-edit-v2-modal-toggle-slider" />
+
+            <span className="jippy-outlet-edit-v2-modal-toggle-text">
+              {newTiming.isOpen
+                ? "Open"
+                : "Closed"}
+            </span>
+
+          </label>
+
+        </div>
+
+
+        {/* OPENING */}
+
+        <div className="jippy-outlet-edit-v2-timing-field">
+
+          <label>
+            Opening Time <span>*</span>
+          </label>
+
+          <input
+            type="time"
+            value={newTiming.openingTime}
+            disabled={!newTiming.isOpen}
+            onChange={(event) =>
+              handleNewTimingChange(
+                "openingTime",
+                event.target.value
+              )
+            }
+          />
+
+        </div>
+
+
+        {/* CLOSING */}
+
+        <div className="jippy-outlet-edit-v2-timing-field">
+
+          <label>
+            Closing Time <span>*</span>
+          </label>
+
+          <input
+            type="time"
+            value={newTiming.closingTime}
+            disabled={!newTiming.isOpen}
+            onChange={(event) =>
+              handleNewTimingChange(
+                "closingTime",
+                event.target.value
+              )
+            }
+          />
+
+        </div>
+
+      </div>
+
+
+      <div className="jippy-outlet-edit-v2-timing-actions">
+
+        <button
+          type="button"
+          className="jippy-outlet-edit-v2-timing-cancel"
+          onClick={() => setShowTimingModal(false)}
+        >
+          Cancel
+        </button>
+
+        <button
+          type="button"
+          className="jippy-outlet-edit-v2-timing-submit"
+          onClick={handleAddTiming}
+        >
+          Add Timing
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+)}
 
           {/* ACTIONS */}
           <div className="jippy-outlet-edit-v2-actions">

@@ -7,6 +7,7 @@ import {
   getStates,
   getCitiesByState,
   getAreasByCity,
+  getCuisineTypes,
 } from "../services/outletService";
 
 const DAYS = [
@@ -25,14 +26,14 @@ const DAYS = [
  * Replace these IDs with the actual cuisine IDs
  * from your backend/master data API when available.
  */
-const cuisineOptions = [
-  { value: 1, label: "Indian" },
-  { value: 2, label: "Chinese" },
-  { value: 3, label: "Arabian" },
-  { value: 4, label: "Italian" },
-  { value: 5, label: "South Indian" },
-  { value: 6, label: "North Indian" },
-];
+// const cuisineOptions = [
+//   { value: 1, label: "Indian" },
+//   { value: 2, label: "Chinese" },
+//   { value: 3, label: "Arabian" },
+//   { value: 4, label: "Italian" },
+//   { value: 5, label: "South Indian" },
+//   { value: 6, label: "North Indian" },
+// ];
 
 function OutletCreate({ setActivePage }) {
 
@@ -87,6 +88,8 @@ function OutletCreate({ setActivePage }) {
   const [loadingCities, setLoadingCities] = useState(false);
   const [loadingAreas, setLoadingAreas] = useState(false);
 
+  const [cuisineOptions, setCuisineOptions] = useState([]);
+
 
   /* =====================================================
      OPERATING DAYS
@@ -100,6 +103,59 @@ function OutletCreate({ setActivePage }) {
       closingTime: "22:00",
     }))
   );
+
+
+  const [customTimings, setCustomTimings] = useState([]);
+
+const [showTimingModal, setShowTimingModal] = useState(false);
+
+const [newTiming, setNewTiming] = useState({
+  dayOfWeekId: "",
+  isOpen: true,
+  openingTime: "09:00",
+  closingTime: "22:00",
+});
+
+const handleNewTimingChange = (field, value) => {
+  setNewTiming((current) => ({
+    ...current,
+    [field]: value,
+  }));
+};
+
+const handleAddTiming = () => {
+  if (!newTiming.dayOfWeekId) {
+    showNotification("error", "Please select a day.");
+    return;
+  }
+
+  const timing = {
+    dayOfWeekId: Number(newTiming.dayOfWeekId),
+    isOpen: newTiming.isOpen,
+    openingTime: newTiming.openingTime,
+    closingTime: newTiming.closingTime,
+  };
+
+  setCustomTimings((current) => [
+    ...current,
+    timing,
+  ]);
+
+  setNewTiming({
+    dayOfWeekId: "",
+    isOpen: true,
+    openingTime: "09:00",
+    closingTime: "22:00",
+  });
+
+  setShowTimingModal(false);
+};
+
+const handleDeleteCustomTiming = (index) => {
+  setCustomTimings((current) =>
+    current.filter((_, timingIndex) => timingIndex !== index)
+  );
+};
 
 
   /* =====================================================
@@ -155,6 +211,27 @@ function OutletCreate({ setActivePage }) {
     }));
   };
 
+
+  useEffect(() => {
+  const fetchCuisineTypes = async () => {
+    try {
+      const response = await getCuisineTypes();
+
+      const cuisines = response?.data?.data || response?.data || [];
+
+      setCuisineOptions(
+        cuisines.map((cuisine) => ({
+          value: cuisine.cuisineTypeId,
+          label: cuisine.cuisineTypeName,
+        }))
+      );
+    } catch (error) {
+      console.error("Failed to fetch cuisine types:", error);
+    }
+  };
+
+  fetchCuisineTypes();
+}, []);
 
   /* =====================================================
      LOAD STATES
@@ -325,22 +402,14 @@ function OutletCreate({ setActivePage }) {
      CUISINE CHANGE
      ===================================================== */
 
-  const handleCuisineChange = (selected) => {
-
-    const cuisineType = selected
+const handleCuisineChange = (selected) => {
+  setForm((prev) => ({
+    ...prev,
+    cuisineType: selected
       ? selected.map((item) => item.value)
-      : [];
-
-    setForm((current) => ({
-      ...current,
-      cuisineType,
-    }));
-
-    setErrors((current) => ({
-      ...current,
-      cuisineType: "",
-    }));
-  };
+      : [],
+  }));
+};
 
 
   /* =====================================================
@@ -884,7 +953,12 @@ function OutletCreate({ setActivePage }) {
         form.longitude.trim() ||
         null,
 
-      operatingDays,
+      // operatingDays,
+
+      operatingDays: [
+  ...operatingDays,
+  ...customTimings,
+],
 
       updatedBy:
         form.updatedBy,
@@ -1222,23 +1296,19 @@ console.error(
               </label>
 
               <Select
-                className="jippy-outlet-create-select"
-                classNamePrefix="jippy-outlet-create-select"
-                isMulti
-                isSearchable
-                isClearable
-                options={cuisineOptions}
-                value={cuisineOptions.filter(
-                  (item) =>
-                    form.cuisineType.includes(
-                      item.value
-                    )
-                )}
-                onChange={
-                  handleCuisineChange
-                }
-                placeholder="Select cuisine types"
-              />
+  className="jippy-outlet-create-select"
+  classNamePrefix="jippy-outlet-create-select"
+  isMulti
+  isSearchable
+  isClearable
+  options={cuisineOptions}
+  value={cuisineOptions.filter(
+    (item) =>
+      form.cuisineType.includes(item.value)
+  )}
+  onChange={handleCuisineChange}
+  placeholder="Select cuisine types"
+/>
 
               {errors.cuisineType && (
                 <small>
@@ -1820,10 +1890,9 @@ console.error(
             ================================================= */}
 
         <section className="jippy-outlet-create-section">
-
-          <h2>
-            Operating Hours
-          </h2>
+<h2>
+  Operating Hours
+</h2>
 
 
           <div className="jippy-outlet-create-days">
@@ -1936,6 +2005,366 @@ console.error(
 
         </section>
 
+{/* =================================================
+    ADDITIONAL TIMINGS
+    ================================================= */}
+
+<section className="jippy-outlet-create-section jippy-outlet-create-additional-section">
+
+  <div className="jippy-outlet-create-section-header">
+
+    <div>
+      <h2>
+        Additional Timings
+      </h2>
+
+      <p className="jippy-outlet-create-additional-description">
+        Add extra working hours for any day (e.g. different shift).
+      </p>
+    </div>
+
+    <button
+      type="button"
+      className="jippy-outlet-create-add-timing-btn"
+      onClick={() => setShowTimingModal(true)}
+    >
+      <span>+</span>
+      Add Timing
+    </button>
+
+  </div>
+
+
+  {customTimings.length > 0 && (
+    <div className="jippy-outlet-create-custom-timings">
+
+      {customTimings.map((timing, index) => {
+
+        const selectedDay = DAYS.find(
+          (day) =>
+            day.id === Number(timing.dayOfWeekId)
+        );
+
+        return (
+          <div
+            className="jippy-outlet-create-custom-row"
+            key={`custom-${index}`}
+          >
+
+            {/* DAY */}
+
+            <select
+              value={timing.dayOfWeekId}
+              onChange={(event) => {
+
+                const updated = [...customTimings];
+
+                updated[index] = {
+                  ...updated[index],
+                  dayOfWeekId: Number(event.target.value),
+                };
+
+                setCustomTimings(updated);
+              }}
+              className="jippy-outlet-create-custom-day-select"
+            >
+
+              {DAYS.map((day) => (
+                <option
+                  key={day.id}
+                  value={day.id}
+                >
+                  {day.name}
+                </option>
+              ))}
+
+            </select>
+
+
+            {/* OPEN / CLOSED */}
+
+            <label className="jippy-outlet-create-toggle">
+
+              <input
+                type="checkbox"
+                checked={timing.isOpen}
+                onChange={(event) => {
+
+                  const updated = [...customTimings];
+
+                  updated[index] = {
+                    ...updated[index],
+                    isOpen: event.target.checked,
+                  };
+
+                  setCustomTimings(updated);
+                }}
+              />
+
+              <span>
+                {timing.isOpen ? "Open" : "Closed"}
+              </span>
+
+            </label>
+
+
+            {/* OPENING */}
+
+            <div className="jippy-outlet-create-time">
+
+              <label>
+                Opening
+              </label>
+
+              <input
+                type="time"
+                value={timing.openingTime}
+                disabled={!timing.isOpen}
+                onChange={(event) => {
+
+                  const updated = [...customTimings];
+
+                  updated[index] = {
+                    ...updated[index],
+                    openingTime: event.target.value,
+                  };
+
+                  setCustomTimings(updated);
+                }}
+              />
+
+            </div>
+
+
+            {/* CLOSING */}
+
+            <div className="jippy-outlet-create-time">
+
+              <label>
+                Closing
+              </label>
+
+              <input
+                type="time"
+                value={timing.closingTime}
+                disabled={!timing.isOpen}
+                onChange={(event) => {
+
+                  const updated = [...customTimings];
+
+                  updated[index] = {
+                    ...updated[index],
+                    closingTime: event.target.value,
+                  };
+
+                  setCustomTimings(updated);
+                }}
+              />
+
+            </div>
+
+
+            {/* DELETE */}
+
+            <button
+              type="button"
+              className="jippy-outlet-create-delete-timing-btn"
+              onClick={() =>
+                handleDeleteCustomTiming(index)
+              }
+              title="Delete timing"
+            >
+              🗑
+            </button>
+
+          </div>
+        );
+      })}
+
+    </div>
+  )}
+
+</section>
+
+
+{showTimingModal && (
+  <div
+    className="jippy-outlet-create-timing-overlay"
+    onClick={() => setShowTimingModal(false)}
+  >
+
+    <div
+      className="jippy-outlet-create-timing-modal"
+      onClick={(event) => event.stopPropagation()}
+    >
+
+      <div className="jippy-outlet-create-timing-modal-header">
+
+        <div>
+          <h3>
+            Add Custom Timing
+          </h3>
+
+          <p>
+            Add a custom day and time for this outlet.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          className="jippy-outlet-create-timing-close"
+          onClick={() => setShowTimingModal(false)}
+        >
+          ×
+        </button>
+
+      </div>
+
+
+      <div className="jippy-outlet-create-timing-form">
+
+        {/* DAY */}
+
+        <div className="jippy-outlet-create-timing-field">
+
+          <label>
+            Day <span>*</span>
+          </label>
+
+          <select
+            value={newTiming.dayOfWeekId}
+            onChange={(event) =>
+              handleNewTimingChange(
+                "dayOfWeekId",
+                event.target.value
+              )
+            }
+          >
+
+            <option value="">
+              Select Day
+            </option>
+
+            {DAYS.map((day) => (
+              <option
+                key={day.id}
+                value={day.id}
+              >
+                {day.name}
+              </option>
+            ))}
+
+          </select>
+
+        </div>
+
+
+        {/* STATUS */}
+
+        <div className="jippy-outlet-create-timing-field">
+
+          <label>
+            Status
+          </label>
+
+          <label className="jippy-outlet-create-modal-toggle">
+
+            <input
+              type="checkbox"
+              checked={newTiming.isOpen}
+              onChange={(event) =>
+                handleNewTimingChange(
+                  "isOpen",
+                  event.target.checked
+                )
+              }
+            />
+
+            <span className="jippy-outlet-create-toggle-slider"></span>
+
+            <span className="jippy-outlet-create-toggle-text">
+              {newTiming.isOpen
+                ? "Open"
+                : "Closed"}
+            </span>
+
+          </label>
+
+        </div>
+
+
+        {/* OPENING TIME */}
+
+        <div className="jippy-outlet-create-timing-field">
+
+          <label>
+            Opening Time <span>*</span>
+          </label>
+
+          <input
+            type="time"
+            value={newTiming.openingTime}
+            disabled={!newTiming.isOpen}
+            onChange={(event) =>
+              handleNewTimingChange(
+                "openingTime",
+                event.target.value
+              )
+            }
+          />
+
+        </div>
+
+
+        {/* CLOSING TIME */}
+
+        <div className="jippy-outlet-create-timing-field">
+
+          <label>
+            Closing Time <span>*</span>
+          </label>
+
+          <input
+            type="time"
+            value={newTiming.closingTime}
+            disabled={!newTiming.isOpen}
+            onChange={(event) =>
+              handleNewTimingChange(
+                "closingTime",
+                event.target.value
+              )
+            }
+          />
+
+        </div>
+
+      </div>
+
+
+      <div className="jippy-outlet-create-timing-actions">
+
+        <button
+          type="button"
+          className="jippy-outlet-create-timing-cancel-btn"
+          onClick={() => setShowTimingModal(false)}
+        >
+          Cancel
+        </button>
+
+        <button
+          type="button"
+          className="jippy-outlet-create-timing-submit-btn"
+          onClick={handleAddTiming}
+        >
+          Add Timing
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+)}
 
         {/* =================================================
             ACTIONS

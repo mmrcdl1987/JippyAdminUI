@@ -17,6 +17,8 @@ import {
   setOutletUnavailable,
   restoreOutletUnavailability,
 
+    toggleOutlet,
+
 } from "../services/outletListService";
 
 import {
@@ -96,6 +98,12 @@ const [expandedOutletId, setExpandedOutletId] = useState(null);
 
   const [showExportMenu, setShowExportMenu] = useState(false);
   const [globalStatus, setGlobalStatus] = useState("OPEN");
+
+  const [showTurnOnConfirm, setShowTurnOnConfirm] = useState(false);
+const [turnOnOutlet, setTurnOnOutlet] = useState(null);
+const [turningOn, setTurningOn] = useState(false);
+const [showTurnOnSuccess, setShowTurnOnSuccess] = useState(false);
+const [turnOnSuccessMessage, setTurnOnSuccessMessage] = useState("");
 
 
   // DRAG AND DROP & BULK UPLOAD STATE
@@ -217,47 +225,302 @@ const formatUnavailabilityDate = (dateValue) => {
   });
 };
 
-const handleOutletToggle = (outlet) => {
+// const handleOutletToggle = (outlet) => {
+//   if (!outlet?.outletId) {
+//     console.error("Outlet ID not found");
+//     return;
+//   }
+
+//   // ==========================================
+//   // ON → OFF
+//   // ==========================================
+
+//   if (outlet.isToggle === true) {
+//     setSelectedOutlet(outlet);
+
+//     setUnavailabilityForm({
+//       fromDate: "",
+//       toDate: "",
+//       reason: "",
+//     });
+
+//     setUnavailabilityModal({
+//       open: true,
+//       outlet: outlet,
+//       mode: "create",
+//     });
+
+//     return;
+//   }
+
+//   // ==========================================
+//   // OFF → ON
+//   // OPEN RESTORE CONFIRMATION
+//   // ==========================================
+
+//   setSelectedOutlet(outlet);
+
+//   setUnavailabilityModal({
+//     open: true,
+//     outlet: outlet,
+//     mode: "restore",
+//   });
+// };
+
+
+
+// const handleOutletToggle = async (outlet) => {
+//   if (!outlet?.outletId) {
+//     console.error("Outlet ID not found");
+//     return;
+//   }
+
+//   const outletId = Number(outlet.outletId);
+
+//   try {
+//     setSelectedOutlet(outlet);
+
+//     const details = await getOutletDetails(outletId);
+
+//     console.log(`OUTLET ${outletId} DETAILS:`, details);
+
+//     const isToggle = details?.isToggle === true;
+//     const isAvailable = details?.isAvailable === true;
+
+//     const latestOutlet = {
+//       ...outlet,
+//       isToggle,
+//       isAvailable,
+//     };
+
+//     setOutlets((prev) =>
+//       prev.map((item) =>
+//         Number(item.outletId) === outletId
+//           ? latestOutlet
+//           : item
+//       )
+//     );
+
+//     // ==========================================
+//     // ON → OFF
+//     // ==========================================
+
+//     if (isToggle === true) {
+//       setUnavailabilityForm({
+//         fromDate: "",
+//         toDate: "",
+//         reason: "",
+//       });
+
+//       setUnavailabilityModal({
+//         open: true,
+//         outlet: latestOutlet,
+//         mode: "create",
+//       });
+
+//       return;
+//     }
+
+//     // ==========================================
+//     // OFF → ON
+//     // DIRECTLY CALL TOGGLE API
+//     // ==========================================
+
+//     const response = await toggleOutlet(
+//       outletId,
+//       true
+//     );
+
+//     console.log(
+//       "TOGGLE OUTLET RESPONSE:",
+//       response
+//     );
+
+//     // Update UI after successful API call
+//     setOutlets((prev) =>
+//       prev.map((item) =>
+//         Number(item.outletId) === outletId
+//           ? {
+//               ...item,
+//               isToggle: true,
+//               isAvailable: true,
+//             }
+//           : item
+//       )
+//     );
+
+//     // SUCCESS POPUP
+//    alert(
+//   response?.statusMsg ||
+//     "Outlet toggle enabled successfully"
+// );
+
+//   } catch (error) {
+//     console.error(
+//       "OUTLET TOGGLE ERROR:",
+//       error
+//     );
+
+//     setSelectedOutlet(null);
+
+//     alert(
+//       error?.response?.data?.message ||
+//         error?.response?.data?.statusMsg ||
+//         "Failed to update outlet availability."
+//     );
+//   }
+// };
+
+
+const handleOutletToggle = async (outlet) => {
   if (!outlet?.outletId) {
     console.error("Outlet ID not found");
     return;
   }
 
-  // ==========================================
-  // ON → OFF
-  // ==========================================
+  const outletId = Number(outlet.outletId);
 
-  if (outlet.isToggle === true) {
+  try {
     setSelectedOutlet(outlet);
 
-    setUnavailabilityForm({
-      fromDate: "",
-      toDate: "",
-      reason: "",
-    });
+    // Get latest toggle status only when user clicks
+    const details = await getOutletDetails(outletId);
 
-    setUnavailabilityModal({
-      open: true,
-      outlet: outlet,
-      mode: "create",
-    });
+    console.log(
+      `OUTLET ${outletId} DETAILS:`,
+      details
+    );
 
+    const isToggle = details?.isToggle === true;
+    const isAvailable = details?.isAvailable === true;
+
+    const latestOutlet = {
+      ...outlet,
+      isToggle,
+      isAvailable,
+    };
+
+    setOutlets((prev) =>
+      prev.map((item) =>
+        Number(item.outletId) === outletId
+          ? latestOutlet
+          : item
+      )
+    );
+
+    // ==========================================
+    // ON → OFF
+    // ==========================================
+
+    if (isToggle === true) {
+      setUnavailabilityForm({
+        fromDate: "",
+        toDate: "",
+        reason: "",
+      });
+
+      setUnavailabilityModal({
+        open: true,
+        outlet: latestOutlet,
+        mode: "create",
+      });
+
+      return;
+    }
+
+    // ==========================================
+    // OFF → ON
+    // SHOW CONFIRMATION POPUP
+    // ==========================================
+
+    setTurnOnOutlet(latestOutlet);
+    setShowTurnOnConfirm(true);
+
+  } catch (error) {
+    console.error(
+      `Failed to fetch availability for outlet ${outletId}:`,
+      error
+    );
+
+    setSelectedOutlet(null);
+
+    // Don't use alert
+    setPopupMessage(
+      error?.response?.data?.message ||
+      "Unable to fetch outlet availability. Please try again."
+    );
+
+    setShowErrorPopup(true);
+  }
+};
+
+
+const handleConfirmTurnOn = async () => {
+  if (!turnOnOutlet?.outletId) {
     return;
   }
 
-  // ==========================================
-  // OFF → ON
-  // OPEN RESTORE CONFIRMATION
-  // ==========================================
+  try {
+    setTurningOn(true);
 
-  setSelectedOutlet(outlet);
+    const outletId = Number(turnOnOutlet.outletId);
 
-  setUnavailabilityModal({
-    open: true,
-    outlet: outlet,
-    mode: "restore",
-  });
+    const response = await toggleOutlet(
+      outletId,
+      true
+    );
+
+    console.log(
+      "TOGGLE OUTLET RESPONSE:",
+      response
+    );
+
+    // Update outlet in UI
+    setOutlets((prev) =>
+      prev.map((item) =>
+        Number(item.outletId) === outletId
+          ? {
+              ...item,
+              isToggle: true,
+              isAvailable: true,
+            }
+          : item
+      )
+    );
+
+    // Close confirmation popup
+    setShowTurnOnConfirm(false);
+    setTurnOnOutlet(null);
+
+    // Success popup
+    setTurnOnSuccessMessage(
+      response?.statusMsg ||
+        "Outlet toggle enabled successfully"
+    );
+
+    setShowTurnOnSuccess(true);
+
+  } catch (error) {
+    console.error(
+      "OUTLET TOGGLE ERROR:",
+      error
+    );
+
+    alert(
+      error?.response?.data?.message ||
+        error?.response?.data?.statusMsg ||
+        "Failed to turn on outlet."
+    );
+  } finally {
+    setTurningOn(false);
+  }
 };
+
+
+const handleCancelTurnOn = () => {
+  setShowTurnOnConfirm(false);
+  setTurnOnOutlet(null);
+};  
 
 const handleConfirmUnavailability = async () => {
   const outlet = unavailabilityModal.outlet;
@@ -513,11 +776,80 @@ const handleConfirmOutletRestore = async () => {
 // =========================================================
 // FETCH ALL OUTLETS
 // =========================================================
+// const fetchOutlets = async () => {
+//   try {
+//     setLoading(true);
+
+//     // 1. Get all outlets
+//     const data = await getAllOutlets();
+
+//     if (!Array.isArray(data)) {
+//       setOutlets([]);
+//       return;
+//     }
+
+//     // 2. Get isToggle from admin outlet-details API
+//     const outletsWithAvailability = [];
+
+//     for (const outlet of data) {
+//       try {
+//         const details = await getOutletDetails(
+//           Number(outlet.outletId)
+//         );
+
+//         console.log(
+//           `OUTLET ${outlet.outletId} DETAILS:`,
+//           details
+//         );
+
+//         outletsWithAvailability.push({
+//           ...outlet,
+
+//           isToggle:
+//             details?.isToggle === true,
+
+//           isAvailable:
+//             details?.isAvailable === true,
+//         });
+
+//       } catch (error) {
+//         console.error(
+//           `Failed to fetch details for outlet ${outlet.outletId}:`,
+//           error
+//         );
+
+//         // Don't force isToggle to false
+//         // if the API request failed.
+//         outletsWithAvailability.push({
+//           ...outlet,
+//         });
+//       }
+//     }
+
+//     console.log(
+//       "FINAL OUTLETS WITH AVAILABILITY:",
+//       outletsWithAvailability
+//     );
+
+//     setOutlets(outletsWithAvailability);
+
+//   } catch (error) {
+//     console.error(
+//       "Failed to fetch outlets:",
+//       error
+//     );
+
+//     setOutlets([]);
+
+//   } finally {
+//     setLoading(false);
+//   }
+// };
 const fetchOutlets = async () => {
   try {
     setLoading(true);
 
-    // 1. Get all outlets
+    // 1. Load all outlets first
     const data = await getAllOutlets();
 
     if (!Array.isArray(data)) {
@@ -525,50 +857,37 @@ const fetchOutlets = async () => {
       return;
     }
 
-    // 2. Get isToggle from admin outlet-details API
-    const outletsWithAvailability = [];
+    // 2. Show outlets immediately
+    setOutlets(data);
 
-    for (const outlet of data) {
+    // 3. Fetch isToggle separately in background
+    data.forEach(async (outlet) => {
       try {
         const details = await getOutletDetails(
           Number(outlet.outletId)
         );
 
-        console.log(
-          `OUTLET ${outlet.outletId} DETAILS:`,
-          details
+        setOutlets((prev) =>
+          prev.map((item) =>
+            Number(item.outletId) ===
+            Number(outlet.outletId)
+              ? {
+                  ...item,
+                  isToggle:
+                    details?.isToggle === true,
+                  isAvailable:
+                    details?.isAvailable === true,
+                }
+              : item
+          )
         );
-
-        outletsWithAvailability.push({
-          ...outlet,
-
-          isToggle:
-            details?.isToggle === true,
-
-          isAvailable:
-            details?.isAvailable === true,
-        });
-
       } catch (error) {
         console.error(
           `Failed to fetch details for outlet ${outlet.outletId}:`,
           error
         );
-
-        // Don't force isToggle to false
-        // if the API request failed.
-        outletsWithAvailability.push({
-          ...outlet,
-        });
       }
-    }
-
-    console.log(
-      "FINAL OUTLETS WITH AVAILABILITY:",
-      outletsWithAvailability
-    );
-
-    setOutlets(outletsWithAvailability);
+    });
 
   } catch (error) {
     console.error(
@@ -577,7 +896,6 @@ const fetchOutlets = async () => {
     );
 
     setOutlets([]);
-
   } finally {
     setLoading(false);
   }
@@ -591,10 +909,7 @@ useEffect(() => {
   fetchOutlets();
   fetchOutletCount();
 }, []);
-useEffect(() => {
-  fetchOutlets();
-  fetchOutletCount();
-}, []);
+
   // =========================================================
   // FILTER OPTIONS
   // =========================================================
@@ -756,61 +1071,27 @@ const handleOutletProfile = (outlet) => {
   // =========================================================
 
   const handleEditOutlet = (outlet) => {
-    console.log(
-      "================================"
-    );
+  const outletId = outlet?.outletId ?? outlet?.id;
 
-    console.log(
-      "EDIT OUTLET CLICKED"
-    );
+  if (!outletId) {
+    alert("Outlet ID not found.");
+    return;
+  }
 
-    console.log(
-      "FULL OUTLET:",
-      outlet
-    );
+  sessionStorage.setItem(
+    "selectedOutlet",
+    JSON.stringify(outlet)
+  );
 
-    const outletId =
-      outlet?.outletId ??
-      outlet?.id;
+  sessionStorage.setItem(
+    "editOutletId",
+    String(outletId)
+  );
 
-    if (!outletId) {
-      alert(
-        "Outlet ID not found."
-      );
-      return;
-    }
-
-    sessionStorage.setItem(
-      "selectedOutlet",
-      JSON.stringify(outlet)
-    );
-
-    sessionStorage.setItem(
-      "editOutletId",
-      String(outletId)
-    );
-
-    console.log(
-      "EDIT OUTLET ID:",
-      outletId
-    );
-
-    console.log(
-      "MERCHANT ID FROM TABLE:",
-      outlet?.merchantId
-    );
-
-    console.log(
-      "================================"
-    );
-
-    if (setActivePage) {
-      setActivePage(
-        "outletEdit"
-      );
-    }
-  };
-
+  if (setActivePage) {
+    setActivePage("outletEdit");
+  }
+};  
   // =========================================================
   // DELETE OUTLET
   // =========================================================
@@ -1845,7 +2126,6 @@ const columnOptions = [
             )}
 
 {/* AVAILABILITY */}
-{/* AVAILABILITY */}
 {visibleColumns.availability && (
   <td>
     <label className="jippy-outlet-toggle">
@@ -2431,6 +2711,91 @@ const columnOptions = [
         </>
 
       )}
+
+    </div>
+
+  </div>
+)}
+
+
+{showTurnOnConfirm && turnOnOutlet && (
+  <div className="jippy-turn-on-overlay">
+
+    <div className="jippy-turn-on-modal">
+
+      <div className="jippy-turn-on-icon">
+        ?
+      </div>
+
+      <h2>
+        Turn On Outlet?
+      </h2>
+
+      <p>
+        Are you sure you want to turn on
+        <strong>
+          {" "}{turnOnOutlet.outletName}
+        </strong>
+        ?
+      </p>
+
+      <div className="jippy-turn-on-actions">
+
+        <button
+          type="button"
+          className="jippy-turn-on-cancel"
+          onClick={handleCancelTurnOn}
+          disabled={turningOn}
+        >
+          Cancel
+        </button>
+
+        <button
+          type="button"
+          className="jippy-turn-on-confirm"
+          onClick={handleConfirmTurnOn}
+          disabled={turningOn}
+        >
+          {turningOn
+            ? "Turning On..."
+            : "Confirm & Turn On"}
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+)}
+
+
+{/* TURN ON SUCCESS POPUP */}
+{showTurnOnSuccess && (
+  <div className="jippy-outlet-toggle-popup-overlay">
+
+    <div className="jippy-outlet-toggle-popup">
+
+      <div className="jippy-outlet-toggle-success-icon">
+        ✓
+      </div>
+
+      <h2>
+        Outlet Turned On
+      </h2>
+
+      <p>
+        {turnOnSuccessMessage}
+      </p>
+
+      <button
+        type="button"
+        className="jippy-outlet-toggle-confirm-button"
+        onClick={() =>
+          setShowTurnOnSuccess(false)
+        } 
+      >
+        OK
+      </button>
 
     </div>
 

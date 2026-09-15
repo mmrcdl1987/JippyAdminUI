@@ -2121,3 +2121,250 @@
   color: #ff6b00;
   text-decoration: underline;
 }
+
+
+
+
+.jippy-turn-on-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.jippy-turn-on-modal {
+  width: 420px;
+  max-width: calc(100% - 40px);
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 32px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+}
+
+.jippy-turn-on-icon,
+.jippy-turn-on-success-icon {
+  width: 58px;
+  height: 58px;
+  margin: 0 auto 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.jippy-turn-on-icon {
+  background: #fff3e8;
+  color: #ff6b00;
+}
+
+.jippy-turn-on-success-icon {
+  background: #e9f9ef;
+  color: #20a464;
+}
+
+.jippy-turn-on-modal h2 {
+  margin: 0 0 10px;
+  color: #222222;
+  font-size: 22px;
+}
+
+.jippy-turn-on-modal p {
+  margin: 0 0 26px;
+  color: #666666;
+  line-height: 1.6;
+}
+
+.jippy-turn-on-modal p strong {
+  color: #222222;
+}
+
+.jippy-turn-on-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.jippy-turn-on-cancel,
+.jippy-turn-on-confirm {
+  border: none;
+  padding: 11px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.jippy-turn-on-cancel {
+  background: #f1f1f1;
+  color: #555555;
+}
+
+.jippy-turn-on-cancel:hover {
+  background: #e5e5e5;
+}
+
+.jippy-turn-on-confirm {
+  background: #ff6b00;
+  color: #ffffff;
+}
+
+.jippy-turn-on-confirm:hover {
+  background: #e85f00;
+}
+
+.jippy-turn-on-cancel:disabled,
+.jippy-turn-on-confirm:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+
+
+/* =========================================================
+   OUTLET TURN ON POPUP
+   ========================================================= */
+
+.jippy-outlet-toggle-popup-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  background: rgba(17, 21, 29, 0.55);
+  backdrop-filter: blur(3px);
+}
+
+.jippy-outlet-toggle-popup {
+  width: min(430px, 100%);
+  padding: 32px;
+
+  background: #ffffff;
+  border-radius: 16px;
+
+  text-align: center;
+
+  box-shadow: 0 20px 70px rgba(0, 0, 0, 0.22);
+
+  border-top: 4px solid #ff6b00;
+
+  animation: jippyOutletTogglePopupIn 0.2s ease;
+}
+
+@keyframes jippyOutletTogglePopupIn {
+  from {
+    opacity: 0;
+    transform: scale(0.94) translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.jippy-outlet-toggle-popup-icon,
+.jippy-outlet-toggle-success-icon {
+  width: 62px;
+  height: 62px;
+
+  margin: 0 auto 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  font-size: 28px;
+  font-weight: 800;
+}
+
+.jippy-outlet-toggle-popup-icon {
+  background: #fff1e6;
+  color: #ff6b00;
+}
+
+.jippy-outlet-toggle-success-icon {
+  background: #fff1e6;
+  color: #ff6b00;
+}
+
+.jippy-outlet-toggle-popup h2 {
+  margin: 0 0 10px;
+
+  color: #252932;
+
+  font-size: 21px;
+  font-weight: 700;
+}
+
+.jippy-outlet-toggle-popup p {
+  margin: 0 0 26px;
+
+  color: #777d88;
+
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.jippy-outlet-toggle-popup p strong {
+  color: #252932;
+}
+
+.jippy-outlet-toggle-popup-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.jippy-outlet-toggle-cancel-button,
+.jippy-outlet-toggle-confirm-button {
+  flex: 1;
+
+  height: 45px;
+
+  border: none;
+  border-radius: 8px;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.jippy-outlet-toggle-cancel-button {
+  background: #f1f2f4;
+  color: #454a54;
+}
+
+.jippy-outlet-toggle-cancel-button:hover {
+  background: #e5e7eb;
+}
+
+.jippy-outlet-toggle-confirm-button {
+  background: #ff6b00;
+  color: #ffffff;
+  width: 90px;  
+}
+
+.jippy-outlet-toggle-confirm-button:hover {
+  background: #e85f00;
+}
+
+.jippy-outlet-toggle-cancel-button:disabled,
+.jippy-outlet-toggle-confirm-button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}

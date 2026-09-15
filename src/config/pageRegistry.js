@@ -71,6 +71,10 @@ import ApprovalSettings from "../pages/ApprovalSettings";
 import ApprovalTransactions from "../pages/ApprovalTransactions";
 import CreatePromotionSettings from "../pages/CreatePromotionSettings";
 
+import Orders from "../pages/Orders";
+
+import OrderDetails from "../pages/OrderDetails";
+
 
 export const pageRegistry = {
 
@@ -273,6 +277,19 @@ export const pageRegistry = {
     permission: "DRIVER_READ",
   },
 
+
+  // =========================
+// ORDERS
+// =========================
+
+orders: {
+  component: Orders,
+  permission: "ORDER_READ",
+},
+orderDetails: {
+  component: OrderDetails,
+  permission: "ORDER_READ",
+},
 
   // =========================
   // CATEGORIES

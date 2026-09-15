@@ -191,8 +191,10 @@
   box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.08);
 }
 
+
+
 .jippy-outlet-edit-v2-field small {
-  color: #9297a1;
+  color: red;
   font-size: 11px;
 }
 
@@ -709,4 +711,724 @@
   .jippy-outlet-edit-v2-update-button {
     width: 100%;
   }
+}
+
+
+
+
+/* ============================================================
+   LOCATION SELECT DROPDOWNS
+   ============================================================ */
+
+.jippy-outlet-edit-v2-select {
+  width: 100%;
+}
+
+.jippy-outlet-edit-v2-select__control {
+  min-height: 44px !important;
+  height: 44px;
+  width: 100%;
+  border: 1px solid #dfe2e8 !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  background: #ffffff;
+  cursor: pointer;
+}
+
+.jippy-outlet-edit-v2-select__control:hover {
+  border-color: #c9cdd5 !important;
+}
+
+.jippy-outlet-edit-v2-select__control--is-focused {
+  border-color: #ff6b00 !important;
+  box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.08) !important;
+}
+
+.jippy-outlet-edit-v2-select__value-container {
+  height: 42px;
+  padding: 0 13px !important;
+}
+
+.jippy-outlet-edit-v2-select__single-value {
+  color: #272b34 !important;
+  font-size: 14px;
+}
+
+.jippy-outlet-edit-v2-select__placeholder {
+  color: #9297a1 !important;
+  font-size: 14px;
+}
+
+.jippy-outlet-edit-v2-select__input-container {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.jippy-outlet-edit-v2-select__indicators {
+  height: 42px;
+}
+
+.jippy-outlet-edit-v2-select__menu {
+  margin-top: 4px !important;
+  border-radius: 8px !important;
+  border: 1px solid #dfe2e8;
+  box-shadow: 0 8px 24px rgba(20, 30, 50, 0.15);
+  z-index: 9999 !important;
+  overflow: hidden;
+}
+
+.jippy-outlet-edit-v2-select__menu-list {
+  max-height: 220px !important;
+  padding: 4px 0 !important;
+}
+
+.jippy-outlet-edit-v2-select__option {
+  padding: 10px 13px !important;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.jippy-outlet-edit-v2-select__option--is-focused {
+  background: #fff3e9 !important;
+  color: #272b34 !important;
+}
+
+.jippy-outlet-edit-v2-select__option--is-selected {
+  background: #ff6b00 !important;
+  color: #ffffff !important;
+}
+
+
+
+.jippy-outlet-edit-v2-cuisine-box select {
+  width: 100%;
+  max-width: 100%;
+  min-height: 125px;
+  max-height: 220px;
+  padding: 10px;
+  box-sizing: border-box;
+  border: 1px solid #ffd2b3;
+  border-radius: 10px;
+  outline: none;
+  font-size: 14px;
+  background: #ffffff;
+  color: #272b34;
+  overflow-y: auto;
+  overflow-x: hidden;
+  accent-color: #ff6b00;
+}
+
+.jippy-outlet-edit-v2-cuisine-box select:focus {
+  border-color: #ff6b00;
+  box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.12);
+}
+
+.jippy-outlet-edit-v2-cuisine-box option {
+  padding: 9px 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.jippy-outlet-edit-v2-cuisine-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 12px;
+  background: #fff1e6;
+  color: #e85f00;
+  border: 1px solid #ffd2b3;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+
+
+.jippy-outlet-edit-v2-cuisine-box {
+  position: relative;
+  width: 100%;
+}
+
+.cuisine-dropdown {
+  position: relative;
+  width: 100%;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.cuisine-dropdown-header {
+  min-height: 45px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #444;
+}
+
+.cuisine-dropdown-arrow {
+  color: #ff6b00;
+  font-size: 12px;
+}
+
+.cuisine-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  padding: 10px;
+}
+
+.cuisine-search {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  outline: none;
+  margin-bottom: 8px;
+}
+
+.cuisine-search:focus {
+  border-color: #ff6b00;
+}
+
+.cuisine-options {
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.cuisine-option {
+  padding: 10px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.cuisine-option:hover {
+  background: #fff3e8;
+}
+
+.cuisine-option.selected {
+  background: #ff6b00;
+  color: #fff;
+}
+
+.cuisine-check {
+  font-weight: bold;
+}
+
+.jippy-outlet-edit-v2-selected-cuisines {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.jippy-outlet-edit-v2-cuisine-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #fff3e8;
+  color: #ff6b00;
+  border: 1px solid #ff6b00;
+  border-radius: 20px;
+  padding: 6px 10px;
+  font-size: 13px;
+}
+
+.jippy-outlet-edit-v2-cuisine-chip button {
+  border: none;
+  background: transparent;
+  color: #ff6b00;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 0;
+}
+
+.no-cuisines {
+  color: #888;
+  font-size: 13px;
+}
+
+
+/* ============================================================
+   ADDITIONAL TIMINGS
+   ============================================================ */
+
+.jippy-outlet-edit-v2-additional-section {
+  margin-top: 0;
+}
+
+
+/* ADD TIMING BUTTON */
+
+.jippy-outlet-edit-v2-add-timing-button {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  height: 40px;
+  padding: 0 15px;
+
+  border: 1px solid #ff6b00;
+  border-radius: 8px;
+
+  background: #ffffff;
+  color: #ff6b00;
+
+  font-size: 13px;
+  font-weight: 650;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.jippy-outlet-edit-v2-add-timing-button span {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.jippy-outlet-edit-v2-add-timing-button:hover {
+  background: #ff6b00;
+  color: #ffffff;
+}
+
+.jippy-outlet-edit-v2-add-timing-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+
+/* CUSTOM TIMINGS */
+
+.jippy-outlet-edit-v2-custom-timings {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+
+/* CUSTOM ROW */
+
+.jippy-outlet-edit-v2-custom-row {
+  display: grid;
+
+  grid-template-columns:
+    150px
+    115px
+    minmax(150px, 1fr)
+    minmax(150px, 1fr)
+    40px;
+
+  align-items: center;
+
+  gap: 15px;
+
+  padding: 13px 14px;
+
+  border: 1px solid #e7e9ed;
+  border-radius: 10px;
+
+  background: #fafbfc;
+}
+
+
+/* DAY */
+
+.jippy-outlet-edit-v2-custom-day-select {
+  width: 100%;
+  height: 40px;
+
+  padding: 0 10px;
+
+  border: 1px solid #dfe2e8;
+  border-radius: 7px;
+
+  background: #ffffff;
+  color: #333842;
+
+  outline: none;
+
+  font-size: 13px;
+
+  cursor: pointer;
+}
+
+.jippy-outlet-edit-v2-custom-day-select:focus {
+  border-color: #ff6b00;
+}
+
+
+/* CUSTOM TOGGLE */
+
+.jippy-outlet-edit-v2-custom-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  cursor: pointer;
+}
+
+.jippy-outlet-edit-v2-custom-toggle input {
+  width: 17px;
+  height: 17px;
+
+  margin: 0;
+
+  accent-color: #ff6b00;
+
+  cursor: pointer;
+}
+
+.jippy-outlet-edit-v2-custom-toggle-text {
+  font-size: 12px;
+  font-weight: 650;
+  color: #555b65;
+}
+
+
+/* TIME */
+
+.jippy-outlet-edit-v2-custom-time-box {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.jippy-outlet-edit-v2-custom-time-box label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #898e98;
+  text-transform: uppercase;
+}
+
+.jippy-outlet-edit-v2-custom-time-box input {
+  width: 100%;
+  height: 40px;
+
+  padding: 0 9px;
+
+  box-sizing: border-box;
+
+  border: 1px solid #dfe2e8;
+  border-radius: 7px;
+
+  background: #ffffff;
+
+  outline: none;
+
+  font-size: 13px;
+}
+
+.jippy-outlet-edit-v2-custom-time-box input:focus {
+  border-color: #ff6b00;
+}
+
+.jippy-outlet-edit-v2-custom-time-box input:disabled {
+  background: #f0f1f3;
+  color: #9da1a8;
+  cursor: not-allowed;
+}
+
+
+/* DELETE */
+
+.jippy-outlet-edit-v2-delete-timing-button {
+  width: 36px;
+  height: 36px;
+
+  border: none;
+  border-radius: 7px;
+
+  background: transparent;
+  color: #e53935;
+
+  font-size: 16px;
+
+  cursor: pointer;
+}
+
+.jippy-outlet-edit-v2-delete-timing-button:hover {
+  background: #fff0f0;
+  color: #c62828;
+}
+
+.jippy-outlet-edit-v2-delete-timing-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+
+/* ============================================================
+   ADD TIMING MODAL
+   ============================================================ */
+
+.jippy-outlet-edit-v2-timing-overlay {
+  position: fixed;
+  inset: 0;
+
+  z-index: 99999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  background: rgba(17, 21, 29, 0.55);
+
+  backdrop-filter: blur(3px);
+}
+
+
+.jippy-outlet-edit-v2-timing-modal {
+  width: min(560px, 100%);
+
+  background: #ffffff;
+
+  border-radius: 14px;
+
+  padding: 25px;
+
+  box-shadow: 0 20px 70px rgba(0, 0, 0, 0.20);
+}
+
+
+.jippy-outlet-edit-v2-timing-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  margin-bottom: 25px;
+}
+
+.jippy-outlet-edit-v2-timing-modal-header h3 {
+  margin: 0 0 6px;
+
+  color: #252932;
+
+  font-size: 21px;
+}
+
+.jippy-outlet-edit-v2-timing-modal-header p {
+  margin: 0;
+
+  color: #777d88;
+
+  font-size: 13px;
+}
+
+
+.jippy-outlet-edit-v2-timing-close {
+  border: none;
+  background: transparent;
+
+  color: #555;
+
+  font-size: 26px;
+
+  cursor: pointer;
+}
+
+.jippy-outlet-edit-v2-timing-close:hover {
+  color: #ff6b00;
+}
+
+
+/* FORM */
+
+.jippy-outlet-edit-v2-timing-form {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 20px;
+}
+
+
+.jippy-outlet-edit-v2-timing-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.jippy-outlet-edit-v2-timing-field > label:first-child {
+  color: #444;
+
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.jippy-outlet-edit-v2-timing-field > label:first-child span {
+  color: #e53935;
+}
+
+
+.jippy-outlet-edit-v2-timing-field input,
+.jippy-outlet-edit-v2-timing-field select {
+  width: 100%;
+  height: 44px;
+
+  box-sizing: border-box;
+
+  padding: 0 12px;
+
+  border: 1px solid #dfe2e8;
+  border-radius: 8px;
+
+  background: #ffffff;
+
+  outline: none;
+
+  font-size: 14px;
+}
+
+.jippy-outlet-edit-v2-timing-field input:focus,
+.jippy-outlet-edit-v2-timing-field select:focus {
+  border-color: #ff6b00;
+
+  box-shadow:
+    0 0 0 3px rgba(255, 107, 0, 0.08);
+}
+
+.jippy-outlet-edit-v2-timing-field input:disabled {
+  background: #f0f1f3;
+  color: #9da1a8;
+  cursor: not-allowed;
+}
+
+
+/* MODAL TOGGLE */
+
+.jippy-outlet-edit-v2-modal-toggle {
+  display: flex !important;
+
+  flex-direction: row !important;
+
+  align-items: center;
+
+  gap: 10px;
+
+  height: 44px;
+
+  cursor: pointer;
+}
+
+.jippy-outlet-edit-v2-modal-toggle input {
+  display: none;
+}
+
+.jippy-outlet-edit-v2-modal-toggle-slider {
+  position: relative;
+
+  width: 44px;
+  height: 24px;
+
+  flex-shrink: 0;
+
+  background: #cfd3d8;
+
+  border-radius: 20px;
+
+  transition: 0.2s ease;
+}
+
+.jippy-outlet-edit-v2-modal-toggle-slider::after {
+  content: "";
+
+  position: absolute;
+
+  width: 18px;
+  height: 18px;
+
+  top: 3px;
+  left: 3px;
+
+  background: #ffffff;
+
+  border-radius: 50%;
+
+  transition: 0.2s ease;
+}
+
+.jippy-outlet-edit-v2-modal-toggle input:checked
++ .jippy-outlet-edit-v2-modal-toggle-slider {
+  background: #ff6b00;
+}
+
+.jippy-outlet-edit-v2-modal-toggle input:checked
++ .jippy-outlet-edit-v2-modal-toggle-slider::after {
+  transform: translateX(20px);
+}
+
+.jippy-outlet-edit-v2-modal-toggle-text {
+  color: #333;
+
+  font-size: 13px;
+  font-weight: 650;
+}
+
+
+/* MODAL ACTIONS */
+
+.jippy-outlet-edit-v2-timing-actions {
+  display: flex;
+  justify-content: flex-end;
+
+  gap: 12px;
+
+  margin-top: 30px;
+  padding-top: 20px;
+
+  border-top: 1px solid #eeeeee;
+}
+
+.jippy-outlet-edit-v2-timing-cancel,
+.jippy-outlet-edit-v2-timing-submit {
+  min-width: 120px;
+  height: 43px;
+
+  padding: 0 18px;
+
+  border-radius: 8px;
+
+  font-size: 13px;
+  font-weight: 650;
+
+  cursor: pointer;
+}
+
+.jippy-outlet-edit-v2-timing-cancel {
+  border: 1px solid #dfe2e7;
+
+  background: #ffffff;
+
+  color: #555;
+}
+
+.jippy-outlet-edit-v2-timing-cancel:hover {
+  background: #f6f7f8;
+}
+
+.jippy-outlet-edit-v2-timing-submit {
+  border: none;
+
+  background: #ff6b00;
+
+  color: #ffffff;
+}
+
+.jippy-outlet-edit-v2-timing-submit:hover {
+  background: #e95e00;
 }

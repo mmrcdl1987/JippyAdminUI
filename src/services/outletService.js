@@ -71,3 +71,8 @@ export const createOutlet = async (payload) => {
 
   return response.data;
 };
+
+
+export const getCuisineTypes = () => {
+  return FM_API.get("/api/fm/cuisine-types");
+};
