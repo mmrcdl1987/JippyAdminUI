@@ -1,29 +1,25 @@
 import React, { useState, useEffect } from "react";
 import "../../styles/Merchants/CreateMerchant.css";
-import { FiArrowLeft, FiX } from "react-icons/fi";
-import { 
-  getStates, 
-  getCitiesByState, 
-  getAreasByCity 
+import { FiArrowLeft, FiEye, FiEyeOff } from "react-icons/fi";
+import {
+  getStates,
+  getCitiesByState,
+  getAreasByCity,
 } from "../../services/managerAreaService";
 import { FM_API } from "../../services/api";
 
 function CreateMerchant({ setActivePage }) {
-
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
-  
+
   // State for dropdown options
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
   const [areas, setAreas] = useState([]);
   const [loadingAddress, setLoadingAddress] = useState(false);
 
-  // State for file uploads
-  const [aadharFile, setAadharFile] = useState(null);
-  const [panFile, setPanFile] = useState(null);
-  const [aadharFileName, setAadharFileName] = useState("");
-  const [panFileName, setPanFileName] = useState("");
+  // State for password visibility
+  const [showPassword, setShowPassword] = useState(false);
 
   const [merchant, setMerchant] = useState({
     firstName: "",
@@ -33,7 +29,10 @@ function CreateMerchant({ setActivePage }) {
     username: "",
     password: "",
     outletType: "",
-    uploadedBy: localStorage.getItem("loggedInUser") || localStorage.getItem("username") || "Admin",
+    uploadedBy:
+      localStorage.getItem("loggedInUser") ||
+      localStorage.getItem("username") ||
+      "Admin",
     pan: "",
     adhar: "",
     accountNumber: "",
@@ -41,6 +40,8 @@ function CreateMerchant({ setActivePage }) {
     bankLocation: "",
     nameInBankAccount: "",
     dob: "",
+    fssai: "",
+    gstNumber: "",
     // Address fields
     buildingNumber: "",
     road: "",
@@ -57,12 +58,10 @@ function CreateMerchant({ setActivePage }) {
     fetchStates();
   }, []);
 
-  // Fetch all states using the service
   const fetchStates = async () => {
     try {
       setLoadingAddress(true);
       const response = await getStates();
-      // Handle both wrapped and unwrapped responses
       const statesData = response?.data || response || [];
       setStates(statesData);
     } catch (error) {
@@ -73,7 +72,6 @@ function CreateMerchant({ setActivePage }) {
     }
   };
 
-  // Fetch cities based on stateId using the service
   const fetchCities = async (stateId) => {
     if (!stateId) {
       setCities([]);
@@ -83,11 +81,10 @@ function CreateMerchant({ setActivePage }) {
     try {
       setLoadingAddress(true);
       const response = await getCitiesByState(stateId);
-      // Handle both wrapped and unwrapped responses
       const citiesData = response?.data || response || [];
       setCities(citiesData);
       setAreas([]);
-      setMerchant(prev => ({ ...prev, cityId: "", areaId: "" }));
+      setMerchant((prev) => ({ ...prev, cityId: "", areaId: "" }));
     } catch (error) {
       console.error("Error fetching cities:", error);
       setCities([]);
@@ -96,7 +93,6 @@ function CreateMerchant({ setActivePage }) {
     }
   };
 
-  // Fetch areas based on cityId using the service
   const fetchAreas = async (cityId) => {
     if (!cityId) {
       setAreas([]);
@@ -105,10 +101,9 @@ function CreateMerchant({ setActivePage }) {
     try {
       setLoadingAddress(true);
       const response = await getAreasByCity(cityId);
-      // Handle both wrapped and unwrapped responses
       const areasData = response?.data || response || [];
       setAreas(areasData);
-      setMerchant(prev => ({ ...prev, areaId: "" }));
+      setMerchant((prev) => ({ ...prev, areaId: "" }));
     } catch (error) {
       console.error("Error fetching areas:", error);
       setAreas([]);
@@ -128,76 +123,26 @@ function CreateMerchant({ setActivePage }) {
       [name]: "",
     }));
 
-    // Handle cascading dropdowns
-    if (name === "stateId") {
-      fetchCities(value);
-    }
-    if (name === "cityId") {
-      fetchAreas(value);
-    }
-  };
-
-  // Handle file uploads
-  const handleFileChange = (e, fileType) => {
-    const file = e.target.files[0];
-    if (file) {
-      // Validate file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        alert("File size should be less than 5MB");
-        e.target.value = "";
-        return;
-      }
-      
-      // Validate file type
-      const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
-      if (!allowedTypes.includes(file.type)) {
-        alert("Please upload PDF, JPG, JPEG, or PNG files only");
-        e.target.value = "";
-        return;
-      }
-
-      if (fileType === "aadhar") {
-        setAadharFile(file);
-        setAadharFileName(file.name);
-        setErrors((prev) => ({ ...prev, aadhar: "" }));
-      } else if (fileType === "pan") {
-        setPanFile(file);
-        setPanFileName(file.name);
-        setErrors((prev) => ({ ...prev, pan: "" }));
-      }
-    }
-  };
-
-  // Handle removing documents
-  const handleRemoveDocument = (fileType) => {
-    if (fileType === "aadhar") {
-      setAadharFile(null);
-      setAadharFileName("");
-      // Reset the file input
-      const fileInput = document.getElementById('aadhar-file-input');
-      if (fileInput) fileInput.value = '';
-    } else if (fileType === "pan") {
-      setPanFile(null);
-      setPanFileName("");
-      // Reset the file input
-      const fileInput = document.getElementById('pan-file-input');
-      if (fileInput) fileInput.value = '';
-    }
+    if (name === "stateId") fetchCities(value);
+    if (name === "cityId") fetchAreas(value);
   };
 
   const validateForm = () => {
     const newErrors = {};
 
-    /* ================= FIRST NAME ================= */
+    /* FIRST NAME */
     if (!merchant.firstName.trim()) {
       newErrors.firstName = "First Name is required";
-    } else if (merchant.firstName.length < 2 || merchant.firstName.length > 75) {
+    } else if (
+      merchant.firstName.length < 2 ||
+      merchant.firstName.length > 75
+    ) {
       newErrors.firstName = "First Name must be between 2 and 75 characters";
     } else if (!/^[A-Za-z ]+$/.test(merchant.firstName)) {
       newErrors.firstName = "First Name must contain only letters";
     }
 
-    /* ================= LAST NAME ================= */
+    /* LAST NAME */
     if (!merchant.lastName.trim()) {
       newErrors.lastName = "Last Name is required";
     } else if (merchant.lastName.length < 2 || merchant.lastName.length > 75) {
@@ -206,7 +151,7 @@ function CreateMerchant({ setActivePage }) {
       newErrors.lastName = "Last Name must contain only letters";
     }
 
-    /* ================= EMAIL ================= */
+    /* EMAIL */
     if (!merchant.email.trim()) {
       newErrors.email = "Email is required";
     } else if (merchant.email.length > 150) {
@@ -215,49 +160,69 @@ function CreateMerchant({ setActivePage }) {
       newErrors.email = "Invalid Email format";
     }
 
-    /* ================= PHONE ================= */
+    /* PHONE */
     if (!merchant.phone.trim()) {
       newErrors.phone = "Phone Number is required";
     } else if (!/^[6-9]\d{9}$/.test(merchant.phone)) {
       newErrors.phone = "Enter valid 10 digit Indian mobile number";
     }
 
-    /* ================= USERNAME ================= */
+    /* USERNAME */
     if (!merchant.username.trim()) {
       newErrors.username = "Username is required";
     } else if (merchant.username.length < 4 || merchant.username.length > 50) {
       newErrors.username = "Username must be between 4 and 50 characters";
     }
 
-    /* ================= PASSWORD ================= */
+    /* PASSWORD */
     if (!merchant.password.trim()) {
       newErrors.password = "Password is required";
-    } else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&+=!]).{8,20}$/.test(merchant.password)) {
-      newErrors.password = "Password must contain uppercase, lowercase, number and special character";
+    } else if (
+      !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&+=!]).{8,20}$/.test(
+        merchant.password
+      )
+    ) {
+      newErrors.password =
+        "Password must contain uppercase, lowercase, number and special character";
     }
 
-    /* ================= OUTLET TYPE ================= */
+    /* OUTLET TYPE */
     if (!merchant.outletType) {
       newErrors.outletType = "Outlet Type is required";
     } else if (merchant.outletType.length > 50) {
       newErrors.outletType = "Outlet Type cannot exceed 50 characters";
     }
 
-    /* ================= PAN ================= */
+    /* PAN */
     if (!merchant.pan.trim()) {
       newErrors.pan = "PAN Number is required";
     } else if (!/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(merchant.pan)) {
       newErrors.pan = "PAN format should be AAAAA9999A";
     }
 
-    /* ================= AADHAAR ================= */
+    /* AADHAAR */
     if (!merchant.adhar.trim()) {
       newErrors.adhar = "Aadhaar Number is required";
     } else if (!/^[2-9]{1}[0-9]{11}$/.test(merchant.adhar)) {
       newErrors.adhar = "Aadhaar must be a valid 12 digit number";
     }
 
-    /* ================= ADDRESS FIELDS ================= */
+    /* FSSAI (optional, validate only if provided) */
+    if (merchant.fssai && !/^[0-9]{14}$/.test(merchant.fssai)) {
+      newErrors.fssai = "FSSAI must be a 14 digit number";
+    }
+
+    /* GST (optional, validate only if provided) */
+    if (
+      merchant.gstNumber &&
+      !/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(
+        merchant.gstNumber
+      )
+    ) {
+      newErrors.gstNumber = "Enter a valid GST number (e.g. 36ABCDE1234F1Z5)";
+    }
+
+    /* ADDRESS FIELDS */
     if (!merchant.buildingNumber.trim()) {
       newErrors.buildingNumber = "Building No is required";
     } else if (merchant.buildingNumber.length > 500) {
@@ -272,47 +237,48 @@ function CreateMerchant({ setActivePage }) {
       newErrors.landmark = "Landmark cannot exceed 150 characters";
     }
 
-    if (!merchant.stateId) {
-      newErrors.stateId = "State is required";
-    }
+    if (!merchant.stateId) newErrors.stateId = "State is required";
+    if (!merchant.cityId) newErrors.cityId = "City is required";
+    if (!merchant.areaId) newErrors.areaId = "Area is required";
 
-    if (!merchant.cityId) {
-      newErrors.cityId = "City is required";
-    }
-
-    if (!merchant.areaId) {
-      newErrors.areaId = "Area is required";
-    }
-
-    if (merchant.latitude && !/^-?\d+(\.\d+)?$/.test(merchant.latitude.trim())) {
+    if (
+      merchant.latitude &&
+      !/^-?\d+(\.\d+)?$/.test(merchant.latitude.trim())
+    ) {
       newErrors.latitude = "Enter a valid latitude (e.g. 17.4455)";
     }
-
-    if (merchant.longitude && !/^-?\d+(\.\d+)?$/.test(merchant.longitude.trim())) {
+    if (
+      merchant.longitude &&
+      !/^-?\d+(\.\d+)?$/.test(merchant.longitude.trim())
+    ) {
       newErrors.longitude = "Enter a valid longitude (e.g. 78.3788)";
     }
 
-    /* ================= ACCOUNT NUMBER ================= */
+    /* ACCOUNT NUMBER */
     if (merchant.accountNumber && !/^[0-9]{9,18}$/.test(merchant.accountNumber)) {
       newErrors.accountNumber = "Account Number must be between 9 and 18 digits";
     }
 
-    /* ================= IFSC ================= */
+    /* IFSC */
     if (merchant.ifscCode && !/^[A-Z]{4}0[A-Z0-9]{6}$/.test(merchant.ifscCode)) {
       newErrors.ifscCode = "IFSC format should be ABCD0123456";
     }
 
-    /* ================= BANK LOCATION ================= */
+    /* BANK LOCATION */
     if (merchant.bankLocation && merchant.bankLocation.length > 100) {
       newErrors.bankLocation = "Bank Location cannot exceed 100 characters";
     }
 
-    /* ================= NAME IN BANK ================= */
-    if (merchant.nameInBankAccount && merchant.nameInBankAccount.length > 150) {
-      newErrors.nameInBankAccount = "Name In Bank Account cannot exceed 150 characters";
+    /* NAME IN BANK */
+    if (
+      merchant.nameInBankAccount &&
+      merchant.nameInBankAccount.length > 150
+    ) {
+      newErrors.nameInBankAccount =
+        "Name In Bank Account cannot exceed 150 characters";
     }
 
-    /* ================= DATE OF BIRTH ================= */
+    /* DOB */
     if (!merchant.dob) {
       newErrors.dob = "Date Of Birth is required";
     } else if (!/^(\d{4}-\d{2}-\d{2})/.test(merchant.dob)) {
@@ -324,55 +290,43 @@ function CreateMerchant({ setActivePage }) {
   };
 
   const handleSave = async () => {
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
     try {
       setLoading(true);
 
-      // Create FormData object
-      const formData = new FormData();
-
-      // Prepare merchant data - convert IDs to integers
-      const merchantData = {
+      // Prepare JSON payload — convert IDs to integers
+      const payload = {
         ...merchant,
         stateId: merchant.stateId ? parseInt(merchant.stateId) : null,
         cityId: merchant.cityId ? parseInt(merchant.cityId) : null,
         areaId: merchant.areaId ? parseInt(merchant.areaId) : null,
       };
 
-      // Append merchant data as JSON string
-      formData.append('data', new Blob([JSON.stringify(merchantData)], {
-        type: 'application/json'
-      }));
-
-      // Append files if they exist
-      if (aadharFile) {
-        formData.append('aadhar', aadharFile);
-      }
-      if (panFile) {
-        formData.append('pan', panFile);
-      }
+      // Strip empty optional fields so backend only receives them if provided
+      if (!payload.fssai) delete payload.fssai;
+      if (!payload.gstNumber) delete payload.gstNumber;
+      if (!payload.latitude) delete payload.latitude;
+      if (!payload.longitude) delete payload.longitude;
 
       const response = await FM_API.post(
         "/api/fm/merchants/createMerchant",
-        formData,
+        payload,
         {
           headers: {
-            'Content-Type': 'multipart/form-data',
+            "Content-Type": "application/json",
           },
         }
       );
 
       alert(response.data?.message || "Merchant created successfully!");
       setActivePage("merchants");
-
     } catch (error) {
       console.error("Error creating merchant:", error);
-      const errorMessage = error.response?.data?.message || 
-                          error.response?.data?.errors?.[0]?.defaultMessage ||
-                          "Unable to create merchant. Please check all fields.";
+      const errorMessage =
+        error.response?.data?.message ||
+        error.response?.data?.errors?.[0]?.defaultMessage ||
+        "Unable to create merchant. Please check all fields.";
       alert(errorMessage);
     } finally {
       setLoading(false);
@@ -391,22 +345,17 @@ function CreateMerchant({ setActivePage }) {
             <span>Back</span>
           </button>
           <h2>Create Merchant</h2>
-          <p>
-            Register a new merchant into the Food & Mart system.
-          </p>
+          <p>Register a new merchant into the Food & Mart system.</p>
         </div>
 
         <form className="create-merchant-form" noValidate>
-          {/* ================= PERSONAL DETAILS ================= */}
+          {/* PERSONAL DETAILS */}
           <div className="create-merchant-section">
-            <h3 className="create-merchant-section-header">
-              Personal Details
-            </h3>
+            <h3 className="create-merchant-section-header">Personal Details</h3>
             <div className="create-merchant-grid">
               <div className="create-merchant-field">
                 <label>
-                  First Name
-                  <span className="required-star">*</span>
+                  First Name<span className="required-star">*</span>
                 </label>
                 <input
                   type="text"
@@ -423,8 +372,7 @@ function CreateMerchant({ setActivePage }) {
 
               <div className="create-merchant-field">
                 <label>
-                  Last Name
-                  <span className="required-star">*</span>
+                  Last Name<span className="required-star">*</span>
                 </label>
                 <input
                   type="text"
@@ -441,8 +389,7 @@ function CreateMerchant({ setActivePage }) {
 
               <div className="create-merchant-field">
                 <label>
-                  Email
-                  <span className="required-star">*</span>
+                  Email<span className="required-star">*</span>
                 </label>
                 <input
                   type="email"
@@ -459,8 +406,7 @@ function CreateMerchant({ setActivePage }) {
 
               <div className="create-merchant-field">
                 <label>
-                  Phone Number
-                  <span className="required-star">*</span>
+                  Phone Number<span className="required-star">*</span>
                 </label>
                 <input
                   type="text"
@@ -478,16 +424,13 @@ function CreateMerchant({ setActivePage }) {
             </div>
           </div>
 
-          {/* ================= LOGIN DETAILS ================= */}
+          {/* LOGIN DETAILS */}
           <div className="create-merchant-section">
-            <h3 className="create-merchant-section-header">
-              Login Details
-            </h3>
+            <h3 className="create-merchant-section-header">Login Details</h3>
             <div className="create-merchant-grid">
               <div className="create-merchant-field">
                 <label>
-                  Username
-                  <span className="required-star">*</span>
+                  Username<span className="required-star">*</span>
                 </label>
                 <input
                   type="text"
@@ -504,17 +447,27 @@ function CreateMerchant({ setActivePage }) {
 
               <div className="create-merchant-field">
                 <label>
-                  Password
-                  <span className="required-star">*</span>
+                  Password<span className="required-star">*</span>
                 </label>
-                <input
-                  type="password"
-                  name="password"
-                  value={merchant.password}
-                  onChange={handleChange}
-                  className={errors.password ? "create-merchant-input-error" : ""}
-                  placeholder="Create a strong password"
-                />
+                <div className="create-merchant-password-wrapper">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    name="password"
+                    value={merchant.password}
+                    onChange={handleChange}
+                    className={errors.password ? "create-merchant-input-error" : ""}
+                    placeholder="Create a strong password"
+                  />
+                  <button
+                    type="button"
+                    className="create-merchant-password-toggle"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    title={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? <FiEyeOff /> : <FiEye />}
+                  </button>
+                </div>
                 {errors.password && (
                   <p className="create-merchant-error">{errors.password}</p>
                 )}
@@ -522,23 +475,22 @@ function CreateMerchant({ setActivePage }) {
             </div>
           </div>
 
-          {/* ================= ADDRESS DETAILS ================= */}
+          {/* ADDRESS DETAILS */}
           <div className="create-merchant-section">
-            <h3 className="create-merchant-section-header">
-              Address Details
-            </h3>
+            <h3 className="create-merchant-section-header">Address Details</h3>
             <div className="create-merchant-grid">
               <div className="create-merchant-field">
                 <label>
-                  Building No.
-                  <span className="required-star">*</span>
+                  Building No.<span className="required-star">*</span>
                 </label>
                 <input
                   type="text"
                   name="buildingNumber"
                   value={merchant.buildingNumber}
                   onChange={handleChange}
-                  className={errors.buildingNumber ? "create-merchant-input-error" : ""}
+                  className={
+                    errors.buildingNumber ? "create-merchant-input-error" : ""
+                  }
                   placeholder="e.g., 12-34, House No. 56"
                 />
                 {errors.buildingNumber && (
@@ -578,8 +530,7 @@ function CreateMerchant({ setActivePage }) {
 
               <div className="create-merchant-field">
                 <label>
-                  State
-                  <span className="required-star">*</span>
+                  State<span className="required-star">*</span>
                 </label>
                 <select
                   name="stateId"
@@ -596,7 +547,9 @@ function CreateMerchant({ setActivePage }) {
                       </option>
                     ))
                   ) : (
-                    <option value="" disabled>No states available</option>
+                    <option value="" disabled>
+                      No states available
+                    </option>
                   )}
                 </select>
                 {errors.stateId && (
@@ -606,8 +559,7 @@ function CreateMerchant({ setActivePage }) {
 
               <div className="create-merchant-field">
                 <label>
-                  City
-                  <span className="required-star">*</span>
+                  City<span className="required-star">*</span>
                 </label>
                 <select
                   name="cityId"
@@ -624,7 +576,9 @@ function CreateMerchant({ setActivePage }) {
                       </option>
                     ))
                   ) : (
-                    <option value="" disabled>Please select a state first</option>
+                    <option value="" disabled>
+                      Please select a state first
+                    </option>
                   )}
                 </select>
                 {errors.cityId && (
@@ -634,8 +588,7 @@ function CreateMerchant({ setActivePage }) {
 
               <div className="create-merchant-field">
                 <label>
-                  Area
-                  <span className="required-star">*</span>
+                  Area<span className="required-star">*</span>
                 </label>
                 <select
                   name="areaId"
@@ -652,7 +605,9 @@ function CreateMerchant({ setActivePage }) {
                       </option>
                     ))
                   ) : (
-                    <option value="" disabled>Please select a city first</option>
+                    <option value="" disabled>
+                      Please select a city first
+                    </option>
                   )}
                 </select>
                 {errors.areaId && (
@@ -692,16 +647,13 @@ function CreateMerchant({ setActivePage }) {
             </div>
           </div>
 
-          {/* ================= BUSINESS DETAILS ================= */}
+          {/* BUSINESS DETAILS */}
           <div className="create-merchant-section">
-            <h3 className="create-merchant-section-header">
-              Business Details
-            </h3>
+            <h3 className="create-merchant-section-header">Business Details</h3>
             <div className="create-merchant-grid">
               <div className="create-merchant-field">
                 <label>
-                  Merchant Type
-                  <span className="required-star">*</span>
+                  Merchant Type<span className="required-star">*</span>
                 </label>
                 <select
                   name="outletType"
@@ -721,16 +673,13 @@ function CreateMerchant({ setActivePage }) {
             </div>
           </div>
 
-          {/* ================= GOVERNMENT DETAILS ================= */}
+          {/* GOVERNMENT DETAILS */}
           <div className="create-merchant-section">
-            <h3 className="custom-section-header">
-              Government Details
-            </h3>
+            <h3 className="create-merchant-section-header">Government Details</h3>
             <div className="create-merchant-grid">
               <div className="create-merchant-field">
                 <label>
-                  PAN Number
-                  <span className="required-star">*</span>
+                  PAN Number<span className="required-star">*</span>
                 </label>
                 <input
                   type="text"
@@ -748,8 +697,7 @@ function CreateMerchant({ setActivePage }) {
 
               <div className="create-merchant-field">
                 <label>
-                  Aadhaar Number
-                  <span className="required-star">*</span>
+                  Aadhaar Number<span className="required-star">*</span>
                 </label>
                 <input
                   type="text"
@@ -767,8 +715,7 @@ function CreateMerchant({ setActivePage }) {
 
               <div className="create-merchant-field">
                 <label>
-                  Date of Birth
-                  <span className="required-star">*</span>
+                  Date of Birth<span className="required-star">*</span>
                 </label>
                 <input
                   type="date"
@@ -781,80 +728,44 @@ function CreateMerchant({ setActivePage }) {
                   <p className="create-merchant-error">{errors.dob}</p>
                 )}
               </div>
-            </div>
-          </div>
 
-          {/* ================= DOCUMENT UPLOADS ================= */}
-          <div className="create-merchant-section">
-            <h3 className="create-merchant-section-header">
-              Document Uploads
-            </h3>
-            <div className="create-merchant-grid">
               <div className="create-merchant-field">
-                <label>Aadhaar Document</label>
-                <div className="create-merchant-file-upload-wrapper">
-                  <input
-                    id="aadhar-file-input"
-                    type="file"
-                    accept=".pdf,.jpg,.jpeg,.png"
-                    onChange={(e) => handleFileChange(e, "aadhar")}
-                    className="create-merchant-file-input"
-                  />
-                  {aadharFileName && (
-                    <div className="create-merchant-file-info">
-                      <span className="create-merchant-file-name">📎 {aadharFileName}</span>
-                      <button
-                        type="button"
-                        className="create-merchant-remove-file-btn"
-                        onClick={() => handleRemoveDocument("aadhar")}
-                        title="Remove Aadhaar document"
-                      >
-                        <FiX />
-                      </button>
-                    </div>
-                  )}
-                </div>
-                {errors.aadhar && (
-                  <p className="create-merchant-error">{errors.aadhar}</p>
+                <label>FSSAI Number</label>
+                <input
+                  type="text"
+                  name="fssai"
+                  maxLength="14"
+                  value={merchant.fssai}
+                  onChange={handleChange}
+                  className={errors.fssai ? "create-merchant-input-error" : ""}
+                  placeholder="Enter 14 digit FSSAI number (optional)"
+                />
+                {errors.fssai && (
+                  <p className="create-merchant-error">{errors.fssai}</p>
                 )}
               </div>
 
               <div className="create-merchant-field">
-                <label>PAN Document</label>
-                <div className="create-merchant-file-upload-wrapper">
-                  <input
-                    id="pan-file-input"
-                    type="file"
-                    accept=".pdf,.jpg,.jpeg,.png"
-                    onChange={(e) => handleFileChange(e, "pan")}
-                    className="create-merchant-file-input"
-                  />
-                  {panFileName && (
-                    <div className="create-merchant-file-info">
-                      <span className="create-merchant-file-name">📎 {panFileName}</span>
-                      <button
-                        type="button"
-                        className="create-merchant-remove-file-btn"
-                        onClick={() => handleRemoveDocument("pan")}
-                        title="Remove PAN document"
-                      >
-                        <FiX />
-                      </button>
-                    </div>
-                  )}
-                </div>
-                {errors.pan && (
-                  <p className="create-merchant-error">{errors.pan}</p>
+                <label>GST Number</label>
+                <input
+                  type="text"
+                  name="gstNumber"
+                  style={{ textTransform: "uppercase" }}
+                  value={merchant.gstNumber}
+                  onChange={handleChange}
+                  className={errors.gstNumber ? "create-merchant-input-error" : ""}
+                  placeholder="e.g., 36ABCDE1234F1Z5 (optional)"
+                />
+                {errors.gstNumber && (
+                  <p className="create-merchant-error">{errors.gstNumber}</p>
                 )}
               </div>
             </div>
           </div>
 
-          {/* ================= BANK DETAILS ================= */}
+          {/* BANK DETAILS */}
           <div className="create-merchant-section">
-            <h3 className="create-merchant-section-header">
-              Bank Details
-            </h3>
+            <h3 className="create-merchant-section-header">Bank Details</h3>
             <div className="create-merchant-grid">
               <div className="create-merchant-field">
                 <label>Account Number</label>
@@ -863,7 +774,9 @@ function CreateMerchant({ setActivePage }) {
                   name="accountNumber"
                   value={merchant.accountNumber}
                   onChange={handleChange}
-                  className={errors.accountNumber ? "create-merchant-input-error" : ""}
+                  className={
+                    errors.accountNumber ? "create-merchant-input-error" : ""
+                  }
                   placeholder="Enter bank account number"
                 />
                 {errors.accountNumber && (
@@ -909,11 +822,15 @@ function CreateMerchant({ setActivePage }) {
                   name="nameInBankAccount"
                   value={merchant.nameInBankAccount}
                   onChange={handleChange}
-                  className={errors.nameInBankAccount ? "create-merchant-input-error" : ""}
+                  className={
+                    errors.nameInBankAccount ? "create-merchant-input-error" : ""
+                  }
                   placeholder="Account holder name"
                 />
                 {errors.nameInBankAccount && (
-                  <p className="create-merchant-error">{errors.nameInBankAccount}</p>
+                  <p className="create-merchant-error">
+                    {errors.nameInBankAccount}
+                  </p>
                 )}
               </div>
             </div>

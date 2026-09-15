@@ -398,3 +398,42 @@
     font-size: 12px;
   }
 }
+/* Password wrapper & toggle button */
+.create-merchant-password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.create-merchant-password-wrapper input {
+  width: 100%;
+  padding-right: 42px; /* space for the eye icon */
+}
+
+.create-merchant-password-toggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  font-size: 18px;
+  line-height: 1;
+  transition: color 0.2s ease;
+}
+
+.create-merchant-password-toggle:hover {
+  color: #111827;
+}
+
+.create-merchant-password-toggle:focus {
+  outline: none;
+  color: #111827;
+}

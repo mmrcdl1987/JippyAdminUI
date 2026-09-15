@@ -1,18 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../styles/Merchants/EditMerchant.css";
-import { FiArrowLeft, FiX } from "react-icons/fi";
-import { 
-  getStates, 
-  getCitiesByState, 
-  getAreasByCity 
+import { FiArrowLeft } from "react-icons/fi";
+import {
+  getStates,
+  getCitiesByState,
+  getAreasByCity,
 } from "../../services/managerAreaService";
 import {
   getMerchantProfile,
   getMerchantAddress,
-  updateMerchantProfile
+  updateMerchantProfile,
 } from "../../services/merchantService";
-import { FM_API } from "../../services/api";
 
 function EditMerchant({ setActivePage }) {
   const navigate = useNavigate();
@@ -29,52 +28,48 @@ function EditMerchant({ setActivePage }) {
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
   const [errors, setErrors] = useState({});
-  
-  // State for dropdown options
+
+  // Dropdown options
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
   const [areas, setAreas] = useState([]);
   const [loadingAddress, setLoadingAddress] = useState(false);
 
-  // State for file uploads
-  const [aadharFile, setAadharFile] = useState(null);
-  const [panFile, setPanFile] = useState(null);
-  const [aadharFileName, setAadharFileName] = useState("");
-  const [panFileName, setPanFileName] = useState("");
-  
-  // Track existing files
+  // Existing document URLs (read-only references)
   const [existingAadhar, setExistingAadhar] = useState("");
   const [existingPan, setExistingPan] = useState("");
 
+  // NOTE: Only fields the backend FmMerchantWithBankDto accepts
   const [merchant, setMerchant] = useState({
     merchantId: "",
     firstName: "",
     lastName: "",
     email: "",
     phone: "",
-    username: "",
-    password: "",
     outletType: "",
-    uploadedBy: localStorage.getItem("loggedInUser") || localStorage.getItem("username") || "Admin",
+    uploadedBy:
+      localStorage.getItem("loggedInUser") ||
+      localStorage.getItem("username") ||
+      "Admin",
     pan: "",
     adhar: "",
     accountNumber: "",
     ifscCode: "",
     bankLocation: "",
     nameInBankAccount: "",
-    dob: "",
-    // Address fields
     buildingNumber: "",
     road: "",
     landmark: "",
     stateId: "",
     cityId: "",
     areaId: "",
-    latitude: "",
-    longitude: "",
+    // Bank IDs needed for update
+    bankId: null,
+    recipientId: null,
+    status: "ACTIVE",
+    userType: "MERCHANT",
   });
 
-  // Fetch merchant data on mount
   useEffect(() => {
     if (merchantId) {
       fetchMerchantData();
@@ -85,106 +80,105 @@ function EditMerchant({ setActivePage }) {
     }
   }, [merchantId]);
 
-  // Fetch all merchant data
   const fetchMerchantData = async () => {
     setLoadingData(true);
     try {
-      // Fetch states, profile, and address in parallel
       const [statesRes, profileRes, addressRes] = await Promise.allSettled([
         getStates(),
         getMerchantProfile(merchantId),
         getMerchantAddress(merchantId),
       ]);
 
-      // Handle states
       if (statesRes.status === "fulfilled" && statesRes.value) {
         const statesData = statesRes.value?.data || statesRes.value || [];
         setStates(Array.isArray(statesData) ? statesData : []);
       }
 
-      // Handle profile
       let profileData = null;
       if (profileRes.status === "fulfilled" && profileRes.value) {
         profileData = profileRes.value?.data || profileRes.value;
-        console.log("Profile Data:", profileData);
       }
 
-      // Handle address
       let addressData = null;
       if (addressRes.status === "fulfilled" && addressRes.value) {
         addressData = addressRes.value?.data || addressRes.value;
-        console.log("Address Data:", addressData);
       }
 
-      // Populate form with data
       const stateId = addressData?.stateId || profileData?.stateId || "";
       const cityId = addressData?.cityId || profileData?.cityId || "";
       const areaId = addressData?.areaId || profileData?.areaId || "";
 
-      // Extract full name / first & last name
       const fullMerchantName = profileData?.merchantName || "";
-      const nameParts = fullMerchantName ? fullMerchantName.trim().split(" ") : [];
-      const parsedFirstName = profileData?.firstName || (nameParts.length > 0 ? nameParts[0] : "");
-      const parsedLastName = profileData?.lastName || (nameParts.length > 1 ? nameParts.slice(1).join(" ") : "");
+      const nameParts = fullMerchantName
+        ? fullMerchantName.trim().split(" ")
+        : [];
+      const parsedFirstName =
+        profileData?.firstName || (nameParts.length > 0 ? nameParts[0] : "");
+      const parsedLastName =
+        profileData?.lastName ||
+        (nameParts.length > 1 ? nameParts.slice(1).join(" ") : "");
 
-      const parsedEmail = profileData?.merchantEmail || profileData?.email || "";
-      const parsedPhone = profileData?.merchantPhone || profileData?.phone || "";
-      const parsedUsername = profileData?.username || profileData?.merchantUsername || (parsedEmail ? parsedEmail.split("@")[0] : "");
-      const parsedOutletType = profileData?.outletType || profileData?.merchantBusinessType || profileData?.businessType || "";
-      const parsedPan = profileData?.pan || profileData?.panNumber || "";
-      const parsedAdhar = profileData?.adhar || profileData?.aadharNumber || profileData?.adharNumber || "";
-
-      // Set merchant data
       setMerchant({
-        merchantId: profileData?.merchantId || profileData?.id || merchantId || "",
+        merchantId:
+          profileData?.merchantId || profileData?.id || merchantId || "",
         firstName: parsedFirstName,
         lastName: parsedLastName,
-        email: parsedEmail,
-        phone: parsedPhone,
-        username: parsedUsername,
-        password: "", // Don't populate password for security
-        outletType: parsedOutletType,
-        uploadedBy: profileData?.uploadedBy || localStorage.getItem("loggedInUser") || "Admin",
-        pan: parsedPan,
-        adhar: parsedAdhar,
+        email: profileData?.merchantEmail || profileData?.email || "",
+        phone: profileData?.merchantPhone || profileData?.phone || "",
+        outletType:
+          profileData?.outletType ||
+          profileData?.merchantBusinessType ||
+          profileData?.businessType ||
+          "",
+        uploadedBy:
+          profileData?.uploadedBy ||
+          localStorage.getItem("loggedInUser") ||
+          "Admin",
+        pan: profileData?.pan || profileData?.panNumber || "",
+        adhar:
+          profileData?.adhar ||
+          profileData?.aadharNumber ||
+          profileData?.adharNumber ||
+          "",
         accountNumber: profileData?.accountNumber || "",
         ifscCode: profileData?.ifscCode || "",
         bankLocation: profileData?.bankLocation || profileData?.bankName || "",
-        nameInBankAccount: profileData?.nameInBankAccount || profileData?.accountHolderName || profileData?.accountHolder || "",
-        dob: profileData?.dob || profileData?.dateOfBirth || "",
-        buildingNumber: addressData?.buildingNumber || profileData?.buildingNumber || "",
-        road: addressData?.road || addressData?.roadName || profileData?.road || "",
+        nameInBankAccount:
+          profileData?.nameInBankAccount ||
+          profileData?.accountHolderName ||
+          profileData?.accountHolder ||
+          "",
+        buildingNumber:
+          addressData?.buildingNumber || profileData?.buildingNumber || "",
+        road:
+          addressData?.road ||
+          addressData?.roadName ||
+          profileData?.road ||
+          "",
         landmark: addressData?.landmark || profileData?.landmark || "",
         stateId: stateId ? String(stateId) : "",
         cityId: cityId ? String(cityId) : "",
         areaId: areaId ? String(areaId) : "",
-        latitude: addressData?.latitude || profileData?.latitude || "",
-        longitude: addressData?.longitude || profileData?.longitude || "",
-        // Bank IDs needed for update
         bankId: profileData?.bankId || null,
         recipientId: profileData?.recipientId || null,
         status: profileData?.status || "ACTIVE",
         userType: profileData?.userType || "MERCHANT",
       });
 
-      // Track existing documents
-      const aadharDoc = profileData?.aadhaarNumberUrl || profileData?.aadharDocumentUrl || profileData?.aadharDocument;
-      const panDoc = profileData?.panNumberUrl || profileData?.panDocumentUrl || profileData?.panDocument;
-      if (aadharDoc) {
-        setExistingAadhar(aadharDoc);
-      }
-      if (panDoc) {
-        setExistingPan(panDoc);
-      }
+      // Track existing document URLs
+      const aadharDoc =
+        profileData?.aadhaarNumberUrl ||
+        profileData?.aadharDocumentUrl ||
+        profileData?.aadharDocument;
+      const panDoc =
+        profileData?.panNumberUrl ||
+        profileData?.panDocumentUrl ||
+        profileData?.panDocument;
+      if (aadharDoc) setExistingAadhar(aadharDoc);
+      if (panDoc) setExistingPan(panDoc);
 
-      // Load cities and areas if state/city exist
-      if (stateId) {
-        await fetchCitiesForState(stateId);
-      }
-      if (cityId) {
-        await fetchAreasForCity(cityId);
-      }
-
+      if (stateId) await fetchCitiesForState(stateId);
+      if (cityId) await fetchAreasForCity(cityId);
     } catch (error) {
       console.error("Error fetching merchant data:", error);
       alert("Error loading merchant data. Please try again.");
@@ -193,7 +187,6 @@ function EditMerchant({ setActivePage }) {
     }
   };
 
-  // Helper: Fetch cities for a state
   const fetchCitiesForState = async (stateId) => {
     try {
       const response = await getCitiesByState(stateId);
@@ -204,7 +197,6 @@ function EditMerchant({ setActivePage }) {
     }
   };
 
-  // Helper: Fetch areas for a city
   const fetchAreasForCity = async (cityId) => {
     try {
       const response = await getAreasByCity(cityId);
@@ -215,22 +207,6 @@ function EditMerchant({ setActivePage }) {
     }
   };
 
-  // Fetch states
-  const fetchStates = async () => {
-    try {
-      setLoadingAddress(true);
-      const response = await getStates();
-      const statesData = response?.data || response || [];
-      setStates(statesData);
-    } catch (error) {
-      console.error("Error fetching states:", error);
-      setStates([]);
-    } finally {
-      setLoadingAddress(false);
-    }
-  };
-
-  // Fetch cities based on stateId
   const fetchCities = async (stateId) => {
     if (!stateId) {
       setCities([]);
@@ -243,7 +219,7 @@ function EditMerchant({ setActivePage }) {
       const citiesData = response?.data || response || [];
       setCities(citiesData);
       setAreas([]);
-      setMerchant(prev => ({ ...prev, cityId: "", areaId: "" }));
+      setMerchant((prev) => ({ ...prev, cityId: "", areaId: "" }));
     } catch (error) {
       console.error("Error fetching cities:", error);
       setCities([]);
@@ -252,7 +228,6 @@ function EditMerchant({ setActivePage }) {
     }
   };
 
-  // Fetch areas based on cityId
   const fetchAreas = async (cityId) => {
     if (!cityId) {
       setAreas([]);
@@ -263,7 +238,7 @@ function EditMerchant({ setActivePage }) {
       const response = await getAreasByCity(cityId);
       const areasData = response?.data || response || [];
       setAreas(areasData);
-      setMerchant(prev => ({ ...prev, areaId: "" }));
+      setMerchant((prev) => ({ ...prev, areaId: "" }));
     } catch (error) {
       console.error("Error fetching areas:", error);
       setAreas([]);
@@ -274,94 +249,32 @@ function EditMerchant({ setActivePage }) {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    
     setMerchant((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
-    
-    setErrors((prev) => ({
-      ...prev,
-      [name]: "",
-    }));
+    setErrors((prev) => ({ ...prev, [name]: "" }));
 
-    // Handle cascading dropdowns
-    if (name === "stateId") {
-      fetchCities(value);
-    }
-    if (name === "cityId") {
-      fetchAreas(value);
-    }
-  };
-
-  // Handle file uploads
-  const handleFileChange = (e, fileType) => {
-    const file = e.target.files[0];
-    if (file) {
-      // Validate file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        alert("File size should be less than 5MB");
-        e.target.value = "";
-        return;
-      }
-      
-      // Validate file type
-      const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
-      if (!allowedTypes.includes(file.type)) {
-        alert("Please upload PDF, JPG, JPEG, or PNG files only");
-        e.target.value = "";
-        return;
-      }
-
-      if (fileType === "aadhar") {
-        setAadharFile(file);
-        setAadharFileName(file.name);
-        setErrors((prev) => ({ ...prev, aadhar: "" }));
-      } else if (fileType === "pan") {
-        setPanFile(file);
-        setPanFileName(file.name);
-        setErrors((prev) => ({ ...prev, pan: "" }));
-      }
-    }
-  };
-
-  // Handle removing documents
-  const handleRemoveDocument = (fileType) => {
-    if (fileType === "aadhar") {
-      setAadharFile(null);
-      setAadharFileName("");
-      const fileInput = document.getElementById('aadhar-file-input');
-      if (fileInput) fileInput.value = '';
-    } else if (fileType === "pan") {
-      setPanFile(null);
-      setPanFileName("");
-      const fileInput = document.getElementById('pan-file-input');
-      if (fileInput) fileInput.value = '';
-    }
-  };
-
-  // Handle removing existing documents
-  const handleRemoveExistingDocument = (fileType) => {
-    if (fileType === "aadhar") {
-      setExistingAadhar("");
-    } else if (fileType === "pan") {
-      setExistingPan("");
-    }
+    if (name === "stateId") fetchCities(value);
+    if (name === "cityId") fetchAreas(value);
   };
 
   const validateForm = () => {
     const newErrors = {};
 
-    // First Name
+    /* FIRST NAME */
     if (!merchant.firstName.trim()) {
       newErrors.firstName = "First Name is required";
-    } else if (merchant.firstName.length < 2 || merchant.firstName.length > 75) {
+    } else if (
+      merchant.firstName.length < 2 ||
+      merchant.firstName.length > 75
+    ) {
       newErrors.firstName = "First Name must be between 2 and 75 characters";
     } else if (!/^[A-Za-z ]+$/.test(merchant.firstName)) {
       newErrors.firstName = "First Name must contain only letters";
     }
 
-    // Last Name
+    /* LAST NAME */
     if (!merchant.lastName.trim()) {
       newErrors.lastName = "Last Name is required";
     } else if (merchant.lastName.length < 2 || merchant.lastName.length > 75) {
@@ -370,7 +283,7 @@ function EditMerchant({ setActivePage }) {
       newErrors.lastName = "Last Name must contain only letters";
     }
 
-    // Email
+    /* EMAIL */
     if (!merchant.email.trim()) {
       newErrors.email = "Email is required";
     } else if (merchant.email.length > 150) {
@@ -379,99 +292,68 @@ function EditMerchant({ setActivePage }) {
       newErrors.email = "Invalid Email format";
     }
 
-    // Phone
+    /* PHONE */
     if (!merchant.phone.trim()) {
       newErrors.phone = "Phone Number is required";
     } else if (!/^[6-9]\d{9}$/.test(merchant.phone)) {
       newErrors.phone = "Enter valid 10 digit Indian mobile number";
     }
 
-    // Username
-    if (!merchant.username.trim()) {
-      newErrors.username = "Username is required";
-    } else if (merchant.username.length < 4 || merchant.username.length > 50) {
-      newErrors.username = "Username must be between 4 and 50 characters";
-    }
-
-    // Password (optional on edit, but validate if provided)
-    if (merchant.password && !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&+=!]).{8,20}$/.test(merchant.password)) {
-      newErrors.password = "Password must contain uppercase, lowercase, number and special character";
-    }
-
-    // Outlet Type
+    /* OUTLET TYPE */
     if (!merchant.outletType) {
       newErrors.outletType = "Outlet Type is required";
     }
 
-    // PAN
+    /* PAN */
     if (!merchant.pan.trim()) {
       newErrors.pan = "PAN Number is required";
     } else if (!/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(merchant.pan)) {
       newErrors.pan = "PAN format should be AAAAA9999A";
     }
 
-    // Aadhaar
+    /* AADHAAR */
     if (!merchant.adhar.trim()) {
       newErrors.adhar = "Aadhaar Number is required";
     } else if (!/^[2-9]{1}[0-9]{11}$/.test(merchant.adhar)) {
       newErrors.adhar = "Aadhaar must be a valid 12 digit number";
     }
 
-    // Address
+    /* ADDRESS */
     if (!merchant.buildingNumber.trim()) {
       newErrors.buildingNumber = "Building No is required";
     } else if (merchant.buildingNumber.length > 500) {
       newErrors.buildingNumber = "Building Number cannot exceed 500 characters";
     }
-
     if (merchant.road && merchant.road.length > 100) {
       newErrors.road = "Road cannot exceed 100 characters";
     }
-
     if (merchant.landmark && merchant.landmark.length > 150) {
       newErrors.landmark = "Landmark cannot exceed 150 characters";
     }
+    if (!merchant.stateId) newErrors.stateId = "State is required";
+    if (!merchant.cityId) newErrors.cityId = "City is required";
+    if (!merchant.areaId) newErrors.areaId = "Area is required";
 
-    if (!merchant.stateId) {
-      newErrors.stateId = "State is required";
+    /* BANK */
+    if (
+      merchant.accountNumber &&
+      !/^[0-9]{9,18}$/.test(merchant.accountNumber)
+    ) {
+      newErrors.accountNumber =
+        "Account Number must be between 9 and 18 digits";
     }
-
-    if (!merchant.cityId) {
-      newErrors.cityId = "City is required";
-    }
-
-    if (!merchant.areaId) {
-      newErrors.areaId = "Area is required";
-    }
-
-    if (merchant.latitude && !/^-?\d+(\.\d+)?$/.test(merchant.latitude.trim())) {
-      newErrors.latitude = "Enter a valid latitude (e.g. 17.4455)";
-    }
-
-    if (merchant.longitude && !/^-?\d+(\.\d+)?$/.test(merchant.longitude.trim())) {
-      newErrors.longitude = "Enter a valid longitude (e.g. 78.3788)";
-    }
-
-    // Bank
-    if (merchant.accountNumber && !/^[0-9]{9,18}$/.test(merchant.accountNumber)) {
-      newErrors.accountNumber = "Account Number must be between 9 and 18 digits";
-    }
-
     if (merchant.ifscCode && !/^[A-Z]{4}0[A-Z0-9]{6}$/.test(merchant.ifscCode)) {
       newErrors.ifscCode = "IFSC format should be ABCD0123456";
     }
-
     if (merchant.bankLocation && merchant.bankLocation.length > 100) {
       newErrors.bankLocation = "Bank Location cannot exceed 100 characters";
     }
-
-    if (merchant.nameInBankAccount && merchant.nameInBankAccount.length > 150) {
-      newErrors.nameInBankAccount = "Name In Bank Account cannot exceed 150 characters";
-    }
-
-    // DOB
-    if (!merchant.dob) {
-      newErrors.dob = "Date Of Birth is required";
+    if (
+      merchant.nameInBankAccount &&
+      merchant.nameInBankAccount.length > 150
+    ) {
+      newErrors.nameInBankAccount =
+        "Name In Bank Account cannot exceed 150 characters";
     }
 
     setErrors(newErrors);
@@ -479,24 +361,24 @@ function EditMerchant({ setActivePage }) {
   };
 
   const handleSave = async () => {
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
     try {
       setLoading(true);
 
-      const formattedMerchantName = `${merchant.firstName?.trim() || ''} ${merchant.lastName?.trim() || ''}`.trim();
+      const formattedMerchantName = `${
+        merchant.firstName?.trim() || ""
+      } ${merchant.lastName?.trim() || ""}`.trim();
 
-      // Prepare merchant DTO exact matching backend FmMerchantWithBankDto
-      const merchantData = {
+      // ✅ Payload contains ONLY the 23 fields FmMerchantWithBankDto accepts
+      const payload = {
         merchantId: merchantId ? parseInt(merchantId, 10) : null,
-        merchantName: formattedMerchantName || merchant.merchantName || "",
+        merchantName: formattedMerchantName || "",
         merchantEmail: merchant.email?.trim() || "",
         merchantPhone: merchant.phone?.trim() || "",
-        businessType: merchant.outletType || merchant.businessType || "Retail",
+        businessType: merchant.outletType || "Retail",
         status: merchant.status || "ACTIVE",
-        
+
         buildingNumber: merchant.buildingNumber?.trim() || "",
         road: merchant.road?.trim() || "",
         landmark: merchant.landmark?.trim() || "",
@@ -505,53 +387,36 @@ function EditMerchant({ setActivePage }) {
         areaId: merchant.areaId ? parseInt(merchant.areaId, 10) : null,
 
         bankId: merchant.bankId ? parseInt(merchant.bankId, 10) : null,
-        recipientId: merchant.recipientId ? parseInt(merchant.recipientId, 10) : null,
+        recipientId: merchant.recipientId
+          ? parseInt(merchant.recipientId, 10)
+          : null,
         accountNumber: merchant.accountNumber?.trim() || "",
         ifscCode: merchant.ifscCode?.trim()?.toUpperCase() || "",
-        bankName: merchant.bankLocation?.trim() || merchant.bankName || "",
-        accountHolderName: merchant.nameInBankAccount?.trim() || merchant.accountHolderName || "",
+        bankName: merchant.bankLocation?.trim() || "",
+        accountHolderName: merchant.nameInBankAccount?.trim() || "",
         userType: merchant.userType || "MERCHANT",
-        
+
         aadharNumber: merchant.adhar?.trim() || "",
         panNumber: merchant.pan?.trim()?.toUpperCase() || "",
-        aadhaarNumberUrl: existingAadhar || merchant.aadhaarNumberUrl || null,
-        panNumberUrl: existingPan || merchant.panNumberUrl || null,
+        aadhaarNumberUrl: existingAadhar || null,
+        panNumberUrl: existingPan || null,
       };
 
-      // Create FormData object
-      const formData = new FormData();
-
-      // Append merchant data as JSON blob under 'data' part
-      formData.append('data', new Blob([JSON.stringify(merchantData)], {
-        type: 'application/json'
-      }));
-
-      // Append multipart files if selected
-      if (aadharFile) {
-        formData.append('aadhar', aadharFile);
-      }
-      if (panFile) {
-        formData.append('pan', panFile);
-      }
-
-      // Send update request using service
-      const response = await updateMerchantProfile(formData);
-
-      alert(response?.message || "Merchant updated successfully!");
+      const response = await updateMerchantProfile(payload);
+      alert("Merchant updated successfully!");
       handleBack();
-
     } catch (error) {
       console.error("Error updating merchant:", error);
-      const errorMessage = error.response?.data?.message || 
-                          error.response?.data?.errors?.[0]?.defaultMessage ||
-                          "Unable to update merchant. Please check all fields.";
+      const errorMessage =
+        error.response?.data?.message ||
+        error.response?.data?.errors?.[0]?.defaultMessage ||
+        "Unable to update merchant. Please check all fields.";
       alert(errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
-  // Loading state
   if (loadingData) {
     return (
       <div className="create-merchant-page">
@@ -568,37 +433,31 @@ function EditMerchant({ setActivePage }) {
     <div className="create-merchant-page">
       <div className="create-merchant-container">
         <div className="create-merchant-header">
-          <button
-            className="create-merchant-back-btn"
-            onClick={handleBack}
-          >
+          <button className="create-merchant-back-btn" onClick={handleBack}>
             <FiArrowLeft />
             <span>Back</span>
           </button>
           <h2>Edit Merchant</h2>
-          <p>
-            Update merchant details in the Food & Mart system.
-          </p>
+          <p>Update merchant details in the Food & Mart system.</p>
         </div>
 
         <form className="create-merchant-form" noValidate>
-          {/* ================= PERSONAL DETAILS ================= */}
+          {/* PERSONAL DETAILS */}
           <div className="create-merchant-section">
-            <h3 className="create-merchant-section-header">
-              Personal Details
-            </h3>
+            <h3 className="create-merchant-section-header">Personal Details</h3>
             <div className="create-merchant-grid">
               <div className="create-merchant-field">
                 <label>
-                  First Name
-                  <span className="required-star">*</span>
+                  First Name<span className="required-star">*</span>
                 </label>
                 <input
                   type="text"
                   name="firstName"
                   value={merchant.firstName}
                   onChange={handleChange}
-                  className={errors.firstName ? "create-merchant-input-error" : ""}
+                  className={
+                    errors.firstName ? "create-merchant-input-error" : ""
+                  }
                   placeholder="Enter first name"
                 />
                 {errors.firstName && (
@@ -608,15 +467,16 @@ function EditMerchant({ setActivePage }) {
 
               <div className="create-merchant-field">
                 <label>
-                  Last Name
-                  <span className="required-star">*</span>
+                  Last Name<span className="required-star">*</span>
                 </label>
                 <input
                   type="text"
                   name="lastName"
                   value={merchant.lastName}
                   onChange={handleChange}
-                  className={errors.lastName ? "create-merchant-input-error" : ""}
+                  className={
+                    errors.lastName ? "create-merchant-input-error" : ""
+                  }
                   placeholder="Enter last name"
                 />
                 {errors.lastName && (
@@ -626,8 +486,7 @@ function EditMerchant({ setActivePage }) {
 
               <div className="create-merchant-field">
                 <label>
-                  Email
-                  <span className="required-star">*</span>
+                  Email<span className="required-star">*</span>
                 </label>
                 <input
                   type="email"
@@ -644,8 +503,7 @@ function EditMerchant({ setActivePage }) {
 
               <div className="create-merchant-field">
                 <label>
-                  Phone Number
-                  <span className="required-star">*</span>
+                  Phone Number<span className="required-star">*</span>
                 </label>
                 <input
                   type="text"
@@ -663,68 +521,28 @@ function EditMerchant({ setActivePage }) {
             </div>
           </div>
 
-          {/* ================= LOGIN DETAILS ================= */}
+          {/* ADDRESS DETAILS */}
           <div className="create-merchant-section">
-            <h3 className="create-merchant-section-header">
-              Login Details
-            </h3>
+            <h3 className="create-merchant-section-header">Address Details</h3>
             <div className="create-merchant-grid">
               <div className="create-merchant-field">
                 <label>
-                  Username
-                  <span className="required-star">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="username"
-                  value={merchant.username}
-                  onChange={handleChange}
-                  className={errors.username ? "create-merchant-input-error" : ""}
-                  placeholder="Choose a username"
-                />
-                {errors.username && (
-                  <p className="create-merchant-error">{errors.username}</p>
-                )}
-              </div>
-
-              <div className="create-merchant-field">
-                <label>Password <span style={{ fontSize: '12px', color: '#6b7280' }}>(Leave blank to keep current)</span></label>
-                <input
-                  type="password"
-                  name="password"
-                  value={merchant.password}
-                  onChange={handleChange}
-                  className={errors.password ? "create-merchant-input-error" : ""}
-                  placeholder="Enter new password (optional)"
-                />
-                {errors.password && (
-                  <p className="create-merchant-error">{errors.password}</p>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* ================= ADDRESS DETAILS ================= */}
-          <div className="create-merchant-section">
-            <h3 className="create-merchant-section-header">
-              Address Details
-            </h3>
-            <div className="create-merchant-grid">
-              <div className="create-merchant-field">
-                <label>
-                  Building No.
-                  <span className="required-star">*</span>
+                  Building No.<span className="required-star">*</span>
                 </label>
                 <input
                   type="text"
                   name="buildingNumber"
                   value={merchant.buildingNumber}
                   onChange={handleChange}
-                  className={errors.buildingNumber ? "create-merchant-input-error" : ""}
+                  className={
+                    errors.buildingNumber ? "create-merchant-input-error" : ""
+                  }
                   placeholder="e.g., 12-34, House No. 56"
                 />
                 {errors.buildingNumber && (
-                  <p className="create-merchant-error">{errors.buildingNumber}</p>
+                  <p className="create-merchant-error">
+                    {errors.buildingNumber}
+                  </p>
                 )}
               </div>
 
@@ -750,7 +568,9 @@ function EditMerchant({ setActivePage }) {
                   name="landmark"
                   value={merchant.landmark}
                   onChange={handleChange}
-                  className={errors.landmark ? "create-merchant-input-error" : ""}
+                  className={
+                    errors.landmark ? "create-merchant-input-error" : ""
+                  }
                   placeholder="Nearby landmark"
                 />
                 {errors.landmark && (
@@ -760,14 +580,15 @@ function EditMerchant({ setActivePage }) {
 
               <div className="create-merchant-field">
                 <label>
-                  State
-                  <span className="required-star">*</span>
+                  State<span className="required-star">*</span>
                 </label>
                 <select
                   name="stateId"
                   value={merchant.stateId}
                   onChange={handleChange}
-                  className={errors.stateId ? "create-merchant-input-error" : ""}
+                  className={
+                    errors.stateId ? "create-merchant-input-error" : ""
+                  }
                   disabled={loadingAddress}
                 >
                   <option value="">Select State</option>
@@ -778,7 +599,9 @@ function EditMerchant({ setActivePage }) {
                       </option>
                     ))
                   ) : (
-                    <option value="" disabled>No states available</option>
+                    <option value="" disabled>
+                      No states available
+                    </option>
                   )}
                 </select>
                 {errors.stateId && (
@@ -788,8 +611,7 @@ function EditMerchant({ setActivePage }) {
 
               <div className="create-merchant-field">
                 <label>
-                  City
-                  <span className="required-star">*</span>
+                  City<span className="required-star">*</span>
                 </label>
                 <select
                   name="cityId"
@@ -806,7 +628,9 @@ function EditMerchant({ setActivePage }) {
                       </option>
                     ))
                   ) : (
-                    <option value="" disabled>Please select a state first</option>
+                    <option value="" disabled>
+                      Please select a state first
+                    </option>
                   )}
                 </select>
                 {errors.cityId && (
@@ -816,8 +640,7 @@ function EditMerchant({ setActivePage }) {
 
               <div className="create-merchant-field">
                 <label>
-                  Area
-                  <span className="required-star">*</span>
+                  Area<span className="required-star">*</span>
                 </label>
                 <select
                   name="areaId"
@@ -834,62 +657,33 @@ function EditMerchant({ setActivePage }) {
                       </option>
                     ))
                   ) : (
-                    <option value="" disabled>Please select a city first</option>
+                    <option value="" disabled>
+                      Please select a city first
+                    </option>
                   )}
                 </select>
                 {errors.areaId && (
                   <p className="create-merchant-error">{errors.areaId}</p>
                 )}
               </div>
-
-              <div className="create-merchant-field">
-                <label>Latitude</label>
-                <input
-                  type="text"
-                  name="latitude"
-                  value={merchant.latitude}
-                  onChange={handleChange}
-                  className={errors.latitude ? "create-merchant-input-error" : ""}
-                  placeholder="e.g. 17.4455"
-                />
-                {errors.latitude && (
-                  <p className="create-merchant-error">{errors.latitude}</p>
-                )}
-              </div>
-
-              <div className="create-merchant-field">
-                <label>Longitude</label>
-                <input
-                  type="text"
-                  name="longitude"
-                  value={merchant.longitude}
-                  onChange={handleChange}
-                  className={errors.longitude ? "create-merchant-input-error" : ""}
-                  placeholder="e.g. 78.3788"
-                />
-                {errors.longitude && (
-                  <p className="create-merchant-error">{errors.longitude}</p>
-                )}
-              </div>
             </div>
           </div>
 
-          {/* ================= BUSINESS DETAILS ================= */}
+          {/* BUSINESS DETAILS */}
           <div className="create-merchant-section">
-            <h3 className="create-merchant-section-header">
-              Business Details
-            </h3>
+            <h3 className="create-merchant-section-header">Business Details</h3>
             <div className="create-merchant-grid">
               <div className="create-merchant-field">
                 <label>
-                  Merchant Type
-                  <span className="required-star">*</span>
+                  Merchant Type<span className="required-star">*</span>
                 </label>
                 <select
                   name="outletType"
                   value={merchant.outletType}
                   onChange={handleChange}
-                  className={errors.outletType ? "create-merchant-input-error" : ""}
+                  className={
+                    errors.outletType ? "create-merchant-input-error" : ""
+                  }
                 >
                   <option value="">Select Outlet Type</option>
                   <option value="Outlet">Outlet</option>
@@ -903,7 +697,7 @@ function EditMerchant({ setActivePage }) {
             </div>
           </div>
 
-          {/* ================= GOVERNMENT DETAILS ================= */}
+          {/* GOVERNMENT DETAILS */}
           <div className="create-merchant-section">
             <h3 className="create-merchant-section-header">
               Government Details
@@ -911,8 +705,7 @@ function EditMerchant({ setActivePage }) {
             <div className="create-merchant-grid">
               <div className="create-merchant-field">
                 <label>
-                  PAN Number
-                  <span className="required-star">*</span>
+                  PAN Number<span className="required-star">*</span>
                 </label>
                 <input
                   type="text"
@@ -930,8 +723,7 @@ function EditMerchant({ setActivePage }) {
 
               <div className="create-merchant-field">
                 <label>
-                  Aadhaar Number
-                  <span className="required-star">*</span>
+                  Aadhaar Number<span className="required-star">*</span>
                 </label>
                 <input
                   type="text"
@@ -946,123 +738,29 @@ function EditMerchant({ setActivePage }) {
                   <p className="create-merchant-error">{errors.adhar}</p>
                 )}
               </div>
-
-              <div className="create-merchant-field">
-                <label>
-                  Date of Birth
-                  <span className="required-star">*</span>
-                </label>
-                <input
-                  type="date"
-                  name="dob"
-                  value={merchant.dob}
-                  onChange={handleChange}
-                  className={errors.dob ? "create-merchant-input-error" : ""}
-                />
-                {errors.dob && (
-                  <p className="create-merchant-error">{errors.dob}</p>
-                )}
-              </div>
             </div>
+
+            {(existingAadhar || existingPan) && (
+              <div
+                style={{
+                  marginTop: "16px",
+                  padding: "12px",
+                  background: "#f9fafb",
+                  borderRadius: "8px",
+                  fontSize: "13px",
+                  color: "#374151",
+                }}
+              >
+                <strong>On-file documents:</strong>
+                {existingAadhar && <div>• Aadhaar: {existingAadhar}</div>}
+                {existingPan && <div>• PAN: {existingPan}</div>}
+              </div>
+            )}
           </div>
 
-          {/* ================= DOCUMENT UPLOADS ================= */}
+          {/* BANK DETAILS */}
           <div className="create-merchant-section">
-            <h3 className="create-merchant-section-header">
-              Document Uploads
-            </h3>
-            <div className="create-merchant-grid">
-              <div className="create-merchant-field">
-                <label>Aadhaar Document</label>
-                <div className="create-merchant-file-upload-wrapper">
-                  <input
-                    id="aadhar-file-input"
-                    type="file"
-                    accept=".pdf,.jpg,.jpeg,.png"
-                    onChange={(e) => handleFileChange(e, "aadhar")}
-                    className="create-merchant-file-input"
-                  />
-                  {existingAadhar && (
-                    <div className="create-merchant-file-info">
-                      <span className="create-merchant-file-name">📎 Existing: {existingAadhar}</span>
-                      <button
-                        type="button"
-                        className="create-merchant-remove-file-btn"
-                        onClick={() => handleRemoveExistingDocument("aadhar")}
-                        title="Remove existing Aadhaar document"
-                      >
-                        <FiX />
-                      </button>
-                    </div>
-                  )}
-                  {aadharFileName && (
-                    <div className="create-merchant-file-info">
-                      <span className="create-merchant-file-name">📎 New: {aadharFileName}</span>
-                      <button
-                        type="button"
-                        className="create-merchant-remove-file-btn"
-                        onClick={() => handleRemoveDocument("aadhar")}
-                        title="Remove new Aadhaar document"
-                      >
-                        <FiX />
-                      </button>
-                    </div>
-                  )}
-                </div>
-                {errors.aadhar && (
-                  <p className="create-merchant-error">{errors.aadhar}</p>
-                )}
-              </div>
-
-              <div className="create-merchant-field">
-                <label>PAN Document</label>
-                <div className="create-merchant-file-upload-wrapper">
-                  <input
-                    id="pan-file-input"
-                    type="file"
-                    accept=".pdf,.jpg,.jpeg,.png"
-                    onChange={(e) => handleFileChange(e, "pan")}
-                    className="create-merchant-file-input"
-                  />
-                  {existingPan && (
-                    <div className="create-merchant-file-info">
-                      <span className="create-merchant-file-name">📎 Existing: {existingPan}</span>
-                      <button
-                        type="button"
-                        className="create-merchant-remove-file-btn"
-                        onClick={() => handleRemoveExistingDocument("pan")}
-                        title="Remove existing PAN document"
-                      >
-                        <FiX />
-                      </button>
-                    </div>
-                  )}
-                  {panFileName && (
-                    <div className="create-merchant-file-info">
-                      <span className="create-merchant-file-name">📎 New: {panFileName}</span>
-                      <button
-                        type="button"
-                        className="create-merchant-remove-file-btn"
-                        onClick={() => handleRemoveDocument("pan")}
-                        title="Remove new PAN document"
-                      >
-                        <FiX />
-                      </button>
-                    </div>
-                  )}
-                </div>
-                {errors.pan && (
-                  <p className="create-merchant-error">{errors.pan}</p>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* ================= BANK DETAILS ================= */}
-          <div className="create-merchant-section">
-            <h3 className="create-merchant-section-header">
-              Bank Details
-            </h3>
+            <h3 className="create-merchant-section-header">Bank Details</h3>
             <div className="create-merchant-grid">
               <div className="create-merchant-field">
                 <label>Account Number</label>
@@ -1071,7 +769,9 @@ function EditMerchant({ setActivePage }) {
                   name="accountNumber"
                   value={merchant.accountNumber}
                   onChange={handleChange}
-                  className={errors.accountNumber ? "create-merchant-input-error" : ""}
+                  className={
+                    errors.accountNumber ? "create-merchant-input-error" : ""
+                  }
                   placeholder="Enter bank account number"
                 />
                 {errors.accountNumber && (
@@ -1096,14 +796,16 @@ function EditMerchant({ setActivePage }) {
               </div>
 
               <div className="create-merchant-field">
-                <label>Bank Location</label>
+                <label>Bank Name / Location</label>
                 <input
                   type="text"
                   name="bankLocation"
                   value={merchant.bankLocation}
                   onChange={handleChange}
-                  className={errors.bankLocation ? "create-merchant-input-error" : ""}
-                  placeholder="Branch location"
+                  className={
+                    errors.bankLocation ? "create-merchant-input-error" : ""
+                  }
+                  placeholder="Branch location / bank name"
                 />
                 {errors.bankLocation && (
                   <p className="create-merchant-error">{errors.bankLocation}</p>
@@ -1117,11 +819,15 @@ function EditMerchant({ setActivePage }) {
                   name="nameInBankAccount"
                   value={merchant.nameInBankAccount}
                   onChange={handleChange}
-                  className={errors.nameInBankAccount ? "create-merchant-input-error" : ""}
+                  className={
+                    errors.nameInBankAccount ? "create-merchant-input-error" : ""
+                  }
                   placeholder="Account holder name"
                 />
                 {errors.nameInBankAccount && (
-                  <p className="create-merchant-error">{errors.nameInBankAccount}</p>
+                  <p className="create-merchant-error">
+                    {errors.nameInBankAccount}
+                  </p>
                 )}
               </div>
             </div>

@@ -710,8 +710,8 @@ function PendingApprovals() {
                   <DetailField label="Longitude" value={d.longitude} />
                   <DetailField label="FSSAI Number" value={d.fssaiNumber} />
                   <DetailField label="GST Number" value={d.gstNumber} />
-                  <DetailField label="Outlet Approved (DB)" value={d.outletApproved} />
-                  <DetailField label="KYC / Doc Verified" value={d.outletKycVerified} />
+                  {/* <DetailField label="Outlet Approved (DB)" value={d.outletApproved} /> */}
+                  {/* <DetailField label="KYC / Doc Verified" value={d.outletKycVerified} /> */}
                   <DetailField label="Outlet Created At" value={formatDateVal(d.outletCreatedAt || d.createdAt || d.created_at)} />
                   <div className="req-detail-field">
                     <span className="req-detail-label">Operating Hours</span>
@@ -737,11 +737,11 @@ function PendingApprovals() {
                   <DetailField label="Business Type" value={d.merchantBusinessType} />
                   <DetailField label="Aadhaar Number" value={d.aadhaarNumber} />
                   <DetailField label="PAN Number" value={d.panNumber} />
-                  <DetailField label="Merchant Approved (DB)" value={d.merchantApproved} />
+                  {/* <DetailField label="Merchant Approved (DB)" value={d.merchantApproved} /> */}
                   <DetailField label="Merchant Created At" value={formatDateVal(d.merchantCreatedAt || d.createdAt || d.created_at)} />
                   <DetailField label="FSSAI Number" value={d.merchantFssai || d.fssaiNumber} />
                   <DetailField label="GST Number" value={d.merchantGst || d.gstNumber} />
-                  <DetailField label="KYC Verified" value={d.merchantKycVerified} />
+                  {/* <DetailField label="KYC Verified" value={d.merchantKycVerified} /> */}
                   {/* {d.merchantProfilePicUrl && (
                     <div className="req-detail-field">
                       <span className="req-detail-label">Profile Picture</span>
@@ -765,9 +765,9 @@ function PendingApprovals() {
                   <DetailField label="Phone" value={d.phoneNumber} />
                   <DetailField label="Email" value={d.email} />
                   <DetailField label="Aadhaar Number" value={d.driverAadhaarNumber || d.aadhaarNumber} />
-                  <DetailField label="Driver Approved (DB)" value={d.driverApproved} />
+                  {/* <DetailField label="Driver Approved (DB)" value={d.driverApproved} /> */}
                   <DetailField label="Driver Created At" value={formatDateVal(d.driverCreatedAt || d.createdAt || d.created_at)} />
-                  <DetailField label="KYC Verified Status" value={d.driverKycVerified} />
+                  {/* <DetailField label="KYC Verified Status" value={d.driverKycVerified} /> */}
                   <DetailField label="Nominee Name" value={d.nomineeName} />
                   <DetailField label="Nominee Phone" value={d.nomineePhoneNumber} />
                   <DetailField label="Family Member" value={d.familyMemberName} />
@@ -789,7 +789,7 @@ function PendingApprovals() {
               <div className="req-detail-section">
                 <p className="req-detail-section-title">🪪 Driver KYC</p>
                 <div className="req-detail-grid">
-                  <DetailField label="KYC ID" value={d.driverKycId} />
+                  {/* <DetailField label="KYC ID" value={d.driverKycId} /> */}
                   <DetailField label="Aadhaar Number" value={d.driverAadhaarNumber || d.aadhaarNumber} />
                   <DetailField label="Driving License" value={d.drivingLicenseNumber} />
                   <DetailField label="RC Copy" value={d.rcCopy} />
