@@ -12,7 +12,7 @@ import {
   restoreProductUnavailable,
 } from "../services/outletListService";
 import { getProductDetailById } from "../services/productDetailService";
-import AddToOutletProducts from "./AddToOutletProducts";
+import EditOutletProduct from "./EditOutletProduct";
 
 import {
   FiSearch,
@@ -82,8 +82,8 @@ function OutletFoods({
   const [variantProduct, setVariantProduct] = useState(null);
   const [variantLoading, setVariantLoading] = useState(false);
   const [variantError, setVariantError] = useState("");
-  const [foodForVariants, setFoodForVariants] = useState(null);
-  const [preparingVariantForm, setPreparingVariantForm] = useState(false);
+  const [editingFood, setEditingFood] = useState(null);
+  const [foodsRefreshKey, setFoodsRefreshKey] = useState(0);
 
   // ============================================================
   // GET SELECTED OUTLET ID
@@ -282,6 +282,7 @@ function OutletFoods({
     loadFoods();
   }, [
     outletFromParent?.outletId,
+    foodsRefreshKey,
   ]);
 
 // ============================================================
@@ -763,18 +764,6 @@ const handleConfirmFoodRestore = async () => {
     );
 
   // ============================================================
-  // RESET PAGE
-  // ============================================================
-
-  useEffect(() => {
-    setFoodPage(1);
-  }, [
-    foodSearch,
-    foodEntries,
-    isPvToggle,
-  ]);
-
-  // ============================================================
   // FORMAT PRICE
   // ============================================================
 
@@ -901,6 +890,24 @@ const handleConfirmFoodRestore = async () => {
         ? food.variants
         : [];
 
+
+    if (variants.length === 0) {
+      return (
+        <span className="jippy-food-no-variants">
+          No variants
+        </span>
+      );
+    }
+
+    return (
+      <div className="jippy-food-variant-summary">
+        {variants.map((variant, index) => (
+          <span key={`${variant?.variantName || variant?.name || "variant"}-${index}`}>
+            {variant?.variantName || variant?.name || variant?.value || "Variant"}
+          </span>
+        ))}
+      </div>
+    );
   };
 
   const handleViewVariants = async (food) => {
@@ -916,7 +923,10 @@ const handleConfirmFoodRestore = async () => {
 
     try {
       const response = await getProductDetailById(productId);
-      const product = response?.data ?? response;
+      const product =
+        response?.data?.data ||
+        response?.data ||
+        response;
       setVariantProduct(product);
     } catch (error) {
       setVariantError(
@@ -929,42 +939,13 @@ const handleConfirmFoodRestore = async () => {
     }
   };
 
-  const handleAddVariants = async (food) => {
+  const handleEditFood = (food) => {
     const productId = Number(food?.productId ?? food?.id);
     if (!productId) {
       setVariantError("This food item does not have a valid product ID.");
       return;
     }
-
-    setPreparingVariantForm(true);
-    setVariantError("");
-    try {
-      // Fetch complete product data first, then retain the food-row category,
-      // timings, and product ID needed by the mapping request.
-      const response = await getProductDetailById(productId);
-      const detail = response?.data ?? response ?? {};
-      setFoodForVariants({
-        ...food,
-        ...detail,
-        masterProductId:
-          detail.masterProductId ??
-          food.masterProductId ??
-          food.master_product_id ??
-          productId,
-        productName: detail.productName ?? food.productName,
-        categoryId: detail.categoryId ?? food.categoryId,
-        timings: detail.timings ?? food.productTimings ?? [],
-        variantGroups: detail.variantGroups ?? food.variantGroups ?? [],
-      });
-    } catch (error) {
-      setVariantError(
-        error?.response?.data?.message ||
-          error?.message ||
-          "Unable to load this food item for variant mapping."
-      );
-    } finally {
-      setPreparingVariantForm(false);
-    }
+    setEditingFood(food);
   };
 
   // ============================================================
@@ -1067,6 +1048,20 @@ const handleConfirmFoodRestore = async () => {
   // ============================================================
   // RENDER
   // ============================================================
+
+  if (editingFood) {
+    return (
+      <EditOutletProduct
+        product={editingFood}
+        outletCategories={outlet?.categories || categoriesFromParent || []}
+        onClose={() => setEditingFood(null)}
+        onProductUpdated={() => {
+          setEditingFood(null);
+          setFoodsRefreshKey((current) => current + 1);
+        }}
+      />
+    );
+  }
 
   return (
     <div className="jippy-outlet-foods-page">
@@ -1308,7 +1303,7 @@ const handleConfirmFoodRestore = async () => {
                 </th>
 
                 <th>
-                  Add Variants
+                  Edit Food
                 </th>
 
               </tr>
@@ -1553,10 +1548,9 @@ const handleConfirmFoodRestore = async () => {
                             <button
                               type="button"
                               className="jippy-food-add-variants-btn"
-                              onClick={() => handleAddVariants(food)}
-                              disabled={preparingVariantForm}
-                              title="Edit product variants"
-                              aria-label="Edit product variants"
+                              onClick={() => handleEditFood(food)}
+                              title="Edit food"
+                              aria-label="Edit food"
                             >
                               <FiEdit2 />
                             </button>
@@ -1885,18 +1879,6 @@ const handleConfirmFoodRestore = async () => {
             )}
           </div>
         </div>
-      )}
-
-      {foodForVariants && (
-        <AddToOutletProducts
-          selectedProducts={[foodForVariants]}
-          initialOutletId={outlet?.outletId ?? outlet?.id}
-          initialOutletName={outlet?.outletName ?? outlet?.name}
-          initialOutletCategoryId={foodForVariants.outletCategoryId}
-          initialCategoryId={foodForVariants.categoryId}
-          asModal
-          setShowOutletPopup={() => setFoodForVariants(null)}
-        />
       )}
 
       {/* ======================================================
