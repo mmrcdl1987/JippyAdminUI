@@ -437,7 +437,7 @@ function ApprovalSettings() {
           </p>
         </div>
         <div style={{ display: "flex", gap: "10px" }}>
-          <button
+          {/* <button
             className="appr-refresh-btn"
             style={{ background: "#eff6ff", borderColor: "#bfdbfe", color: "#1d4ed8" }}
             onClick={handleRunAutoApprovalTest}
@@ -452,7 +452,7 @@ function ApprovalSettings() {
             disabled={fetching}
           >
             {fetching ? "Refreshing..." : "🔄 Refresh Settings"}
-          </button>
+          </button> */}
         </div>
       </div>
 

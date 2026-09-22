@@ -6,11 +6,12 @@ import {
   deleteDeliveryRule,
   getZones
 } from "../services/deliveryChargeService";
+import CustomerDeliveryCharge from "./CustomerDeliveryCharge";
 import "../styles/DeliveryCharge.css";
 
 const STATUS_OPTIONS = ["ACTIVE", "INACTIVE"];
 
-function DeliveryCharge() {
+function DriverDeliveryCharge() {
   const [currentView, setCurrentView] = useState("list");
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [selectedRule, setSelectedRule] = useState(null);
@@ -846,6 +847,24 @@ function DeliveryCharge() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function DeliveryCharge() {
+  const [tab, setTab] = useState("driver");
+
+  return (
+    <div className="delivery-charge-tabs-page">
+      <div className="delivery-charge-tabs">
+        <button className={tab === "driver" ? "active" : ""} onClick={() => setTab("driver")}>
+          Driver Delivery Charges
+        </button>
+        <button className={tab === "customer" ? "active" : ""} onClick={() => setTab("customer")}>
+          Customer Delivery Charges
+        </button>
+      </div>
+      {tab === "driver" ? <DriverDeliveryCharge /> : <CustomerDeliveryCharge />}
     </div>
   );
 }

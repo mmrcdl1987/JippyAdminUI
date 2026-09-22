@@ -76,3 +76,56 @@ export const getZones = async () => {
 
   return response.data;
 };
+
+export const getCustomerDeliveryRules = async () => {
+  const response = await FM_API.get("/api/co/customer-delivery-charge-settings");
+  return response.data;
+};
+
+export const getCustomerDeliveryRuleById = async (id) => {
+  const response = await FM_API.get(`/api/co/customer-delivery-charge-settings/${id}`);
+  return response.data;
+};
+
+export const createCustomerDeliveryRule = async (payload) => {
+  const response = await FM_API.post("/api/co/customer-delivery-charge-settings", payload, {
+    headers: { "X-User-Id": getCurrentUserId() }
+  });
+  return response.data;
+};
+
+export const updateCustomerDeliveryRule = async (id, payload) => {
+  const response = await FM_API.put(`/api/co/customer-delivery-charge-settings/${id}`, payload, {
+    headers: { "X-User-Id": getCurrentUserId() }
+  });
+  return response.data;
+};
+
+export const deleteCustomerDeliveryRule = async (id) => {
+  const response = await FM_API.delete(`/api/co/customer-delivery-charge-settings/${id}`);
+  return response.data;
+};
+
+export const getCustomerDeliveryAreas = async () => {
+  const statesResponse = await FM_API.get("/api/fm/location/fetchStates");
+  const states = Array.isArray(statesResponse.data) ? statesResponse.data : [];
+  const cityResponses = await Promise.all(
+    states
+      .map((state) => state?.stateId ?? state?.id ?? state?.state_id)
+      .filter(Boolean)
+      .map((stateId) => FM_API.get("/api/fm/location/fetchCityInState", { params: { stateId } }))
+  );
+  const cities = cityResponses.flatMap((response) => Array.isArray(response.data) ? response.data : []);
+  const areaResponses = await Promise.all(
+    cities
+      .map((city) => city?.cityId ?? city?.id ?? city?.city_id)
+      .filter(Boolean)
+      .map((cityId) => FM_API.get("/api/fm/location/fetchAreaInCity", { params: { cityId } }))
+  );
+  return areaResponses.flatMap((response) => Array.isArray(response.data) ? response.data : []);
+};
+
+const getCurrentUserId = () => {
+  const value = localStorage.getItem("userId") || localStorage.getItem("id");
+  return value ? Number(value) : undefined;
+};

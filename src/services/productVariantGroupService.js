@@ -29,3 +29,15 @@ export const saveVariantGroupValue = async (groupId, payload) => {
 export const getVariantGroupValueById = async (groupId, valueId) => {
   return await FM_API.get(`/api/fm/product-variant-groups/${groupId}/values/${valueId}`);
 };
+
+// Get variant options already mapped to a product
+export const getProductVariantOptions = async (productId) => {
+  return await FM_API.get(`/api/fm/products/${productId}/variant-options`);
+};
+
+// Remove a variant option mapping from a product
+export const deleteProductVariantOption = async (productId, optionId) => {
+  return await FM_API.delete(
+    `/api/fm/products/${productId}/variant-options/${optionId}`
+  );
+};

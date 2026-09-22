@@ -6,6 +6,329 @@
     padding: 0;
 }
 
+.delivery-charge-tabs-page {
+    min-height: 100%;
+}
+
+.delivery-charge-tabs {
+    display: flex;
+    gap: 8px;
+    padding: 20px 32px 0;
+    background: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.delivery-charge-tabs button {
+    border: 0;
+    border-bottom: 3px solid transparent;
+    background: transparent;
+    color: #64748b;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 13px 18px 15px;
+}
+
+.delivery-charge-tabs button.active {
+    border-bottom-color: #ff6b35;
+    color: #ff6b35;
+}
+
+.customer-delivery-page {
+    max-width: 1400px;
+}
+
+.customer-delivery-primary {
+    align-items: center;
+    background: #ff6b35;
+    border: 0;
+    border-radius: 7px;
+    box-shadow: 0 3px 8px #ff6b3533;
+    color: #ffffff;
+    cursor: pointer;
+    display: inline-flex;
+    font-weight: 700;
+    gap: 8px;
+    padding: 11px 17px;
+}
+
+.customer-delivery-primary:disabled {
+    cursor: not-allowed;
+    opacity: .6;
+}
+
+.customer-delivery-kpis {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: repeat(4, 1fr);
+    margin-bottom: 24px;
+}
+
+.customer-delivery-kpis > div {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px #17203308;
+    padding: 18px;
+}
+
+.customer-delivery-kpis small,
+.customer-delivery-kpis strong {
+    display: block;
+}
+
+.customer-delivery-kpis small {
+    color: #8190a1;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.customer-delivery-kpis strong {
+    color: #172033;
+    font-size: 22px;
+    margin-top: 7px;
+}
+
+.customer-delivery-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.customer-delivery-toolbar {
+    align-items: center;
+    border-bottom: 1px solid #edf0f4;
+    display: flex;
+    justify-content: space-between;
+    padding: 16px 18px;
+}
+
+.customer-delivery-search {
+    align-items: center;
+    border: 1px solid #d6dee7;
+    border-radius: 8px;
+    color: #93a0af;
+    display: flex;
+    gap: 9px;
+    padding: 0 11px;
+    width: 310px;
+}
+
+.customer-delivery-search input {
+    border: 0;
+    height: 40px;
+    outline: 0;
+    width: 100%;
+}
+
+.customer-delivery-refresh,
+.customer-delivery-actions button {
+    align-items: center;
+    background: #ffffff;
+    border: 1px solid #dbe2e9;
+    border-radius: 7px;
+    color: #718096;
+    cursor: pointer;
+    display: inline-flex;
+    justify-content: center;
+}
+
+.customer-delivery-refresh {
+    height: 36px;
+    width: 36px;
+}
+
+.customer-delivery-table-wrap {
+    overflow-x: auto;
+}
+
+.customer-delivery-table {
+    border-collapse: collapse;
+    min-width: 1000px;
+    width: 100%;
+}
+
+.customer-delivery-table th,
+.customer-delivery-table td {
+    border-bottom: 1px solid #edf0f4;
+    font-size: 12px;
+    padding: 14px 16px;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.customer-delivery-table th {
+    background: #f8fafc;
+    color: #677486;
+    font-size: 11px;
+}
+
+.customer-delivery-city {
+    align-items: center;
+    display: inline-flex;
+    gap: 7px;
+}
+
+.customer-delivery-city svg {
+    color: #e59171;
+}
+
+.customer-delivery-active,
+.customer-delivery-inactive {
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 4px 7px;
+}
+
+.customer-delivery-active {
+    background: #def7e8;
+    color: #1c9b58;
+}
+
+.customer-delivery-inactive {
+    background: #edf0f4;
+    color: #8a94a4;
+}
+
+.customer-delivery-actions {
+    display: flex;
+    gap: 7px;
+}
+
+.customer-delivery-actions button {
+    height: 30px;
+    width: 30px;
+}
+
+.customer-delivery-footer,
+.customer-delivery-empty {
+    color: #8190a1;
+    font-size: 12px;
+    padding: 16px 18px;
+}
+
+.customer-delivery-overlay {
+    align-items: center;
+    background: #11182766;
+    display: grid;
+    inset: 0;
+    padding: 20px;
+    place-items: center;
+    position: fixed;
+    z-index: 20;
+}
+
+.customer-delivery-modal {
+    background: #ffffff;
+    border-radius: 13px;
+    box-shadow: 0 20px 60px #0003;
+    padding: 23px;
+    width: min(650px, 100%);
+}
+
+.customer-delivery-modal-header {
+    border-bottom: 1px solid #edf0f4;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding-bottom: 17px;
+}
+
+.customer-delivery-modal-header h2 {
+    font-size: 19px;
+    margin: 0 0 5px;
+}
+
+.customer-delivery-modal-header p {
+    color: #8290a0;
+    font-size: 12px;
+    margin: 0;
+}
+
+.customer-delivery-modal-header > button {
+    background: transparent;
+    border: 0;
+    color: #8290a0;
+    cursor: pointer;
+    font-size: 19px;
+}
+
+.customer-delivery-form-grid {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.customer-delivery-form-grid label {
+    color: #526174;
+    display: flex;
+    flex-direction: column;
+    font-size: 12px;
+    font-weight: 700;
+    gap: 7px;
+}
+
+.customer-delivery-form-grid input,
+.customer-delivery-form-grid select {
+    border: 1px solid #d4dde6;
+    border-radius: 7px;
+    height: 40px;
+    padding: 0 10px;
+}
+
+.customer-delivery-checkbox {
+    align-items: center;
+    flex-direction: row !important;
+    gap: 8px !important;
+    padding-top: 25px;
+}
+
+.customer-delivery-checkbox input {
+    height: auto;
+}
+
+.customer-delivery-modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 24px;
+}
+
+.customer-delivery-modal-actions > button:first-child {
+    background: #ffffff;
+    border: 1px solid #d7dfe8;
+    border-radius: 7px;
+    color: #607084;
+    cursor: pointer;
+    font-weight: 600;
+    padding: 10px 16px;
+}
+
+@media (max-width: 900px) {
+    .customer-delivery-kpis {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .delivery-charge-tabs {
+        overflow-x: auto;
+        padding-left: 16px;
+    }
+
+    .customer-delivery-kpis,
+    .customer-delivery-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .customer-delivery-search {
+        width: calc(100% - 48px);
+    }
+}
+
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     color: #1e293b;
