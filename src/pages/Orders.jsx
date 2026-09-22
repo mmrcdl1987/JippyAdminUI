@@ -17,7 +17,7 @@ import {
   getOrdersByStatus,
   getStates,
   getCitiesByState,
-  getAreasByCity,
+  getAreasByCity, 
   getOrderCompleteDetails,
 } from "../services/orderService";
 
