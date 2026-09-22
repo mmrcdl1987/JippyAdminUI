@@ -5,8 +5,9 @@ import {
   getOutletById,
   getOutletDetails,
   getOutletLocation,
-    getOutletSubscriptionStatus,
+  getOutletSubscriptionStatus,
 } from "../services/outletListService";
+import { getOrdersByStatus } from "../services/orderService";
 
 import OutletFoods from "./OutletFoods";
 import OutletSubscriptionHistory from "./OutletSubscriptionHistory";
@@ -25,6 +26,9 @@ import {
   FiMail,
   FiPhone,
   FiNavigation,
+  FiPackage,
+  FiLayers,
+  FiCheckCircle,
 } from "react-icons/fi";
 
 
@@ -36,13 +40,28 @@ function OutletProfileDetails({ setActivePage }) {
 
   const [outlet, setOutlet] = useState(null);
 
-  const [activeTab, setActiveTab] = useState("Basic");
+  const [activeTab, setActiveTab] = useState(() => {
+    try {
+      const savedTab = sessionStorage.getItem("selectedOutletTab");
+      if (savedTab) {
+        sessionStorage.removeItem("selectedOutletTab");
+        return savedTab;
+      }
+    } catch {
+      // ignore
+    }
+    return "Basic";
+  });
 
   const [loading, setLoading] = useState(true);
 
   const [errorMessage, setErrorMessage] = useState("");
 
   const [coordinateLocation, setCoordinateLocation] = useState("");
+
+  const [outletOrders, setOutletOrders] = useState([]);
+
+  const [ordersLoading, setOrdersLoading] = useState(false);
 
 
   // ============================================================
@@ -83,52 +102,52 @@ function OutletProfileDetails({ setActivePage }) {
 
 
   useEffect(() => {
-  const getCoordinateLocation = async () => {
-    if (
-      outlet?.latitude == null ||
-      outlet?.longitude == null
-    ) {
-      setCoordinateLocation("");
-      return;
-    }
-
-    try {
-      const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
-
-      const response = await fetch(
-        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${outlet.latitude},${outlet.longitude}&key=${apiKey}`
-      );
-
-      const data = await response.json();
-
-      console.log("REVERSE GEOCODING RESPONSE:", data);
-
+    const getCoordinateLocation = async () => {
       if (
-        data.status === "OK" &&
-        data.results?.length > 0
+        outlet?.latitude == null ||
+        outlet?.longitude == null
       ) {
-        setCoordinateLocation(
-          data.results[0].formatted_address
-        );
-      } else {
         setCoordinateLocation("");
-        console.warn(
-          "Reverse geocoding failed:",
-          data.status
-        );
+        return;
       }
-    } catch (error) {
-      console.error(
-        "Failed to get location from coordinates:",
-        error
-      );
 
-      setCoordinateLocation("");
-    }
-  };
+      try {
+        const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
-  getCoordinateLocation();
-}, [outlet?.latitude, outlet?.longitude]);
+        const response = await fetch(
+          `https://maps.googleapis.com/maps/api/geocode/json?latlng=${outlet.latitude},${outlet.longitude}&key=${apiKey}`
+        );
+
+        const data = await response.json();
+
+        console.log("REVERSE GEOCODING RESPONSE:", data);
+
+        if (
+          data.status === "OK" &&
+          data.results?.length > 0
+        ) {
+          setCoordinateLocation(
+            data.results[0].formatted_address
+          );
+        } else {
+          setCoordinateLocation("");
+          console.warn(
+            "Reverse geocoding failed:",
+            data.status
+          );
+        }
+      } catch (error) {
+        console.error(
+          "Failed to get location from coordinates:",
+          error
+        );
+
+        setCoordinateLocation("");
+      }
+    };
+
+    getCoordinateLocation();
+  }, [outlet?.latitude, outlet?.longitude]);
   // ============================================================
   // LOAD OUTLET DETAILS
   // ============================================================
@@ -177,48 +196,48 @@ function OutletProfileDetails({ setActivePage }) {
         // some outlets. Fall back to getOutletById / list row.
         // ======================================================
 
-    let details = null;
+        let details = null;
 
-try {
-  const detailsResponse = await getOutletDetails(outletId);
+        try {
+          const detailsResponse = await getOutletDetails(outletId);
 
-  console.log(
-    "OUTLET DETAILS RESPONSE:",
-    detailsResponse
-  );
+          console.log(
+            "OUTLET DETAILS RESPONSE:",
+            detailsResponse
+          );
 
-  details = detailsResponse || null;
-} catch (detailsError) {
-  console.warn(
-    "getOutletDetails failed:",
-    detailsError?.response?.status
-  );
+          details = detailsResponse || null;
+        } catch (detailsError) {
+          console.warn(
+            "getOutletDetails failed:",
+            detailsError?.response?.status
+          );
 
-  try {
-    const byIdResponse = await getOutletById(outletId);
+          try {
+            const byIdResponse = await getOutletById(outletId);
 
-    console.log(
-      "GET OUTLET BY ID RESPONSE:",
-      byIdResponse
-    );
+            console.log(
+              "GET OUTLET BY ID RESPONSE:",
+              byIdResponse
+            );
 
-    details =
-      byIdResponse?.data ??
-      byIdResponse ??
-      null;
-  } catch (byIdError) {
-    console.warn(
-      "getOutletById failed:",
-      byIdError?.response?.status
-    );
-  }
-}
+            details =
+              byIdResponse?.data ??
+              byIdResponse ??
+              null;
+          } catch (byIdError) {
+            console.warn(
+              "getOutletById failed:",
+              byIdError?.response?.status
+            );
+          }
+        }
 
-if (details) {
-  setOutlet(details);
-}
+        if (details) {
+          setOutlet(details);
+        }
 
-      
+
 
         if (storedOutlet) {
           details = {
@@ -355,6 +374,66 @@ if (details) {
     loadOutletData();
 
   }, []);
+
+
+  // ============================================================
+  // LOAD OUTLET ORDERS
+  // ============================================================
+
+  useEffect(() => {
+    let isMounted = true;
+    const loadOutletOrders = async () => {
+      const outletId = getCurrentOutletId();
+      if (!outletId && !outlet?.outletName) return;
+
+      try {
+        setOrdersLoading(true);
+        const statuses = [
+          "ORDER_PLACED",
+          "ORDER_CONFIRMED",
+          "ORDER_SHIPPED",
+          "ORDER_COMPLETED",
+          "ORDER_REJECTED",
+        ];
+
+        const responses = await Promise.allSettled(
+          statuses.map((s) => getOrdersByStatus(s))
+        );
+
+        if (!isMounted) return;
+
+        const allOrders = responses
+          .filter((r) => r.status === "fulfilled" && Array.isArray(r.value))
+          .flatMap((r) => r.value);
+
+        const currentOutletIdStr = String(outletId);
+        const currentOutletName = (outlet?.outletName || "").trim().toLowerCase();
+
+        const filtered = allOrders.filter((o) => {
+          const matchId =
+            o.outletId != null && String(o.outletId) === currentOutletIdStr;
+          const matchName =
+            currentOutletName &&
+            (o.outletName || "").trim().toLowerCase() === currentOutletName;
+          return matchId || matchName;
+        });
+
+        setOutletOrders(filtered);
+      } catch (err) {
+        console.warn("Could not fetch outlet orders:", err);
+      } finally {
+        if (isMounted) setOrdersLoading(false);
+      }
+    };
+
+    if (outlet) {
+      loadOutletOrders();
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, [outlet?.outletId, outlet?.outletName]);
 
 
   // ============================================================
@@ -593,6 +672,30 @@ if (details) {
 
 
   // ============================================================
+  // TOTAL ORDERS
+  // ============================================================
+
+  const getOrdersCount = () => {
+    if (outletOrders.length > 0) {
+      return outletOrders.length;
+    }
+    if (outlet?.totalOrders != null) {
+      return outlet.totalOrders;
+    }
+    if (outlet?.orderCount != null) {
+      return outlet.orderCount;
+    }
+    if (outlet?.ordersCount != null) {
+      return outlet.ordersCount;
+    }
+    if (Array.isArray(outlet?.orders)) {
+      return outlet.orders.length;
+    }
+    return 0;
+  };
+
+
+  // ============================================================
   // ACTIVE PRODUCTS
   // ============================================================
 
@@ -738,16 +841,16 @@ if (details) {
   // GOOGLE MAP URL
   // ============================================================
 
-const getMapUrl = () => {
-  if (
-    outlet?.latitude == null ||
-    outlet?.longitude == null
-  ) {
-    return null;
-  }
+  const getMapUrl = () => {
+    if (
+      outlet?.latitude == null ||
+      outlet?.longitude == null
+    ) {
+      return null;
+    }
 
-  return `https://www.google.com/maps?q=${outlet.latitude},${outlet.longitude}&z=15&output=embed`;
-};
+    return `https://www.google.com/maps?q=${outlet.latitude},${outlet.longitude}&z=15&output=embed`;
+  };
 
 
   // ============================================================
@@ -920,11 +1023,10 @@ const getMapUrl = () => {
 
           <button
             key={tab}
-            className={`jippy-outlet-profile-tab ${
-              activeTab === tab
+            className={`jippy-outlet-profile-tab ${activeTab === tab
                 ? "jippy-outlet-profile-tab-active"
                 : ""
-            }`}
+              }`}
             onClick={() =>
               setActiveTab(tab)
             }
@@ -953,91 +1055,81 @@ const getMapUrl = () => {
 
           <div className="jippy-outlet-profile-summary-grid">
 
-
-            {/* PRODUCTS */}
-
-            <div className="jippy-outlet-profile-summary-card jippy-summary-blue">
-
-              <div className="jippy-summary-content">
-
-                <strong>
-                  {getProductsCount()}
-                </strong>
-
-                <span>
-                  Total Foods
-                </span>
-
-              </div>
-
-
-              <div className="jippy-summary-icon">
-
+            {/* TOTAL FOODS (PURPLE - SAME AS CATEGORIES TOTAL) */}
+            <div
+              className="cat-stat-card cat-stat-purple jippy-outlet-profile-summary-card jippy-summary-clickable"
+              onClick={() => setActiveTab("Foods")}
+              title="Click to view Foods tab"
+            >
+              <div className="cat-stat-icon jippy-summary-icon">
                 <FiShoppingBag />
-
               </div>
-
+              <div className="cat-stat-content jippy-summary-content">
+                <span>Total Foods</span>
+                <strong>{getProductsCount()}</strong>
+                <small>Food catalog</small>
+              </div>
             </div>
 
-
-            {/* CATEGORIES */}
-
-            <div className="jippy-outlet-profile-summary-card jippy-summary-green">
-
-              <div className="jippy-summary-content">
-
-                <strong>
-                  {getCategoriesCount()}
-                </strong>
-
-                <span>
-                  Categories
-                </span>
-
+            {/* CATEGORIES (BLUE - SAME AS CATEGORIES ALL) */}
+            <div
+              className="cat-stat-card cat-stat-blue jippy-outlet-profile-summary-card jippy-summary-clickable"
+              onClick={() => setActiveTab("Categories")}
+              title="Click to view Categories tab"
+            >
+              <div className="cat-stat-icon jippy-summary-icon">
+                <FiLayers />
               </div>
-
-
-              <div className="jippy-summary-icon">
-
-                <FiPlus />
-
+              <div className="cat-stat-content jippy-summary-content">
+                <span>Categories</span>
+                <strong>{getCategoriesCount()}</strong>
+                <small>Assigned categories</small>
               </div>
-
             </div>
 
-
-            {/* AVAILABLE */}
-
-            <div className="jippy-outlet-profile-summary-card jippy-summary-pink">
-
-              <div className="jippy-summary-content">
-
-                <strong>
-                  {getActiveProductsCount()}
-                </strong>
-
-                <span>
-                  Available Foods
-                </span>
-
+            {/* ORDERS (AMBER / GOLD) */}
+            <div
+              className="cat-stat-card cat-stat-amber jippy-outlet-profile-summary-card jippy-summary-clickable"
+              onClick={() => setActiveTab("Orders")}
+              title="Click to view Orders tab"
+            >
+              <div className="cat-stat-icon jippy-summary-icon">
+                <FiPackage />
               </div>
-
-
-              <div className="jippy-summary-icon">
-
-                <FiStar />
-
+              <div className="cat-stat-content jippy-summary-content">
+                <span>Total Orders</span>
+                <strong>{getOrdersCount()}</strong>
+                <small>Outlet order flow</small>
               </div>
-
             </div>
 
+            {/* AVAILABLE (GREEN - SAME AS CATEGORIES HOME/ACTIVE) */}
+            <div
+              className="cat-stat-card cat-stat-green jippy-outlet-profile-summary-card jippy-summary-clickable"
+              onClick={() => setActiveTab("Foods")}
+              title="Click to view Available Foods"
+            >
+              <div className="cat-stat-icon jippy-summary-icon">
+                <FiCheckCircle />
+              </div>
+              <div className="cat-stat-content jippy-summary-content">
+                <span>Available Foods</span>
+                <strong>{getActiveProductsCount()}</strong>
+                <small>Ready to order</small>
+              </div>
+            </div>
 
             {/* STATUS */}
-
-            <div className="jippy-outlet-profile-summary-card jippy-summary-yellow">
-
-              <div className="jippy-summary-content">
-
+            <div
+              className={`cat-stat-card ${
+                outlet?.isAvailable === false ? "cat-stat-red" : "cat-stat-green"
+              } jippy-outlet-profile-summary-card`}
+            >
+              <div className="cat-stat-icon jippy-summary-icon">
+                <FiClock />
+              </div>
+              <div className="cat-stat-content jippy-summary-content">
+                <span>Outlet Status</span>
                 <strong
                   className={
                     outlet?.isAvailable === false
@@ -1045,26 +1137,16 @@ const getMapUrl = () => {
                       : "jippy-status-success"
                   }
                 >
-
                   {outlet?.isAvailable === false
                     ? "Closed"
                     : "Open"}
-
                 </strong>
-
-                <span>
-                  Outlet Status
-                </span>
-
+                <small>
+                  {outlet?.isAvailable === false
+                    ? "Currently paused"
+                    : "Accepting orders"}
+                </small>
               </div>
-
-
-              <div className="jippy-summary-icon">
-
-                <FiClock />
-
-              </div>
-
             </div>
 
           </div>
@@ -1192,7 +1274,7 @@ const getMapUrl = () => {
 
               {/* FAVOURITE */}
 
-              <div>
+              {/* <div>
 
                 <span>
                   Favourite
@@ -1212,12 +1294,12 @@ const getMapUrl = () => {
 
                 </strong>
 
-              </div>
+              </div> */}
 
 
               {/* AVAILABILITY */}
 
-              <div>
+              {/* <div>
 
                 <span>
                   Availability
@@ -1237,12 +1319,12 @@ const getMapUrl = () => {
 
                 </strong>
 
-              </div>
+              </div> */}
 
 
               {/* ADDRESS */}
 
-              <div className="jippy-outlet-profile-address-full">
+              {/* <div className="jippy-outlet-profile-address-full">
 
                 <span>
                   Full Address
@@ -1252,7 +1334,7 @@ const getMapUrl = () => {
                   {getFullAddress()}
                 </strong>
 
-              </div>
+              </div> */}
 
             </div>
 
@@ -1267,176 +1349,176 @@ const getMapUrl = () => {
     CONTACT DETAILS
 ====================================================== */}
 
-<div className="jippy-outlet-profile-main-card">
+          <div className="jippy-outlet-profile-main-card">
 
-  <div className="jippy-outlet-profile-card-heading">
+            <div className="jippy-outlet-profile-card-heading">
 
-    <FiUser />
+              <FiUser />
 
-    <span>
-      Contact & Account Details
-    </span>
+              <span>
+                Contact & Account Details
+              </span>
 
-  </div>
-
-
-  <div className="jippy-outlet-profile-details-grid">
-
-    {/* EMAIL */}
-
-    <div>
-
-      <span>
-        Email
-      </span>
-
-      <strong>
-        {displayValue(
-          outlet?.outletEmail
-        )}
-      </strong>
-
-    </div>
+            </div>
 
 
-    {/* PHONE NUMBER */}
+            <div className="jippy-outlet-profile-details-grid">
 
-    <div>
+              {/* EMAIL */}
 
-      <span>
-        Phone Number
-      </span>
+              <div>
 
-      <strong>
-        {displayValue(
-          outlet?.outletPhone
-        )}
-      </strong>
+                <span>
+                  Email
+                </span>
 
-    </div>
+                <strong>
+                  {displayValue(
+                    outlet?.outletEmail
+                  )}
+                </strong>
 
-
-    {/* ALTERNATE PHONE */}
-
-    <div>
-
-      <span>
-        Alternate Phone
-      </span>
-
-      <strong>
-        {displayValue(
-          outlet?.alternateOutletPhone
-        )}
-      </strong>
-
-    </div>
+              </div>
 
 
-    {/* ACCOUNT NUMBER */}
+              {/* PHONE NUMBER */}
 
-    <div>
+              <div>
 
-      <span>
-        Account Number
-      </span>
+                <span>
+                  Phone Number
+                </span>
 
-      <strong>
-        {displayValue(
-          outlet?.accountNumber
-        )}
-      </strong>
+                <strong>
+                  {displayValue(
+                    outlet?.outletPhone
+                  )}
+                </strong>
 
-    </div>
-
-
-    {/* ACCOUNT HOLDER */}
-
-    <div>
-
-      <span>
-        Account Holder
-      </span>
-
-      <strong>
-        {displayValue(
-          outlet?.accountHolderName
-        )}
-      </strong>
-
-    </div>
+              </div>
 
 
-    {/* BANK NAME */}
+              {/* ALTERNATE PHONE */}
 
-    <div>
+              <div>
 
-      <span>
-        Bank Name
-      </span>
+                <span>
+                  Alternate Phone
+                </span>
 
-      <strong>
-        {displayValue(
-          outlet?.bankName
-        )}
-      </strong>
+                <strong>
+                  {displayValue(
+                    outlet?.alternateOutletPhone
+                  )}
+                </strong>
 
-    </div>
-
-
-    {/* IFSC CODE */}
-
-    <div>
-
-      <span>
-        IFSC Code
-      </span>
-
-      <strong>
-        {displayValue(
-          outlet?.ifscCode
-        )}
-      </strong>
-
-    </div>
+              </div>
 
 
-    {/* FSSAI NUMBER */}
+              {/* ACCOUNT NUMBER */}
 
-    <div>
+              <div>
 
-      <span>
-        FSSAI Number
-      </span>
+                <span>
+                  Account Number
+                </span>
 
-      <strong>
-        {displayValue(
-          outlet?.fssaiNumber
-        )}
-      </strong>
+                <strong>
+                  {displayValue(
+                    outlet?.accountNumber
+                  )}
+                </strong>
 
-    </div>
+              </div>
 
 
-    {/* GST NUMBER */}
+              {/* ACCOUNT HOLDER */}
 
-    <div>
+              <div>
 
-      <span>
-        GST Number
-      </span>
+                <span>
+                  Account Holder
+                </span>
 
-      <strong>
-        {displayValue(
-          outlet?.gstNumber
-        )}
-      </strong>
+                <strong>
+                  {displayValue(
+                    outlet?.accountHolderName
+                  )}
+                </strong>
 
-    </div>
+              </div>
 
-  </div>
 
-</div>
+              {/* BANK NAME */}
+
+              <div>
+
+                <span>
+                  Bank Name
+                </span>
+
+                <strong>
+                  {displayValue(
+                    outlet?.bankName
+                  )}
+                </strong>
+
+              </div>
+
+
+              {/* IFSC CODE */}
+
+              <div>
+
+                <span>
+                  IFSC Code
+                </span>
+
+                <strong>
+                  {displayValue(
+                    outlet?.ifscCode
+                  )}
+                </strong>
+
+              </div>
+
+
+              {/* FSSAI NUMBER */}
+
+              <div>
+
+                <span>
+                  FSSAI Number
+                </span>
+
+                <strong>
+                  {displayValue(
+                    outlet?.fssaiNumber
+                  )}
+                </strong>
+
+              </div>
+
+
+              {/* GST NUMBER */}
+
+              <div>
+
+                <span>
+                  GST Number
+                </span>
+
+                <strong>
+                  {displayValue(
+                    outlet?.gstNumber
+                  )}
+                </strong>
+
+              </div>
+
+            </div>
+
+          </div>
 
 
           {/* ======================================================
@@ -1623,31 +1705,31 @@ const getMapUrl = () => {
 
               <div className="jippy-outlet-profile-map-header">
 
-  <span>
-    Location Map
-  </span>
+                <span>
+                  Location Map
+                </span>
 
-  {coordinateLocation ? (
-  <span className="jippy-outlet-profile-map-location">
-    <FiMapPin />
-    {coordinateLocation}
-  </span>
-) : null}
+                {coordinateLocation ? (
+                  <span className="jippy-outlet-profile-map-location">
+                    <FiMapPin />
+                    {coordinateLocation}
+                  </span>
+                ) : null}
 
-</div>
+              </div>
 
 
               <div className="jippy-outlet-profile-map">
 
                 {getMapUrl() ? (
 
-   <iframe
-  title="Outlet Location"
-  src={getMapUrl()}
-  loading="lazy"
-  allowFullScreen
-  referrerPolicy="strict-origin-when-cross-origin"
-/>
+                  <iframe
+                    title="Outlet Location"
+                    src={getMapUrl()}
+                    loading="lazy"
+                    allowFullScreen
+                    referrerPolicy="strict-origin-when-cross-origin"
+                  />
 
                 ) : (
 
@@ -1724,10 +1806,10 @@ const getMapUrl = () => {
                           ? "Closed"
 
                           : `${formatTime(
-                              timing?.openingTime
-                            )} - ${formatTime(
-                              timing?.closingTime
-                            )}`}
+                            timing?.openingTime
+                          )} - ${formatTime(
+                            timing?.closingTime
+                          )}`}
 
                       </span>
 
@@ -1824,22 +1906,64 @@ const getMapUrl = () => {
       ======================================================== */}
 
       {activeTab === "Orders" && (
+        <div className="jippy-outlet-profile-main-card">
+          <div className="jippy-outlet-profile-card-heading">
+            <FiPackage />
+            <span>Outlet Orders ({getOrdersCount()})</span>
+          </div>
 
-        <div className="jippy-outlet-profile-empty-tab">
-
-          <FiShoppingBag />
-
-          <h3>
-            Orders
-          </h3>
-
-          <p>
-            Order information will be
-            displayed here.
-          </p>
-
+          {ordersLoading ? (
+            <div className="jippy-outlet-profile-loading" style={{ padding: "40px 0" }}>
+              <FiPackage />
+              <span>Loading orders...</span>
+            </div>
+          ) : outletOrders.length > 0 ? (
+            <div className="jippy-outlet-orders-table-wrapper">
+              <table className="jippy-outlet-orders-table">
+                <thead>
+                  <tr>
+                    <th>Order ID</th>
+                    <th>Customer</th>
+                    <th>Date</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Area</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {outletOrders.map((ord) => (
+                    <tr key={ord.orderId}>
+                      <td className="jippy-order-id-cell">#{ord.orderId}</td>
+                      <td>{ord.customerName || "-"}</td>
+                      <td>
+                        {ord.createdAt
+                          ? new Date(ord.createdAt).toLocaleDateString()
+                          : "-"}
+                      </td>
+                      <td>₹{Number(ord.orderAmount || 0).toLocaleString()}</td>
+                      <td>
+                        <span
+                          className={`jippy-order-status-badge status-${(
+                            ord.orderStatus || ""
+                          ).toLowerCase()}`}
+                        >
+                          {ord.orderStatus || "-"}
+                        </span>
+                      </td>
+                      <td>{ord.areaName || "-"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="jippy-outlet-profile-empty-tab">
+              <FiPackage />
+              <h3>No Orders Found</h3>
+              <p>There are no orders recorded for this outlet yet.</p>
+            </div>
+          )}
         </div>
-
       )}
 
 

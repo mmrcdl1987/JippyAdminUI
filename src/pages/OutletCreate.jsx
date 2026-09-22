@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import Select from "react-select";
+import { FiX, FiFileText } from "react-icons/fi";
 import "../styles/OutletCreate.css";
 
 import {
@@ -9,6 +10,7 @@ import {
   getAreasByCity,
   getCuisineTypes,
 } from "../services/outletService";
+import { getAllMerchants } from "../services/merchantService";
 
 const DAYS = [
   { id: 1, name: "Monday" },
@@ -77,6 +79,13 @@ function OutletCreate({ setActivePage }) {
 
 
   /* =====================================================
+     MERCHANTS
+     ===================================================== */
+
+  const [merchants, setMerchants] = useState([]);
+  const [loadingMerchants, setLoadingMerchants] = useState(false);
+
+  /* =====================================================
      LOCATION
      ===================================================== */
 
@@ -89,6 +98,18 @@ function OutletCreate({ setActivePage }) {
   const [loadingAreas, setLoadingAreas] = useState(false);
 
   const [cuisineOptions, setCuisineOptions] = useState([]);
+
+  /* =====================================================
+     DOCUMENTS (FSSAI & GST - OPTIONAL)
+     ===================================================== */
+
+  const [fssaiFile, setFssaiFile] = useState(null);
+  const [fssaiDocumentUrl, setFssaiDocumentUrl] = useState("");
+  const fssaiFileInputRef = useRef(null);
+
+  const [gstFile, setGstFile] = useState(null);
+  const [gstDocumentUrl, setGstDocumentUrl] = useState("");
+  const gstFileInputRef = useRef(null);
 
 
   /* =====================================================
@@ -211,6 +232,118 @@ const handleDeleteCustomTiming = (index) => {
     }));
   };
 
+
+  /* =====================================================
+     DOCUMENT CHANGE & REMOVE HANDLERS
+     ===================================================== */
+
+  const handleDocumentChange = (e, docType) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      showNotification("error", "File size should be less than 5MB");
+      e.target.value = "";
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = typeof reader.result === "string" ? reader.result : "";
+      if (docType === "fssai") {
+        setFssaiFile(file);
+        setFssaiDocumentUrl(dataUrl);
+      } else if (docType === "gst") {
+        setGstFile(file);
+        setGstDocumentUrl(dataUrl);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveDocument = (docType) => {
+    if (docType === "fssai") {
+      setFssaiFile(null);
+      setFssaiDocumentUrl("");
+      if (fssaiFileInputRef.current) fssaiFileInputRef.current.value = "";
+    } else if (docType === "gst") {
+      setGstFile(null);
+      setGstDocumentUrl("");
+      if (gstFileInputRef.current) gstFileInputRef.current.value = "";
+    }
+  };
+
+
+  /* =====================================================
+     FETCH MERCHANTS
+     ===================================================== */
+
+  useEffect(() => {
+    const fetchMerchants = async () => {
+      try {
+        setLoadingMerchants(true);
+        const response = await getAllMerchants();
+        const list = Array.isArray(response)
+          ? response
+          : Array.isArray(response?.data)
+          ? response.data
+          : Array.isArray(response?.content)
+          ? response.content
+          : Array.isArray(response?.data?.data)
+          ? response.data.data
+          : [];
+        setMerchants(list);
+      } catch (error) {
+        console.error("Failed to fetch merchants:", error);
+      } finally {
+        setLoadingMerchants(false);
+      }
+    };
+
+    fetchMerchants();
+  }, []);
+
+  const merchantOptions = useMemo(() => {
+    return merchants.map((m) => {
+      const id = m.merchantId || m.id;
+      const name =
+        m.merchantName ||
+        m.name ||
+        m.businessName ||
+        `${m.firstName || ""} ${m.lastName || ""}`.trim() ||
+        `Merchant #${id}`;
+      return {
+        value: id,
+        label: `${name} (ID: ${id})`,
+        merchant: m,
+      };
+    });
+  }, [merchants]);
+
+  const handleMerchantChange = (selected) => {
+    setForm((current) => ({
+      ...current,
+      merchantId: selected ? selected.value : "",
+    }));
+    setErrors((current) => ({
+      ...current,
+      merchantId: "",
+    }));
+  };
+
+  const filterMerchantOption = (option, inputValue) => {
+    if (!inputValue) return true;
+    const search = inputValue.toLowerCase();
+    const labelMatch = option.label?.toLowerCase().includes(search);
+    const valueMatch = String(option.value).toLowerCase().includes(search);
+    const phoneMatch = option.data?.merchant?.phone
+      ? String(option.data.merchant.phone).toLowerCase().includes(search)
+      : false;
+    const emailMatch = option.data?.merchant?.email
+      ? String(option.data.merchant.email).toLowerCase().includes(search)
+      : false;
+    return Boolean(labelMatch || valueMatch || phoneMatch || emailMatch);
+  };
 
   useEffect(() => {
   const fetchCuisineTypes = async () => {
@@ -507,7 +640,7 @@ const handleCuisineChange = (selected) => {
     if (!form.merchantId) {
 
       newErrors.merchantId =
-        "Merchant ID is required.";
+        "Please select a merchant.";
     }
 
 
@@ -588,50 +721,32 @@ const handleCuisineChange = (selected) => {
 
 
     /* -----------------------------------------------------
-       FSSAI
-       @NotBlank
-       exactly 14 digits
+       FSSAI (Optional)
+       exactly 14 digits if entered
        ----------------------------------------------------- */
 
-    if (!form.fssaiNumber.trim()) {
-
-      newErrors.fssaiNumber =
-        "FSSAI Number is required.";
-
-    } else if (
-      !/^\d{14}$/.test(
-        form.fssaiNumber.trim()
-      )
-    ) {
-
+    const fssaiVal = (form.fssaiNumber || "").trim();
+    if (fssaiVal && !/^\d{14}$/.test(fssaiVal)) {
       newErrors.fssaiNumber =
         "FSSAI Number must contain exactly 14 digits.";
     }
 
 
     /* -----------------------------------------------------
-       GST
-       @NotBlank
-       exact backend pattern
+       GST (Optional)
+       exact backend pattern if entered
        ----------------------------------------------------- */
 
-    const gstNumber =
-      form.gstNumber
-        .trim()
-        .toUpperCase();
+    const gstVal = (form.gstNumber || "")
+      .trim()
+      .toUpperCase();
 
     const gstRegex =
       /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
 
-    if (!gstNumber) {
-
+    if (gstVal && !gstRegex.test(gstVal)) {
       newErrors.gstNumber =
-        "GST Number is required.";
-
-    } else if (!gstRegex.test(gstNumber)) {
-
-      newErrors.gstNumber =
-        "Invalid GST Number.";
+        "Invalid GST Number format (e.g. 36ABCDE1234F1Z5).";
     }
 
 
@@ -893,12 +1008,24 @@ const handleCuisineChange = (selected) => {
         form.outletEmail.trim(),
 
       fssaiNumber:
-        form.fssaiNumber.trim(),
+        form.fssaiNumber.trim() || null,
 
       gstNumber:
         form.gstNumber
           .trim()
-          .toUpperCase(),
+          .toUpperCase() || null,
+
+      fssaiDocumentUrl:
+        fssaiDocumentUrl || null,
+
+      fssaiDocument:
+        fssaiDocumentUrl || null,
+
+      gstDocumentUrl:
+        gstDocumentUrl || null,
+
+      gstDocument:
+        gstDocumentUrl || null,
 
       username:
         form.username.trim(),
@@ -1262,20 +1389,38 @@ console.error(
             </div>
 
 
-            {/* MERCHANT ID */}
+            {/* MERCHANT */}
 
             <div className="jippy-outlet-create-field">
 
               <label>
-                Merchant ID <span>*</span>
+                Merchant <span>*</span>
               </label>
 
-              <input
-                name="merchantId"
-                type="number"
-                value={form.merchantId}
-                onChange={handleChange}
-                placeholder="Enter merchant ID"
+              <Select
+                className="jippy-outlet-create-select"
+                classNamePrefix="jippy-outlet-create-select"
+                isLoading={loadingMerchants}
+                isSearchable
+                isClearable
+                options={merchantOptions}
+                value={
+                  merchantOptions.find(
+                    (item) => String(item.value) === String(form.merchantId)
+                  ) || null
+                }
+                onChange={handleMerchantChange}
+                filterOption={filterMerchantOption}
+                placeholder={
+                  loadingMerchants
+                    ? "Loading merchants..."
+                    : "Select or search merchant..."
+                }
+                noOptionsMessage={() =>
+                  loadingMerchants
+                    ? "Loading merchants..."
+                    : "No merchants found"
+                }
               />
 
               {errors.merchantId && (
@@ -1396,12 +1541,12 @@ console.error(
             </div>
 
 
-            {/* FSSAI */}
+            {/* FSSAI NUMBER */}
 
             <div className="jippy-outlet-create-field">
 
               <label>
-                FSSAI Number <span>*</span>
+                FSSAI Number <span className="jippy-outlet-create-optional-tag">(Optional)</span>
               </label>
 
               <input
@@ -1409,7 +1554,7 @@ console.error(
                 value={form.fssaiNumber}
                 onChange={handleChange}
                 maxLength={14}
-                placeholder="14-digit FSSAI number"
+                placeholder="Enter 14-digit FSSAI number"
               />
 
               {errors.fssaiNumber && (
@@ -1421,12 +1566,53 @@ console.error(
             </div>
 
 
-            {/* GST */}
+            {/* FSSAI DOCUMENT */}
 
             <div className="jippy-outlet-create-field">
 
               <label>
-                GST Number <span>*</span>
+                FSSAI Certificate / Document <span className="jippy-outlet-create-optional-tag">(Optional)</span>
+              </label>
+
+              <div className="jippy-outlet-file-upload-wrapper">
+                <input
+                  ref={fssaiFileInputRef}
+                  type="file"
+                  accept="image/*,.pdf"
+                  onChange={(e) => handleDocumentChange(e, "fssai")}
+                  className="jippy-outlet-file-input"
+                  id="fssai-document-input"
+                />
+
+                {fssaiFile && (
+                  <div className="jippy-outlet-file-info">
+                    <span className="jippy-outlet-file-name" title={fssaiFile.name}>
+                      <FiFileText /> {fssaiFile.name}
+                    </span>
+                    <span className="jippy-outlet-file-size">
+                      {(fssaiFile.size / 1024).toFixed(1)} KB
+                    </span>
+                    <button
+                      type="button"
+                      className="jippy-outlet-remove-file-btn"
+                      onClick={() => handleRemoveDocument("fssai")}
+                      title="Remove file"
+                    >
+                      <FiX />
+                    </button>
+                  </div>
+                )}
+              </div>
+
+            </div>
+
+
+            {/* GST NUMBER */}
+
+            <div className="jippy-outlet-create-field">
+
+              <label>
+                GST Number <span className="jippy-outlet-create-optional-tag">(Optional)</span>
               </label>
 
               <input
@@ -1434,7 +1620,7 @@ console.error(
                 value={form.gstNumber}
                 onChange={handleChange}
                 maxLength={15}
-                placeholder="36ABCDE1234F1Z5"
+                placeholder="Enter GST number (e.g. 36ABCDE1234F1Z5)"
               />
 
               {errors.gstNumber && (
@@ -1442,6 +1628,47 @@ console.error(
                   {errors.gstNumber}
                 </small>
               )}
+
+            </div>
+
+
+            {/* GST DOCUMENT */}
+
+            <div className="jippy-outlet-create-field">
+
+              <label>
+                GST Certificate / Document <span className="jippy-outlet-create-optional-tag">(Optional)</span>
+              </label>
+
+              <div className="jippy-outlet-file-upload-wrapper">
+                <input
+                  ref={gstFileInputRef}
+                  type="file"
+                  accept="image/*,.pdf"
+                  onChange={(e) => handleDocumentChange(e, "gst")}
+                  className="jippy-outlet-file-input"
+                  id="gst-document-input"
+                />
+
+                {gstFile && (
+                  <div className="jippy-outlet-file-info">
+                    <span className="jippy-outlet-file-name" title={gstFile.name}>
+                      <FiFileText /> {gstFile.name}
+                    </span>
+                    <span className="jippy-outlet-file-size">
+                      {(gstFile.size / 1024).toFixed(1)} KB
+                    </span>
+                    <button
+                      type="button"
+                      className="jippy-outlet-remove-file-btn"
+                      onClick={() => handleRemoveDocument("gst")}
+                      title="Remove file"
+                    >
+                      <FiX />
+                    </button>
+                  </div>
+                )}
+              </div>
 
             </div>
 

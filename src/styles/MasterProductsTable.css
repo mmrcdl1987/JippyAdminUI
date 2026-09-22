@@ -1,7 +1,149 @@
+/* ============================================================
+   MASTER PRODUCTS TABLE
+   JippyMart Admin UI • Categories Design System Alignment
+   ============================================================ */
+
+.master-products-table {
+  width: 100%;
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #e8eaf3;
+  box-shadow: 0 4px 24px rgba(28, 36, 64, 0.04);
+  overflow: hidden;
+  margin-top: 10px;
+  box-sizing: border-box;
+}
+
+.master-products-table table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-family: inherit;
+}
+
+/* Header */
+.master-products-table thead tr {
+  background: #f8fafc;
+}
+
+.master-products-table thead th {
+  background: #f8fafc;
+  color: #475569;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  padding: 14px 18px;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+  white-space: nowrap;
+}
+
+.master-products-table thead th:first-child {
+  width: 48px;
+  text-align: center;
+}
+
+/* Rows */
+.master-products-table tbody tr {
+  transition: background-color 0.15s ease;
+}
+
+.master-products-table tbody tr:hover > td {
+  background: #fbf9ff;
+}
+
+.master-products-table tbody td {
+  padding: 14px 18px;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+  color: #1e293b;
+  font-size: 13.5px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.master-products-table tbody td:first-child {
+  text-align: center;
+  padding-left: 14px;
+  padding-right: 8px;
+}
+
+/* Expand Button */
+.expand-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #64748b;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.2s ease;
+}
+
+.expand-btn:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+  border-color: #cbd5e1;
+}
+
+/* Product ID Badge */
+.product-id-badge {
+  font-family: monospace;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #6366f1;
+  background: #f5f3ff;
+  border: 1px solid #ddd6fe;
+  padding: 3px 8px;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+/* Diet Badges */
+.diet-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.diet-badge.veg {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.diet-badge.non-veg {
+  background: #fff1f2;
+  color: #be123c;
+  border: 1px solid #fecdd3;
+}
+
+/* Product Table Image */
+.product-table-img {
+  width: 52px;
+  height: 52px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+  vertical-align: middle;
+}
+
+/* Toggle Switch */
 .publish-switch {
   position: relative;
   display: inline-block;
-  width: 46px;
+  width: 44px;
   height: 24px;
   cursor: pointer;
 }
@@ -15,10 +157,11 @@
 .publish-slider {
   position: absolute;
   inset: 0;
-  background: #ef4444; /* Red = OFF */
+  background: #cbd5e1;
   border-radius: 24px;
-  transition: 0.3s;
+  transition: all 0.3s ease;
   cursor: pointer;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .publish-slider::before {
@@ -28,151 +171,122 @@
   height: 18px;
   left: 3px;
   top: 3px;
-  background: white;
+  background: #ffffff;
   border-radius: 50%;
-  transition: 0.3s;
+  transition: all 0.3s ease;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
 }
 
 .publish-switch input:checked + .publish-slider {
-  background: #22c55e; /* Green = ON */
+  background: linear-gradient(135deg, #2563eb, #4f46e5);
 }
 
 .publish-switch input:checked + .publish-slider::before {
-  transform: translateX(22px);
+  transform: translateX(20px);
 }
 
-.expanded-content{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:14px 30px;
-  padding:20px;
-  background:#fafafa;
-  border-radius:10px;
-    word-break: break-word;
-}
-
-.expanded-content div{
-  font-size:14px;
-  color:#444;
-}
-
-.expanded-content strong{
-  color:#222;
-}
-
-.expanded-table{
-    width:100%;
-    border-collapse:collapse;
-    background:#fafafa;
-    border-radius:10px;
-    overflow:hidden;
-}
-
-.expanded-table td{
-    padding:12px 16px;
-    border:1px solid #e5e7eb;
-    font-size:14px;
-    color:#444;
-    vertical-align:top;
-}
-
-.expanded-table td:nth-child(odd){
-    width:18%;
-    font-weight:600;
-    color:#222;
-    background:#f3f4f6;
-}
-
-.expanded-row td{
-    padding:0 !important;
-    background:#fff;
-}
-
-.master-toolbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 20px;
-  margin: 20px 0;
-}
-
-.master-search {
-  position: relative;
-  width: 350px;
-}
-
-.master-search input {
-  width: 100%;
-  padding: 10px 15px 10px 42px;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  font-size: 14px;
-  outline: none;
-}
-
-.master-search input:focus {
-  border-color: #2563eb;
-}
-
-.search-icon {
-  position: absolute;
-  left: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  pointer-events: none; 
-  font-size: 16px;
-  color: #6b7280;
-}
-/* Action Icons - Larger Version */
+/* Action Icons */
 .action-icons {
   display: flex;
   align-items: center;
-  gap: 12px; /* Increased gap */
+  gap: 10px;
 }
 
 .action-icons .edit-icon,
 .action-icons .delete-icon {
   cursor: pointer;
-  font-size: 22px; /* Increased from 16px */
+  font-size: 16px;
   transition: all 0.2s ease;
-  padding: 8px; /* Increased from 4px */
-  border-radius: 6px;
-  width: 40px; /* Fixed width */
-  height: 40px; /* Fixed height */
+  border-radius: 8px;
+  width: 36px;
+  height: 36px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
 }
 
 .action-icons .edit-icon {
-  color: #3b82f6;
-  background: rgba(59, 130, 246, 0.08);
+  color: #4f46e5;
+  background: #f0eeff;
+  border: 1px solid #ddd6fe;
 }
 
 .action-icons .edit-icon:hover {
-  color: #1d4ed8;
-  background: rgba(59, 130, 246, 0.15);
-  transform: scale(1.1);
+  color: #3730a3;
+  background: #e0e7ff;
+  border-color: #c7d2fe;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.15);
 }
 
 .action-icons .delete-icon {
-  color: #ef4444;
-  background: rgba(239, 68, 68, 0.08);
+  color: #e11d48;
+  background: #fff1f2;
+  border: 1px solid #fecdd3;
 }
 
 .action-icons .delete-icon:hover {
-  color: #dc2626;
-  background: rgba(239, 68, 68, 0.15);
-  transform: scale(1.1);
+  color: #be123c;
+  background: #ffe4e6;
+  border-color: #fda4af;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(225, 29, 72, 0.15);
 }
 
-/* Even larger for mobile (optional) */
-@media (max-width: 768px) {
-  .action-icons .edit-icon,
-  .action-icons .delete-icon {
-    font-size: 20px;
-    width: 36px;
-    height: 36px;
-    padding: 6px;
-  }
+/* Expanded Content */
+.expanded-row > td {
+  padding: 20px 24px !important;
+  background: #fafaff !important;
+  border-bottom: 2px solid #ede9fe;
+}
+
+.expanded-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: #ffffff;
+  border: 1px solid #e0e7ff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(79, 70, 229, 0.04);
+}
+
+.expanded-table td {
+  padding: 12px 18px;
+  border-bottom: 1px solid #edf0f7;
+  border-right: 1px solid #edf0f7;
+  font-size: 13px;
+  color: #334155;
+  vertical-align: middle;
+}
+
+.expanded-table tr:last-child td {
+  border-bottom: none;
+}
+
+.expanded-table td:nth-child(odd) {
+  width: 16%;
+  font-weight: 700;
+  color: #4f46e5;
+  background: #f8faff;
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.expanded-table td:nth-child(even) {
+  width: 34%;
+  font-weight: 500;
+  color: #0f172a;
+}
+
+.expanded-content {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px 30px;
+  padding: 20px;
+  background: #ffffff;
+  border: 1px solid #e0e7ff;
+  border-radius: 12px;
+  word-break: break-word;
 }

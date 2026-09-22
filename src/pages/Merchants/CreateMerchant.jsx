@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "../../styles/Merchants/CreateMerchant.css";
-import { FiArrowLeft, FiEye, FiEyeOff } from "react-icons/fi";
+import { FiArrowLeft, FiEye, FiEyeOff, FiX } from "react-icons/fi";
 import {
   getStates,
   getCitiesByState,
@@ -20,6 +20,22 @@ function CreateMerchant({ setActivePage }) {
 
   // State for password visibility
   const [showPassword, setShowPassword] = useState(false);
+
+  // State for Document Files & Data URLs
+  const [aadharFile, setAadharFile] = useState(null);
+  const [panFile, setPanFile] = useState(null);
+  const [fssaiFile, setFssaiFile] = useState(null);
+  const [gstFile, setGstFile] = useState(null);
+
+  const [aadhaarNumberUrl, setAadhaarNumberUrl] = useState("");
+  const [panNumberUrl, setPanNumberUrl] = useState("");
+  const [fssaiDocumentUrl, setFssaiDocumentUrl] = useState("");
+  const [gstDocumentUrl, setGstDocumentUrl] = useState("");
+
+  const aadharFileInputRef = useRef(null);
+  const panFileInputRef = useRef(null);
+  const fssaiFileInputRef = useRef(null);
+  const gstFileInputRef = useRef(null);
 
   const [merchant, setMerchant] = useState({
     firstName: "",
@@ -114,17 +130,86 @@ function CreateMerchant({ setActivePage }) {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    let val = value;
+
+    // Automatically sanitize and normalize inputs
+    if (name === "pan") {
+      val = value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 10);
+    } else if (name === "ifscCode") {
+      val = value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 11);
+    } else if (name === "gstNumber") {
+      val = value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 15);
+    } else if (name === "fssai") {
+      val = value.replace(/\D/g, "").slice(0, 14);
+    } else if (name === "phone") {
+      val = value.replace(/\D/g, "").slice(0, 10);
+    } else if (name === "adhar") {
+      val = value.replace(/\D/g, "").slice(0, 12);
+    } else if (name === "accountNumber") {
+      val = value.replace(/\D/g, "").slice(0, 18);
+    }
+
     setMerchant((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: val,
     }));
     setErrors((prev) => ({
       ...prev,
       [name]: "",
     }));
 
-    if (name === "stateId") fetchCities(value);
-    if (name === "cityId") fetchAreas(value);
+    if (name === "stateId") fetchCities(val);
+    if (name === "cityId") fetchAreas(val);
+  };
+
+  const handleFileChange = (e, docType) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert("File size should be less than 5MB");
+      e.target.value = "";
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = typeof reader.result === "string" ? reader.result : "";
+      if (docType === "aadhar") {
+        setAadharFile(file);
+        setAadhaarNumberUrl(dataUrl);
+      } else if (docType === "pan") {
+        setPanFile(file);
+        setPanNumberUrl(dataUrl);
+      } else if (docType === "fssai") {
+        setFssaiFile(file);
+        setFssaiDocumentUrl(dataUrl);
+      } else if (docType === "gst") {
+        setGstFile(file);
+        setGstDocumentUrl(dataUrl);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveFile = (docType) => {
+    if (docType === "aadhar") {
+      setAadharFile(null);
+      setAadhaarNumberUrl("");
+      if (aadharFileInputRef.current) aadharFileInputRef.current.value = "";
+    } else if (docType === "pan") {
+      setPanFile(null);
+      setPanNumberUrl("");
+      if (panFileInputRef.current) panFileInputRef.current.value = "";
+    } else if (docType === "fssai") {
+      setFssaiFile(null);
+      setFssaiDocumentUrl("");
+      if (fssaiFileInputRef.current) fssaiFileInputRef.current.value = "";
+    } else if (docType === "gst") {
+      setGstFile(null);
+      setGstDocumentUrl("");
+      if (gstFileInputRef.current) gstFileInputRef.current.value = "";
+    }
   };
 
   const validateForm = () => {
@@ -161,9 +246,10 @@ function CreateMerchant({ setActivePage }) {
     }
 
     /* PHONE */
-    if (!merchant.phone.trim()) {
+    const phoneVal = (merchant.phone || "").trim().replace(/[\s-]/g, "");
+    if (!phoneVal) {
       newErrors.phone = "Phone Number is required";
-    } else if (!/^[6-9]\d{9}$/.test(merchant.phone)) {
+    } else if (!/^[6-9]\d{9}$/.test(phoneVal)) {
       newErrors.phone = "Enter valid 10 digit Indian mobile number";
     }
 
@@ -175,7 +261,7 @@ function CreateMerchant({ setActivePage }) {
     }
 
     /* PASSWORD */
-    if (!merchant.password.trim()) {
+    if (!merchant.password) {
       newErrors.password = "Password is required";
     } else if (
       !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&+=!]).{8,20}$/.test(
@@ -193,31 +279,29 @@ function CreateMerchant({ setActivePage }) {
       newErrors.outletType = "Outlet Type cannot exceed 50 characters";
     }
 
-    /* PAN */
-    if (!merchant.pan.trim()) {
-      newErrors.pan = "PAN Number is required";
-    } else if (!/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(merchant.pan)) {
+    /* PAN (optional, validate format only if provided) */
+    const panVal = (merchant.pan || "").trim().toUpperCase().replace(/\s/g, "");
+    if (panVal && !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/i.test(panVal)) {
       newErrors.pan = "PAN format should be AAAAA9999A";
     }
 
-    /* AADHAAR */
-    if (!merchant.adhar.trim()) {
-      newErrors.adhar = "Aadhaar Number is required";
-    } else if (!/^[2-9]{1}[0-9]{11}$/.test(merchant.adhar)) {
+    /* AADHAAR (optional, validate format only if provided) */
+    const adharVal = (merchant.adhar || "").trim().replace(/[\s-]/g, "");
+    if (adharVal && !/^[2-9]{1}[0-9]{11}$/.test(adharVal)) {
       newErrors.adhar = "Aadhaar must be a valid 12 digit number";
     }
 
     /* FSSAI (optional, validate only if provided) */
-    if (merchant.fssai && !/^[0-9]{14}$/.test(merchant.fssai)) {
+    const fssaiVal = (merchant.fssai || "").trim();
+    if (fssaiVal && !/^[0-9]{14}$/.test(fssaiVal)) {
       newErrors.fssai = "FSSAI must be a 14 digit number";
     }
 
     /* GST (optional, validate only if provided) */
+    const gstVal = (merchant.gstNumber || "").trim().toUpperCase().replace(/\s/g, "");
     if (
-      merchant.gstNumber &&
-      !/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(
-        merchant.gstNumber
-      )
+      gstVal &&
+      !/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/i.test(gstVal)
     ) {
       newErrors.gstNumber = "Enter a valid GST number (e.g. 36ABCDE1234F1Z5)";
     }
@@ -255,12 +339,14 @@ function CreateMerchant({ setActivePage }) {
     }
 
     /* ACCOUNT NUMBER */
-    if (merchant.accountNumber && !/^[0-9]{9,18}$/.test(merchant.accountNumber)) {
+    const accVal = (merchant.accountNumber || "").trim().replace(/[\s-]/g, "");
+    if (accVal && !/^[0-9]{9,18}$/.test(accVal)) {
       newErrors.accountNumber = "Account Number must be between 9 and 18 digits";
     }
 
     /* IFSC */
-    if (merchant.ifscCode && !/^[A-Z]{4}0[A-Z0-9]{6}$/.test(merchant.ifscCode)) {
+    const ifscVal = (merchant.ifscCode || "").trim().toUpperCase().replace(/\s/g, "");
+    if (ifscVal && !/^[A-Z]{4}0[A-Z0-9]{6}$/i.test(ifscVal)) {
       newErrors.ifscCode = "IFSC format should be ABCD0123456";
     }
 
@@ -278,10 +364,8 @@ function CreateMerchant({ setActivePage }) {
         "Name In Bank Account cannot exceed 150 characters";
     }
 
-    /* DOB */
-    if (!merchant.dob) {
-      newErrors.dob = "Date Of Birth is required";
-    } else if (!/^(\d{4}-\d{2}-\d{2})/.test(merchant.dob)) {
+    /* DOB (optional, validate format only if provided) */
+    if (merchant.dob && !/^(\d{4}-\d{2}-\d{2})/.test(merchant.dob)) {
       newErrors.dob = "DOB must be YYYY-MM-DD";
     }
 
@@ -295,19 +379,69 @@ function CreateMerchant({ setActivePage }) {
     try {
       setLoading(true);
 
-      // Prepare JSON payload — convert IDs to integers
+      // Prepare JSON payload — sanitize strings and convert IDs to integers
       const payload = {
         ...merchant,
+        firstName: (merchant.firstName || "").trim(),
+        lastName: (merchant.lastName || "").trim(),
+        email: (merchant.email || "").trim(),
+        username: (merchant.username || "").trim(),
+        buildingNumber: (merchant.buildingNumber || "").trim(),
+        road: (merchant.road || "").trim(),
+        landmark: (merchant.landmark || "").trim(),
+        bankLocation: (merchant.bankLocation || "").trim(),
+        nameInBankAccount: (merchant.nameInBankAccount || "").trim(),
+        pan: (merchant.pan || "").trim().toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 10),
+        ifscCode: (merchant.ifscCode || "").trim().toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 11),
+        gstNumber: (merchant.gstNumber || "").trim().toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 15),
+        fssai: (merchant.fssai || "").trim().replace(/\D/g, "").slice(0, 14),
+        adhar: (merchant.adhar || "").trim().replace(/\D/g, "").slice(0, 12),
+        phone: (merchant.phone || "").trim().replace(/\D/g, "").slice(0, 10),
+        accountNumber: (merchant.accountNumber || "").trim().replace(/\D/g, "").slice(0, 18),
         stateId: merchant.stateId ? parseInt(merchant.stateId) : null,
         cityId: merchant.cityId ? parseInt(merchant.cityId) : null,
         areaId: merchant.areaId ? parseInt(merchant.areaId) : null,
       };
 
       // Strip empty optional fields so backend only receives them if provided
+      if (!payload.pan) delete payload.pan;
+      if (!payload.adhar) delete payload.adhar;
+      if (!payload.dob) delete payload.dob;
       if (!payload.fssai) delete payload.fssai;
       if (!payload.gstNumber) delete payload.gstNumber;
+      if (!payload.accountNumber) delete payload.accountNumber;
+      if (!payload.ifscCode) delete payload.ifscCode;
+      if (!payload.bankLocation) delete payload.bankLocation;
+      if (!payload.nameInBankAccount) delete payload.nameInBankAccount;
+      if (!payload.road) delete payload.road;
+      if (!payload.landmark) delete payload.landmark;
       if (!payload.latitude) delete payload.latitude;
       if (!payload.longitude) delete payload.longitude;
+
+      // Attach documents if provided
+      if (aadhaarNumberUrl) {
+        payload.aadhaarNumberUrl = aadhaarNumberUrl;
+        payload.aadharDocumentUrl = aadhaarNumberUrl;
+        payload.aadharDocument = aadhaarNumberUrl;
+      }
+      if (panNumberUrl) {
+        payload.panNumberUrl = panNumberUrl;
+        payload.panDocumentUrl = panNumberUrl;
+        payload.panDocument = panNumberUrl;
+      }
+      if (fssaiDocumentUrl) {
+        payload.fssaiDocumentUrl = fssaiDocumentUrl;
+      }
+      if (gstDocumentUrl) {
+        payload.gstDocumentUrl = gstDocumentUrl;
+      }
+
+      if (merchant.pan) {
+        payload.panNumber = payload.pan;
+      }
+      if (merchant.adhar) {
+        payload.aadharNumber = payload.adhar;
+      }
 
       const response = await FM_API.post(
         "/api/fm/merchants/createMerchant",
@@ -678,9 +812,7 @@ function CreateMerchant({ setActivePage }) {
             <h3 className="create-merchant-section-header">Government Details</h3>
             <div className="create-merchant-grid">
               <div className="create-merchant-field">
-                <label>
-                  PAN Number<span className="required-star">*</span>
-                </label>
+                <label>PAN Number</label>
                 <input
                   type="text"
                   name="pan"
@@ -688,7 +820,7 @@ function CreateMerchant({ setActivePage }) {
                   value={merchant.pan}
                   onChange={handleChange}
                   className={errors.pan ? "create-merchant-input-error" : ""}
-                  placeholder="e.g., ABCDE1234F"
+                  placeholder="e.g., ABCDE1234F (optional)"
                 />
                 {errors.pan && (
                   <p className="create-merchant-error">{errors.pan}</p>
@@ -696,9 +828,7 @@ function CreateMerchant({ setActivePage }) {
               </div>
 
               <div className="create-merchant-field">
-                <label>
-                  Aadhaar Number<span className="required-star">*</span>
-                </label>
+                <label>Aadhaar Number</label>
                 <input
                   type="text"
                   name="adhar"
@@ -706,7 +836,7 @@ function CreateMerchant({ setActivePage }) {
                   value={merchant.adhar}
                   onChange={handleChange}
                   className={errors.adhar ? "create-merchant-input-error" : ""}
-                  placeholder="Enter 12 digit Aadhaar number"
+                  placeholder="Enter 12 digit Aadhaar number (optional)"
                 />
                 {errors.adhar && (
                   <p className="create-merchant-error">{errors.adhar}</p>
@@ -714,9 +844,7 @@ function CreateMerchant({ setActivePage }) {
               </div>
 
               <div className="create-merchant-field">
-                <label>
-                  Date of Birth<span className="required-star">*</span>
-                </label>
+                <label>Date of Birth</label>
                 <input
                   type="date"
                   name="dob"
@@ -759,6 +887,136 @@ function CreateMerchant({ setActivePage }) {
                 {errors.gstNumber && (
                   <p className="create-merchant-error">{errors.gstNumber}</p>
                 )}
+              </div>
+            </div>
+          </div>
+
+          {/* KYC DOCUMENTS */}
+          <div className="create-merchant-section">
+            <h3 className="create-merchant-section-header">KYC Documents (Optional)</h3>
+            <div className="create-merchant-grid">
+              <div className="create-merchant-field">
+                <label>Aadhaar Card Document</label>
+                <div className="create-merchant-file-upload-wrapper">
+                  <input
+                    ref={aadharFileInputRef}
+                    type="file"
+                    accept="image/*,.pdf"
+                    onChange={(e) => handleFileChange(e, "aadhar")}
+                    className="create-merchant-file-input"
+                  />
+                  {aadharFile && (
+                    <div className="create-merchant-file-info">
+                      <span className="create-merchant-file-name" title={aadharFile.name}>
+                        📄 {aadharFile.name}
+                      </span>
+                      <span className="create-merchant-file-size">
+                        {(aadharFile.size / 1024).toFixed(1)} KB
+                      </span>
+                      <button
+                        type="button"
+                        className="create-merchant-remove-file-btn"
+                        onClick={() => handleRemoveFile("aadhar")}
+                        title="Remove file"
+                      >
+                        <FiX />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="create-merchant-field">
+                <label>PAN Card Document</label>
+                <div className="create-merchant-file-upload-wrapper">
+                  <input
+                    ref={panFileInputRef}
+                    type="file"
+                    accept="image/*,.pdf"
+                    onChange={(e) => handleFileChange(e, "pan")}
+                    className="create-merchant-file-input"
+                  />
+                  {panFile && (
+                    <div className="create-merchant-file-info">
+                      <span className="create-merchant-file-name" title={panFile.name}>
+                        📄 {panFile.name}
+                      </span>
+                      <span className="create-merchant-file-size">
+                        {(panFile.size / 1024).toFixed(1)} KB
+                      </span>
+                      <button
+                        type="button"
+                        className="create-merchant-remove-file-btn"
+                        onClick={() => handleRemoveFile("pan")}
+                        title="Remove file"
+                      >
+                        <FiX />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="create-merchant-field">
+                <label>FSSAI Certificate</label>
+                <div className="create-merchant-file-upload-wrapper">
+                  <input
+                    ref={fssaiFileInputRef}
+                    type="file"
+                    accept="image/*,.pdf"
+                    onChange={(e) => handleFileChange(e, "fssai")}
+                    className="create-merchant-file-input"
+                  />
+                  {fssaiFile && (
+                    <div className="create-merchant-file-info">
+                      <span className="create-merchant-file-name" title={fssaiFile.name}>
+                        📄 {fssaiFile.name}
+                      </span>
+                      <span className="create-merchant-file-size">
+                        {(fssaiFile.size / 1024).toFixed(1)} KB
+                      </span>
+                      <button
+                        type="button"
+                        className="create-merchant-remove-file-btn"
+                        onClick={() => handleRemoveFile("fssai")}
+                        title="Remove file"
+                      >
+                        <FiX />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="create-merchant-field">
+                <label>GST Certificate</label>
+                <div className="create-merchant-file-upload-wrapper">
+                  <input
+                    ref={gstFileInputRef}
+                    type="file"
+                    accept="image/*,.pdf"
+                    onChange={(e) => handleFileChange(e, "gst")}
+                    className="create-merchant-file-input"
+                  />
+                  {gstFile && (
+                    <div className="create-merchant-file-info">
+                      <span className="create-merchant-file-name" title={gstFile.name}>
+                        📄 {gstFile.name}
+                      </span>
+                      <span className="create-merchant-file-size">
+                        {(gstFile.size / 1024).toFixed(1)} KB
+                      </span>
+                      <button
+                        type="button"
+                        className="create-merchant-remove-file-btn"
+                        onClick={() => handleRemoveFile("gst")}
+                        title="Remove file"
+                      >
+                        <FiX />
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>

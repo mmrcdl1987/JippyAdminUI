@@ -175,6 +175,11 @@ export const menuData = [
             name: "Approval Pending Drivers",
             permission: "DRIVER_READ",
           },
+          {
+            name: "Driver Settings",
+            pageKey: "driverSettings",
+            permission: "DRIVER_READ",
+          },
         ],
       },
     ],
@@ -224,10 +229,10 @@ export const menuData = [
         pageKey: "categories",
         permission: "CATEGORY_READ",
       },
-      {
-        name: "Foods",
-        permission: "RESTAURANT_READ",
-      },
+      // {
+      //   name: "Foods",
+      //   permission: "RESTAURANT_READ",
+      // },
       // {
       //   name: "Compare File",
       //   pageKey: "compareFile",
@@ -241,19 +246,19 @@ export const menuData = [
       //   name: "Mart Items",
       //   permission: "RESTAURANT_READ",
       // },
-      {
-        name: "Attributes",
-        children: [
-          {
-            name: "Food Attributes",
-            permission: "RESTAURANT_READ",
-          },
-          {
-            name: "Review Attributes",
-            permission: "RESTAURANT_READ",
-          },
-        ],
-      },
+      // {
+      //   name: "Attributes",
+      //   children: [
+      //     {
+      //       name: "Food Attributes",
+      //       permission: "RESTAURANT_READ",
+      //     },
+      //     {
+      //       name: "Review Attributes",
+      //       permission: "RESTAURANT_READ",
+      //     },
+      //   ],
+      // },
     //   {
     //     name: "Menu Periods",
     //     permission: "RESTAURANT_READ",
@@ -275,6 +280,11 @@ export const menuData = [
           {
             name: "Banner Designer",
             pageKey: "bannerDesigner",
+            permission: "PROMOTION_READ",
+          },
+          {
+            name: "Promotion Products",
+            pageKey: "promotionProducts",
             permission: "PROMOTION_READ",
           },
           {
@@ -313,10 +323,21 @@ export const menuData = [
     permission: "SUBSCRIPTION_READ",
     items: [
       {
+        name: "Subscription Settings",
+        pageKey: "subscriptionPlanSettings",
+        permission: "SUBSCRIPTION_READ",
+      },
+      {
         name: "Subscription Plan",
         children: [
           {
+            name: "Subscription Settings",
+            pageKey: "subscriptionPlanSettings",
+            permission: "SUBSCRIPTION_READ",
+          },
+          {
             name: "Subscription Plan",
+            pageKey: "subscriptionPlanSettings",
             permission: "SUBSCRIPTION_READ",
           },
           {
@@ -486,11 +507,11 @@ export const menuData = [
           //   pageKey: "taxSettings",
           //   permission: "SETTINGS_READ",
           // },
-          // {
-          //   name: "Driver Settings",
-          //   pageKey: "driverSettings",
-          //   permission: "SETTINGS_READ",
-          // },
+          {
+            name: "Driver Settings",
+            pageKey: "driverSettings",
+            permission: "SETTINGS_READ",
+          },
           {
             name: "Delivery Charge",
             pageKey: "deliveryCharge",
@@ -528,11 +549,11 @@ export const menuData = [
             pageKey: "orderSettings",
             permission: "SETTINGS_READ",
           },
-          {
-            name: "Subscription Plan Settings",
-            pageKey: "subscriptionPlanSettings",
-            permission: "SETTINGS_READ",
-          },
+          // {
+          //   name: "Subscription Plan Settings",
+          //   pageKey: "subscriptionPlanSettings",
+          //   permission: "SETTINGS_READ",
+          // },
 
           // {
           //   name: "Mart Settings",
@@ -587,6 +608,16 @@ export const menuData = [
           {
             name: "Promotion Settings",
             pageKey: "promotionSettings",
+            permission: "PROMOTION_READ",
+          },
+          {
+            name: "Promotion Products",
+            pageKey: "promotionProducts",
+            permission: "PROMOTION_READ",
+          },
+          {
+            name: "Promotion Plans History",
+            pageKey: "promotionPlansHistory",
             permission: "PROMOTION_READ",
           },
         ],

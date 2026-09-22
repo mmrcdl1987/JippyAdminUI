@@ -1,6 +1,8 @@
 import {
+  FiEye,
   FiEdit2,
   FiTrash2,
+  FiMapPin,
 } from "react-icons/fi";
 
 function DriverTableRow({
@@ -9,65 +11,36 @@ function DriverTableRow({
   onEdit,
   onDelete,
 }) {
-  /*
-   * =========================================================
-   * PROFILE IMAGE
-   * =========================================================
-   */
   const profileImage =
     driver?.profilePicUrl ||
     driver?.profilePicture ||
     null;
 
-  /*
-   * =========================================================
-   * DRIVER NAME CLICK
-   * =========================================================
-   *
-   * Clicking the driver first name will open
-   * the separate DriverDetails page.
-   */
+  const driverId =
+    driver?.driverId ||
+    driver?.id ||
+    "-";
+
+  const firstName = driver?.firstName || "";
+  const lastName = driver?.lastName || "";
+  const fullName =
+    [firstName, lastName].filter(Boolean).join(" ") || `Driver #${driverId}`;
+
+  const initial = (firstName?.[0] || fullName?.[0] || "D").toUpperCase();
+
   const handleDriverNameClick = () => {
-    if (!driver) {
-      console.error(
-        "Driver data not found."
-      );
-      return;
-    }
-
-    const driverId =
-      driver?.driverId ||
-      driver?.id;
-
-    if (!driverId) {
-      console.error(
-        "Driver ID not found:",
-        driver
-      );
-      return;
-    }
-
+    if (!driver) return;
     if (onView) {
       onView(driver);
     }
   };
 
-  /*
-   * =========================================================
-   * EDIT DRIVER
-   * =========================================================
-   */
   const handleEditClick = () => {
     if (onEdit) {
       onEdit(driver);
     }
   };
 
-  /*
-   * =========================================================
-   * DELETE DRIVER
-   * =========================================================
-   */
   const handleDeleteClick = () => {
     if (onDelete) {
       onDelete(driver);
@@ -76,130 +49,109 @@ function DriverTableRow({
 
   return (
     <tr className="jippy-driver-main-row">
-
-      {/* =====================================================
-          DRIVER ID
-          ===================================================== */}
-      <td>
-        {driver?.driverId ||
-          driver?.id ||
-          "-"}
+      {/* DRIVER ID */}
+      <td className="cat-id">
+        <span>#{driverId}</span>
       </td>
 
-      {/* =====================================================
-          FIRST NAME
-          CLICKABLE HYPERLINK
-          ===================================================== */}
+      {/* DRIVER NAME & AVATAR */}
       <td>
-        {driver?.firstName ? (
-          <button
-            type="button"
-            className="jippy-driver-name-link"
-            onClick={
-              handleDriverNameClick
-            }
-            title="Open Driver Details"
-          >
-            {driver.firstName}
-          </button>
-        ) : (
-          "-"
-        )}
+        <div
+          className="cat-name-wrapper"
+          style={{ cursor: "pointer" }}
+          onClick={handleDriverNameClick}
+        >
+          {profileImage ? (
+            <img
+              src={profileImage}
+              alt={fullName}
+              className="driver-table-avatar"
+            />
+          ) : (
+            <div className="cat-name-avatar">
+              {initial}
+            </div>
+          )}
+
+          <div>
+            <button
+              type="button"
+              className="cat-name jippy-driver-name-link"
+              onClick={handleDriverNameClick}
+              title="Open Driver Details"
+            >
+              {fullName}
+            </button>
+            <div className="cat-id-text">
+              {driver?.isApproved ? "Verified Driver" : "Pending Verification"}
+            </div>
+          </div>
+        </div>
       </td>
 
-      {/* =====================================================
-          LAST NAME
-          ===================================================== */}
-      <td>
-        {driver?.lastName || "-"}
-      </td>
-
-      {/* =====================================================
-          EMAIL
-          ===================================================== */}
+      {/* EMAIL */}
       <td className="jippy-driver-email-cell">
         {driver?.email || "-"}
       </td>
 
-      {/* =====================================================
-          PHONE NUMBER
-          ===================================================== */}
+      {/* PHONE NUMBER */}
       <td>
-        {driver?.phoneNumber || "-"}
-      </td>
-
-      {/* =====================================================
-          AREA
-          ===================================================== */}
-      <td>
-        {driver?.areaName ||
-          driver?.areaId ||
-          "-"}
-      </td>
-
-      {/* =====================================================
-          STATUS
-          ===================================================== */}
-      <td>
-        <span
-          className={`jippy-status-badge ${
-            driver?.isActive
-              ? "active"
-              : "inactive"
-          }`}
-        >
-          {driver?.isActive
-            ? "Active"
-            : "Inactive"}
+        <span style={{ fontWeight: "600", color: "#334155" }}>
+          {driver?.phoneNumber || "-"}
         </span>
       </td>
 
-      {/* =====================================================
-          PROFILE PICTURE
-          ===================================================== */}
-      <td className="jippy-driver-profile-cell">
-
-        {profileImage ? (
-          <img
-            src={profileImage}
-            alt="Driver Profile"
-            className="jippy-driver-profile-image"
-          />
-        ) : (
-          <span className="jippy-driver-no-image">
-            No Image
-          </span>
-        )}
-
+      {/* AREA */}
+      <td>
+        <span className="driver-area-badge">
+          <FiMapPin className="area-icon" />
+          {driver?.areaName || (driver?.areaId ? `Area #${driver.areaId}` : "-")}
+        </span>
       </td>
 
-      {/* =====================================================
-          ACTIONS
-          ===================================================== */}
-      <td className="jippy-driver-actions-cell">
-
-        {/* EDIT BUTTON */}
-        <button
-          type="button"
-          className="jippy-driver-edit-icon-btn"
-          title="Edit Driver"
-          onClick={handleEditClick}
+      {/* STATUS */}
+      <td>
+        <span
+          className={`cat-type-badge ${
+            driver?.isActive ? "home" : "all"
+          }`}
         >
-          <FiEdit2 />
-        </button>
-
-        {/* DELETE BUTTON */}
-        <button
-          type="button"
-          className="jippy-driver-delete-icon-btn"
-          title="Delete Driver"
-          onClick={handleDeleteClick}
-        >
-          <FiTrash2 />
-        </button>
-
+          <span className="cat-type-dot" />
+          {driver?.isActive ? "Active" : "Inactive"}
+        </span>
       </td>
 
+      {/* ACTIONS */}
+      <td className="jippy-driver-actions-cell" style={{ textAlign: "center" }}>
+        <div className="cat-actions" style={{ justifyContent: "center" }}>
+          <button
+            type="button"
+            className="cat-action-btn view"
+            title="View Driver Details"
+            onClick={handleDriverNameClick}
+          >
+            <FiEye />
+          </button>
+
+          <button
+            type="button"
+            className="cat-action-btn edit"
+            title="Edit Driver"
+            onClick={handleEditClick}
+          >
+            <FiEdit2 />
+          </button>
+
+          <button
+            type="button"
+            className="cat-action-btn delete"
+            title="Delete Driver"
+            onClick={handleDeleteClick}
+          >
+            <FiTrash2 />
+          </button>
+        </div>
+      </td>
     </tr>
   );
 }

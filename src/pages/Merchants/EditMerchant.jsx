@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../styles/Merchants/EditMerchant.css";
-import { FiArrowLeft } from "react-icons/fi";
+import { FiArrowLeft, FiX } from "react-icons/fi";
 import {
   getStates,
   getCitiesByState,
@@ -38,6 +38,14 @@ function EditMerchant({ setActivePage }) {
   // Existing document URLs (read-only references)
   const [existingAadhar, setExistingAadhar] = useState("");
   const [existingPan, setExistingPan] = useState("");
+
+  // New Document Files & Data URLs
+  const [aadharFile, setAadharFile] = useState(null);
+  const [panFile, setPanFile] = useState(null);
+  const [aadhaarNumberUrl, setAadhaarNumberUrl] = useState("");
+  const [panNumberUrl, setPanNumberUrl] = useState("");
+  const aadharFileInputRef = useRef(null);
+  const panFileInputRef = useRef(null);
 
   // NOTE: Only fields the backend FmMerchantWithBankDto accepts
   const [merchant, setMerchant] = useState({
@@ -249,14 +257,68 @@ function EditMerchant({ setActivePage }) {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
+    let val = type === "checkbox" ? checked : value;
+
+    if (name === "pan") {
+      val = typeof val === "string" ? val.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 10) : val;
+    } else if (name === "ifscCode") {
+      val = typeof val === "string" ? val.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 11) : val;
+    } else if (name === "gstNumber") {
+      val = typeof val === "string" ? val.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 15) : val;
+    } else if (name === "fssai") {
+      val = typeof val === "string" ? val.replace(/\D/g, "").slice(0, 14) : val;
+    } else if (name === "phone") {
+      val = typeof val === "string" ? val.replace(/\D/g, "").slice(0, 10) : val;
+    } else if (name === "adhar") {
+      val = typeof val === "string" ? val.replace(/\D/g, "").slice(0, 12) : val;
+    } else if (name === "accountNumber") {
+      val = typeof val === "string" ? val.replace(/\D/g, "").slice(0, 18) : val;
+    }
+
     setMerchant((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: val,
     }));
     setErrors((prev) => ({ ...prev, [name]: "" }));
 
-    if (name === "stateId") fetchCities(value);
-    if (name === "cityId") fetchAreas(value);
+    if (name === "stateId") fetchCities(val);
+    if (name === "cityId") fetchAreas(val);
+  };
+
+  const handleFileChange = (e, docType) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert("File size should be less than 5MB");
+      e.target.value = "";
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = typeof reader.result === "string" ? reader.result : "";
+      if (docType === "aadhar") {
+        setAadharFile(file);
+        setAadhaarNumberUrl(dataUrl);
+      } else if (docType === "pan") {
+        setPanFile(file);
+        setPanNumberUrl(dataUrl);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveFile = (docType) => {
+    if (docType === "aadhar") {
+      setAadharFile(null);
+      setAadhaarNumberUrl("");
+      if (aadharFileInputRef.current) aadharFileInputRef.current.value = "";
+    } else if (docType === "pan") {
+      setPanFile(null);
+      setPanNumberUrl("");
+      if (panFileInputRef.current) panFileInputRef.current.value = "";
+    }
   };
 
   const validateForm = () => {
@@ -293,10 +355,18 @@ function EditMerchant({ setActivePage }) {
     }
 
     /* PHONE */
-    if (!merchant.phone.trim()) {
+    const phoneVal = (merchant.phone || "").trim().replace(/[\s-]/g, "");
+    if (!phoneVal) {
       newErrors.phone = "Phone Number is required";
-    } else if (!/^[6-9]\d{9}$/.test(merchant.phone)) {
+    } else if (!/^[6-9]\d{9}$/.test(phoneVal)) {
       newErrors.phone = "Enter valid 10 digit Indian mobile number";
+    }
+
+    /* USERNAME */
+    if (!merchant.username.trim()) {
+      newErrors.username = "Username is required";
+    } else if (merchant.username.length < 4 || merchant.username.length > 50) {
+      newErrors.username = "Username must be between 4 and 50 characters";
     }
 
     /* OUTLET TYPE */
@@ -304,17 +374,15 @@ function EditMerchant({ setActivePage }) {
       newErrors.outletType = "Outlet Type is required";
     }
 
-    /* PAN */
-    if (!merchant.pan.trim()) {
-      newErrors.pan = "PAN Number is required";
-    } else if (!/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(merchant.pan)) {
+    /* PAN (optional, validate format only if provided) */
+    const panVal = (merchant.pan || "").trim().toUpperCase().replace(/\s/g, "");
+    if (panVal && !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/i.test(panVal)) {
       newErrors.pan = "PAN format should be AAAAA9999A";
     }
 
-    /* AADHAAR */
-    if (!merchant.adhar.trim()) {
-      newErrors.adhar = "Aadhaar Number is required";
-    } else if (!/^[2-9]{1}[0-9]{11}$/.test(merchant.adhar)) {
+    /* AADHAAR (optional, validate format only if provided) */
+    const adharVal = (merchant.adhar || "").trim().replace(/[\s-]/g, "");
+    if (adharVal && !/^[2-9]{1}[0-9]{11}$/.test(adharVal)) {
       newErrors.adhar = "Aadhaar must be a valid 12 digit number";
     }
 
@@ -335,14 +403,16 @@ function EditMerchant({ setActivePage }) {
     if (!merchant.areaId) newErrors.areaId = "Area is required";
 
     /* BANK */
+    const accVal = (merchant.accountNumber || "").trim().replace(/[\s-]/g, "");
     if (
-      merchant.accountNumber &&
-      !/^[0-9]{9,18}$/.test(merchant.accountNumber)
+      accVal &&
+      !/^[0-9]{9,18}$/.test(accVal)
     ) {
       newErrors.accountNumber =
         "Account Number must be between 9 and 18 digits";
     }
-    if (merchant.ifscCode && !/^[A-Z]{4}0[A-Z0-9]{6}$/.test(merchant.ifscCode)) {
+    const ifscVal = (merchant.ifscCode || "").trim().toUpperCase().replace(/\s/g, "");
+    if (ifscVal && !/^[A-Z]{4}0[A-Z0-9]{6}$/i.test(ifscVal)) {
       newErrors.ifscCode = "IFSC format should be ABCD0123456";
     }
     if (merchant.bankLocation && merchant.bankLocation.length > 100) {
@@ -398,8 +468,8 @@ function EditMerchant({ setActivePage }) {
 
         aadharNumber: merchant.adhar?.trim() || "",
         panNumber: merchant.pan?.trim()?.toUpperCase() || "",
-        aadhaarNumberUrl: existingAadhar || null,
-        panNumberUrl: existingPan || null,
+        aadhaarNumberUrl: aadhaarNumberUrl || existingAadhar || null,
+        panNumberUrl: panNumberUrl || existingPan || null,
       };
 
       const response = await updateMerchantProfile(payload);
@@ -704,9 +774,7 @@ function EditMerchant({ setActivePage }) {
             </h3>
             <div className="create-merchant-grid">
               <div className="create-merchant-field">
-                <label>
-                  PAN Number<span className="required-star">*</span>
-                </label>
+                <label>PAN Number</label>
                 <input
                   type="text"
                   name="pan"
@@ -714,7 +782,7 @@ function EditMerchant({ setActivePage }) {
                   value={merchant.pan}
                   onChange={handleChange}
                   className={errors.pan ? "create-merchant-input-error" : ""}
-                  placeholder="e.g., ABCDE1234F"
+                  placeholder="e.g., ABCDE1234F (optional)"
                 />
                 {errors.pan && (
                   <p className="create-merchant-error">{errors.pan}</p>
@@ -722,9 +790,7 @@ function EditMerchant({ setActivePage }) {
               </div>
 
               <div className="create-merchant-field">
-                <label>
-                  Aadhaar Number<span className="required-star">*</span>
-                </label>
+                <label>Aadhaar Number</label>
                 <input
                   type="text"
                   name="adhar"
@@ -732,7 +798,7 @@ function EditMerchant({ setActivePage }) {
                   value={merchant.adhar}
                   onChange={handleChange}
                   className={errors.adhar ? "create-merchant-input-error" : ""}
-                  placeholder="Enter 12 digit Aadhaar number"
+                  placeholder="Enter 12 digit Aadhaar number (optional)"
                 />
                 {errors.adhar && (
                   <p className="create-merchant-error">{errors.adhar}</p>
@@ -740,22 +806,83 @@ function EditMerchant({ setActivePage }) {
               </div>
             </div>
 
-            {(existingAadhar || existingPan) && (
-              <div
-                style={{
-                  marginTop: "16px",
-                  padding: "12px",
-                  background: "#f9fafb",
-                  borderRadius: "8px",
-                  fontSize: "13px",
-                  color: "#374151",
-                }}
-              >
-                <strong>On-file documents:</strong>
-                {existingAadhar && <div>• Aadhaar: {existingAadhar}</div>}
-                {existingPan && <div>• PAN: {existingPan}</div>}
+            {/* KYC DOCUMENTS */}
+            <div style={{ marginTop: "24px" }}>
+              <h4 style={{ fontSize: "15px", fontWeight: 700, color: "#7c3aed", marginBottom: "14px" }}>
+                KYC Documents (Optional)
+              </h4>
+              <div className="create-merchant-grid">
+                <div className="create-merchant-field">
+                  <label>Aadhaar Card Document</label>
+                  <div className="create-merchant-file-upload-wrapper">
+                    <input
+                      ref={aadharFileInputRef}
+                      type="file"
+                      accept="image/*,.pdf"
+                      onChange={(e) => handleFileChange(e, "aadhar")}
+                      className="create-merchant-file-input"
+                    />
+                    {aadharFile ? (
+                      <div className="create-merchant-file-info">
+                        <span className="create-merchant-file-name" title={aadharFile.name}>
+                          📄 {aadharFile.name}
+                        </span>
+                        <span className="create-merchant-file-size">
+                          {(aadharFile.size / 1024).toFixed(1)} KB
+                        </span>
+                        <button
+                          type="button"
+                          className="create-merchant-remove-file-btn"
+                          onClick={() => handleRemoveFile("aadhar")}
+                          title="Remove file"
+                        >
+                          <FiX />
+                        </button>
+                      </div>
+                    ) : existingAadhar ? (
+                      <div style={{ fontSize: "12px", color: "#64748b", marginTop: "4px" }}>
+                        Current document: <a href={existingAadhar} target="_blank" rel="noopener noreferrer" style={{ color: "#7c3aed", textDecoration: "underline" }}>View on-file Aadhaar</a>
+                      </div>
+                    ) : null}
+                  </div>
+                </div>
+
+                <div className="create-merchant-field">
+                  <label>PAN Card Document</label>
+                  <div className="create-merchant-file-upload-wrapper">
+                    <input
+                      ref={panFileInputRef}
+                      type="file"
+                      accept="image/*,.pdf"
+                      onChange={(e) => handleFileChange(e, "pan")}
+                      className="create-merchant-file-input"
+                    />
+                    {panFile ? (
+                      <div className="create-merchant-file-info">
+                        <span className="create-merchant-file-name" title={panFile.name}>
+                          📄 {panFile.name}
+                        </span>
+                        <span className="create-merchant-file-size">
+                          {(panFile.size / 1024).toFixed(1)} KB
+                        </span>
+                        <button
+                          type="button"
+                          className="create-merchant-remove-file-btn"
+                          onClick={() => handleRemoveFile("pan")}
+                          title="Remove file"
+                        >
+                          <FiX />
+                        </button>
+                      </div>
+                    ) : existingPan ? (
+                      <div style={{ fontSize: "12px", color: "#64748b", marginTop: "4px" }}>
+                        Current document: <a href={existingPan} target="_blank" rel="noopener noreferrer" style={{ color: "#7c3aed", textDecoration: "underline" }}>View on-file PAN</a>
+                      </div>
+                    ) : null}
+                  </div>
+                </div>
               </div>
-            )}
+            </div>
           </div>
 
           {/* BANK DETAILS */}

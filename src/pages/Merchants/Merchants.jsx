@@ -694,13 +694,42 @@ function Merchants() {
 
   return (
     <div className="merchant-list-page">
-      {/* Header */}
+      {/* Header (Zone Management Style) */}
       <div className="merchant-list-header">
-        <div>
-          <h2>Merchants</h2>
+        <div className="merchant-header-left">
+          <div className="merchant-header-icon-box">
+            <FaStore />
+          </div>
+          <div className="merchant-header-titles">
+            <div className="merchant-eyebrow-row">
+              <span className="merchant-eyebrow">Merchant Management</span>
+              <span className="merchant-divider">•</span>
+              <span className="merchant-breadcrumb">Directory & Operations</span>
+            </div>
+            <h2>
+              Merchants Directory
+              <span className="merchant-badge-pill">
+                {merchants.length} Total
+              </span>
+            </h2>
+          </div>
         </div>
-        <div className="merchant-list-breadcrumb">
-          Dashboard &gt; Merchants &gt; Merchants List
+
+        <div className="merchant-header-actions">
+          <button
+            type="button"
+            className="merchant-btn-bulk-top"
+            onClick={() => navigate("/dashboard/merchantsBulkUpload")}
+          >
+            ⬆ Bulk Upload
+          </button>
+          <button
+            type="button"
+            className="merchant-btn-create-top"
+            onClick={handleCreateMerchant}
+          >
+            + Create Merchant
+          </button>
         </div>
       </div>
 

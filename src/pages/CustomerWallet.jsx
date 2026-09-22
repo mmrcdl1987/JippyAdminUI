@@ -3,6 +3,7 @@ import {
   getWalletByCustomerId,
   updateWalletPoints
 } from "../services/userWalleService";
+import { FiCreditCard, FiSearch, FiCheck } from "react-icons/fi";
 import "../styles/CustomerWallet.css";
 
 const CustomerWallet = () => {
@@ -165,10 +166,28 @@ const CustomerWallet = () => {
 
   return (
     <div className="cust-wallet-wrapper">
-      <h2 className="cust-wallet-title">Customer Wallet Management</h2>
+      {/* Top Header */}
+      <div className="cust-wallet-top-header">
+        <div className="cust-wallet-header-left">
+          <div className="cust-wallet-header-icon">
+            <FiCreditCard />
+          </div>
+          <div className="cust-wallet-header-titles">
+            <div className="cust-wallet-eyebrow-row">
+              <span className="cust-wallet-eyebrow">CUSTOMERS & ACCOUNTS</span>
+              <span className="cust-wallet-divider">•</span>
+              <span className="cust-wallet-breadcrumb">FINANCIAL OPERATIONS</span>
+            </div>
+            <h2>Customer Wallet Management</h2>
+            <p>Manage customer wallet points, monetary balances, credits, and debits</p>
+          </div>
+        </div>
+      </div>
 
       <div className="cust-wallet-card">
-        <div className="cust-card-header">CUSTOMER WALLET</div>
+        <div className="cust-card-header-bar">
+          <span className="cust-card-badge">Customer Wallet</span>
+        </div>
 
         {/* Search Customer ID Form */}
         <form onSubmit={handleFetchWallet} className="cust-search-box">
@@ -189,7 +208,7 @@ const CustomerWallet = () => {
             disabled={loading}
             className="cust-btn-search"
           >
-            {loading ? "Fetching..." : "Fetch Wallet"}
+            <FiSearch /> {loading ? "Fetching..." : "Fetch Wallet"}
           </button>
         </form>
 
@@ -296,7 +315,7 @@ const CustomerWallet = () => {
             disabled={updating || loading || !wallet}
             className="cust-submit-btn"
           >
-            {updating ? "Processing Update..." : "Update Wallet"}
+            <FiCheck /> {updating ? "Processing Update..." : "Update Wallet"}
           </button>
         </form>
       </div>

@@ -1,314 +1,730 @@
-/* Container Layout */
+/* =========================================================
+   JIPPY MART - PLAN CAMPAIGN
+   FULL WIDTH PREMIUM ADMIN UI
+   ========================================================= */
+
 .campaign-page-wrapper {
-  padding: 24px;
-  max-width: 1200px;
-  margin: 0 auto;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  color: #1e293b;
-  background-color: #f8fafc;
+  width: 100%;
+  min-height: 100%;
+
+  box-sizing: border-box;
+
+  padding: 24px 28px 40px;
+
+  margin: 0;
+
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
+
+  color: #172033;
+
+  background:
+    radial-gradient(circle at 100% 0%,
+      rgba(99, 102, 241, 0.055),
+      transparent 26%),
+    radial-gradient(circle at 0% 100%,
+      rgba(16, 185, 129, 0.045),
+      transparent 25%),
+    #f5f7fb;
 }
 
-/* Header Banner */
-.campaign-header-card {
-  background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
-  padding: 24px;
-  border-radius: 16px;
-  border: 1px solid #e2e8f0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+
+/* =========================================================
+   IMPORTANT:
+   USE AVAILABLE DASHBOARD WIDTH
+   ========================================================= */
+
+.campaign-page-wrapper>* {
+  width: 100%;
+  max-width: 1320px;
+
+  margin-left: auto;
+  margin-right: auto;
 }
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.campaign-header-card {
+  position: relative;
+
+  width: 100%;
+  min-height: 96px;
+
+  box-sizing: border-box;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 25px;
+
+  padding: 23px 28px;
+
+  margin-bottom: 20px;
+
+  overflow: hidden;
+
+  background:
+    linear-gradient(135deg,
+      #ffffff 0%,
+      #fafaff 55%,
+      #f4f2ff 100%);
+
+  border: 1px solid #e4e7ef;
+
+  border-radius: 15px;
+
+  box-shadow:
+    0 8px 25px rgba(15, 23, 42, 0.055),
+    0 2px 5px rgba(15, 23, 42, 0.025);
+}
+
+
+/* LEFT COLOR ACCENT */
+
+.campaign-header-card::before {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  top: 0;
+  bottom: 0;
+
+  width: 4px;
+
+  background:
+    linear-gradient(180deg,
+      #6366f1 0%,
+      #7c3aed 45%,
+      #10b981 100%);
+}
+
+
+/* SOFT DECORATION */
+
+.campaign-header-card::after {
+  content: "";
+
+  position: absolute;
+
+  width: 230px;
+  height: 230px;
+
+  right: -100px;
+  top: -130px;
+
+  border-radius: 50%;
+
+  background: rgba(99, 102, 241, 0.055);
+
+  pointer-events: none;
+}
+
+
+/* =========================================================
+   HEADER TEXT
+   ========================================================= */
 
 .campaign-header-card h1 {
-  margin: 0 0 6px 0;
-  font-size: 24px;
-  font-weight: 700;
-  color: #0f172a;
+  position: relative;
+
+  z-index: 1;
+
+  margin: 0 0 6px;
+
+  color: #172033;
+
+  font-size: 23px;
+  font-weight: 750;
+
+  line-height: 1.25;
+
+  letter-spacing: -0.5px;
 }
 
 .campaign-header-card p {
+  position: relative;
+
+  z-index: 1;
+
   margin: 0;
-  color: #64748b;
-  font-size: 14px;
+
+  color: #7d8798;
+
+  font-size: 12px;
+  font-weight: 500;
+
+  line-height: 1.5;
 }
+
+
+/* =========================================================
+   CALENDAR
+   ========================================================= */
 
 .calendar-badge {
-  font-size: 32px;
-  background: #eff6ff;
-  padding: 10px 14px;
-  border-radius: 12px;
-  border: 1px solid #dbeafe;
+  position: relative;
+
+  z-index: 2;
+
+  width: 54px;
+  height: 54px;
+
+  min-width: 54px;
+
+  padding: 0;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  font-size: 26px;
+
+  background:
+    linear-gradient(135deg,
+      #eef2ff,
+      #f5f3ff);
+
+  border: 1px solid #ddd6fe;
+
+  border-radius: 14px;
+
+  box-shadow:
+    0 7px 16px rgba(99, 102, 241, 0.11);
 }
 
-/* Main Body Layout */
+
+/* =========================================================
+   BODY
+   ========================================================= */
+
 .campaign-body-container {
   display: flex;
+
   flex-direction: column;
-  gap: 24px;
+
+  gap: 18px;
+
+  width: 100%;
 }
 
+
+/* =========================================================
+   SECTION CARD
+   ========================================================= */
+
 .section-card {
+  width: 100%;
+
+  box-sizing: border-box;
+
+  padding: 22px;
+
   background: #ffffff;
-  border-radius: 16px;
-  border: 1px solid #e2e8f0;
-  padding: 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+
+  border: 1px solid #e4e8ef;
+
+  border-radius: 15px;
+
+  box-shadow:
+    0 6px 20px rgba(15, 23, 42, 0.042),
+    0 1px 3px rgba(15, 23, 42, 0.025);
 }
+
+
+/* =========================================================
+   SECTION HEADER
+   ========================================================= */
 
 .section-title-row {
   display: flex;
+
   align-items: center;
-  gap: 12px;
-  margin-bottom: 20px;
+
+  gap: 11px;
+
+  margin-bottom: 18px;
 }
 
-.section-title-row h2, 
+.section-title-row h2,
 .section-title-row h3 {
   margin: 0;
-  font-size: 18px;
-  font-weight: 600;
-  color: #1e293b;
+
+  color: #1b2537;
+
+  font-size: 15px;
+
+  font-weight: 750;
+
+  line-height: 1.35;
 }
 
 .section-title-row p {
-  margin: 2px 0 0 0;
-  font-size: 13px;
-  color: #64748b;
+  margin: 3px 0 0;
+
+  color: #8b95a6;
+
+  font-size: 10px;
+
+  font-weight: 500;
 }
+
+
+/* =========================================================
+   ICON BADGE
+   ========================================================= */
 
 .icon-badge {
-  font-size: 20px;
-  background: #f1f5f9;
-  padding: 8px;
-  border-radius: 10px;
+  width: 32px;
+  height: 32px;
+
+  padding: 0;
+
+  flex-shrink: 0;
+
   display: inline-flex;
+
   align-items: center;
   justify-content: center;
+
+  color: #6366f1;
+
+  background:
+    linear-gradient(135deg,
+      #eef2ff,
+      #f5f3ff);
+
+  border: 1px solid #e0e7ff;
+
+  border-radius: 9px;
+
+  font-size: 15px;
 }
 
-/* Side-by-Side Responsive Grid Layout */
+
+/* =========================================================
+   LOCATION / OUTLET GRID
+   ========================================================= */
+
 .location-grid {
+  width: 100%;
+
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
+
+  grid-template-columns:
+    minmax(0, 1fr) minmax(0, 1fr);
+
+  gap: 18px;
+
   align-items: stretch;
 }
 
+
+/* =========================================================
+   SUB CARD
+   ========================================================= */
+
 .sub-card {
-  background: #fafafa;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 20px;
+  min-width: 0;
+
+  box-sizing: border-box;
+
   display: flex;
+
   flex-direction: column;
-  justify-content: space-between;
+
+  padding: 19px;
+
+  background:
+    linear-gradient(145deg,
+      #ffffff,
+      #fafbfe);
+
+  border: 1px solid #e0e5ed;
+
+  border-radius: 11px;
+
+  box-shadow:
+    0 2px 9px rgba(15, 23, 42, 0.025);
 }
 
 .sub-card h3 {
-  margin: 0 0 16px 0;
-  font-size: 16px;
-  font-weight: 600;
-  color: #334155;
+  margin: 0 0 15px;
+
+  color: #293448;
+
+  font-size: 14px;
+
+  font-weight: 750;
 }
 
-/* Form Controls & Inputs */
+
+/* =========================================================
+   FORM GROUP
+   ========================================================= */
+
 .form-group {
   display: flex;
+
   flex-direction: column;
+
   gap: 6px;
-  margin-bottom: 14px;
+
+  margin-bottom: 13px;
+}
+
+.form-group:last-child {
+  margin-bottom: 0;
 }
 
 .form-group label {
-  font-size: 13px;
-  font-weight: 600;
-  color: #475569;
+  color: #526078;
+
+  font-size: 11px;
+
+  font-weight: 700;
 }
+
+.required {
+  color: #ef4444;
+
+  margin-left: 3px;
+}
+
+
+/* =========================================================
+   INPUTS
+   ========================================================= */
 
 .form-group select,
 .form-group input {
-  height: 42px;
-  padding: 0 14px;
-  border-radius: 8px;
-  border: 1px solid #cbd5e1;
-  background-color: #ffffff;
-  font-size: 14px;
-  outline: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  width: 100%;
+
+  height: 40px;
+
   box-sizing: border-box;
+
+  padding: 0 12px;
+
+  color: #273247;
+
+  background: #ffffff;
+
+  border: 1px solid #d5dce6;
+
+  border-radius: 8px;
+
+  outline: none;
+
+  font-family: inherit;
+
+  font-size: 11px;
+
+  font-weight: 500;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.form-group select:hover,
+.form-group input:hover {
+  border-color: #b9c2d0;
 }
 
 .form-group select:focus,
 .form-group input:focus {
   border-color: #6366f1;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+
+  box-shadow:
+    0 0 0 3px rgba(99, 102, 241, 0.09);
 }
 
-.required {
-  color: #ef4444;
-  margin-left: 4px;
+.form-group select:disabled,
+.form-group input:disabled {
+  background: #f5f6f8;
+
+  color: #a1a9b6;
+
+  border-color: #e5e7eb;
+
+  cursor: not-allowed;
 }
 
-/* Date Selection Sub-section */
+
+/* =========================================================
+   DATE DIVIDER
+   ========================================================= */
+
 .sub-divider {
-  margin: 16px 0 16px 0;
+  margin: 17px 0;
+
   border: 0;
-  border-top: 1px dashed #cbd5e1;
+
+  border-top: 1px dashed #d8dee8;
 }
 
 .sub-heading {
-  margin: 0 0 12px 0 !important;
-  font-size: 14px !important;
-  font-weight: 600;
-  color: #334155;
+  margin: 0 0 11px !important;
+
+  color: #3c485c !important;
+
+  font-size: 11px !important;
+
+  font-weight: 750 !important;
 }
+
+
+/* =========================================================
+   DATE GRID
+   ========================================================= */
 
 .date-fields-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
+
+  grid-template-columns:
+    minmax(0, 1fr) minmax(0, 1fr);
+
+  gap: 11px;
 }
 
-/* Campaign Type Dropdown & Rules */
+
+/* =========================================================
+   CAMPAIGN TYPE
+   ========================================================= */
+
 .campaign-type-dropdown {
-  max-width: 380px;
-  margin-bottom: 16px;
+  width: 100%;
+
+  max-width: 430px;
+
+  margin-bottom: 14px;
 }
+
+
+/* =========================================================
+   RULES
+   ========================================================= */
 
 .section-divider {
-  margin: 16px 0 20px 0;
+  margin: 17px 0;
+
   border: 0;
-  border-top: 1px solid #e2e8f0;
+
+  border-top: 1px solid #e7ebf0;
 }
 
 .rules-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 16px;
+
+  grid-template-columns:
+    repeat(auto-fill,
+      minmax(220px, 1fr));
+
+  gap: 14px;
 }
 
-/* Footer Actions */
-.campaign-action-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-top: 24px;
-  padding: 16px 24px;
-  background: #ffffff;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
-}
 
-.btn-secondary {
-  background: #ffffff;
-  border: 1px solid #cbd5e1;
-  color: #334155;
-  height: 42px;
-  padding: 0 20px;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.btn-primary {
-  background: #6366f1;
-  border: none;
-  color: #ffffff;
-  height: 42px;
-  padding: 0 24px;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-
-.btn-primary:hover {
-  background: #4f46e5;
-}
-
-/* ==========================================
-   Outlet Section Component
-========================================== */
+/* =========================================================
+   OUTLET
+   ========================================================= */
 
 .outlet-section {
-  display: flex;
-  flex-direction: column;
   width: 100%;
   height: 100%;
+
+  display: flex;
+
+  flex-direction: column;
 }
 
 .outlet-header {
   display: flex;
-  justify-content: space-between;
+
   align-items: center;
-  margin-bottom: 14px;
+
+  justify-content: space-between;
+
+  gap: 10px;
+
+  margin-bottom: 12px;
 }
 
 .outlet-header h3 {
-  font-size: 16px;
-  font-weight: 600;
-  color: #334155;
   margin: 0;
+
+  color: #293548;
+
+  font-size: 14px;
+
+  font-weight: 750;
 }
 
 .outlet-header span {
-  font-size: 13px;
-  font-weight: 600;
-  color: #2563eb;
-  background: #eff6ff;
-  padding: 4px 10px;
-  border-radius: 20px;
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  min-height: 23px;
+
+  padding: 0 9px;
+
+  color: #059669;
+
+  background: #ecfdf5;
+
+  border: 1px solid #bbf7d0;
+
+  border-radius: 999px;
+
+  font-size: 10px;
+
+  font-weight: 750;
 }
+
+
+/* =========================================================
+   OUTLET SEARCH
+   ========================================================= */
 
 .outlet-search {
   width: 100%;
-  height: 42px;
-  padding: 0 14px;
-  margin-bottom: 12px;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
-  outline: none;
-  font-size: 14px;
+
+  height: 40px;
+
   box-sizing: border-box;
-  transition: border-color 0.2s ease;
+
+  margin-bottom: 11px;
+
+  padding: 0 12px;
+
+  color: #273247;
+
+  background: #ffffff;
+
+  border: 1px solid #d5dce6;
+
+  border-radius: 8px;
+
+  outline: none;
+
+  font-family: inherit;
+
+  font-size: 11px;
+
+  font-weight: 500;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.outlet-search::placeholder {
+  color: #9da6b4;
 }
 
 .outlet-search:focus {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  border-color: #6366f1;
+
+  box-shadow:
+    0 0 0 3px rgba(99, 102, 241, 0.09);
 }
+
+
+/* =========================================================
+   OUTLET BOX
+   ========================================================= */
 
 .outlet-box {
-  flex-grow: 1;
-  min-height: 240px;
-  max-height: 280px;
+  width: 100%;
+
+  min-height: 205px;
+
+  max-height: 245px;
+
+  flex: 1;
+
   overflow-y: auto;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
+
+  box-sizing: border-box;
+
   background: #ffffff;
+
+  border: 1px solid #d8dee8;
+
+  border-radius: 9px;
 }
 
+
+/* =========================================================
+   OUTLET SCROLLBAR
+   ========================================================= */
+
 .outlet-box::-webkit-scrollbar {
-  width: 6px;
+  width: 5px;
+}
+
+.outlet-box::-webkit-scrollbar-track {
+  background: #f6f7f9;
 }
 
 .outlet-box::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 10px;
+  background: #c5ccd7;
+
+  border-radius: 20px;
 }
+
+.outlet-box::-webkit-scrollbar-thumb:hover {
+  background: #aab3c0;
+}
+
+
+/* =========================================================
+   CHECKBOX
+   ========================================================= */
 
 .checkbox-row {
   display: flex;
+
   align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
+
+  gap: 9px;
+
+  min-height: 37px;
+
+  box-sizing: border-box;
+
+  padding: 8px 11px;
+
+  color: #344054;
+
+  background: #ffffff;
+
+  border-bottom: 1px solid #f0f2f5;
+
+  font-size: 11px;
+
+  font-weight: 500;
+
   cursor: pointer;
-  transition: background 0.2s ease;
-  border-bottom: 1px solid #f1f5f9;
-  font-size: 14px;
-  color: #1f2937;
+
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
 }
 
 .checkbox-row:last-child {
@@ -316,56 +732,388 @@
 }
 
 .checkbox-row:hover {
-  background: #f8fafc;
+  color: #4338ca;
+
+  background: #f7f7ff;
 }
 
 .checkbox-row input[type="checkbox"] {
-  width: 16px;
-  height: 16px;
+  width: 15px;
+  height: 15px;
+
+  margin: 0;
+
+  accent-color: #6366f1;
+
   cursor: pointer;
 }
 
+
+/* =========================================================
+   SELECT ALL
+   ========================================================= */
+
 .select-all {
   position: sticky;
+
   top: 0;
-  background: #f9fafb;
-  font-weight: 600;
-  z-index: 2;
-  border-bottom: 1px solid #e2e8f0;
+
+  z-index: 5;
+
+  background:
+    linear-gradient(135deg,
+      #f7f8ff,
+      #f2fcf8) !important;
+
+  color: #273247 !important;
+
+  font-weight: 750 !important;
+
+  border-bottom: 1px solid #dfe4ec;
+
+  box-shadow:
+    0 2px 7px rgba(15, 23, 42, 0.045);
 }
+
+
+/* =========================================================
+   EMPTY OUTLET
+   ========================================================= */
 
 .no-outlets {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  min-height: 145px;
+
   padding: 20px;
+
+  color: #9aa3b2;
+
+  font-size: 10px;
+
+  font-weight: 600;
+
   text-align: center;
-  color: #94a3b8;
-  font-size: 13px;
 }
 
-/* ==========================================
-   Responsive Screen Rules
-========================================== */
-@media (max-width: 868px) {
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.campaign-action-footer {
+  width: 100%;
+
+  min-height: 62px;
+
+  box-sizing: border-box;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: flex-end;
+
+  gap: 10px;
+
+  padding: 10px 16px;
+
+  background:
+    linear-gradient(135deg,
+      #ffffff,
+      #fafbff);
+
+  border: 1px solid #e3e7ee;
+
+  border-radius: 12px;
+
+  box-shadow:
+    0 5px 16px rgba(15, 23, 42, 0.035);
+}
+
+
+/* =========================================================
+   SECONDARY BUTTON
+   ========================================================= */
+
+.btn-secondary {
+  height: 38px;
+
+  padding: 0 19px;
+
+  color: #475467;
+
+  background: #ffffff;
+
+  border: 1px solid #d3dae5;
+
+  border-radius: 8px;
+
+  font-family: inherit;
+
+  font-size: 11px;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background: #f8fafc;
+
+  border-color: #b9c2d0;
+
+  transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   PRIMARY / PUBLISH BUTTON
+   ========================================================= */
+
+.btn-primary {
+  position: relative;
+
+  height: 38px;
+
+  padding: 0 20px;
+
+  overflow: hidden;
+
+  color: #ffffff;
+
+  background:
+    linear-gradient(135deg,
+      #10b981 0%,
+      #0eb887 45%,
+      #059669 100%);
+
+  border: none;
+
+  border-radius: 8px;
+
+  font-family: inherit;
+
+  font-size: 11px;
+
+  font-weight: 750;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 5px 13px rgba(16, 185, 129, 0.22);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    filter 0.2s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+
+  filter: brightness(1.04);
+
+  box-shadow:
+    0 8px 18px rgba(16, 185, 129, 0.28);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+
+  box-shadow:
+    0 3px 8px rgba(16, 185, 129, 0.18);
+}
+
+.btn-primary:disabled,
+.btn-secondary:disabled {
+  opacity: 0.55;
+
+  cursor: not-allowed;
+
+  transform: none;
+
+  box-shadow: none;
+}
+
+
+/* =========================================================
+   ERROR
+   ========================================================= */
+
+.form-group .error,
+.error-message {
+  margin-top: 2px;
+
+  color: #dc2626;
+
+  font-size: 10px;
+
+  font-weight: 650;
+}
+
+.form-group input.error,
+.form-group select.error {
+  border-color: #ef4444;
+
+  background: #fffafa;
+
+  box-shadow:
+    0 0 0 3px rgba(239, 68, 68, 0.07);
+}
+
+
+/* =========================================================
+   SUCCESS
+   ========================================================= */
+
+.success-message {
+  color: #059669;
+
+  font-size: 10px;
+
+  font-weight: 650;
+}
+
+
+/* =========================================================
+   LARGE SCREEN
+   ========================================================= */
+
+@media (min-width: 1600px) {
+  .campaign-page-wrapper {
+    padding-left: 35px;
+    padding-right: 35px;
+  }
+
+  .campaign-page-wrapper>* {
+    max-width: 1400px;
+  }
+}
+
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 1050px) {
+  .campaign-page-wrapper {
+    padding: 20px;
+  }
+
   .location-grid {
     grid-template-columns: 1fr;
   }
 
-  .campaign-header-card {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
+  .outlet-box {
+    min-height: 220px;
+    max-height: 280px;
   }
-  
-  .campaign-action-footer {
-    flex-direction: column;
+}
+
+
+/* =========================================================
+   SMALL TABLET
+   ========================================================= */
+
+@media (max-width: 700px) {
+  .campaign-page-wrapper {
+    padding: 15px;
   }
 
-  .btn-primary, .btn-secondary {
+  .campaign-header-card {
+    padding: 20px;
+  }
+
+  .campaign-header-card h1 {
+    font-size: 20px;
+  }
+
+  .section-card {
+    padding: 18px;
+  }
+
+  .date-fields-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .campaign-type-dropdown {
+    max-width: 100%;
+  }
+
+  .campaign-action-footer {
+    flex-direction: column;
+
+    align-items: stretch;
+  }
+
+  .btn-primary,
+  .btn-secondary {
     width: 100%;
   }
 }
 
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
 @media (max-width: 480px) {
-  .date-fields-grid {
+  .campaign-page-wrapper {
+    padding: 10px;
+  }
+
+  .campaign-header-card {
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    gap: 14px;
+
+    padding: 17px;
+  }
+
+  .calendar-badge {
+    align-self: flex-end;
+
+    width: 46px;
+    height: 46px;
+  }
+
+  .section-card {
+    padding: 14px;
+
+    border-radius: 12px;
+  }
+
+  .sub-card {
+    padding: 14px;
+  }
+
+  .rules-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
   }
 }

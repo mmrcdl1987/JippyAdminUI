@@ -1,14 +1,21 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+
 /* =========================================================
    JIPPYMART ADMIN
    OUTLET CREATE PAGE
-   Theme: #ff6b00
+   Categories Design System Theme
    ========================================================= */
 
 .jippy-outlet-create-page {
     min-height: 100vh;
     padding: 30px 35px 80px;
     box-sizing: border-box;
-    background: #f5f7fb;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: #172033;
+    background:
+        radial-gradient(circle at 88% 0%, rgba(99, 102, 241, 0.07), transparent 28%),
+        radial-gradient(circle at 10% 90%, rgba(16, 185, 129, 0.045), transparent 25%),
+        #f6f8fc;
 }
 
 
@@ -72,7 +79,7 @@
 
     border-radius: 50%;
 
-    background: #ff6b00;
+    background: #5b4ff4;
     color: #ffffff;
 
     font-size: 15px;
@@ -133,40 +140,42 @@
 
     margin-bottom: 18px;
 
-    border: none;
-    border-radius: 7px;
+    border: 1px solid #cfd0ff;
+    border-radius: 10px;
 
-    background: #ff6b00;
-    color: #ffffff;
+    background: #ffffff;
+    color: #5145cd;
 
     font-size: 13px;
     font-weight: 600;
 
     cursor: pointer;
 
-    transition: 0.2s ease;
+    transition: all 0.2s ease;
 }
 
 .jippy-outlet-create-back-btn:hover {
-    background: #e85f00;
+    background: #f7f6ff;
+    border-color: #5145cd;
 }
 
 .jippy-outlet-create-header h1 {
     margin: 0;
 
-    color: #222;
+    color: #172033;
 
-    font-size: 30px;
-    line-height: 1.2;
-    font-weight: 700;
+    font-size: 28px;
+    line-height: 1.25;
+    font-weight: 800;
+    letter-spacing: -0.4px;
 }
 
 .jippy-outlet-create-header p {
     margin: 7px 0 0;
 
-    color: #777;
+    color: #7a8497;
 
-    font-size: 14px;
+    font-size: 13px;
 }
 
 
@@ -180,17 +189,17 @@
 
     margin: 0 auto;
 
-    padding: 30px;
+    padding: 32px;
 
     box-sizing: border-box;
 
     background: #ffffff;
 
-    border: 1px solid #eeeeee;
-    border-radius: 14px;
+    border: 1px solid #e6e9f0;
+    border-radius: 16px;
 
     box-shadow:
-        0 3px 14px rgba(0, 0, 0, 0.07);
+        0 7px 25px rgba(15, 23, 42, 0.045);
 }
 
 
@@ -209,14 +218,15 @@
 .jippy-outlet-create-section h2 {
     margin: 0 0 20px;
 
-    padding-bottom: 11px;
+    padding-bottom: 12px;
 
-    border-bottom: 2px solid #eeeeee;
+    border-bottom: 2px solid #edf0f5;
 
-    color: #ff6b00;
+    color: #172033;
 
     font-size: 19px;
-    font-weight: 700;
+    font-weight: 800;
+    letter-spacing: -0.2px;
 }
 
 
@@ -290,10 +300,10 @@
 }
 
 .jippy-outlet-create-field input:focus {
-    border-color: #ff6b00;
+    border-color: #746cff;
 
     box-shadow:
-        0 0 0 3px rgba(255, 107, 0, 0.11);
+        0 0 0 3px rgba(99, 91, 255, 0.09);
 }
 
 .jippy-outlet-create-field input::placeholder {
@@ -315,7 +325,7 @@
 .jippy-outlet-create-select__control {
     min-height: 45px !important;
 
-    border: 1px solid #d8d8d8 !important;
+    border: 1px solid #dfe3eb !important;
     border-radius: 8px !important;
 
     background: #ffffff !important;
@@ -328,14 +338,14 @@
 }
 
 .jippy-outlet-create-select__control:hover {
-    border-color: #bdbdbd !important;
+    border-color: #cbd5e1 !important;
 }
 
 .jippy-outlet-create-select__control--is-focused {
-    border-color: #ff6b00 !important;
+    border-color: #746cff !important;
 
     box-shadow:
-        0 0 0 3px rgba(255, 107, 0, 0.11) !important;
+        0 0 0 3px rgba(99, 91, 255, 0.09) !important;
 }
 
 .jippy-outlet-create-select__placeholder {
@@ -363,12 +373,12 @@
 }
 
 .jippy-outlet-create-select__option--is-focused {
-    background: #fff3eb !important;
-    color: #222 !important;
+    background: #f0eeff !important;
+    color: #5145cd !important;
 }
 
 .jippy-outlet-create-select__option--is-selected {
-    background: #ff6b00 !important;
+    background: #4f46e5 !important;
     color: #ffffff !important;
 }
 
@@ -451,7 +461,7 @@
 }
 
 .jippy-outlet-create-day-row:hover {
-    background: #fffaf7;
+    background: #fbfbfe;
 }
 
 .jippy-outlet-create-day-name {
@@ -485,7 +495,7 @@
 
     margin: 0;
 
-    accent-color: #ff6b00;
+    accent-color: #5b4ff4;
 
     cursor: pointer;
 }
@@ -525,13 +535,14 @@
     background: #ffffff;
 
     font-size: 12px;
+    transition: 0.2s ease;
 }
 
 .jippy-outlet-create-time input:focus {
-    border-color: #ff6b00;
+    border-color: #746cff;
 
     box-shadow:
-        0 0 0 3px rgba(255, 107, 0, 0.10);
+        0 0 0 3px rgba(99, 91, 255, 0.09);
 }
 
 .jippy-outlet-create-time input:disabled {
@@ -556,7 +567,7 @@
     margin-top: 35px;
     padding-top: 25px;
 
-    border-top: 1px solid #eeeeee;
+    border-top: 1px solid #edf0f5;
 }
 
 .jippy-outlet-create-cancel-btn,
@@ -564,10 +575,10 @@
     width: 180px;
     height: 45px;
 
-    border-radius: 8px;
+    border-radius: 10px;
 
     font-size: 13px;
-    font-weight: 600;
+    font-weight: 700;
 
     cursor: pointer;
 
@@ -578,14 +589,15 @@
 /* Cancel */
 
 .jippy-outlet-create-cancel-btn {
-    border: 1px solid #d5d5d5;
+    border: 1px solid #cfd0ff;
 
     background: #ffffff;
-    color: #555;
+    color: #5145cd;
 }
 
 .jippy-outlet-create-cancel-btn:hover {
-    background: #f5f5f5;
+    background: #f7f6ff;
+    border-color: #5145cd;
 }
 
 
@@ -594,12 +606,15 @@
 .jippy-outlet-create-submit-btn {
     border: none;
 
-    background: #ff6b00;
+    background: linear-gradient(135deg, #2563eb, #4f46e5);
     color: #ffffff;
+    box-shadow: 0 7px 15px rgba(79, 70, 229, 0.22);
 }
 
 .jippy-outlet-create-submit-btn:hover {
-    background: #e85f00;
+    transform: translateY(-1px);
+    filter: brightness(1.04);
+    box-shadow: 0 10px 20px rgba(79, 70, 229, 0.28);
 }
 
 
@@ -771,15 +786,15 @@
     display: flex;
     align-items: center;
     gap: 7px;
-    padding: 9px 15px;
-    border: 1px solid #ff6b00;
-    background: #fff;
-    color: #ff6b00;
-    border-radius: 8px;
+    padding: 9px 16px;
+    border: 1px solid #cfd0ff;
+    background: #ffffff;
+    color: #5145cd;
+    border-radius: 9px;
     font-size: 13px;
-    font-weight: 600;
+    font-weight: 650;
     cursor: pointer;
-    transition: 0.2s;
+    transition: all 0.2s ease;
 }
 
 .jippy-outlet-create-add-timing-btn span {
@@ -788,8 +803,9 @@
 }
 
 .jippy-outlet-create-add-timing-btn:hover {
-    background: #ff6b00;
-    color: #fff;
+    background: #f7f6ff;
+    border-color: #5145cd;
+    color: #5145cd;
 }
 
 
@@ -837,7 +853,7 @@
 
     box-sizing: border-box;
 
-    border: 1px solid #eeeeee;
+    border: 1px solid #edf0f5;
 
     border-radius: 10px;
 
@@ -855,7 +871,7 @@
 
     padding: 0 10px;
 
-    border: 1px solid #d8d8d8;
+    border: 1px solid #dfe3eb;
     border-radius: 7px;
 
     outline: none;
@@ -866,13 +882,14 @@
     font-size: 12px;
 
     cursor: pointer;
+    transition: 0.2s ease;
 }
 
 .jippy-outlet-create-custom-day-select:focus {
-    border-color: #ff6b00;
+    border-color: #746cff;
 
     box-shadow:
-        0 0 0 3px rgba(255, 107, 0, 0.10);
+        0 0 0 3px rgba(99, 91, 255, 0.09);
 }
 
 
@@ -962,7 +979,7 @@
 }
 
 .jippy-outlet-create-timing-close:hover {
-    color: #ff6b00;
+    color: #5b4ff4;
 }
 
 .jippy-outlet-create-timing-form {
@@ -990,17 +1007,19 @@
 .jippy-outlet-create-timing-field input,
 .jippy-outlet-create-timing-field select {
     height: 44px;
-    border: 1px solid #ddd;
+    border: 1px solid #dfe3eb;
     border-radius: 8px;
     padding: 0 12px;
     outline: none;
     background: #fff;
     font-size: 14px;
+    transition: 0.2s ease;
 }
 
 .jippy-outlet-create-timing-field input:focus,
 .jippy-outlet-create-timing-field select:focus {
-    border-color: #ff6b00;
+    border-color: #746cff;
+    box-shadow: 0 0 0 3px rgba(99, 91, 255, 0.09);
 }
 
 .jippy-outlet-create-timing-field input:disabled {
@@ -1044,7 +1063,7 @@
 
 .jippy-outlet-create-modal-toggle input:checked
 + .jippy-outlet-create-toggle-slider {
-    background: #ff6b00;
+    background: #4f46e5;
 }
 
 .jippy-outlet-create-modal-toggle input:checked
@@ -1066,35 +1085,170 @@
     gap: 12px;
     margin-top: 30px;
     padding-top: 20px;
-    border-top: 1px solid #eee;
+    border-top: 1px solid #edf0f5;
 }
 
 .jippy-outlet-create-timing-cancel-btn {
     min-width: 110px;
     padding: 11px 20px;
-    border: 1px solid #ddd;
+    border: 1px solid #cfd0ff;
     background: #fff;
-    color: #555;
+    color: #5145cd;
     border-radius: 8px;
     font-weight: 600;
     cursor: pointer;
+    transition: all 0.2s ease;
 }
 
 .jippy-outlet-create-timing-cancel-btn:hover {
-    background: #f5f5f5;
+    background: #f7f6ff;
 }
 
 .jippy-outlet-create-timing-submit-btn {
     min-width: 130px;
     padding: 11px 20px;
     border: none;
-    background: #ff6b00;
+    background: linear-gradient(135deg, #2563eb, #4f46e5);
     color: #fff;
     border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.24);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.jippy-outlet-create-timing-submit-btn:hover {
+    filter: brightness(1.05);
+}
+
+
+/* =========================================================
+   OPTIONAL TAG & DOCUMENT FILE UPLOAD STYLES
+   ========================================================= */
+
+.jippy-outlet-create-field label span.jippy-outlet-create-optional-tag {
+    margin-left: 6px;
+    font-size: 11px;
+    font-weight: 500;
+    color: #64748b !important;
+}
+
+.jippy-outlet-file-upload-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+
+.jippy-outlet-file-input {
+    width: 100%;
+    padding: 7px 10px;
+    font-size: 13px;
+    border: 1.5px dashed #cbd5e1;
+    border-radius: 8px;
+    background: #f8fafc;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+}
+
+.jippy-outlet-file-input:hover {
+    border-color: #4f46e5;
+    background: #f5f3ff;
+}
+
+.jippy-outlet-file-input::-webkit-file-upload-button {
+    padding: 6px 14px;
+    margin-right: 12px;
+    border: none;
+    border-radius: 6px;
+    background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.jippy-outlet-file-input::-webkit-file-upload-button:hover {
+    background: linear-gradient(135deg, #4338ca 0%, #3730a3 100%);
+}
+
+.jippy-outlet-file-input::-ms-browse {
+    padding: 6px 14px;
+    margin-right: 12px;
+    border: none;
+    border-radius: 6px;
+    background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+    color: #fff;
+    font-size: 12px;
     font-weight: 600;
     cursor: pointer;
 }
 
-.jippy-outlet-create-timing-submit-btn:hover {
-    background: #e85f00;
+.jippy-outlet-file-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 8px;
+    gap: 10px;
+    animation: jippyOutletFileFadeIn 0.25s ease;
+}
+
+@keyframes jippyOutletFileFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.jippy-outlet-file-name {
+    font-size: 12px;
+    color: #166534;
+    font-weight: 500;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.jippy-outlet-file-size {
+    font-size: 11px;
+    color: #64748b;
+    flex-shrink: 0;
+}
+
+.jippy-outlet-remove-file-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fee2e2;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    color: #dc2626;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+}
+
+.jippy-outlet-remove-file-btn:hover {
+    background: #fecaca;
+    transform: scale(1.1);
+}
+
+.jippy-outlet-remove-file-btn:active {
+    transform: scale(0.95);
 }

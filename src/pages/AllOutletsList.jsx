@@ -13,6 +13,7 @@ import {
     toggleOutlet,
 
 } from "../services/outletListService";
+import { getCompleteOrdersFlowCounts } from "../services/orderService";
 
 import {
   FiSearch,
@@ -26,6 +27,11 @@ import {
   FiX,
   FiCalendar,
   FiInfo,
+  FiHome,
+  FiCheckCircle,
+  FiXCircle,
+  FiLayers,
+  FiPackage,
 } from "react-icons/fi";
 
 function AllOutletsList({ setActivePage }) {
@@ -98,6 +104,8 @@ const [turnOnSuccessMessage, setTurnOnSuccessMessage] = useState("");
   const [uploading, setUploading] = useState(false);
   const [uploadResult, setUploadResult] = useState(null);
 
+  const [totalOrdersCount, setTotalOrdersCount] = useState(0);
+
   // =========================================================
   // COLUMNS
   // =========================================================
@@ -113,6 +121,7 @@ const [turnOnSuccessMessage, setTurnOnSuccessMessage] = useState("");
     outletPhone: true,
     status: true,
     menuItemCount: true,
+    orders: true,
     areaId: true,
     stateId: true,
     availability: true,
@@ -134,6 +143,7 @@ const [turnOnSuccessMessage, setTurnOnSuccessMessage] = useState("");
       outletPhone: true,
       status: true,
       menuItemCount: true,
+      orders: true,
       areaId: true,
       stateId: true,
       availability: true,
@@ -901,6 +911,18 @@ const fetchOutlets = async () => {
 useEffect(() => {
   fetchOutlets();
   fetchOutletCount();
+
+  const fetchOrdersCount = async () => {
+    try {
+      const flowData = await getCompleteOrdersFlowCounts();
+      if (flowData?.totalOrdersCount != null) {
+        setTotalOrdersCount(flowData.totalOrdersCount);
+      }
+    } catch (err) {
+      console.warn("Failed to load total orders count:", err);
+    }
+  };
+  fetchOrdersCount();
 }, []);
 
   // =========================================================
@@ -1071,7 +1093,8 @@ useEffect(() => {
   // =========================================================
 
   const handleOutletProfile = (
-    outlet
+    outlet,
+    initialTab = "Basic"
   ) => {
     if (!outlet?.outletId) {
       console.error(
@@ -1086,9 +1109,16 @@ useEffect(() => {
       JSON.stringify(outlet)
     );
 
+    sessionStorage.setItem(
+      "selectedOutletTab",
+      initialTab
+    );
+
     console.log(
       "OPENING OUTLET PROFILE:",
-      outlet.outletId
+      outlet.outletId,
+      "TAB:",
+      initialTab
     );
 
     if (setActivePage) {
@@ -1458,6 +1488,10 @@ useEffect(() => {
       "Menu Items",
     ],
     [
+      "orders",
+      "Orders",
+    ],
+    [
       "areaId",
       "Area Name",
     ],
@@ -1480,15 +1514,17 @@ useEffect(() => {
 
       {/* PAGE HEADER */}
 
-      <div className="jippy-all-outlets-page-header">
-        <div>
-          <h1>
-            Outlets
-          </h1>
-
-          <p>
-            Manage and monitor all restaurant outlets
-          </p>
+      <div className="jippy-all-outlets-page-header cat-page-header">
+        <div className="jippy-all-outlets-heading-left cat-heading-left">
+          <div className="jippy-all-outlets-heading-icon cat-heading-icon">
+            <FiHome />
+          </div>
+          <div>
+            <h1 className="cat-title">Outlets Directory</h1>
+            <p className="cat-subtitle">
+              Manage and monitor all restaurant outlets across zones and cities
+            </p>
+          </div>
         </div>
       </div>
 
@@ -1508,54 +1544,113 @@ useEffect(() => {
 
       {/* SUMMARY CARDS */}
 
-      <div className="jippy-all-outlets-summary-grid">
+      <div className="jippy-all-outlets-summary-grid cat-stats-grid">
 
-        <div className="jippy-all-outlets-summary-card jippy-all-outlets-total-card">
-          <strong>
-            {outletCount}
-          </strong>
-
-          <span>
-            Total Outlets
-          </span>
+        {/* TOTAL OUTLETS (PURPLE - SAME AS CATEGORIES TOTAL) */}
+        <div
+          className="cat-stat-card cat-stat-purple jippy-all-outlets-summary-card jippy-all-outlets-total-card jippy-all-outlets-clickable-card"
+          onClick={() => {
+            setOutletStatus(null);
+            setOutletType(null);
+          }}
+          title="Click to show All Outlets"
+        >
+          <div className="cat-stat-icon jippy-all-outlets-stat-icon">
+            <FiHome />
+          </div>
+          <div className="cat-stat-content jippy-all-outlets-stat-content">
+            <span>Total Outlets</span>
+            <strong>{outletCount}</strong>
+            <small>All registered outlets</small>
+          </div>
         </div>
 
-        <div className="jippy-all-outlets-summary-card jippy-all-outlets-active-card">
-          <strong>
-            {activeOutletCount}
-          </strong>
-
-          <span>
-            Active Outlets
-          </span>
+        {/* ACTIVE OUTLETS (GREEN - SAME AS CATEGORIES HOME/ACTIVE) */}
+        <div
+          className="cat-stat-card cat-stat-green jippy-all-outlets-summary-card jippy-all-outlets-active-card jippy-all-outlets-clickable-card"
+          onClick={() => {
+            setOutletStatus({ value: "Y", label: "Active" });
+            setOutletType(null);
+          }}
+          title="Click to filter Active Outlets"
+        >
+          <div className="cat-stat-icon jippy-all-outlets-stat-icon">
+            <FiCheckCircle />
+          </div>
+          <div className="cat-stat-content jippy-all-outlets-stat-content">
+            <span>Active Outlets</span>
+            <strong>{activeOutletCount}</strong>
+            <small>Currently active</small>
+          </div>
         </div>
 
-        <div className="jippy-all-outlets-summary-card jippy-all-outlets-inactive-card">
-          <strong>
-            {inactiveOutletCount}
-          </strong>
-
-          <span>
-            Inactive Outlets
-          </span>
+        {/* INACTIVE OUTLETS (RED) */}
+        <div
+          className="cat-stat-card cat-stat-red jippy-all-outlets-summary-card jippy-all-outlets-inactive-card jippy-all-outlets-clickable-card"
+          onClick={() => {
+            setOutletStatus({ value: "N", label: "Inactive" });
+            setOutletType(null);
+          }}
+          title="Click to filter Inactive Outlets"
+        >
+          <div className="cat-stat-icon jippy-all-outlets-stat-icon">
+            <FiXCircle />
+          </div>
+          <div className="cat-stat-content jippy-all-outlets-stat-content">
+            <span>Inactive Outlets</span>
+            <strong>{inactiveOutletCount}</strong>
+            <small>Currently inactive</small>
+          </div>
         </div>
 
-        <div className="jippy-all-outlets-summary-card jippy-all-outlets-menu-card">
-          <strong>
-            {outlets.reduce(
-              (total, outlet) =>
-                total +
-                Number(
-                  outlet.menuItemCount ||
-                    0
-                ),
-              0
-            )}
-          </strong>
+        {/* TOTAL MENU ITEMS (BLUE - SAME AS CATEGORIES ALL) */}
+        <div
+          className="cat-stat-card cat-stat-blue jippy-all-outlets-summary-card jippy-all-outlets-menu-card jippy-all-outlets-clickable-card"
+          onClick={() => {
+            if (setActivePage) {
+              setActivePage("masterProducts");
+            }
+          }}
+          title="Click to view Master Products"
+        >
+          <div className="cat-stat-icon jippy-all-outlets-stat-icon">
+            <FiLayers />
+          </div>
+          <div className="cat-stat-content jippy-all-outlets-stat-content">
+            <span>Total Menu Items</span>
+            <strong>
+              {outlets.reduce(
+                (total, outlet) =>
+                  total +
+                  Number(
+                    outlet.menuItemCount ||
+                      0
+                  ),
+                0
+              )}
+            </strong>
+            <small>Master product catalog</small>
+          </div>
+        </div>
 
-          <span>
-            Total Menu Items
-          </span>
+        {/* TOTAL ORDERS (AMBER / GOLD) */}
+        <div
+          className="cat-stat-card cat-stat-amber jippy-all-outlets-summary-card jippy-all-outlets-orders-card jippy-all-outlets-clickable-card"
+          onClick={() => {
+            if (setActivePage) {
+              setActivePage("orders");
+            }
+          }}
+          title="Click to view Orders"
+        >
+          <div className="cat-stat-icon jippy-all-outlets-stat-icon">
+            <FiPackage />
+          </div>
+          <div className="cat-stat-content jippy-all-outlets-stat-content">
+            <span>Total Orders</span>
+            <strong>{totalOrdersCount}</strong>
+            <small>Live orders flow</small>
+          </div>
         </div>
 
       </div>
@@ -2266,6 +2361,12 @@ useEffect(() => {
                   </th>
                 )}
 
+                {visibleColumns.orders && (
+                  <th>
+                    Orders
+                  </th>
+                )}
+
                 {visibleColumns.areaId && (
                   <th>
                     Area Name
@@ -2470,8 +2571,40 @@ useEffect(() => {
 
                           {visibleColumns.menuItemCount && (
                             <td>
-                              {outlet.menuItemCount ??
-                                0}
+                              <span
+                                className="jippy-all-outlets-link-count"
+                                onClick={() =>
+                                  handleOutletProfile(
+                                    outlet,
+                                    "Foods"
+                                  )
+                                }
+                                title="View Outlet Foods"
+                              >
+                                {outlet.menuItemCount ??
+                                  0}
+                              </span>
+                            </td>
+                          )}
+
+                          {/* ORDERS */}
+
+                          {visibleColumns.orders && (
+                            <td>
+                              <span
+                                className="jippy-all-outlets-orders-link"
+                                onClick={() =>
+                                  handleOutletProfile(
+                                    outlet,
+                                    "Orders"
+                                  )
+                                }
+                                title="View Outlet Orders"
+                              >
+                                {outlet.orderCount ??
+                                  outlet.totalOrders ??
+                                  "Orders ↗"}
+                              </span>
                             </td>
                           )}
 

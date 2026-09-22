@@ -2,17 +2,25 @@ import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { menuData } from "../data/menuData";
 import "../styles/Sidebar.css";
-import { hasPermission, hasRoleAccess, canAccessPage } from "../utils/permissionUtils";
+
+import {
+  hasPermission,
+  canAccessPage,
+} from "../utils/permissionUtils";
+
 import { getRole } from "../utils/authUtils";
+
 import {
   FiHome,
   FiChevronRight,
   FiChevronDown,
   FiSearch,
-  FiLogOut
+  FiLogOut,
+  FiMenu,
+  FiX,
 } from "react-icons/fi";
 
-function Sidebar() {
+function Sidebar({ collapsed, setCollapsed }) {
   const navigate = useNavigate();
   const location = useLocation();
   const role = getRole();
@@ -20,6 +28,10 @@ function Sidebar() {
   const [openMenus, setOpenMenus] = useState({});
 
   const toggleMenu = (menuName) => {
+    if (collapsed) {
+      setCollapsed(false);
+    }
+
     setOpenMenus((prev) => ({
       ...prev,
       [menuName]: !prev[menuName],
@@ -30,7 +42,6 @@ function Sidebar() {
     if (item.children) {
       toggleMenu(item.name);
     } else if (item.pageKey) {
-      console.log("Navigating to:", item.pageKey);
       navigate(`/dashboard/${item.pageKey}`);
     }
   };
@@ -40,104 +51,181 @@ function Sidebar() {
     navigate("/login");
   };
 
-  const isDashboardActive = location.pathname === "/dashboard" || location.pathname === "/dashboard/";
+  const handleDashboardClick = () => {
+    navigate("/dashboard");
+  };
+
+  const isDashboardActive =
+    location.pathname === "/dashboard" ||
+    location.pathname === "/dashboard/";
 
   return (
-    <div className="sidebar">
-      <div className="logo">
-        <span className="green">Jippy</span>
-        <span className="orange">Mart</span>
+    <aside className={`sidebar ${collapsed ? "sidebar-collapsed" : ""}`}>
+      {/* =====================================================
+          SIDEBAR HEADER
+      ====================================================== */}
+      <div className="sidebar-header">
+        {!collapsed && (
+          <div className="logo">
+            <span className="green">Jippy</span>
+            <span className="orange">Mart</span>
+          </div>
+        )}
+
+        <button
+          type="button"
+          className="sidebar-toggle-btn"
+          onClick={() => setCollapsed((prev) => !prev)}
+          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          {collapsed ? <FiMenu /> : <FiX />}
+        </button>
       </div>
 
-      <div className="user-info">
-        <strong>{role}</strong>
-      </div>
+      {/* =====================================================
+          ROLE
+      ====================================================== */}
+      {!collapsed && (
+        <div className="sidebar-role">
+          <strong>{role || "USER"}</strong>
+        </div>
+      )}
 
-      <div className="sidebar-search-container">
+      {/* =====================================================
+          SEARCH
+      ====================================================== */}
+      <div
+        className={`sidebar-search-container ${collapsed ? "sidebar-search-collapsed" : ""
+          }`}
+        title={collapsed ? "Search Menu" : ""}
+      >
         <FiSearch className="sidebar-search-icon" />
-        <input
-          type="text"
-          className="sidebar-search-input"
-          placeholder="Search Menu"
-        />
+
+        {!collapsed && (
+          <input
+            type="text"
+            className="sidebar-search-input"
+            placeholder="Search Menu"
+          />
+        )}
       </div>
 
+      {/* =====================================================
+          DASHBOARD
+      ====================================================== */}
       <div
         className={`menu ${isDashboardActive ? "active" : ""}`}
-        onClick={() => navigate("/dashboard")}
+        onClick={handleDashboardClick}
+        title={collapsed ? "Dashboard" : ""}
       >
         <FiHome className="menu-icon" />
-        <span>Dashboard</span>
+
+        {!collapsed && <span>Dashboard</span>}
       </div>
 
-      {menuData
-        .filter((section) => canAccessPage(section.permission, section.role, section.excludeRole))
-        .map((section) => (
-          <div key={section.title}>
-            <div className="section-title">{section.title}</div>
-
-            {section.items
-              .filter((item) => {
-                if (!item.permission) {
-                  return true;
-                }
-                return hasPermission(item.permission);
-              })
-              .map((item) => (
-                <div key={item.name}>
-                  <div
-                    className="menu-item"
-                    onClick={() => handleMenuClick(item)}
-                  >
-                    <span>{item.name}</span>
-
-                      {item.children && (
-                        <span className="arrow">
-                          {openMenus[item.name] ? (
-                            <FiChevronDown />
-                          ) : (
-                            <FiChevronRight />
-                          )}
-                        </span>
-                      )}
-                    </div>
-
-                  {openMenus[item.name] &&
-                    item.children &&
-                    item.children.some((child) =>
-                      hasPermission(child.permission)
-                    ) && (
-                      <div className="submenu">
-                        {item.children
-                          .filter((child) =>
-                            hasPermission(child.permission)
-                          )
-                          .map((child) => (
-                            <div
-                              key={child.name}
-                              className="submenu-item"
-                              onClick={() => {
-                                console.log("Clicked:", child.pageKey);
-                                if (child.pageKey) {
-                                  navigate(`/dashboard/${child.pageKey}`);
-                                }
-                              }}
-                            >
-                              • {child.name}
-                            </div>
-                          ))}
-                      </div>
-                    )}
+      {/* =====================================================
+          MENU DATA
+      ====================================================== */}
+      <div className="sidebar-menu-wrapper">
+        {menuData
+          .filter((section) =>
+            canAccessPage(
+              section.permission,
+              section.role,
+              section.excludeRole
+            )
+          )
+          .map((section) => (
+            <div key={section.title}>
+              {!collapsed && (
+                <div className="section-title">
+                  {section.title}
                 </div>
-              ))}
-          </div>
-        ))}
+              )}
 
-      <div className="logout-btn" onClick={handleLogout}>
-        <FiLogOut className="logout-icon" />
-        <span>Logout</span>
+              {section.items
+                .filter((item) => {
+                  if (!item.permission) {
+                    return true;
+                  }
+
+                  return hasPermission(item.permission);
+                })
+                .map((item) => {
+                  const hasChildren = Boolean(item.children);
+
+                  const visibleChildren =
+                    item.children?.filter((child) =>
+                      hasPermission(child.permission)
+                    ) || [];
+
+                  return (
+                    <div key={item.name}>
+                      <div
+                        className={`menu-item ${collapsed ? "menu-item-collapsed" : ""
+                          }`}
+                        onClick={() => handleMenuClick(item)}
+                        title={collapsed ? item.name : ""}
+                      >
+                        <span className="menu-item-name">
+                          {!collapsed && item.name}
+                        </span>
+
+                        {hasChildren && !collapsed && (
+                          <span className="arrow">
+                            {openMenus[item.name] ? (
+                              <FiChevronDown />
+                            ) : (
+                              <FiChevronRight />
+                            )}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* SUBMENU */}
+                      {!collapsed &&
+                        openMenus[item.name] &&
+                        hasChildren &&
+                        visibleChildren.length > 0 && (
+                          <div className="submenu">
+                            {visibleChildren.map((child) => (
+                              <div
+                                key={child.name}
+                                className="submenu-item"
+                                onClick={() => {
+                                  if (child.pageKey) {
+                                    navigate(
+                                      `/dashboard/${child.pageKey}`
+                                    );
+                                  }
+                                }}
+                              >
+                                • {child.name}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                    </div>
+                  );
+                })}
+            </div>
+          ))}
       </div>
-    </div>
+
+      {/* =====================================================
+          LOGOUT
+      ====================================================== */}
+      <div
+        className={`logout-btn ${collapsed ? "logout-btn-collapsed" : ""
+          }`}
+        onClick={handleLogout}
+        title={collapsed ? "Logout" : ""}
+      >
+        <FiLogOut className="logout-icon" />
+
+        {!collapsed && <span>Logout</span>}
+      </div>
+    </aside>
   );
 }
 

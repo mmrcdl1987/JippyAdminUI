@@ -1017,6 +1017,12 @@ function AddToOutletProducts({
               )
             : null,
 
+        /*
+         * Product toggle flag.
+         * Always send true when mapping products from master.
+         */
+        isToggle: true,
+
         products:
           products.map(
             (product) => {
@@ -1299,6 +1305,11 @@ function AddToOutletProducts({
       console.log(
         "[OUTLET] CATEGORY ID:",
         categoryId
+      );
+
+      console.log(
+        "[OUTLET] IS TOGGLE:",
+        payload.isToggle
       );
 
       console.log(

@@ -11,6 +11,15 @@ import {
   getAllDrivers,
   getDriverById,
 } from "../services/driverService";
+import {
+  FiUsers,
+  FiUserCheck,
+  FiUserX,
+  FiPlus,
+  FiRefreshCw,
+  FiChevronLeft,
+  FiChevronRight,
+} from "react-icons/fi";
 
 function AllDrivers({ setActivePage }) {
   const [showCalendar, setShowCalendar] =
@@ -46,6 +55,10 @@ function AllDrivers({ setActivePage }) {
   const [selectedDriver, setSelectedDriver] =
     useState(null);
 
+  const [statusFilter, setStatusFilter] = useState(null);
+  const [verificationFilter, setVerificationFilter] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
+
   // =========================================================
   // LOAD ALL DRIVERS
   // =========================================================
@@ -73,6 +86,12 @@ function AllDrivers({ setActivePage }) {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await loadDrivers();
+    setTimeout(() => setRefreshing(false), 500);
   };
 
   // =========================================================
@@ -139,6 +158,14 @@ function AllDrivers({ setActivePage }) {
 
   const filteredDrivers = drivers.filter(
     (driver) => {
+      // Status filter
+      if (statusFilter?.value === "ACTIVE" && !driver?.isActive) return false;
+      if (statusFilter?.value === "INACTIVE" && driver?.isActive) return false;
+
+      // Verification filter
+      if (verificationFilter?.value === "VERIFIED" && !driver?.isApproved) return false;
+      if (verificationFilter?.value === "NOT_VERIFIED" && driver?.isApproved) return false;
+
       const query =
         searchQuery
           .toLowerCase()
@@ -387,288 +414,251 @@ function AllDrivers({ setActivePage }) {
   // =========================================================
 
   return (
-    <div className="jippy-all-drivers-page">
-
+    <div className="cat-page jippy-all-drivers-page">
       {/* =====================================================
-          HEADER
+          PAGE HEADER (Categories Style)
           ===================================================== */}
+      <div className="cat-page-header">
+        <div className="cat-heading-left">
+          <div className="cat-heading-icon">
+            <FiUsers />
+          </div>
 
-      <div className="jippy-all-drivers-header">
-        <h2>
-          All Drivers
-        </h2>
+          <div>
+            <h1 className="cat-title">Drivers Management</h1>
+            <p className="cat-subtitle">
+              Manage delivery partners, view profiles, and monitor verification status
+            </p>
+          </div>
+        </div>
+
+        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+          <button
+            type="button"
+            className="cat-refresh-btn"
+            onClick={handleRefresh}
+            disabled={refreshing || loading}
+            title="Refresh driver list"
+          >
+            <FiRefreshCw className={refreshing || loading ? "cat-spin" : ""} />
+            <span>Refresh</span>
+          </button>
+
+          <button
+            type="button"
+            className="cat-create-btn"
+            onClick={() => setActivePage("createDriver")}
+          >
+            <FiPlus />
+            Create Driver
+          </button>
+        </div>
       </div>
 
       {/* =====================================================
-          TITLE
+          STAT CARDS (Categories Style)
           ===================================================== */}
+      <div className="cat-stats-grid">
+        {/* TOTAL */}
+        <div className="cat-stat-card cat-stat-purple">
+          <div className="cat-stat-icon">
+            <FiUsers />
+          </div>
+          <div className="cat-stat-content">
+            <span>Total Drivers</span>
+            <strong>{drivers.length}</strong>
+            <small>Registered delivery partners</small>
+          </div>
+        </div>
 
-      <div className="jippy-drivers-title-section">
-        <h3>
-          <span>
-            Drivers List
-          </span>
+        {/* ACTIVE */}
+        <div className="cat-stat-card cat-stat-green">
+          <div className="cat-stat-icon">
+            <FiUserCheck />
+          </div>
+          <div className="cat-stat-content">
+            <span>Active Drivers</span>
+            <strong>{drivers.filter((d) => d?.isActive).length}</strong>
+            <small>Currently active on platform</small>
+          </div>
+        </div>
 
-          <span className="jippy-drivers-count">
-            {filteredDrivers.length}
-          </span>
-        </h3>
+        {/* INACTIVE */}
+        <div className="cat-stat-card cat-stat-blue">
+          <div className="cat-stat-icon">
+            <FiUserX />
+          </div>
+          <div className="cat-stat-content">
+            <span>Inactive Drivers</span>
+            <strong>{drivers.filter((d) => !d?.isActive).length}</strong>
+            <small>Inactive or pending verification</small>
+          </div>
+        </div>
       </div>
 
       {/* =====================================================
-          FILTERS
+          FILTERS SECTION
           ===================================================== */}
-
-      <div className="jippy-drivers-filter-section">
-
+      <div className="driver-filters-bar">
         {/* DRIVER STATUS */}
-
-        <div className="jippy-driver-filter-wrapper">
+        <div className="driver-filter-item">
           <Select
             className="jippy-driver-react-select"
             classNamePrefix="jippy-driver-select"
             placeholder="Driver Status"
             isClearable
-            options={
-              driverStatusOptions
-            }
+            value={statusFilter}
+            onChange={(selected) => {
+              setStatusFilter(selected);
+              setCurrentPage(1);
+            }}
+            options={driverStatusOptions}
           />
         </div>
 
         {/* VERIFICATION */}
-
-        <div className="jippy-driver-filter-wrapper">
+        <div className="driver-filter-item">
           <Select
             className="jippy-driver-react-select"
             classNamePrefix="jippy-driver-select"
             placeholder="Verification"
             isClearable
-            options={
-              verificationOptions
-            }
+            value={verificationFilter}
+            onChange={(selected) => {
+              setVerificationFilter(selected);
+              setCurrentPage(1);
+            }}
+            options={verificationOptions}
           />
         </div>
 
         {/* DATE RANGE */}
-
         <div className="jippy-driver-date-wrapper">
-
           <button
             type="button"
             className="jippy-driver-date-button"
-            onClick={() =>
-              setShowCalendar(
-                !showCalendar
-              )
-            }
+            onClick={() => setShowCalendar(!showCalendar)}
           >
-            <span>
-              Select Range
-            </span>
-
-            <span className="jippy-driver-date-arrow">
-              ▼
-            </span>
+            <span>Select Range</span>
+            <span className="jippy-driver-date-arrow">▼</span>
           </button>
 
           {showCalendar && (
             <div className="jippy-driver-calendar-popup">
-
               <DateRange
                 editableDateInputs
                 ranges={range}
-                onChange={(item) =>
-                  setRange([
-                    item.selection,
-                  ])
-                }
+                onChange={(item) => setRange([item.selection])}
                 months={2}
                 direction="horizontal"
-                rangeColors={[
-                  "#ff6b00",
-                ]}
+                rangeColors={["#4f46e5"]}
               />
 
               <div className="jippy-driver-calendar-actions">
-
-                <button
-                  type="button"
-                  onClick={
-                    handleCancelRange
-                  }
-                >
+                <button type="button" onClick={handleCancelRange}>
                   Cancel
                 </button>
-
-                <button
-                  type="button"
-                  onClick={
-                    handleApplyRange
-                  }
-                >
+                <button type="button" onClick={handleApplyRange}>
                   Apply
                 </button>
-
               </div>
-
             </div>
           )}
-
         </div>
-
       </div>
 
       {/* =====================================================
           TABLE SECTION
           ===================================================== */}
-
       <div className="jippy-drivers-table-section">
-
         {loading ? (
-
-          <p>
-            Loading drivers...
-          </p>
-
+          <div className="driver-loading-card">
+            <span>Loading drivers...</span>
+          </div>
         ) : (
-
           <>
-
             <DriverTable
-              drivers={
-                currentDrivers
-              }
-
-              setActivePage={
-                setActivePage
-              }
-
-              driversPerPage={
-                driversPerPage
-              }
-
-              setDriversPerPage={
-                handleEntriesChange
-              }
-
-              searchQuery={
-                searchQuery
-              }
-
-              setSearchQuery={
-                handleSearchChange
-              }
-
-              /*
-               * Driver name click
-               */
-              onView={
-                handleViewDriver
-              }
-
-              /*
-               * Edit
-               */
-              onEdit={
-                handleEditDriver
-              }
-
-              /*
-               * Delete
-               */
-              onDelete={
-                handleDeleteDriver
-              }
+              drivers={currentDrivers}
+              setActivePage={setActivePage}
+              driversPerPage={driversPerPage}
+              setDriversPerPage={handleEntriesChange}
+              searchQuery={searchQuery}
+              setSearchQuery={handleSearchChange}
+              onView={handleViewDriver}
+              onEdit={handleEditDriver}
+              onDelete={handleDeleteDriver}
             />
 
             {/* =================================================
-                PAGINATION
+                PAGINATION (Categories Style)
                 ================================================= */}
+            <div className="cat-footer">
+              <div className="cat-footer-info">
+                Showing{" "}
+                <strong>
+                  {filteredDrivers.length > 0 ? indexOfFirstDriver + 1 : 0}
+                </strong>{" "}
+                to{" "}
+                <strong>
+                  {Math.min(indexOfLastDriver, filteredDrivers.length)}
+                </strong>{" "}
+                of <strong>{filteredDrivers.length}</strong> entries
+              </div>
 
-            <div
-              className="jippy-pagination-controls"
-              style={{
-                marginTop: "20px",
-                display: "flex",
-                gap: "10px",
-                alignItems: "center",
-                justifyContent: "flex-end",
-              }}
-            >
+              <div className="pagination-controls">
+                {/* PREVIOUS */}
+                <button
+                  type="button"
+                  className="page-btn"
+                  onClick={() => paginate(safeCurrentPage - 1)}
+                  disabled={safeCurrentPage === 1}
+                  title="Previous Page"
+                >
+                  <FiChevronLeft />
+                </button>
 
-              {/* PREVIOUS */}
-
-              <button
-                type="button"
-                onClick={() =>
-                  paginate(
-                    safeCurrentPage - 1
+                {/* PAGE NUMBERS */}
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter(
+                    (p) =>
+                      p === 1 ||
+                      p === totalPages ||
+                      Math.abs(p - safeCurrentPage) <= 1
                   )
-                }
-                disabled={
-                  safeCurrentPage ===
-                  1
-                }
-                style={{
-                  padding:
-                    "5px 12px",
-                  cursor:
-                    safeCurrentPage ===
-                    1
-                      ? "not-allowed"
-                      : "pointer",
-                }}
-              >
-                Previous
-              </button>
+                  .map((p, idx, arr) => (
+                    <span key={p} className="pagination-item">
+                      {idx > 0 && p - arr[idx - 1] > 1 && (
+                        <span className="pagination-dots">...</span>
+                      )}
+                      <button
+                        type="button"
+                        className={`page-btn ${
+                          p === safeCurrentPage ? "active" : ""
+                        }`}
+                        onClick={() => paginate(p)}
+                      >
+                        {p}
+                      </button>
+                    </span>
+                  ))}
 
-              {/* PAGE */}
-
-              <span
-                style={{
-                  fontSize: "14px",
-                }}
-              >
-                Page{" "}
-                {safeCurrentPage} of{" "}
-                {totalPages}
-              </span>
-
-              {/* NEXT */}
-
-              <button
-                type="button"
-                onClick={() =>
-                  paginate(
-                    safeCurrentPage + 1
-                  )
-                }
-                disabled={
-                  safeCurrentPage ===
-                    totalPages ||
-                  totalPages === 0
-                }
-                style={{
-                  padding:
-                    "5px 12px",
-                  cursor:
-                    safeCurrentPage ===
-                    totalPages
-                      ? "not-allowed"
-                      : "pointer",
-                }}
-              >
-                Next
-              </button>
-
+                {/* NEXT */}
+                <button
+                  type="button"
+                  className="page-btn"
+                  onClick={() => paginate(safeCurrentPage + 1)}
+                  disabled={
+                    safeCurrentPage === totalPages || totalPages === 0
+                  }
+                  title="Next Page"
+                >
+                  <FiChevronRight />
+                </button>
+              </div>
             </div>
-
           </>
-
         )}
-
       </div>
-
     </div>
   );
 }

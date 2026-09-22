@@ -28,7 +28,7 @@ function MasterProductsTable({
             <th>Category</th>
             {/* <th>Food Type</th> */}
             <th>Dietary Type</th>
-            <th>Publish Status</th>
+            <th>IsActive</th>
             <th>Image</th>
             <th>Actions</th>
           </tr>
@@ -62,15 +62,25 @@ function MasterProductsTable({
                       </button>
                     </td>
 
-                    <td>{product.masterProductId}</td>
+                    <td>
+                      <span className="product-id-badge">#{product.masterProductId}</span>
+                    </td>
 
-                    <td>{product.masterProductName}</td>
+                    <td style={{ fontWeight: 600 }}>{product.masterProductName}</td>
 
-                    <td>{product.categoryName}</td>
+                    <td>
+                      <span style={{ color: "#475569", fontWeight: 500 }}>
+                        {product.categoryName || "—"}
+                      </span>
+                    </td>
 
                     {/* <td>{product.foodType || "-"}</td> */}
 
-                    <td>{product.veg ? "Veg" : "Non-Veg"}</td>
+                    <td>
+                      <span className={`diet-badge ${product.veg ? "veg" : "non-veg"}`}>
+                        {product.veg ? "🥦 Veg" : "🍗 Non-Veg"}
+                      </span>
+                    </td>
 
                     <td>
                       <label className="publish-switch">
@@ -83,21 +93,15 @@ function MasterProductsTable({
                       </label>
                     </td>
 
-
                     <td>
                       {product.photo || product.thumbnail ? (
                         <img
                           src={product.photo || product.thumbnail}
                           alt="Product"
-                          width="80"
-                          height="80"
-                          style={{
-                            objectFit: "cover",
-                            borderRadius: "6px",
-                          }}
+                          className="product-table-img"
                         />
                       ) : (
-                        "-"
+                        <span style={{ color: "#94a3b8" }}>—</span>
                       )}
                     </td>
 

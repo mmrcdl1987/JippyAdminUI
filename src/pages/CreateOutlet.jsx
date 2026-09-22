@@ -109,20 +109,22 @@ const [areas, setAreas] = useState([]);
 
   //Fetch Merchants & States
   const fetchMerchants = async () => {
-
-  try {
-
-    const response = await getAllMerchants();
-
-    setMerchants(response.data.data);
-
-  } catch (error) {
-
-    console.error(error);
-
-  }
-
-};
+    try {
+      const response = await getAllMerchants();
+      const list = Array.isArray(response)
+        ? response
+        : Array.isArray(response?.data)
+        ? response.data
+        : Array.isArray(response?.content)
+        ? response.content
+        : Array.isArray(response?.data?.data)
+        ? response.data.data
+        : [];
+      setMerchants(list);
+    } catch (error) {
+      console.error("Failed to fetch merchants:", error);
+    }
+  };
 
 const fetchStates = async () => {
 
@@ -222,32 +224,44 @@ const fetchAreas = async (selectedCityId) => {
 
             <div className="create-outlet-form-group">
 
-              <label>Merchant ID</label>
+              <label>Merchant <span>*</span></label>
 
               <Select
- options={merchants.map((merchant) => ({
-  value: merchant.merchantId,
-  label: merchant.merchantName,
-}))}
-
-  value={
-  merchants
-    .map((merchant) => ({
-      value: merchant.merchantId,
-      label: merchant.merchantName,
-    }))
-    .find((item) => item.value === merchantId) || null
-}
-
-  onChange={(selected) =>
-    setMerchantId(selected.value)
-  }
-
-  placeholder="Select Merchant"
-
-  isSearchable
-  
-/>
+                options={merchants.map((merchant) => {
+                  const id = merchant.merchantId || merchant.id;
+                  const name =
+                    merchant.merchantName ||
+                    merchant.name ||
+                    merchant.businessName ||
+                    `${merchant.firstName || ""} ${merchant.lastName || ""}`.trim() ||
+                    `Merchant #${id}`;
+                  return {
+                    value: id,
+                    label: `${name} (ID: ${id})`,
+                  };
+                })}
+                value={
+                  merchants
+                    .map((merchant) => {
+                      const id = merchant.merchantId || merchant.id;
+                      const name =
+                        merchant.merchantName ||
+                        merchant.name ||
+                        merchant.businessName ||
+                        `${merchant.firstName || ""} ${merchant.lastName || ""}`.trim() ||
+                        `Merchant #${id}`;
+                      return {
+                        value: id,
+                        label: `${name} (ID: ${id})`,
+                      };
+                    })
+                    .find((item) => String(item.value) === String(merchantId)) || null
+                }
+                onChange={(selected) => setMerchantId(selected ? selected.value : "")}
+                placeholder="Select Merchant"
+                isSearchable
+                isClearable
+              />
 
             </div>
 

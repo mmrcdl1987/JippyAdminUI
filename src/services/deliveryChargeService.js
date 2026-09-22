@@ -66,13 +66,13 @@ export const deleteDeliveryRule = async (id) => {
 
 // Get all zones
 // Maps to:
-// GET /api/driver/getZones
+// GET /api/driver/zones
 //
 // The UI will display the zone name,
 // while the selected zone ID will be sent
 // to the delivery charge save API.
 export const getZones = async () => {
-  const response = await FM_API.get("/api/driver/getZones");
+  const response = await FM_API.get("/api/driver/zones");
 
   return response.data;
 };

@@ -9,6 +9,7 @@ import AdminUsers from "../pages/AdminUsers";
 import MerchantSettlement from "../pages/MerchantSettlement";
 import UsersCustomers from "../pages/UsersCustomers";
 import CreateUser from "../pages/CreateUser";
+import UserDetails from "../pages/UserDetails";
 
 import AdvertisementOutlets from "../pages/AdvertisementOutlets";
 import BannerDesigner from "../pages/BannerDesigner";
@@ -16,6 +17,9 @@ import BannerDesignerEdit from "../pages/BannerDesignerEdit";
 import PlanCampaign from "../pages/PlanCampaign";
 import ProductPriceUpdate from "../pages/ProductPriceUpdate";
 import PromotionSettings from "../pages/PromotionSettings";
+import PromotionProducts from "../pages/PromotionProducts";
+import CreatePromotionProduct from "../pages/CreatePromotionProduct";
+import PromotionPlansHistory from "../pages/PromotionPlansHistory";
 
 import ResetPassword from "../pages/ResetPassword";
 
@@ -185,6 +189,11 @@ export const pageRegistry = {
   createUser: {
     component: CreateUser,
     permission: "CUSTOMER_CREATE",
+  },
+
+  userDetails: {
+    component: UserDetails,
+    permission: "CUSTOMER_READ",
   },
 
 
@@ -369,6 +378,22 @@ orderDetails: {
     component: PromotionSettings,
     permission: "PROMOTION_READ",
   },
+  promotionProducts: {
+    component: PromotionProducts,
+    permission: "PROMOTION_READ",
+  },
+  createPromotionProduct: {
+    component: CreatePromotionProduct,
+    permission: "PROMOTION_READ",
+  },
+  editPromotionProduct: {
+    component: CreatePromotionProduct,
+    permission: "PROMOTION_READ",
+  },
+  promotionPlansHistory: {
+    component: PromotionPlansHistory,
+    permission: "PROMOTION_READ",
+  },
 createPromotionSettings: {
   component: CreatePromotionSettings,
   permission: "PROMOTION_READ",
@@ -443,6 +468,11 @@ editPromotionSettings: {
   // =========================
 
   subscriptionPlanSettings: {
+    component: SubscriptionPlanSettings,
+    permission: "SETTINGS_READ",
+  },
+
+  subscriptionSettings: {
     component: SubscriptionPlanSettings,
     permission: "SETTINGS_READ",
   },

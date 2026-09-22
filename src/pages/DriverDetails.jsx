@@ -3,6 +3,20 @@ import {
   FiArrowLeft,
   FiLoader,
   FiCheck,
+  FiUser,
+  FiShoppingBag,
+  FiDollarSign,
+  FiCalendar,
+  FiFileText,
+  FiCreditCard,
+  FiMapPin,
+  FiPhone,
+  FiMail,
+  FiShield,
+  FiCheckCircle,
+  FiAlertCircle,
+  FiCopy,
+  FiRefreshCw,
 } from "react-icons/fi";
 
 import "../styles/DriverDetails.css";
@@ -13,6 +27,14 @@ import {
   getDriverIncentiveHistory,
   getDriverIncentiveHistoryPage,
 } from "../services/driverService";
+
+import {
+  getStates,
+  getCitiesByState,
+  getAreasByCity,
+  getAllAreas,
+} from "../services/managerAreaService";
+
 
 
 function DriverDetails({ setActivePage }) {
@@ -113,47 +135,179 @@ function DriverDetails({ setActivePage }) {
 
 
   /* =========================================================
-     TABS
+     LOCATION RESOLUTION (Names instead of IDs)
+     ========================================================= */
+
+  const [resolvedLocation, setResolvedLocation] = useState({
+    stateName: "",
+    cityName: "",
+    areaName: "",
+  });
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const resolveLocation = async () => {
+      if (!details) return;
+
+      let sName = details.stateName || details.state || "";
+      let cName = details.cityName || details.city || "";
+      let aName = details.areaName || details.area || "";
+
+      // 1. Resolve State Name if missing
+      if (!sName && details.stateId) {
+        try {
+          const res = await getStates();
+          const list = Array.isArray(res) ? res : res?.data || res?.content || [];
+          const match = list.find(
+            (s) => String(s.stateId || s.id) === String(details.stateId)
+          );
+          if (match) {
+            sName = match.stateName || match.name || "";
+          }
+        } catch (err) {
+          console.warn("Could not resolve state name:", err);
+        }
+      }
+
+      // 2. Resolve City Name if missing
+      if (!cName && details.cityId) {
+        try {
+          let list = [];
+          if (details.stateId) {
+            const res = await getCitiesByState(details.stateId);
+            list = Array.isArray(res) ? res : res?.data || res?.content || [];
+          }
+          let match = list.find(
+            (c) => String(c.cityId || c.id || c.city_id) === String(details.cityId)
+          );
+          if (match) {
+            cName = match.cityName || match.name || match.city_name || "";
+          }
+        } catch (err) {
+          console.warn("Could not resolve city name:", err);
+        }
+      }
+
+      // 3. Resolve Area Name if missing
+      if (!aName && details.areaId) {
+        try {
+          let list = [];
+          if (details.cityId) {
+            const res = await getAreasByCity(details.cityId);
+            list = Array.isArray(res) ? res : res?.data || res?.content || [];
+          }
+          if (!list.length) {
+            const res = await getAllAreas();
+            list = Array.isArray(res) ? res : res?.data || res?.content || [];
+          }
+          const match = list.find(
+            (a) => String(a.areaId || a.id) === String(details.areaId)
+          );
+          if (match) {
+            aName = match.areaName || match.name || "";
+          }
+        } catch (err) {
+          console.warn("Could not resolve area name:", err);
+        }
+      }
+
+      if (isMounted) {
+        setResolvedLocation({
+          stateName: sName,
+          cityName: cName,
+          areaName: aName,
+        });
+      }
+    };
+
+    resolveLocation();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [
+    details?.stateId,
+    details?.cityId,
+    details?.areaId,
+    details?.stateName,
+    details?.cityName,
+    details?.areaName,
+  ]);
+
+
+  /* =========================================================
+     CLIPBOARD COPY & REFRESH
+     ========================================================= */
+
+  const [copiedField, setCopiedField] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const copyToClipboard = (text, fieldName) => {
+    if (!text || text === "-") return;
+    navigator.clipboard.writeText(String(text));
+    setCopiedField(fieldName);
+    setTimeout(() => {
+      setCopiedField(null);
+    }, 2000);
+  };
+
+  const handleRefresh = async () => {
+    const driverId = details?.driverId || details?.id;
+    if (!driverId) return;
+
+    try {
+      setRefreshing(true);
+      const response = await getDriverById(driverId);
+      setDetails((prev) => ({
+        ...(prev || {}),
+        ...(response || {}),
+      }));
+    } catch (err) {
+      console.error("Refresh driver error:", err);
+    } finally {
+      setTimeout(() => setRefreshing(false), 600);
+    }
+  };
+
+
+  /* =========================================================
+     TABS (Activity & Incentives Removed)
      ========================================================= */
 
   const tabs = [
     {
       id: "details",
       label: "Driver Details",
+      icon: FiUser,
     },
     {
       id: "orders",
       label: "Orders",
-    },
-    {
-      id: "incentives",
-      label: "Incentives",
-    },
-    {
-      id: "incentiveHistory",
-      label: "Incentive History",
+      icon: FiShoppingBag,
     },
     {
       id: "earnings",
       label: "Earnings",
+      icon: FiDollarSign,
     },
     {
       id: "attendance",
       label: "Attendance",
+      icon: FiCalendar,
     },
     {
       id: "documents",
       label: "Documents",
+      icon: FiFileText,
     },
     {
       id: "payments",
       label: "Payments",
-    },
-    {
-      id: "activity",
-      label: "Activity",
+      icon: FiCreditCard,
     },
   ];
+
 
 
   /* =========================================================
@@ -615,35 +769,14 @@ function DriverDetails({ setActivePage }) {
   const EmptyTab = ({
     title,
     message,
+    icon: TabIcon = FiShoppingBag,
   }) => (
-    <div
-      className="jippy-driver-details-card"
-      style={{
-        minHeight: "180px",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        alignItems: "center",
-        textAlign: "center",
-      }}
-    >
-      <h3
-        style={{
-          margin: "0 0 8px",
-        }}
-      >
-        {title}
-      </h3>
-
-      <p
-        style={{
-          margin: 0,
-          color: "#777",
-          fontSize: "13px",
-        }}
-      >
-        {message}
-      </p>
+    <div className="driver-empty-state-card jippy-driver-details-card">
+      <div className="driver-empty-state-icon">
+        <TabIcon />
+      </div>
+      <h3 className="driver-empty-state-title">{title}</h3>
+      <p className="driver-empty-state-msg">{message}</p>
     </div>
   );
 
@@ -666,359 +799,485 @@ function DriverDetails({ setActivePage }) {
       details?.profileImageUrl ||
       null;
 
+    const displayState =
+      details?.stateName ||
+      details?.state ||
+      resolvedLocation.stateName ||
+      (details?.stateId ? `State #${details.stateId}` : "-");
+
+    const displayCity =
+      details?.cityName ||
+      details?.city ||
+      resolvedLocation.cityName ||
+      (details?.cityId ? `City #${details.cityId}` : "-");
+
+    const displayArea =
+      details?.areaName ||
+      details?.area ||
+      resolvedLocation.areaName ||
+      (details?.areaId ? `Area #${details.areaId}` : "-");
+
     return (
       <>
-        {/* BASIC DETAILS */}
-
-        <div className="jippy-driver-details-card">
-
-          <div className="jippy-driver-details-title">
-
-            <div>
-              <h3>
-                {driverName ||
-                  "Driver"}
-              </h3>
-
-              <span>
-                Driver ID:{" "}
-                {details?.driverId ||
-                  details?.id ||
-                  "-"}
-              </span>
-            </div>
-
-            <span
-              className={`jippy-status-badge ${
-                details?.isActive
-                  ? "active"
-                  : "inactive"
-              }`}
-            >
-              {details?.isActive
-                ? "Active"
-                : "Inactive"}
-            </span>
-
-          </div>
-
-
-          <div className="jippy-driver-details-grid">
-
-            <Detail
-              label="Driver ID"
-              value={
-                details?.driverId ||
-                details?.id
-              }
-            />
-
-            <Detail
-              label="First Name"
-              value={
-                details?.firstName
-              }
-            />
-
-            <Detail
-              label="Last Name"
-              value={
-                details?.lastName
-              }
-            />
-
-            <Detail
-              label="Email"
-              value={
-                details?.email
-              }
-            />
-
-            <Detail
-              label="Phone Number"
-              value={
-                details?.phoneNumber
-              }
-            />
-
-            <Detail
-              label="Area"
-              value={
-                details?.areaName ||
-                details?.areaId
-              }
-            />
-
-            <Detail
-              label="Gender"
-              value={
-                details?.gender
-              }
-            />
-
-            <Detail
-              label="Date of Birth"
-              value={
-                details?.dateOfBirth
-              }
-            />
-
-          </div>
-
-        </div>
-
-
-        {/* NOMINEE */}
-
-        <div className="jippy-driver-details-card">
-
-          <h3>
-            Nominee &amp; Family Details
-          </h3>
-
-          <div className="jippy-driver-details-grid">
-
-            <Detail
-              label="Nominee Name"
-              value={
-                details?.nomineeName
-              }
-            />
-
-            <Detail
-              label="Nominee Phone"
-              value={
-                details?.nomineePhoneNumber ||
-                details?.nomineePhone
-              }
-            />
-
-            <Detail
-              label="Nominee Verified"
-              value={
-                details?.isNomineeVerified
-                  ? "Yes"
-                  : "No"
-              }
-              valueClass={
-                details?.isNomineeVerified
-                  ? "jippy-driver-verified"
-                  : "jippy-driver-not-verified"
-              }
-            />
-
-            <Detail
-              label="Family Member"
-              value={
-                details?.familyMemberName
-              }
-            />
-
-            <Detail
-              label="Family Phone"
-              value={
-                details?.familyMemberPhoneNumber ||
-                details?.familyPhone
-              }
-            />
-
-            <Detail
-              label="Family Member Verified"
-              value={
-                details?.isFamilyMemberVerified
-                  ? "Yes"
-                  : "No"
-              }
-              valueClass={
-                details?.isFamilyMemberVerified
-                  ? "jippy-driver-verified"
-                  : "jippy-driver-not-verified"
-              }
-            />
-
-          </div>
-
-        </div>
-
-
-        {/* KYC */}
-
-        <div className="jippy-driver-details-card">
-
-          <h3>
-            KYC Details
-          </h3>
-
-          <div className="jippy-driver-details-grid">
-
-            <Detail
-              label="Driver KYC ID"
-              value={
-                details?.driverKycId
-              }
-            />
-
-            <Detail
-              label="Aadhaar Number"
-              value={
-                details?.aadharNumber ||
-                details?.aadhaarNumber
-              }
-            />
-
-            <Detail
-              label="Driving License"
-              value={
-                details?.drivingLicenseNumber ||
-                details?.drivingLicense
-              }
-            />
-
-            <Detail
-              label="RC Number"
-              value={
-                details?.rcNumber ||
-                details?.rcCopy
-              }
-            />
-
-          </div>
-
-        </div>
-
-
-        {/* ADDRESS */}
-
-        <div className="jippy-driver-details-card">
-
-          <h3>
-            Address Details
-          </h3>
-
-          <div className="jippy-driver-details-grid">
-
-            <Detail
-              label="Building Number"
-              value={
-                details?.buildingNumber
-              }
-            />
-
-            <Detail
-              label="Road"
-              value={
-                details?.road
-              }
-            />
-
-            <Detail
-              label="Landmark"
-              value={
-                details?.landmark
-              }
-            />
-
-            <Detail
-              label="State ID"
-              value={
-                details?.stateId
-              }
-            />
-
-            <Detail
-              label="City ID"
-              value={
-                details?.cityId
-              }
-            />
-
-            <Detail
-              label="Area ID"
-              value={
-                details?.areaId
-              }
-            />
-
-            <Detail
-              label="Address"
-              value={
-                details?.address
-              }
-            />
-
-            <Detail
-              label="Pincode"
-              value={
-                details?.pincode ||
-                details?.pinCode
-              }
-            />
-
-          </div>
-
-        </div>
-
-
-        {/* APPROVAL */}
-
-        {details?.isApproved !==
-          undefined &&
-          details?.isApproved !==
-            null && (
-
-          <div className="jippy-driver-details-card">
-
-            <h3>
-              Verification Status
-            </h3>
-
-            <div
-              className={
-                details?.isApproved
-                  ? "jippy-driver-approved-badge"
-                  : "jippy-driver-pending-badge"
-              }
-            >
-
-              {details?.isApproved && (
-                <FiCheck />
+        {/* DRIVER HERO PROFILE CARD */}
+        <div className="driver-hero-card">
+          <div className="driver-hero-content">
+            <div className="driver-avatar-container">
+              {profileImage ? (
+                <img
+                  src={profileImage}
+                  alt={driverName || "Driver"}
+                  className="driver-avatar-img"
+                />
+              ) : (
+                <div className="driver-avatar-initials">
+                  {(details?.firstName?.[0] || "D") + (details?.lastName?.[0] || "")}
+                </div>
               )}
-
-              {details?.isApproved
-                ? "Approved"
-                : "Pending"}
-
             </div>
 
+            <div className="driver-hero-info">
+              <div className="driver-hero-name-row">
+                <h2 className="driver-hero-name">
+                  {driverName || "Driver Details"}
+                </h2>
+                <span className="driver-id-badge">
+                  ID: #{details?.driverId || details?.id || "-"}
+                </span>
+                <span
+                  className={`driver-status-pill ${
+                    details?.isActive ? "active" : "inactive"
+                  }`}
+                >
+                  <span className="driver-status-dot" />
+                  {details?.isActive ? "Active" : "Inactive"}
+                </span>
+                {details?.isApproved !== undefined && details?.isApproved !== null && (
+                  <span
+                    className={`driver-status-pill ${
+                      details?.isApproved ? "approved" : "pending"
+                    }`}
+                  >
+                    {details?.isApproved ? <FiCheck /> : null}
+                    {details?.isApproved ? "Approved" : "Pending Verification"}
+                  </span>
+                )}
+              </div>
+
+              <div className="driver-hero-meta-chips">
+                {details?.phoneNumber && (
+                  <button
+                    type="button"
+                    className="driver-meta-chip"
+                    onClick={() => copyToClipboard(details.phoneNumber, "hero_phone")}
+                    title="Click to copy phone number"
+                  >
+                    <FiPhone className="chip-icon" />
+                    <span>{details.phoneNumber}</span>
+                    {copiedField === "hero_phone" ? (
+                      <FiCheck className="chip-copy-icon copied" />
+                    ) : (
+                      <FiCopy className="chip-copy-icon" />
+                    )}
+                  </button>
+                )}
+
+                {details?.email && (
+                  <button
+                    type="button"
+                    className="driver-meta-chip"
+                    onClick={() => copyToClipboard(details.email, "hero_email")}
+                    title="Click to copy email address"
+                  >
+                    <FiMail className="chip-icon" />
+                    <span>{details.email}</span>
+                    {copiedField === "hero_email" ? (
+                      <FiCheck className="chip-copy-icon copied" />
+                    ) : (
+                      <FiCopy className="chip-copy-icon" />
+                    )}
+                  </button>
+                )}
+
+                {displayArea !== "-" && (
+                  <div className="driver-meta-chip area-chip">
+                    <FiMapPin className="chip-icon" />
+                    <span>{displayArea}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* PERSONAL DETAILS */}
+        <div className="driver-details-card jippy-driver-details-card">
+          <div className="driver-card-header">
+            <div className="driver-card-header-left">
+              <div className="driver-card-icon-box orange">
+                <FiUser />
+              </div>
+              <div>
+                <h3>Personal Information</h3>
+                <p className="driver-card-subtitle">Driver identity, contact and demographic data</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="driver-card-body">
+            <div className="driver-info-grid jippy-driver-details-grid">
+              <Detail
+                label="Driver ID"
+                value={details?.driverId || details?.id}
+                icon={<FiUser />}
+                copyable
+                copyKey="driver_id"
+                copiedField={copiedField}
+                onCopy={copyToClipboard}
+              />
+
+              <Detail
+                label="First Name"
+                value={details?.firstName}
+                icon={<FiUser />}
+              />
+
+              <Detail
+                label="Last Name"
+                value={details?.lastName}
+                icon={<FiUser />}
+              />
+
+              <Detail
+                label="Email"
+                value={details?.email}
+                icon={<FiMail />}
+                copyable
+                copyKey="email"
+                copiedField={copiedField}
+                onCopy={copyToClipboard}
+              />
+
+              <Detail
+                label="Phone Number"
+                value={details?.phoneNumber}
+                icon={<FiPhone />}
+                copyable
+                copyKey="phone"
+                copiedField={copiedField}
+                onCopy={copyToClipboard}
+              />
+
+              <Detail
+                label="Area"
+                value={displayArea}
+                icon={<FiMapPin />}
+              />
+
+              <Detail
+                label="Gender"
+                value={details?.gender}
+                icon={<FiUser />}
+              />
+
+              <Detail
+                label="Date of Birth"
+                value={details?.dateOfBirth}
+                icon={<FiCalendar />}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* NOMINEE & FAMILY DETAILS */}
+        <div className="driver-details-card jippy-driver-details-card">
+          <div className="driver-card-header">
+            <div className="driver-card-header-left">
+              <div className="driver-card-icon-box purple">
+                <FiShield />
+              </div>
+              <div>
+                <h3>Nominee &amp; Family Details</h3>
+                <p className="driver-card-subtitle">Registered emergency contacts and verified relatives</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="driver-card-body">
+            <div className="driver-info-grid jippy-driver-details-grid">
+              <Detail
+                label="Nominee Name"
+                value={details?.nomineeName}
+                icon={<FiUser />}
+              />
+
+              <Detail
+                label="Nominee Phone"
+                value={details?.nomineePhoneNumber || details?.nomineePhone}
+                icon={<FiPhone />}
+                copyable
+                copyKey="nominee_phone"
+                copiedField={copiedField}
+                onCopy={copyToClipboard}
+              />
+
+              <Detail
+                label="Nominee Verified"
+                value={details?.isNomineeVerified ? "Yes" : "No"}
+                icon={<FiCheckCircle />}
+                customRender={
+                  <span
+                    className={`driver-verif-chip ${
+                      details?.isNomineeVerified ? "verified" : "unverified"
+                    }`}
+                  >
+                    {details?.isNomineeVerified ? (
+                      <>
+                        <FiCheckCircle /> Verified
+                      </>
+                    ) : (
+                      <>
+                        <FiAlertCircle /> Unverified
+                      </>
+                    )}
+                  </span>
+                }
+              />
+
+              <Detail
+                label="Family Member"
+                value={details?.familyMemberName}
+                icon={<FiUser />}
+              />
+
+              <Detail
+                label="Family Phone"
+                value={details?.familyMemberPhoneNumber || details?.familyPhone}
+                icon={<FiPhone />}
+                copyable
+                copyKey="family_phone"
+                copiedField={copiedField}
+                onCopy={copyToClipboard}
+              />
+
+              <Detail
+                label="Family Member Verified"
+                value={details?.isFamilyMemberVerified ? "Yes" : "No"}
+                icon={<FiCheckCircle />}
+                customRender={
+                  <span
+                    className={`driver-verif-chip ${
+                      details?.isFamilyMemberVerified ? "verified" : "unverified"
+                    }`}
+                  >
+                    {details?.isFamilyMemberVerified ? (
+                      <>
+                        <FiCheckCircle /> Verified
+                      </>
+                    ) : (
+                      <>
+                        <FiAlertCircle /> Unverified
+                      </>
+                    )}
+                  </span>
+                }
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* KYC DETAILS */}
+        <div className="driver-details-card jippy-driver-details-card">
+          <div className="driver-card-header">
+            <div className="driver-card-header-left">
+              <div className="driver-card-icon-box blue">
+                <FiFileText />
+              </div>
+              <div>
+                <h3>KYC Details</h3>
+                <p className="driver-card-subtitle">Identification documents, vehicle license and registration</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="driver-card-body">
+            <div className="driver-info-grid jippy-driver-details-grid">
+              <Detail
+                label="Driver KYC ID"
+                value={details?.driverKycId}
+                icon={<FiFileText />}
+              />
+
+              <Detail
+                label="Aadhaar Number"
+                value={details?.aadharNumber || details?.aadhaarNumber}
+                icon={<FiFileText />}
+                copyable
+                copyKey="aadhaar"
+                copiedField={copiedField}
+                onCopy={copyToClipboard}
+              />
+
+              <Detail
+                label="Driving License"
+                value={details?.drivingLicenseNumber || details?.drivingLicense}
+                icon={<FiFileText />}
+                copyable
+                copyKey="dl"
+                copiedField={copiedField}
+                onCopy={copyToClipboard}
+              />
+
+              <Detail
+                label="RC Number"
+                value={details?.rcNumber || details?.rcCopy}
+                icon={<FiFileText />}
+                copyable
+                copyKey="rc"
+                copiedField={copiedField}
+                onCopy={copyToClipboard}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* ADDRESS DETAILS */}
+        <div className="driver-details-card jippy-driver-details-card">
+          <div className="driver-card-header">
+            <div className="driver-card-header-left">
+              <div className="driver-card-icon-box emerald">
+                <FiMapPin />
+              </div>
+              <div>
+                <h3>Address Details</h3>
+                <p className="driver-card-subtitle">Residential location, state, city and assigned coverage area</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="driver-card-body">
+            <div className="driver-info-grid jippy-driver-details-grid">
+              <Detail
+                label="Building Number"
+                value={details?.buildingNumber}
+                icon={<FiMapPin />}
+                copyable
+                copyKey="building"
+                copiedField={copiedField}
+                onCopy={copyToClipboard}
+              />
+
+              <Detail
+                label="Road"
+                value={details?.road}
+                icon={<FiMapPin />}
+              />
+
+              <Detail
+                label="Landmark"
+                value={details?.landmark}
+                icon={<FiMapPin />}
+              />
+
+              <Detail
+                label="State"
+                value={displayState}
+                icon={<FiMapPin />}
+              />
+
+              <Detail
+                label="City"
+                value={displayCity}
+                icon={<FiMapPin />}
+              />
+
+              <Detail
+                label="Area"
+                value={displayArea}
+                icon={<FiMapPin />}
+              />
+
+              <Detail
+                label="Address"
+                value={details?.address}
+                icon={<FiMapPin />}
+                copyable
+                copyKey="address"
+                copiedField={copiedField}
+                onCopy={copyToClipboard}
+              />
+
+              <Detail
+                label="Pincode"
+                value={details?.pincode || details?.pinCode}
+                icon={<FiMapPin />}
+                copyable
+                copyKey="pincode"
+                copiedField={copiedField}
+                onCopy={copyToClipboard}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* VERIFICATION STATUS */}
+        {details?.isApproved !== undefined && details?.isApproved !== null && (
+          <div className="driver-details-card jippy-driver-details-card">
+            <div className="driver-card-header">
+              <div className="driver-card-header-left">
+                <div className="driver-card-icon-box amber">
+                  <FiCheckCircle />
+                </div>
+                <div>
+                  <h3>Verification Status</h3>
+                  <p className="driver-card-subtitle">Driver onboarding approval state</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="driver-card-body">
+              <div
+                className={`driver-verif-chip large ${
+                  details?.isApproved ? "verified" : "pending"
+                }`}
+              >
+                {details?.isApproved ? <FiCheckCircle /> : <FiAlertCircle />}
+                <span>
+                  {details?.isApproved
+                    ? "Driver Onboarding Approved"
+                    : "Onboarding Approval Pending"}
+                </span>
+              </div>
+            </div>
           </div>
         )}
 
-
-        {/* PROFILE */}
-
-        <div className="jippy-driver-details-card">
-
-          <h3>
-            Profile Picture
-          </h3>
-
-          <div className="jippy-driver-details-profile">
-
-            {profileImage ? (
-              <img
-                src={profileImage}
-                alt="Driver Profile"
-              />
-            ) : (
-              <div className="jippy-driver-details-no-image">
-                No Image
+        {/* PROFILE PICTURE */}
+        {profileImage && (
+          <div className="driver-details-card jippy-driver-details-card">
+            <div className="driver-card-header">
+              <div className="driver-card-header-left">
+                <div className="driver-card-icon-box blue">
+                  <FiUser />
+                </div>
+                <div>
+                  <h3>Profile Picture</h3>
+                  <p className="driver-card-subtitle">Photo uploaded during driver registration</p>
+                </div>
               </div>
-            )}
+            </div>
 
+            <div className="driver-card-body">
+              <div className="driver-profile-photo-wrapper">
+                <img
+                  src={profileImage}
+                  alt="Driver Profile"
+                  className="driver-profile-photo-img"
+                />
+              </div>
+            </div>
           </div>
-
-        </div>
-
+        )}
       </>
     );
   };
@@ -1734,13 +1993,11 @@ function DriverDetails({ setActivePage }) {
 
 
   /* =========================================================
-     TAB CONTENT
+     TAB CONTENT (Activity & Incentives Removed)
      ========================================================= */
 
   const renderTabContent = () => {
-
     switch (activeTab) {
-
       case "details":
         return renderDriverDetails();
 
@@ -1748,15 +2005,10 @@ function DriverDetails({ setActivePage }) {
         return (
           <EmptyTab
             title="Orders"
-            message="Driver order details will be displayed here."
+            message="Driver order history, assigned deliveries and routes will appear here."
+            icon={FiShoppingBag}
           />
         );
-
-      case "incentives":
-        return renderIncentives();
-
-      case "incentiveHistory":
-        return renderIncentiveHistory();
 
       case "earnings":
         return renderEarnings();
@@ -1765,7 +2017,8 @@ function DriverDetails({ setActivePage }) {
         return (
           <EmptyTab
             title="Attendance"
-            message="Driver attendance details will be displayed here."
+            message="Driver shifts, clock-in logs and active work sessions will appear here."
+            icon={FiCalendar}
           />
         );
 
@@ -1773,7 +2026,8 @@ function DriverDetails({ setActivePage }) {
         return (
           <EmptyTab
             title="Documents"
-            message="Driver documents will be displayed here."
+            message="Driver identification, RC, vehicle insurance and licenses will appear here."
+            icon={FiFileText}
           />
         );
 
@@ -1781,15 +2035,8 @@ function DriverDetails({ setActivePage }) {
         return (
           <EmptyTab
             title="Payments"
-            message="Driver payment details will be displayed here."
-          />
-        );
-
-      case "activity":
-        return (
-          <EmptyTab
-            title="Activity"
-            message="Driver activity history will be displayed here."
+            message="Driver payout settlements, bank transactions and payment history will appear here."
+            icon={FiCreditCard}
           />
         );
 
@@ -1805,16 +2052,9 @@ function DriverDetails({ setActivePage }) {
 
   if (loading) {
     return (
-      <div className="jippy-driver-details-loading">
-
-        <FiLoader
-          className="jippy-driver-loader"
-        />
-
-        <span>
-          Loading driver details...
-        </span>
-
+      <div className="driver-loading-card jippy-driver-details-loading">
+        <FiLoader className="jippy-driver-loader" />
+        <span>Loading driver details...</span>
       </div>
     );
   }
@@ -1826,26 +2066,33 @@ function DriverDetails({ setActivePage }) {
 
   if (!details) {
     return (
-      <div className="jippy-driver-details-page">
+      <div className="driver-details-page jippy-driver-details-page">
+        <div className="page-header-container">
+          <div
+            className="breadcrumb-header"
+            onClick={handleBack}
+          >
+            <FiArrowLeft className="back-arrow-icon" />
+            <h2>Driver Details</h2>
+          </div>
+          <p className="breadcrumb-trail">
+            <span onClick={handleBack}>
+              Drivers
+            </span>
+            {" > "}
+            Driver Details
+          </p>
+        </div>
 
-        <button
-          type="button"
-          className="jippy-driver-back-btn"
-          onClick={handleBack}
-        >
-          <FiArrowLeft />
-          Back to Drivers
-        </button>
-
-        <h2>
-          Driver Details
-        </h2>
-
-        <p>
-          {errorMessage ||
-            "Driver details not found."}
-        </p>
-
+        <div className="driver-empty-state-card jippy-driver-details-card">
+          <div className="driver-empty-state-icon">
+            <FiUser />
+          </div>
+          <h3 className="driver-empty-state-title">Driver Not Found</h3>
+          <p className="driver-empty-state-msg">
+            {errorMessage || "The requested driver details could not be found."}
+          </p>
+        </div>
       </div>
     );
   }
@@ -1856,229 +2103,140 @@ function DriverDetails({ setActivePage }) {
      ========================================================= */
 
   return (
-    <div className="jippy-driver-details-page">
-
-      {/* HEADER */}
-
-      <div className="jippy-driver-details-header">
-
-        <div>
-
-          <button
-            type="button"
-            className="jippy-driver-back-btn"
+    <div className="driver-details-page jippy-driver-details-page">
+      {/* PAGE HEADER (Categories Style) */}
+      <div className="page-header-container">
+        <div className="page-header-left">
+          <div
+            className="breadcrumb-header"
             onClick={handleBack}
           >
-            <FiArrowLeft />
-            Back to Drivers
-          </button>
+            <FiArrowLeft className="back-arrow-icon" />
+            <h2>Driver Details</h2>
+          </div>
 
-          <h2>
+          <p className="breadcrumb-trail">
+            <span onClick={handleBack}>
+              Drivers
+            </span>
+            {" > "}
             Driver Details
-          </h2>
-
-          <p>
-            View complete information
-            about the driver
           </p>
-
         </div>
 
+        <div className="driver-header-actions">
+          <button
+            type="button"
+            className={`btn-driver-refresh ${refreshing ? "spinning" : ""}`}
+            onClick={handleRefresh}
+            title="Refresh driver details"
+          >
+            <FiRefreshCw />
+          </button>
+        </div>
       </div>
 
-
-      {/* ERROR */}
-
+      {/* ERROR MESSAGE IF ANY */}
       {errorMessage && (
         <div
           style={{
-            marginBottom:
-              "15px",
-            padding:
-              "10px 15px",
-            borderRadius:
-              "6px",
-            background:
-              "#fff3cd",
-            color:
-              "#856404",
-            fontSize:
-              "14px",
+            marginBottom: "20px",
+            padding: "12px 18px",
+            borderRadius: "12px",
+            background: "#fff3cd",
+            color: "#856404",
+            fontSize: "14px",
+            fontWeight: "500",
+            border: "1px solid #ffeeba",
           }}
         >
           {errorMessage}
         </div>
       )}
 
-
-      {/* TABS */}
-
-      <div
-        className="jippy-driver-tabs"
-        style={{
-          display:
-            "flex",
-          alignItems:
-            "center",
-          background:
-            "#fff",
-          border:
-            "1px solid #e1e5e9",
-          borderRadius:
-            "7px",
-          marginBottom:
-            "15px",
-          overflowX:
-            "auto",
-          whiteSpace:
-            "nowrap",
-        }}
-      >
-
+      {/* SEGMENTED NAVIGATION TABS */}
+      <div className="driver-nav-tabs jippy-driver-tabs">
         {tabs.map((tab) => {
-
-          const isActive =
-            activeTab ===
-            tab.id;
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
 
           return (
             <button
               key={tab.id}
               type="button"
+              className={`driver-nav-tab ${isActive ? "active" : ""}`}
               onClick={() => {
-
-                setActiveTab(
-                  tab.id
-                );
-
-
-                if (
-                  tab.id ===
-                  "earnings"
-                ) {
-                  setEarningsError(
-                    ""
-                  );
+                setActiveTab(tab.id);
+                if (tab.id === "earnings") {
+                  setEarningsError("");
                 }
-
-
-                if (
-                  tab.id ===
-                  "incentives"
-                ) {
-                  setIncentiveError(
-                    ""
-                  );
-
-                  setIncentivePage(
-                    0
-                  );
-                }
-
-
-                if (
-                  tab.id ===
-                  "incentiveHistory"
-                ) {
-                  setIncentiveHistoryError(
-                    ""
-                  );
-
-                  setIncentiveHistoryPage(
-                    0
-                  );
-                }
-
-              }}
-              style={{
-                position:
-                  "relative",
-                border:
-                  "none",
-                background:
-                  "transparent",
-                padding:
-                  "14px 18px",
-                fontSize:
-                  "13px",
-                fontWeight:
-                  isActive
-                    ? "600"
-                    : "500",
-                color:
-                  isActive
-                    ? "#ff6b00"
-                    : "#555",
-                cursor:
-                  "pointer",
-                whiteSpace:
-                  "nowrap",
               }}
             >
-
-              {tab.label}
-
-              {isActive && (
-                <span
-                  style={{
-                    position:
-                      "absolute",
-                    left:
-                      "10px",
-                    right:
-                      "10px",
-                    bottom:
-                      "0",
-                    height:
-                      "2px",
-                    background:
-                      "#ff6b00",
-                    borderRadius:
-                      "2px 2px 0 0",
-                  }}
-                />
-              )}
-
+              {Icon && <Icon className="tab-icon" />}
+              <span>{tab.label}</span>
             </button>
           );
         })}
-
       </div>
 
-
-      {/* CONTENT */}
-
-      <div className="jippy-driver-tab-content">
+      {/* TAB CONTENT */}
+      <div className="driver-tab-content jippy-driver-tab-content">
         {renderTabContent()}
       </div>
-
     </div>
   );
 }
 
 
 /* =========================================================
-   DETAIL COMPONENT
+   DETAIL COMPONENT (Info Tile with Icons & Copy Support)
    ========================================================= */
 
 function Detail({
   label,
   value,
   valueClass = "",
+  icon = null,
+  copyable = false,
+  copyKey = "",
+  copiedField = null,
+  onCopy = null,
+  customRender = null,
 }) {
+  const displayVal = formatValue(value);
+  const canCopy = copyable && displayVal !== "-" && onCopy;
+
   return (
-    <div className="jippy-driver-detail-item">
+    <div className="driver-info-tile jippy-driver-detail-item">
+      <div className="driver-info-label">
+        {icon}
+        <span>{label}</span>
+      </div>
 
-      <span>
-        {label}
-      </span>
+      <div className="driver-info-val-row">
+        {customRender ? (
+          customRender
+        ) : (
+          <span className={`driver-info-value ${valueClass}`}>
+            {displayVal}
+          </span>
+        )}
 
-      <strong
-        className={valueClass}
-      >
-        {formatValue(value)}
-      </strong>
-
+        {canCopy && (
+          <button
+            type="button"
+            className="driver-tile-copy-btn"
+            onClick={() => onCopy(value, copyKey)}
+            title={`Copy ${label}`}
+          >
+            {copiedField === copyKey ? (
+              <FiCheck className="copied-check" />
+            ) : (
+              <FiCopy />
+            )}
+          </button>
+        )}
+      </div>
     </div>
   );
 }
@@ -2088,34 +2246,11 @@ function Detail({
    LOADING CARD
    ========================================================= */
 
-function LoadingCard({
-  text,
-}) {
+function LoadingCard({ text }) {
   return (
-    <div
-      className="jippy-driver-details-card"
-      style={{
-        minHeight:
-          "180px",
-        display:
-          "flex",
-        alignItems:
-          "center",
-        justifyContent:
-          "center",
-        gap:
-          "10px",
-      }}
-    >
-
-      <FiLoader
-        className="jippy-driver-loader"
-      />
-
-      <span>
-        {text}
-      </span>
-
+    <div className="driver-loading-card jippy-driver-details-loading">
+      <FiLoader className="jippy-driver-loader" />
+      <span>{text}</span>
     </div>
   );
 }
@@ -2125,201 +2260,88 @@ function LoadingCard({
    ERROR CARD
    ========================================================= */
 
-function ErrorCard({
-  title,
-  message,
-}) {
+function ErrorCard({ title, message }) {
   return (
-    <div className="jippy-driver-details-card">
+    <div className="driver-details-card jippy-driver-details-card">
+      <div className="driver-card-header">
+        <div className="driver-card-header-left">
+          <div className="driver-card-icon-box amber">
+            <FiAlertCircle />
+          </div>
+          <div>
+            <h3>{title}</h3>
+            <p className="driver-card-subtitle">An error occurred while loading data</p>
+          </div>
+        </div>
+      </div>
 
-      <h3>
-        {title}
-      </h3>
-
-      <p
-        style={{
-          color:
-            "#dc3545",
-          fontSize:
-            "14px",
-          marginTop:
-            "12px",
-        }}
-      >
-        {message}
-      </p>
-
+      <div className="driver-card-body">
+        <p style={{ color: "#dc3545", margin: 0, fontSize: "14px", fontWeight: "500" }}>
+          {message}
+        </p>
+      </div>
     </div>
   );
 }
 
 
 /* =========================================================
-   DYNAMIC TABLE
+   DYNAMIC TABLE (Executive Table with Clean Borders)
    ========================================================= */
 
-function DynamicTable({
-  title,
-  rows,
-  driverId,
-}) {
-
-  if (
-    !Array.isArray(rows) ||
-    rows.length === 0
-  ) {
+function DynamicTable({ title, rows, driverId }) {
+  if (!Array.isArray(rows) || rows.length === 0) {
     return (
-      <div
-        className="jippy-driver-details-card"
-      >
-        No data available.
+      <div className="driver-empty-state-card jippy-driver-details-card">
+        <div className="driver-empty-state-icon">
+          <FiDollarSign />
+        </div>
+        <h3 className="driver-empty-state-title">{title || "Total Earnings"}</h3>
+        <p className="driver-empty-state-msg">No earnings data available for this driver.</p>
       </div>
     );
   }
 
-
-  const columns =
-    Object.keys(
-      rows[0] || {}
-    );
-
+  const columns = Object.keys(rows[0] || {});
 
   return (
-    <div
-      className={
-        title
-          ? "jippy-driver-details-card"
-          : ""
-      }
-    >
-
+    <div className="driver-details-card jippy-driver-details-card">
       {title && (
-        <div
-          className="jippy-driver-details-title"
-        >
-
-          <div>
-
-            <h3>
-              {title}
-            </h3>
-
-            <span>
-              Driver ID:{" "}
-              {driverId ||
-                "-"}
-            </span>
-
+        <div className="driver-card-header">
+          <div className="driver-card-header-left">
+            <div className="driver-card-icon-box emerald">
+              <FiDollarSign />
+            </div>
+            <div>
+              <h3>{title}</h3>
+              <p className="driver-card-subtitle">
+                Driver ID: #{driverId || "-"} • {rows.length} record{rows.length !== 1 ? "s" : ""}
+              </p>
+            </div>
           </div>
-
         </div>
       )}
 
-
-      <div
-        style={{
-          overflowX:
-            "auto",
-          marginTop:
-            title
-              ? "15px"
-              : "18px",
-        }}
-      >
-
-        <table
-          style={{
-            width:
-              "100%",
-            borderCollapse:
-              "collapse",
-            fontSize:
-              "13px",
-          }}
-        >
-
+      <div className="driver-table-wrapper">
+        <table className="driver-modern-table">
           <thead>
-
             <tr>
-
-              {columns.map(
-                (key) => (
-
-                  <th
-                    key={key}
-                    style={{
-                      textAlign:
-                        "left",
-                      padding:
-                        "11px 10px",
-                      borderBottom:
-                        "1px solid #ddd",
-                      background:
-                        "#f8f9fa",
-                      fontWeight:
-                        "600",
-                      whiteSpace:
-                        "nowrap",
-                    }}
-                  >
-                    {formatKey(key)}
-                  </th>
-
-                )
-              )}
-
+              {columns.map((key) => (
+                <th key={key}>{formatKey(key)}</th>
+              ))}
             </tr>
-
           </thead>
-
-
           <tbody>
-
-            {rows.map(
-              (row, index) => (
-
-                <tr
-                  key={
-                    row?.id ||
-                    row?.historyId ||
-                    row?.incentiveId ||
-                    index
-                  }
-                >
-
-                  {columns.map(
-                    (key) => (
-
-                      <td
-                        key={key}
-                        style={{
-                          padding:
-                            "11px 10px",
-                          borderBottom:
-                            "1px solid #eee",
-                          whiteSpace:
-                            "nowrap",
-                        }}
-                      >
-                        {formatValue(
-                          row?.[key]
-                        )}
-                      </td>
-
-                    )
-                  )}
-
-                </tr>
-
-              )
-            )}
-
+            {rows.map((row, index) => (
+              <tr key={row?.id || row?.historyId || row?.incentiveId || index}>
+                {columns.map((key) => (
+                  <td key={key}>{formatValue(row?.[key])}</td>
+                ))}
+              </tr>
+            ))}
           </tbody>
-
         </table>
-
       </div>
-
     </div>
   );
 }
@@ -2329,56 +2351,34 @@ function DynamicTable({
    OBJECT CARD
    ========================================================= */
 
-function DynamicObjectCard({
-  title,
-  data,
-  driverId,
-}) {
-
-  const entries =
-    Object.entries(
-      data || {}
-    );
-
+function DynamicObjectCard({ title, data, driverId }) {
+  const entries = Object.entries(data || {});
 
   return (
-    <div className="jippy-driver-details-card">
-
-      <div className="jippy-driver-details-title">
-
-        <div>
-
-          <h3>
-            {title}
-          </h3>
-
-          <span>
-            Driver ID:{" "}
-            {driverId ||
-              "-"}
-          </span>
-
+    <div className="driver-details-card jippy-driver-details-card">
+      <div className="driver-card-header">
+        <div className="driver-card-header-left">
+          <div className="driver-card-icon-box emerald">
+            <FiDollarSign />
+          </div>
+          <div>
+            <h3>{title}</h3>
+            <p className="driver-card-subtitle">Driver ID: #{driverId || "-"}</p>
+          </div>
         </div>
-
       </div>
 
-
-      <div className="jippy-driver-details-grid">
-
-        {entries.map(
-          ([key, value]) => (
-
+      <div className="driver-card-body">
+        <div className="driver-info-grid jippy-driver-details-grid">
+          {entries.map(([key, value]) => (
             <Detail
               key={key}
               label={formatKey(key)}
               value={value}
             />
-
-          )
-        )}
-
+          ))}
+        </div>
       </div>
-
     </div>
   );
 }
@@ -2390,39 +2390,19 @@ function DynamicObjectCard({
 
 function formatKey(key) {
   return String(key)
-    .replace(
-      /([A-Z])/g,
-      " $1"
-    )
-    .replace(
-      /[_-]/g,
-      " "
-    )
-    .replace(
-      /^./,
-      (char) =>
-        char.toUpperCase()
-    );
+    .replace(/([A-Z])/g, " $1")
+    .replace(/[_-]/g, " ")
+    .replace(/^./, (char) => char.toUpperCase());
 }
 
 
 function formatValue(value) {
-
-  if (
-    value === null ||
-    value === undefined ||
-    value === ""
-  ) {
+  if (value === null || value === undefined || value === "") {
     return "-";
   }
 
-  if (
-    typeof value ===
-    "object"
-  ) {
-    return JSON.stringify(
-      value
-    );
+  if (typeof value === "object") {
+    return JSON.stringify(value);
   }
 
   return String(value);

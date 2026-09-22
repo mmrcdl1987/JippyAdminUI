@@ -1,8 +1,20 @@
+/* =========================================================
+   JIPPY MART - CREATE MERCHANT STYLES
+   Modern • Colorful • Zone Management Design System
+   ========================================================= */
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+
 .create-merchant-page {
-  padding: 24px 24px 100px;
-  background: #f5f7fb;
+  padding: 28px 32px 100px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(124, 58, 237, 0.06), transparent 30%),
+    radial-gradient(circle at 0% 100%, rgba(16, 185, 129, 0.05), transparent 32%),
+    #f8fafc;
   min-height: 100vh;
   box-sizing: border-box;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #172033;
 }
 
 .create-merchant-container {
@@ -15,67 +27,70 @@
 }
 
 .create-merchant-back-btn {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  width: 120px;
+  padding: 10px 18px;
   height: 42px;
   margin-bottom: 20px;
-  border: none;
-  border-radius: 8px;
-  background: #8b3a3a;
-  color: #fff;
-  font-size: 15px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #334155;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: 0.3s;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
 }
 
 .create-merchant-back-btn:hover {
-  background: #6f2d2d;
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #0f172a;
+  transform: translateY(-1px);
 }
 
 .create-merchant-header h2 {
   margin: 0;
-  font-size: 30px;
-  font-weight: 700;
-  color: #222;
+  font-size: 28px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.5px;
 }
 
 .create-merchant-header p {
-  margin-top: 8px;
-  color: #666;
+  margin-top: 6px;
+  color: #64748b;
   font-size: 14px;
 }
 
 .create-merchant-form {
-  background: #fff;
-  border-radius: 12px;
-  padding: 28px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 32px;
+  border: 1px solid #e7ebf2;
+  box-shadow:
+    0 4px 20px rgba(15, 23, 42, 0.035),
+    0 1px 3px rgba(15, 23, 42, 0.02);
 }
 
 .create-merchant-section {
   margin-bottom: 30px;
 }
 
-.create-merchant-section-header {
-  font-size: 18px;
-  font-weight: 600;
-  color: #8b3a3a;
-  margin-bottom: 18px;
-  padding-bottom: 8px;
-  border-bottom: 2px solid #ececec;
-}
-
+.create-merchant-section-header,
 .custom-section-header {
-  font-size: 18px;
-  font-weight: 600;
-  color: #8b3a3a;
+  font-size: 17px;
+  font-weight: 700;
+  color: #7c3aed;
   margin-bottom: 18px;
-  padding-bottom: 8px;
-  border-bottom: 2px solid #ececec;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #ede9fe;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .create-merchant-grid {
@@ -92,13 +107,13 @@
 
 .create-merchant-field label {
   margin-bottom: 8px;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
-  color: #444;
+  color: #334155;
 }
 
 .required-star {
-  color: #e53935;
+  color: #ef4444;
   margin-left: 3px;
 }
 
@@ -107,42 +122,43 @@
   width: 100%;
   height: 46px;
   padding: 0 14px;
-  border: 1px solid #d8d8d8;
-  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
   background: #fff;
   font-size: 14px;
+  color: #0f172a;
   outline: none;
-  transition: 0.25s;
+  transition: all 0.2s ease;
   box-sizing: border-box;
 }
 
 .create-merchant-field input:hover,
 .create-merchant-field select:hover {
-  border-color: #bdbdbd;
+  border-color: #cbd5e1;
 }
 
 .create-merchant-field input:focus,
 .create-merchant-field select:focus {
-  border-color: #8b3a3a;
-  box-shadow: 0 0 0 3px rgba(139, 58, 58, 0.12);
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12);
 }
 
 .create-merchant-error {
   margin-top: 6px;
-  color: #d32f2f;
+  color: #dc2626;
   font-size: 12px;
   font-weight: 600;
   line-height: 1.4;
 }
 
 .create-merchant-input-error {
-  border: 1px solid #d32f2f !important;
-  background: #fff5f5 !important;
+  border: 1px solid #ef4444 !important;
+  background: #fef2f2 !important;
 }
 
 .create-merchant-input-error:focus {
-  border-color: #d32f2f !important;
-  box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.15) !important;
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important;
 }
 
 /* ================= FILE UPLOAD STYLES ================= */
@@ -157,8 +173,8 @@
   width: 100%;
   padding: 10px 0;
   font-size: 13px;
-  border: 1px dashed #cbd5e0;
-  border-radius: 8px;
+  border: 1px dashed #cbd5e1;
+  border-radius: 10px;
   background: #f8fafc;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -166,33 +182,33 @@
 }
 
 .create-merchant-file-input:hover {
-  border-color: #8b3a3a;
-  background: #fff5f5;
+  border-color: #7c3aed;
+  background: #faf5ff;
 }
 
 .create-merchant-file-input::-webkit-file-upload-button {
   padding: 8px 16px;
   margin-right: 12px;
   border: none;
-  border-radius: 4px;
-  background: #8b3a3a;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
   color: #fff;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  transition: 0.3s;
+  transition: 0.2s;
 }
 
 .create-merchant-file-input::-webkit-file-upload-button:hover {
-  background: #6f2d2d;
+  background: linear-gradient(135deg, #6d28d9 0%, #5b21b6 100%);
 }
 
 .create-merchant-file-input::-ms-browse {
   padding: 8px 16px;
   margin-right: 12px;
   border: none;
-  border-radius: 4px;
-  background: #8b3a3a;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
   color: #fff;
   font-size: 13px;
   font-weight: 600;
@@ -280,42 +296,49 @@
 }
 
 .create-merchant-save-btn {
-  width: 190px;
+  width: 200px;
   height: 46px;
   border: none;
-  border-radius: 8px;
-  background: #8b3a3a;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
   color: #fff;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  transition: 0.3s;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.28);
 }
 
-.create-merchant-save-btn:hover {
-  background: #6f2d2d;
+.create-merchant-save-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #6d28d9 0%, #5b21b6 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(124, 58, 237, 0.35);
 }
 
 .create-merchant-save-btn:disabled {
-  background: #999;
+  background: #cbd5e1;
+  box-shadow: none;
   cursor: not-allowed;
+  opacity: 0.7;
 }
 
 .create-merchant-cancel-btn {
   width: 190px;
   height: 46px;
-  border: 1px solid #d5d5d5;
-  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
   background: #fff;
-  color: #555;
+  color: #475569;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: 0.3s;
+  transition: all 0.2s ease;
 }
 
 .create-merchant-cancel-btn:hover {
-  background: #f5f5f5;
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #0f172a;
 }
 
 /* ================= RESPONSIVE ================= */
@@ -398,6 +421,7 @@
     font-size: 12px;
   }
 }
+
 /* Password wrapper & toggle button */
 .create-merchant-password-wrapper {
   position: relative;
@@ -408,7 +432,7 @@
 
 .create-merchant-password-wrapper input {
   width: 100%;
-  padding-right: 42px; /* space for the eye icon */
+  padding-right: 42px;
 }
 
 .create-merchant-password-toggle {

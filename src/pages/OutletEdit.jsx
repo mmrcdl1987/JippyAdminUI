@@ -153,7 +153,7 @@ const extractCuisineIds = (outlet) => {
     );
 };
 
-const extractOperatingDays = (outlet) => {
+const extractOperatingAndCustomDays = (outlet) => {
   const backendDays =
     Array.isArray(outlet?.operatingDays)
       ? outlet.operatingDays
@@ -170,6 +170,8 @@ const extractOperatingDays = (outlet) => {
       : oldDays;
 
   const days = createEmptyDays();
+  const custom = [];
+  const assignedDays = new Set();
 
   source.forEach((item) => {
     let dayId = Number(
@@ -203,7 +205,7 @@ const extractOperatingDays = (outlet) => {
       return;
     }
 
-    days[dayId - 1] = {
+    const timingObj = {
       dayOfWeekId: dayId,
 
       isOpen:
@@ -225,9 +227,23 @@ const extractOperatingDays = (outlet) => {
         item?.slotType ||
         "FULL_DAY",
     };
+
+    if (!assignedDays.has(dayId)) {
+      assignedDays.add(dayId);
+      days[dayId - 1] = timingObj;
+    } else {
+      custom.push({
+        ...timingObj,
+        slotType: timingObj.slotType || "CUSTOM",
+      });
+    }
   });
 
-  return days;
+  return { days, custom };
+};
+
+const extractOperatingDays = (outlet) => {
+  return extractOperatingAndCustomDays(outlet).days;
 };
 
 function OutletEdit({
@@ -272,15 +288,36 @@ useEffect(() => {
 }, []);
 
 
-  const loggedInUserId = localStorage.getItem("userId");
-  const loggedInRole = localStorage.getItem("role");
+  const loggedInUserId =
+    localStorage.getItem("userId") ||
+    localStorage.getItem("approverId") ||
+    "1";
 
-  const displayUpdatedBy =
-  loggedInRole
-    ?.replace("ROLE_", "")
-    ?.replace(/_/g, " ")
-    ?.toLowerCase()
-    ?.replace(/\b\w/g, (char) => char.toUpperCase()) || "";
+  const loggedInRole = localStorage.getItem("role") || "";
+
+  const currentLoggedUser =
+    localStorage.getItem("username") ||
+    localStorage.getItem("loggedInUser") ||
+    (() => {
+      try {
+        const ud = localStorage.getItem("userData");
+        if (ud) {
+          const parsed = JSON.parse(ud);
+          return parsed?.username || parsed?.name || parsed?.email;
+        }
+      } catch (e) {}
+      return null;
+    })() ||
+    (loggedInRole
+      ? loggedInRole
+          .replace("ROLE_", "")
+          .replace(/_/g, " ")
+          .toLowerCase()
+          .replace(/\b\w/g, (char) => char.toUpperCase())
+      : "") ||
+    "Admin";
+
+  const displayUpdatedBy = currentLoggedUser;
 
   const [states, setStates] = useState([]);
 const [cities, setCities] = useState([]);
@@ -521,8 +558,8 @@ gstNumber: "",
 
       if (!mounted) return;
 
-      console.log("FSSAI FROM API:", data.fssaiNumber);
-      console.log("GST FROM API:", data.gstNumber);
+      const { days, custom } = extractOperatingAndCustomDays(data);
+      setCustomTimings(custom);
 
       setFormData({
         outletName: data.outletName || "",
@@ -533,7 +570,7 @@ gstNumber: "",
         alternateOutletPhone:
           data.alternateOutletPhone || "",
 
-        updatedBy: loggedInUserId || "",
+        updatedBy: loggedInUserId || "1",
 
         isGstApplied:
           data.isGstApplied === true,
@@ -583,8 +620,7 @@ gstNumber: "",
         cuisineType:
           extractCuisineIds(data),
 
-        operatingDays:
-          extractOperatingDays(data),
+        operatingDays: days,
       });
 
       console.log("FORM DATA LOADED");
@@ -923,34 +959,28 @@ const validateForm = () => {
           ? String(formData.longitude)
           : null,
 
-   operatingDays:
-  formData.operatingDays
-    .filter(
-      (day) => day.isOpen === true
-    )
-    .map((day) => ({
-      dayOfWeekId:
-        Number(day.dayOfWeekId),
+      operatingDays: [
+        ...formData.operatingDays
+          .filter((day) => day.isOpen === true)
+          .map((day) => ({
+            dayOfWeekId: Number(day.dayOfWeekId),
+            isOpen: true,
+            openingTime: normalizeTime(day.openingTime),
+            closingTime: normalizeTime(day.closingTime),
+            slotType: day.slotType || "FULL_DAY",
+          })),
+        ...customTimings
+          .filter((timing) => timing.isOpen === true)
+          .map((timing) => ({
+            dayOfWeekId: Number(timing.dayOfWeekId),
+            isOpen: true,
+            openingTime: normalizeTime(timing.openingTime),
+            closingTime: normalizeTime(timing.closingTime),
+            slotType: timing.slotType || "CUSTOM",
+          })),
+      ],
 
-      isOpen: true,
-
-      openingTime:
-        normalizeTime(
-          day.openingTime
-        ),
-
-      closingTime:
-        normalizeTime(
-          day.closingTime
-        ),
-
-      slotType:
-        day.slotType ||
-        "FULL_DAY",
-    })),
-
-      // updatedBy:
-      //   Number(formData.updatedBy),
+      updatedBy: Number(formData.updatedBy) || Number(loggedInUserId) || 1,
     };
 
     console.log(
@@ -1352,15 +1382,16 @@ const validateForm = () => {
                   <span>*</span>
                 </label>
 
-  <input
-  type="text"
-  name="updatedBy"
-  value={displayUpdatedBy}
-  readOnly
-/>
-                <small>
-                  User ID performing
-                  this update
+                <input
+                  type="text"
+                  name="updatedBy"
+                  value={currentLoggedUser}
+                  readOnly
+                  className="jippy-outlet-edit-v2-readonly"
+                />
+
+                <small style={{ color: "#64748b" }}>
+                  Current logged-in user: <strong>{currentLoggedUser}</strong> (ID: {loggedInUserId})
                 </small>
               </div>
 
@@ -1521,22 +1552,22 @@ const validateForm = () => {
 
 </section>
 
-          {/* GST */}
+          {/* GST & COMPLIANCE */}
           <section className="jippy-outlet-edit-v2-section">
 
             <div className="jippy-outlet-edit-v2-section-header">
               <div>
                 <h2>
-                  GST
+                  GST & Compliance
                 </h2>
 
                 <p>
-                  GST applicability
+                  GST applicability and license information
                 </p>
               </div>
             </div>
 
-            <label className="jippy-outlet-edit-v2-checkbox">
+            <label className="jippy-outlet-edit-v2-checkbox" style={{ marginBottom: "18px" }}>
 
               <input
                 type="checkbox"
@@ -1555,27 +1586,31 @@ const validateForm = () => {
 
             </label>
 
+            <div className="jippy-outlet-edit-v2-grid">
+              <div className="jippy-outlet-edit-v2-field">
+                <label>FSSAI Number</label>
+                <input
+                  type="text"
+                  name="fssaiNumber"
+                  value={formData.fssaiNumber}
+                  onChange={handleChange}
+                  placeholder="Enter 14-digit FSSAI number"
+                />
+              </div>
+
+              <div className="jippy-outlet-edit-v2-field">
+                <label>GST Number</label>
+                <input
+                  type="text"
+                  name="gstNumber"
+                  value={formData.gstNumber}
+                  onChange={handleChange}
+                  placeholder="Enter 15-digit GSTIN"
+                />
+              </div>
+            </div>
+
           </section>
-
-          <div className="jippy-outlet-edit-v2-field">
-  <label>FSSAI Number</label>
-  <input
-    type="text"
-    name="fssaiNumber"
-    value={formData.fssaiNumber}
-    onChange={handleChange}
-  />
-</div>
-
-<div className="jippy-outlet-edit-v2-field">
-  <label>GST Number</label>
-  <input
-    type="text"
-    name="gstNumber"
-    value={formData.gstNumber}
-    onChange={handleChange}
-  />
-</div>
 
           {/* BANK DETAILS */}
           <section className="jippy-outlet-edit-v2-section">
@@ -1864,22 +1899,40 @@ const validateForm = () => {
 
           </section>
 
-          {/* OPERATING DAYS */}
+          {/* OPERATING DAYS & TIMINGS */}
           <section className="jippy-outlet-edit-v2-section">
 
             <div className="jippy-outlet-edit-v2-section-header">
               <div>
                 <h2>
-                  Operating Days
+                  Operating Days & Timings
                 </h2>
 
                 <p>
-                  Set opening and closing
-                  times for each day
+                  Set standard opening and closing times for each day, plus extra shifts
                 </p>
               </div>
+
+              <button
+                type="button"
+                className="jippy-outlet-edit-v2-add-timing-button"
+                onClick={() => {
+                  setNewTiming({
+                    dayOfWeekId: "1",
+                    isOpen: true,
+                    openingTime: "09:00",
+                    closingTime: "13:00",
+                  });
+                  setShowTimingModal(true);
+                }}
+                disabled={saving}
+              >
+                <span>+</span>
+                Add Timing
+              </button>
             </div>
 
+            {/* CURRENT TIMINGS TABLE */}
             <div className="jippy-outlet-edit-v2-days">
 
               {formData.operatingDays.map(
@@ -1893,123 +1946,217 @@ const validateForm = () => {
                         )
                     );
 
+                  const dayCustomTimings = customTimings
+                    .map((timing, originalIndex) => ({
+                      ...timing,
+                      originalIndex,
+                    }))
+                    .filter(
+                      (timing) =>
+                        Number(timing.dayOfWeekId) ===
+                        Number(day.dayOfWeekId)
+                    );
+
                   return (
                     <div
-                      key={
-                        day.dayOfWeekId
-                      }
-                      className={`jippy-outlet-edit-v2-day-row ${
-                        day.isOpen
-                          ? "jippy-outlet-edit-v2-day-open"
-                          : "jippy-outlet-edit-v2-day-closed"
-                      }`}
+                      key={day.dayOfWeekId}
+                      className="jippy-outlet-edit-v2-day-group"
                     >
-
-                      <div className="jippy-outlet-edit-v2-day-name">
-                        <span>
-                          {dayInfo?.short}
-                        </span>
-
-                        <strong>
-                          {dayInfo?.name}
-                        </strong>
-                      </div>
-
-                      <label className="jippy-outlet-edit-v2-toggle">
-
-                        <input
-                          type="checkbox"
-                          checked={
-                            day.isOpen
-                          }
-                          onChange={(
-                            event
-                          ) =>
-                            handleDayChange(
-                              day.dayOfWeekId,
-                              "isOpen",
-                              event
-                                .target
-                                .checked
-                            )
-                          }
-                        />
-
-                        <span />
-
-                      </label>
-
                       <div
-                        className={`jippy-outlet-edit-v2-day-status ${
+                        className={`jippy-outlet-edit-v2-day-row ${
                           day.isOpen
-                            ? "jippy-outlet-edit-v2-status-open"
-                            : "jippy-outlet-edit-v2-status-closed"
+                            ? "jippy-outlet-edit-v2-day-open"
+                            : "jippy-outlet-edit-v2-day-closed"
                         }`}
                       >
-                        {day.isOpen
-                          ? "Open"
-                          : "Closed"}
-                      </div>
 
-                      <div className="jippy-outlet-edit-v2-time-box">
+                        <div className="jippy-outlet-edit-v2-day-name">
+                          <span>
+                            {dayInfo?.short}
+                          </span>
 
-                        <label>
-                          Opening
+                          <strong>
+                            {dayInfo?.name}
+                          </strong>
+                        </div>
+
+                        <label className="jippy-outlet-edit-v2-toggle">
+
+                          <input
+                            type="checkbox"
+                            checked={
+                              day.isOpen
+                            }
+                            onChange={(
+                              event
+                            ) =>
+                              handleDayChange(
+                                day.dayOfWeekId,
+                                "isOpen",
+                                event
+                                  .target
+                                  .checked
+                              )
+                            }
+                          />
+
+                          <span />
+
                         </label>
 
-                        <input
-                          type="time"
-                          value={
-                            day.openingTime
-                          }
-                          disabled={
-                            !day.isOpen
-                          }
-                          onChange={(
-                            event
-                          ) =>
-                            handleDayChange(
-                              day.dayOfWeekId,
-                              "openingTime",
+                        <div
+                          className={`jippy-outlet-edit-v2-day-status ${
+                            day.isOpen
+                              ? "jippy-outlet-edit-v2-status-open"
+                              : "jippy-outlet-edit-v2-status-closed"
+                          }`}
+                        >
+                          {day.isOpen
+                            ? "Open"
+                            : "Closed"}
+                        </div>
+
+                        <div className="jippy-outlet-edit-v2-time-box">
+
+                          <label>
+                            Opening
+                          </label>
+
+                          <input
+                            type="time"
+                            value={
+                              day.openingTime
+                            }
+                            disabled={
+                              !day.isOpen
+                            }
+                            onChange={(
                               event
-                                .target
-                                .value
-                            )
-                          }
-                        />
+                            ) =>
+                              handleDayChange(
+                                day.dayOfWeekId,
+                                "openingTime",
+                                event
+                                  .target
+                                  .value
+                              )
+                            }
+                          />
+
+                        </div>
+
+                        <div className="jippy-outlet-edit-v2-time-box">
+
+                          <label>
+                            Closing
+                          </label>
+
+                          <input
+                            type="time"
+                            value={
+                              day.closingTime
+                            }
+                            disabled={
+                              !day.isOpen
+                            }
+                            onChange={(
+                              event
+                            ) =>
+                              handleDayChange(
+                                day.dayOfWeekId,
+                                "closingTime",
+                                event
+                                  .target
+                                  .value
+                              )
+                            }
+                          />
+
+                        </div>
+
+                        <button
+                          type="button"
+                          className="jippy-outlet-edit-v2-inline-add-timing-btn"
+                          onClick={() => {
+                            setNewTiming({
+                              dayOfWeekId: String(day.dayOfWeekId),
+                              isOpen: true,
+                              openingTime: "17:00",
+                              closingTime: "22:00",
+                            });
+                            setShowTimingModal(true);
+                          }}
+                          disabled={saving}
+                          title={`Add extra timing/shift for ${dayInfo?.name}`}
+                        >
+                          + Shift
+                        </button>
 
                       </div>
 
-                      <div className="jippy-outlet-edit-v2-time-box">
+                      {/* EXTRA SHIFTS SHOWN DIRECTLY BELOW THIS DAY'S CURRENT TIMING */}
+                      {dayCustomTimings.length > 0 && (
+                        <div className="jippy-outlet-edit-v2-day-extra-slots">
+                          {dayCustomTimings.map((extra) => (
+                            <div
+                              key={`extra-${extra.originalIndex}`}
+                              className="jippy-outlet-edit-v2-day-extra-item"
+                            >
+                              <span className="jippy-outlet-edit-v2-extra-pill">
+                                Extra Shift ({dayInfo?.short})
+                              </span>
 
-                        <label>
-                          Closing
-                        </label>
+                              <span className="jippy-outlet-edit-v2-extra-status">
+                                {extra.isOpen ? "Open" : "Closed"}
+                              </span>
 
-                        <input
-                          type="time"
-                          value={
-                            day.closingTime
-                          }
-                          disabled={
-                            !day.isOpen
-                          }
-                          onChange={(
-                            event
-                          ) =>
-                            handleDayChange(
-                              day.dayOfWeekId,
-                              "closingTime",
-                              event
-                                .target
-                                .value
-                            )
-                          }
-                        />
+                              <div className="jippy-outlet-edit-v2-extra-time-inputs">
+                                <label>From:</label>
+                                <input
+                                  type="time"
+                                  value={extra.openingTime}
+                                  disabled={!extra.isOpen || saving}
+                                  onChange={(e) => {
+                                    const updated = [...customTimings];
+                                    updated[extra.originalIndex] = {
+                                      ...updated[extra.originalIndex],
+                                      openingTime: e.target.value,
+                                    };
+                                    setCustomTimings(updated);
+                                  }}
+                                />
 
-                      </div>
+                                <label>To:</label>
+                                <input
+                                  type="time"
+                                  value={extra.closingTime}
+                                  disabled={!extra.isOpen || saving}
+                                  onChange={(e) => {
+                                    const updated = [...customTimings];
+                                    updated[extra.originalIndex] = {
+                                      ...updated[extra.originalIndex],
+                                      closingTime: e.target.value,
+                                    };
+                                    setCustomTimings(updated);
+                                  }}
+                                />
+                              </div>
 
-                    
+                              <button
+                                type="button"
+                                className="jippy-outlet-edit-v2-extra-delete-btn"
+                                onClick={() =>
+                                  handleDeleteCustomTiming(extra.originalIndex)
+                                }
+                                disabled={saving}
+                                title="Remove this extra shift"
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
 
                     </div>
                   );
@@ -2018,194 +2165,151 @@ const validateForm = () => {
 
             </div>
 
-          </section>
+            {/* BELOW CURRENT TIMINGS: ALL ADDITIONAL TIMINGS */}
+            <div className="jippy-outlet-edit-v2-additional-section-inline">
+              <div className="jippy-outlet-edit-v2-additional-header">
+                <div>
+                  <h3>Additional Timings & Shifts</h3>
+                  <p>All extra shifts and custom working hours added below current timings</p>
+                </div>
 
-          {/* =================================================
-    ADDITIONAL TIMINGS
-    ================================================= */}
-
-<section className="jippy-outlet-edit-v2-section jippy-outlet-edit-v2-additional-section">
-
-  <div className="jippy-outlet-edit-v2-section-header">
-
-    <div>
-      <h2>
-        Additional Timings
-      </h2>
-
-      <p>
-        Add extra working hours for any day (e.g. different shift).
-      </p>
-    </div>
-
-    <button
-      type="button"
-      className="jippy-outlet-edit-v2-add-timing-button"
-      onClick={() => setShowTimingModal(true)}
-      disabled={saving}
-    >
-      <span>+</span>
-      Add Timing
-    </button>
-
-  </div>
-
-
-  {customTimings.length > 0 && (
-    <div className="jippy-outlet-edit-v2-custom-timings">
-
-      {customTimings.map((timing, index) => {
-
-        const selectedDay = JIPPY_EDIT_DAYS.find(
-          (day) =>
-            day.id === Number(timing.dayOfWeekId)
-        );
-
-        return (
-          <div
-            key={`custom-${index}`}
-            className="jippy-outlet-edit-v2-custom-row"
-          >
-
-            {/* DAY */}
-
-            <select
-              value={timing.dayOfWeekId}
-              onChange={(event) => {
-
-                const updated = [...customTimings];
-
-                updated[index] = {
-                  ...updated[index],
-                  dayOfWeekId: Number(event.target.value),
-                };
-
-                setCustomTimings(updated);
-              }}
-              disabled={saving}
-              className="jippy-outlet-edit-v2-custom-day-select"
-            >
-
-              {JIPPY_EDIT_DAYS.map((day) => (
-                <option
-                  key={day.id}
-                  value={day.id}
+                <button
+                  type="button"
+                  className="jippy-outlet-edit-v2-add-timing-button"
+                  onClick={() => {
+                    setNewTiming({
+                      dayOfWeekId: "1",
+                      isOpen: true,
+                      openingTime: "09:00",
+                      closingTime: "13:00",
+                    });
+                    setShowTimingModal(true);
+                  }}
+                  disabled={saving}
                 >
-                  {day.name}
-                </option>
-              ))}
+                  <span>+</span>
+                  Add Timing
+                </button>
+              </div>
 
-            </select>
+              {customTimings.length === 0 ? (
+                <div className="jippy-outlet-edit-v2-no-custom-timings">
+                  No additional timings added yet. Click <strong>"+ Add Timing"</strong> or <strong>"+ Shift"</strong> above to add extra shifts.
+                </div>
+              ) : (
+                <div className="jippy-outlet-edit-v2-custom-timings">
+                  {customTimings.map((timing, index) => {
+                    const selectedDay = JIPPY_EDIT_DAYS.find(
+                      (day) =>
+                        day.id === Number(timing.dayOfWeekId)
+                    );
 
+                    return (
+                      <div
+                        key={`custom-${index}`}
+                        className="jippy-outlet-edit-v2-custom-row"
+                      >
+                        {/* DAY */}
+                        <select
+                          value={timing.dayOfWeekId}
+                          onChange={(event) => {
+                            const updated = [...customTimings];
+                            updated[index] = {
+                              ...updated[index],
+                              dayOfWeekId: Number(event.target.value),
+                            };
+                            setCustomTimings(updated);
+                          }}
+                          disabled={saving}
+                          className="jippy-outlet-edit-v2-custom-day-select"
+                        >
+                          {JIPPY_EDIT_DAYS.map((day) => (
+                            <option
+                              key={day.id}
+                              value={day.id}
+                            >
+                              {day.name}
+                            </option>
+                          ))}
+                        </select>
 
-            {/* OPEN / CLOSED */}
+                        {/* OPEN / CLOSED */}
+                        <label className="jippy-outlet-edit-v2-custom-toggle">
+                          <input
+                            type="checkbox"
+                            checked={timing.isOpen}
+                            disabled={saving}
+                            onChange={(event) => {
+                              const updated = [...customTimings];
+                              updated[index] = {
+                                ...updated[index],
+                                isOpen: event.target.checked,
+                              };
+                              setCustomTimings(updated);
+                            }}
+                          />
+                          <span className="jippy-outlet-edit-v2-custom-toggle-slider" />
+                          <span className="jippy-outlet-edit-v2-custom-toggle-text">
+                            {timing.isOpen ? "Open" : "Closed"}
+                          </span>
+                        </label>
 
-            <label className="jippy-outlet-edit-v2-custom-toggle">
+                        {/* OPENING */}
+                        <div className="jippy-outlet-edit-v2-custom-time-box">
+                          <label>Opening</label>
+                          <input
+                            type="time"
+                            value={timing.openingTime}
+                            disabled={!timing.isOpen || saving}
+                            onChange={(event) => {
+                              const updated = [...customTimings];
+                              updated[index] = {
+                                ...updated[index],
+                                openingTime: event.target.value,
+                              };
+                              setCustomTimings(updated);
+                            }}
+                          />
+                        </div>
 
-              <input
-                type="checkbox"
-                checked={timing.isOpen}
-                disabled={saving}
-                onChange={(event) => {
+                        {/* CLOSING */}
+                        <div className="jippy-outlet-edit-v2-custom-time-box">
+                          <label>Closing</label>
+                          <input
+                            type="time"
+                            value={timing.closingTime}
+                            disabled={!timing.isOpen || saving}
+                            onChange={(event) => {
+                              const updated = [...customTimings];
+                              updated[index] = {
+                                ...updated[index],
+                                closingTime: event.target.value,
+                              };
+                              setCustomTimings(updated);
+                            }}
+                          />
+                        </div>
 
-                  const updated = [...customTimings];
-
-                  updated[index] = {
-                    ...updated[index],
-                    isOpen: event.target.checked,
-                  };
-
-                  setCustomTimings(updated);
-                }}
-              />
-
-              <span className="jippy-outlet-edit-v2-custom-toggle-slider" />
-
-              <span className="jippy-outlet-edit-v2-custom-toggle-text">
-                {timing.isOpen ? "Open" : "Closed"}
-              </span>
-
-            </label>
-
-
-            {/* OPENING */}
-
-            <div className="jippy-outlet-edit-v2-custom-time-box">
-
-              <label>
-                Opening
-              </label>
-
-              <input
-                type="time"
-                value={timing.openingTime}
-                disabled={!timing.isOpen || saving}
-                onChange={(event) => {
-
-                  const updated = [...customTimings];
-
-                  updated[index] = {
-                    ...updated[index],
-                    openingTime: event.target.value,
-                  };
-
-                  setCustomTimings(updated);
-                }}
-              />
-
+                        {/* DELETE */}
+                        <button
+                          type="button"
+                          className="jippy-outlet-edit-v2-delete-timing-button"
+                          onClick={() =>
+                            handleDeleteCustomTiming(index)
+                          }
+                          disabled={saving}
+                          title="Delete timing"
+                        >
+                          🗑
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
 
-
-            {/* CLOSING */}
-
-            <div className="jippy-outlet-edit-v2-custom-time-box">
-
-              <label>
-                Closing
-              </label>
-
-              <input
-                type="time"
-                value={timing.closingTime}
-                disabled={!timing.isOpen || saving}
-                onChange={(event) => {
-
-                  const updated = [...customTimings];
-
-                  updated[index] = {
-                    ...updated[index],
-                    closingTime: event.target.value,
-                  };
-
-                  setCustomTimings(updated);
-                }}
-              />
-
-            </div>
-
-
-            {/* DELETE */}
-
-            <button
-              type="button"
-              className="jippy-outlet-edit-v2-delete-timing-button"
-              onClick={() =>
-                handleDeleteCustomTiming(index)
-              }
-              disabled={saving}
-              title="Delete timing"
-            >
-              🗑
-            </button>
-
-          </div>
-        );
-      })}
-
-    </div>
-  )}
-
-</section>
+          </section>
 
 
 {/* =================================================

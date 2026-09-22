@@ -1,19 +1,26 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+
 /* ============================================================
    JIPPY OUTLET EDIT V2
-   Completely isolated CSS
+   Categories Design System Theme
    ============================================================ */
 
 .jippy-outlet-edit-v2-page {
   width: 100%;
   min-height: 100vh;
-  background: #f7f8fc;
-  padding: 28px 32px 50px;
+  padding: 30px 35px 80px;
   box-sizing: border-box;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #172033;
+  background:
+    radial-gradient(circle at 88% 0%, rgba(99, 102, 241, 0.07), transparent 28%),
+    radial-gradient(circle at 10% 90%, rgba(16, 185, 129, 0.045), transparent 25%),
+    #f6f8fc;
 }
 
 .jippy-outlet-edit-v2-container {
   width: 100%;
-  max-width: 1450px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
@@ -38,19 +45,20 @@
 .jippy-outlet-edit-v2-heading {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 4px;
 }
 
 .jippy-outlet-edit-v2-header h1 {
   margin: 0;
-  font-size: 28px;
-  font-weight: 750;
-  color: #20242c;
+  font-size: 26px;
+  font-weight: 800;
+  color: #172033;
+  letter-spacing: -0.3px;
 }
 
 .jippy-outlet-edit-v2-header p {
   margin: 0;
-  color: #777d89;
+  color: #64748b;
   font-size: 14px;
 }
 
@@ -58,17 +66,21 @@
   display: flex;
   align-items: center;
   gap: 9px;
-  padding: 11px 16px;
+  padding: 9px 16px;
   background: #ffffff;
-  border: 1px solid #e4e6ec;
+  border: 1px solid #e0e4f0;
   border-radius: 10px;
-  color: #777d89;
+  color: #64748b;
   font-size: 13px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
 }
 
 .jippy-outlet-edit-v2-outlet-id strong {
-  color: #252a34;
-  font-size: 15px;
+  color: #4f46e5;
+  font-size: 14px;
+  background: #eef2ff;
+  padding: 2px 8px;
+  border-radius: 6px;
 }
 
 /* ============================================================
@@ -76,21 +88,23 @@
    ============================================================ */
 
 .jippy-outlet-edit-v2-back-button {
-  border: 1px solid #e1e4eb;
+  border: 1px solid #cfd0ff;
   background: #ffffff;
-  color: #343944;
-  height: 42px;
-  padding: 0 16px;
-  border-radius: 9px;
+  color: #5145cd;
+  height: 40px;
+  padding: 0 17px;
+  border-radius: 10px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
-  transition: 0.2s ease;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
 }
 
 .jippy-outlet-edit-v2-back-button:hover {
-  border-color: #ff6b00;
-  color: #ff6b00;
+  background: #f7f6ff;
+  border-color: #5145cd;
+  color: #5145cd;
 }
 
 .jippy-outlet-edit-v2-back-button:disabled {
@@ -105,7 +119,7 @@
 .jippy-outlet-edit-v2-form {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 22px;
 }
 
 /* ============================================================
@@ -114,10 +128,10 @@
 
 .jippy-outlet-edit-v2-section {
   background: #ffffff;
-  border: 1px solid #e7e9ee;
-  border-radius: 14px;
-  padding: 25px;
-  box-shadow: 0 2px 10px rgba(20, 30, 50, 0.035);
+  border: 1px solid #e6e9f0;
+  border-radius: 16px;
+  padding: 26px 28px;
+  box-shadow: 0 7px 25px rgba(15, 23, 42, 0.045);
 }
 
 .jippy-outlet-edit-v2-section-header {
@@ -126,19 +140,20 @@
   align-items: flex-start;
   margin-bottom: 22px;
   padding-bottom: 16px;
-  border-bottom: 1px solid #eceef2;
+  border-bottom: 1px solid #edf0f5;
 }
 
 .jippy-outlet-edit-v2-section-header h2 {
-  margin: 0 0 5px;
-  font-size: 18px;
-  color: #222630;
+  margin: 0 0 4px;
+  font-size: 17px;
+  font-weight: 700;
+  color: #172033;
 }
 
 .jippy-outlet-edit-v2-section-header p {
   margin: 0;
   font-size: 13px;
-  color: #858b96;
+  color: #64748b;
 }
 
 /* ============================================================
@@ -163,8 +178,8 @@
 
 .jippy-outlet-edit-v2-field label {
   font-size: 13px;
-  font-weight: 650;
-  color: #353a44;
+  font-weight: 600;
+  color: #334155;
 }
 
 .jippy-outlet-edit-v2-field label span {
@@ -175,26 +190,24 @@
 .jippy-outlet-edit-v2-field input {
   width: 100%;
   height: 44px;
-  padding: 0 13px;
+  padding: 0 14px;
   box-sizing: border-box;
-  border: 1px solid #dfe2e8;
-  border-radius: 8px;
+  border: 1px solid #d5d9e5;
+  border-radius: 9px;
   outline: none;
   background: #ffffff;
-  color: #272b34;
+  color: #1e293b;
   font-size: 14px;
-  transition: 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .jippy-outlet-edit-v2-field input:focus {
-  border-color: #ff6b00;
-  box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.08);
+  border-color: #746cff;
+  box-shadow: 0 0 0 3px rgba(99, 91, 255, 0.09);
 }
 
-
-
 .jippy-outlet-edit-v2-field small {
-  color: red;
+  color: #e53935;
   font-size: 11px;
 }
 
@@ -212,21 +225,39 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+  position: relative;
+  width: 100%;
 }
 
 .jippy-outlet-edit-v2-cuisine-box select {
   width: 100%;
+  max-width: 100%;
   min-height: 125px;
+  max-height: 220px;
   padding: 10px;
-  border: 1px solid #dfe2e8;
-  border-radius: 8px;
+  box-sizing: border-box;
+  border: 1px solid #d5d9e5;
+  border-radius: 9px;
   outline: none;
   font-size: 14px;
   background: #ffffff;
+  color: #1e293b;
+  overflow-y: auto;
+  overflow-x: hidden;
+  accent-color: #5b4ff4;
+  transition: all 0.2s ease;
 }
 
 .jippy-outlet-edit-v2-cuisine-box select:focus {
-  border-color: #ff6b00;
+  border-color: #746cff;
+  box-shadow: 0 0 0 3px rgba(99, 91, 255, 0.09);
+}
+
+.jippy-outlet-edit-v2-cuisine-box option {
+  padding: 9px 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .jippy-outlet-edit-v2-cuisine-box small {
@@ -239,6 +270,7 @@
   flex-wrap: wrap;
   gap: 8px;
   min-height: 30px;
+  margin-top: 6px;
 }
 
 .jippy-outlet-edit-v2-selected-cuisines > span:first-child {
@@ -249,12 +281,121 @@
 .jippy-outlet-edit-v2-cuisine-chip {
   display: inline-flex;
   align-items: center;
-  padding: 6px 10px;
-  background: #fff3e9;
-  color: #e95e00;
+  gap: 6px;
+  padding: 6px 12px;
+  background: #eef2ff;
+  color: #4f46e5;
+  border: 1px solid #c7d2fe;
   border-radius: 20px;
   font-size: 12px;
   font-weight: 600;
+}
+
+.jippy-outlet-edit-v2-cuisine-chip button {
+  border: none;
+  background: transparent;
+  color: #4f46e5;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+
+.cuisine-dropdown {
+  position: relative;
+  width: 100%;
+  border: 1px solid #d5d9e5;
+  border-radius: 9px;
+  background: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cuisine-dropdown:hover {
+  border-color: #a5b4fc;
+}
+
+.cuisine-dropdown-header {
+  min-height: 44px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #1e293b;
+  font-size: 14px;
+}
+
+.cuisine-dropdown-arrow {
+  color: #5b4ff4;
+  font-size: 12px;
+}
+
+.cuisine-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  border: 1px solid #e0e4f0;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+  z-index: 1000;
+  padding: 10px;
+}
+
+.cuisine-search {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 9px 12px;
+  border: 1px solid #d5d9e5;
+  border-radius: 7px;
+  outline: none;
+  margin-bottom: 8px;
+  font-size: 13px;
+  transition: all 0.2s ease;
+}
+
+.cuisine-search:focus {
+  border-color: #746cff;
+  box-shadow: 0 0 0 3px rgba(99, 91, 255, 0.09);
+}
+
+.cuisine-options {
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.cuisine-option {
+  padding: 9px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #1e293b;
+  transition: all 0.15s ease;
+}
+
+.cuisine-option:hover {
+  background: #f0eeff;
+  color: #4f46e5;
+}
+
+.cuisine-option.selected {
+  background: #4f46e5;
+  color: #ffffff;
+}
+
+.cuisine-check {
+  font-weight: bold;
+}
+
+.no-cuisines {
+  color: #888;
+  font-size: 13px;
 }
 
 /* ============================================================
@@ -268,13 +409,13 @@
   cursor: pointer;
   font-size: 14px;
   font-weight: 600;
-  color: #343943;
+  color: #334155;
 }
 
 .jippy-outlet-edit-v2-checkbox input {
   width: 18px;
   height: 18px;
-  accent-color: #ff6b00;
+  accent-color: #5b4ff4;
   cursor: pointer;
 }
 
@@ -285,18 +426,131 @@
 .jippy-outlet-edit-v2-days {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
+}
+
+.jippy-outlet-edit-v2-day-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .jippy-outlet-edit-v2-day-row {
   display: grid;
-  grid-template-columns: 190px 58px 80px minmax(135px, 1fr) minmax(135px, 1fr) 135px;
+  grid-template-columns: 190px 58px 80px minmax(130px, 1fr) minmax(130px, 1fr) 95px;
   align-items: center;
-  gap: 15px;
-  padding: 14px;
+  gap: 14px;
+  padding: 14px 16px;
   border-radius: 10px;
   border: 1px solid #e7e9ed;
   background: #fafbfc;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.jippy-outlet-edit-v2-inline-add-timing-btn {
+  height: 38px;
+  padding: 0 10px;
+  border: 1px dashed #a5b4fc;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #4f46e5;
+  font-size: 12px;
+  font-weight: 650;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.jippy-outlet-edit-v2-inline-add-timing-btn:hover {
+  background: #eef2ff;
+  border-color: #4f46e5;
+  border-style: solid;
+}
+
+/* Extra shifts directly below that day's timing */
+.jippy-outlet-edit-v2-day-extra-slots {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-left: 24px;
+  border-left: 2px dashed #c7d2fe;
+  margin-left: 18px;
+}
+
+.jippy-outlet-edit-v2-day-extra-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 9px;
+  padding: 9px 15px;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.03);
+}
+
+.jippy-outlet-edit-v2-extra-pill {
+  font-size: 11px;
+  font-weight: 700;
+  background: #eef2ff;
+  color: #4f46e5;
+  padding: 3px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.jippy-outlet-edit-v2-extra-status {
+  font-size: 11px;
+  font-weight: 600;
+  color: #16a34a;
+}
+
+.jippy-outlet-edit-v2-extra-time-inputs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.jippy-outlet-edit-v2-extra-time-inputs label {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.jippy-outlet-edit-v2-extra-time-inputs input {
+  height: 34px;
+  padding: 0 9px;
+  border: 1px solid #d5d9e5;
+  border-radius: 7px;
+  font-size: 12px;
+  color: #1e293b;
+  outline: none;
+}
+
+.jippy-outlet-edit-v2-extra-time-inputs input:focus {
+  border-color: #746cff;
+}
+
+.jippy-outlet-edit-v2-extra-delete-btn {
+  border: none;
+  background: transparent;
+  color: #ef4444;
+  cursor: pointer;
+  padding: 4px 6px;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  border-radius: 6px;
+  margin-left: auto;
+  transition: all 0.15s ease;
+}
+
+.jippy-outlet-edit-v2-extra-delete-btn:hover {
+  background: #fee2e2;
+}
+
+.jippy-outlet-edit-v2-day-row:hover {
+  background: #fbfbfe;
+  border-color: #dbe0ea;
 }
 
 .jippy-outlet-edit-v2-day-open {
@@ -321,14 +575,14 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: #eeeeff;
-  color: #5654a4;
+  background: #eef2ff;
+  color: #4f46e5;
   font-size: 11px;
   font-weight: 750;
 }
 
 .jippy-outlet-edit-v2-day-name strong {
-  color: #333842;
+  color: #172033;
   font-size: 14px;
 }
 
@@ -410,16 +664,19 @@
   width: 100%;
   height: 40px;
   border: 1px solid #dfe2e8;
-  border-radius: 7px;
+  border-radius: 8px;
   background: #ffffff;
-  padding: 0 9px;
+  padding: 0 10px;
   outline: none;
   font-size: 13px;
+  color: #1e293b;
+  transition: all 0.2s ease;
 }
 
 .jippy-outlet-edit-v2-time-box input:focus,
 .jippy-outlet-edit-v2-day-row > select:focus {
-  border-color: #ff6b00;
+  border-color: #746cff;
+  box-shadow: 0 0 0 3px rgba(99, 91, 255, 0.09);
 }
 
 .jippy-outlet-edit-v2-time-box input:disabled,
@@ -436,42 +693,46 @@
 .jippy-outlet-edit-v2-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
-  padding: 5px 0 20px;
+  gap: 14px;
+  padding: 8px 0 24px;
 }
 
 .jippy-outlet-edit-v2-cancel-button {
   height: 46px;
-  padding: 0 22px;
+  padding: 0 24px;
   border: 1px solid #dfe2e7;
-  border-radius: 8px;
+  border-radius: 10px;
   background: #ffffff;
-  color: #454a54;
+  color: #475569;
   font-size: 14px;
-  font-weight: 650;
+  font-weight: 600;
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .jippy-outlet-edit-v2-cancel-button:hover {
-  background: #f6f7f8;
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #1e293b;
 }
 
 .jippy-outlet-edit-v2-update-button {
   min-width: 170px;
   height: 46px;
-  padding: 0 22px;
+  padding: 0 24px;
   border: none;
-  border-radius: 8px;
-  background: #ff6b00;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #2563eb, #4f46e5);
+  box-shadow: 0 7px 15px rgba(79, 70, 229, 0.22);
   color: #ffffff;
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
-  transition: 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .jippy-outlet-edit-v2-update-button:hover {
-  background: #e95e00;
+  box-shadow: 0 9px 20px rgba(79, 70, 229, 0.32);
   transform: translateY(-1px);
 }
 
@@ -503,8 +764,8 @@
 .jippy-outlet-edit-v2-spinner {
   width: 38px;
   height: 38px;
-  border-color: #ffe0ca;
-  border-top-color: #ff6b00;
+  border: 3px solid rgba(91, 79, 244, 0.18);
+  border-top-color: #5b4ff4;
 }
 
 @keyframes jippyOutletEditV2Spin {
@@ -522,8 +783,8 @@
   width: min(500px, 100%);
   margin: 120px auto;
   background: #ffffff;
-  border: 1px solid #e7e9ee;
-  border-radius: 15px;
+  border: 1px solid #e6e9f0;
+  border-radius: 16px;
   padding: 40px;
   text-align: center;
   box-shadow: 0 8px 30px rgba(20, 30, 50, 0.06);
@@ -533,13 +794,13 @@
 .jippy-outlet-edit-v2-error-card h2 {
   margin: 18px 0 7px;
   font-size: 20px;
-  color: #282c35;
+  color: #172033;
 }
 
 .jippy-outlet-edit-v2-loading-card p,
 .jippy-outlet-edit-v2-error-card p {
   margin: 0 0 20px;
-  color: #858b96;
+  color: #64748b;
   font-size: 13px;
   line-height: 1.6;
 }
@@ -620,13 +881,14 @@
 
 .jippy-outlet-edit-v2-popup h2 {
   margin: 0 0 10px;
-  color: #252932;
+  color: #172033;
   font-size: 20px;
+  font-weight: 700;
 }
 
 .jippy-outlet-edit-v2-popup p {
   margin: 0 0 25px;
-  color: #777d88;
+  color: #64748b;
   font-size: 14px;
   line-height: 1.6;
 }
@@ -636,19 +898,21 @@
   width: 100%;
   height: 45px;
   border: none;
-  border-radius: 8px;
+  border-radius: 9px;
   color: #ffffff;
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .jippy-outlet-edit-v2-popup-success-button {
-  background: #ff6b00;
+  background: linear-gradient(135deg, #2563eb, #4f46e5);
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.25);
 }
 
 .jippy-outlet-edit-v2-popup-success-button:hover {
-  background: #e95e00;
+  box-shadow: 0 6px 18px rgba(79, 70, 229, 0.35);
 }
 
 .jippy-outlet-edit-v2-popup-error-button {
@@ -713,11 +977,8 @@
   }
 }
 
-
-
-
 /* ============================================================
-   LOCATION SELECT DROPDOWNS
+   LOCATION SELECT DROPDOWNS (REACT-SELECT)
    ============================================================ */
 
 .jippy-outlet-edit-v2-select {
@@ -728,34 +989,35 @@
   min-height: 44px !important;
   height: 44px;
   width: 100%;
-  border: 1px solid #dfe2e8 !important;
-  border-radius: 8px !important;
+  border: 1px solid #d5d9e5 !important;
+  border-radius: 9px !important;
   box-shadow: none !important;
   background: #ffffff;
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .jippy-outlet-edit-v2-select__control:hover {
-  border-color: #c9cdd5 !important;
+  border-color: #a5b4fc !important;
 }
 
 .jippy-outlet-edit-v2-select__control--is-focused {
-  border-color: #ff6b00 !important;
-  box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.08) !important;
+  border-color: #746cff !important;
+  box-shadow: 0 0 0 3px rgba(99, 91, 255, 0.09) !important;
 }
 
 .jippy-outlet-edit-v2-select__value-container {
   height: 42px;
-  padding: 0 13px !important;
+  padding: 0 14px !important;
 }
 
 .jippy-outlet-edit-v2-select__single-value {
-  color: #272b34 !important;
+  color: #1e293b !important;
   font-size: 14px;
 }
 
 .jippy-outlet-edit-v2-select__placeholder {
-  color: #9297a1 !important;
+  color: #94a3b8 !important;
   font-size: 14px;
 }
 
@@ -770,9 +1032,9 @@
 
 .jippy-outlet-edit-v2-select__menu {
   margin-top: 4px !important;
-  border-radius: 8px !important;
-  border: 1px solid #dfe2e8;
-  box-shadow: 0 8px 24px rgba(20, 30, 50, 0.15);
+  border-radius: 10px !important;
+  border: 1px solid #e0e4f0;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
   z-index: 9999 !important;
   overflow: hidden;
 }
@@ -783,183 +1045,21 @@
 }
 
 .jippy-outlet-edit-v2-select__option {
-  padding: 10px 13px !important;
+  padding: 10px 14px !important;
   font-size: 13px;
   cursor: pointer;
+  transition: all 0.15s ease;
 }
 
 .jippy-outlet-edit-v2-select__option--is-focused {
-  background: #fff3e9 !important;
-  color: #272b34 !important;
+  background: #f0eeff !important;
+  color: #1e293b !important;
 }
 
 .jippy-outlet-edit-v2-select__option--is-selected {
-  background: #ff6b00 !important;
+  background: #4f46e5 !important;
   color: #ffffff !important;
 }
-
-
-
-.jippy-outlet-edit-v2-cuisine-box select {
-  width: 100%;
-  max-width: 100%;
-  min-height: 125px;
-  max-height: 220px;
-  padding: 10px;
-  box-sizing: border-box;
-  border: 1px solid #ffd2b3;
-  border-radius: 10px;
-  outline: none;
-  font-size: 14px;
-  background: #ffffff;
-  color: #272b34;
-  overflow-y: auto;
-  overflow-x: hidden;
-  accent-color: #ff6b00;
-}
-
-.jippy-outlet-edit-v2-cuisine-box select:focus {
-  border-color: #ff6b00;
-  box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.12);
-}
-
-.jippy-outlet-edit-v2-cuisine-box option {
-  padding: 9px 10px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.jippy-outlet-edit-v2-cuisine-chip {
-  display: inline-flex;
-  align-items: center;
-  padding: 7px 12px;
-  background: #fff1e6;
-  color: #e85f00;
-  border: 1px solid #ffd2b3;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 650;
-}
-
-
-
-.jippy-outlet-edit-v2-cuisine-box {
-  position: relative;
-  width: 100%;
-}
-
-.cuisine-dropdown {
-  position: relative;
-  width: 100%;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  background: #fff;
-  cursor: pointer;
-}
-
-.cuisine-dropdown-header {
-  min-height: 45px;
-  padding: 12px 14px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  color: #444;
-}
-
-.cuisine-dropdown-arrow {
-  color: #ff6b00;
-  font-size: 12px;
-}
-
-.cuisine-dropdown-menu {
-  position: absolute;
-  top: calc(100% + 5px);
-  left: 0;
-  right: 0;
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
-  z-index: 1000;
-  padding: 10px;
-}
-
-.cuisine-search {
-  width: 100%;
-  box-sizing: border-box;
-  padding: 10px 12px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  outline: none;
-  margin-bottom: 8px;
-}
-
-.cuisine-search:focus {
-  border-color: #ff6b00;
-}
-
-.cuisine-options {
-  max-height: 220px;
-  overflow-y: auto;
-}
-
-.cuisine-option {
-  padding: 10px 12px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.cuisine-option:hover {
-  background: #fff3e8;
-}
-
-.cuisine-option.selected {
-  background: #ff6b00;
-  color: #fff;
-}
-
-.cuisine-check {
-  font-weight: bold;
-}
-
-.jippy-outlet-edit-v2-selected-cuisines {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 12px;
-}
-
-.jippy-outlet-edit-v2-cuisine-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: #fff3e8;
-  color: #ff6b00;
-  border: 1px solid #ff6b00;
-  border-radius: 20px;
-  padding: 6px 10px;
-  font-size: 13px;
-}
-
-.jippy-outlet-edit-v2-cuisine-chip button {
-  border: none;
-  background: transparent;
-  color: #ff6b00;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  padding: 0;
-}
-
-.no-cuisines {
-  color: #888;
-  font-size: 13px;
-}
-
 
 /* ============================================================
    ADDITIONAL TIMINGS
@@ -969,6 +1069,41 @@
   margin-top: 0;
 }
 
+.jippy-outlet-edit-v2-additional-section-inline {
+  margin-top: 24px;
+  padding-top: 22px;
+  border-top: 1px solid #edf0f5;
+}
+
+.jippy-outlet-edit-v2-additional-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.jippy-outlet-edit-v2-additional-header h3 {
+  margin: 0 0 4px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #172033;
+}
+
+.jippy-outlet-edit-v2-additional-header p {
+  margin: 0;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.jippy-outlet-edit-v2-no-custom-timings {
+  padding: 18px 20px;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 9px;
+  color: #64748b;
+  font-size: 13px;
+  text-align: center;
+}
 
 /* ADD TIMING BUTTON */
 
@@ -976,22 +1111,16 @@
   display: flex;
   align-items: center;
   gap: 7px;
-
   height: 40px;
-  padding: 0 15px;
-
-  border: 1px solid #ff6b00;
-  border-radius: 8px;
-
+  padding: 0 16px;
+  border: 1px solid #cfd0ff;
+  border-radius: 9px;
   background: #ffffff;
-  color: #ff6b00;
-
+  color: #5145cd;
   font-size: 13px;
   font-weight: 650;
-
   cursor: pointer;
-
-  transition: 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .jippy-outlet-edit-v2-add-timing-button span {
@@ -1000,15 +1129,15 @@
 }
 
 .jippy-outlet-edit-v2-add-timing-button:hover {
-  background: #ff6b00;
-  color: #ffffff;
+  background: #f7f6ff;
+  border-color: #5145cd;
+  color: #5145cd;
 }
 
 .jippy-outlet-edit-v2-add-timing-button:disabled {
   opacity: 0.55;
   cursor: not-allowed;
 }
-
 
 /* CUSTOM TIMINGS */
 
@@ -1018,57 +1147,49 @@
   gap: 10px;
 }
 
-
 /* CUSTOM ROW */
 
 .jippy-outlet-edit-v2-custom-row {
   display: grid;
-
   grid-template-columns:
     150px
     115px
     minmax(150px, 1fr)
     minmax(150px, 1fr)
     40px;
-
   align-items: center;
-
   gap: 15px;
-
   padding: 13px 14px;
-
   border: 1px solid #e7e9ed;
   border-radius: 10px;
-
   background: #fafbfc;
+  transition: background 0.15s ease;
 }
 
+.jippy-outlet-edit-v2-custom-row:hover {
+  background: #fbfbfe;
+}
 
-/* DAY */
+/* DAY SELECT */
 
 .jippy-outlet-edit-v2-custom-day-select {
   width: 100%;
   height: 40px;
-
   padding: 0 10px;
-
   border: 1px solid #dfe2e8;
-  border-radius: 7px;
-
+  border-radius: 8px;
   background: #ffffff;
-  color: #333842;
-
+  color: #1e293b;
   outline: none;
-
   font-size: 13px;
-
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .jippy-outlet-edit-v2-custom-day-select:focus {
-  border-color: #ff6b00;
+  border-color: #746cff;
+  box-shadow: 0 0 0 3px rgba(99, 91, 255, 0.09);
 }
-
 
 /* CUSTOM TOGGLE */
 
@@ -1076,27 +1197,22 @@
   display: flex;
   align-items: center;
   gap: 8px;
-
   cursor: pointer;
 }
 
 .jippy-outlet-edit-v2-custom-toggle input {
   width: 17px;
   height: 17px;
-
   margin: 0;
-
-  accent-color: #ff6b00;
-
+  accent-color: #5b4ff4;
   cursor: pointer;
 }
 
 .jippy-outlet-edit-v2-custom-toggle-text {
   font-size: 12px;
   font-weight: 650;
-  color: #555b65;
+  color: #475569;
 }
-
 
 /* TIME */
 
@@ -1116,23 +1232,20 @@
 .jippy-outlet-edit-v2-custom-time-box input {
   width: 100%;
   height: 40px;
-
-  padding: 0 9px;
-
+  padding: 0 10px;
   box-sizing: border-box;
-
   border: 1px solid #dfe2e8;
-  border-radius: 7px;
-
+  border-radius: 8px;
   background: #ffffff;
-
   outline: none;
-
   font-size: 13px;
+  color: #1e293b;
+  transition: all 0.2s ease;
 }
 
 .jippy-outlet-edit-v2-custom-time-box input:focus {
-  border-color: #ff6b00;
+  border-color: #746cff;
+  box-shadow: 0 0 0 3px rgba(99, 91, 255, 0.09);
 }
 
 .jippy-outlet-edit-v2-custom-time-box input:disabled {
@@ -1141,22 +1254,18 @@
   cursor: not-allowed;
 }
 
-
 /* DELETE */
 
 .jippy-outlet-edit-v2-delete-timing-button {
   width: 36px;
   height: 36px;
-
   border: none;
   border-radius: 7px;
-
   background: transparent;
   color: #e53935;
-
   font-size: 16px;
-
   cursor: pointer;
+  transition: all 0.15s ease;
 }
 
 .jippy-outlet-edit-v2-delete-timing-button:hover {
@@ -1169,7 +1278,6 @@
   cursor: not-allowed;
 }
 
-
 /* ============================================================
    ADD TIMING MODAL
    ============================================================ */
@@ -1177,85 +1285,63 @@
 .jippy-outlet-edit-v2-timing-overlay {
   position: fixed;
   inset: 0;
-
   z-index: 99999;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   padding: 20px;
-
   background: rgba(17, 21, 29, 0.55);
-
   backdrop-filter: blur(3px);
 }
 
-
 .jippy-outlet-edit-v2-timing-modal {
   width: min(560px, 100%);
-
   background: #ffffff;
-
-  border-radius: 14px;
-
-  padding: 25px;
-
+  border-radius: 16px;
+  padding: 28px;
   box-shadow: 0 20px 70px rgba(0, 0, 0, 0.20);
 }
-
 
 .jippy-outlet-edit-v2-timing-modal-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-
-  margin-bottom: 25px;
+  margin-bottom: 24px;
 }
 
 .jippy-outlet-edit-v2-timing-modal-header h3 {
   margin: 0 0 6px;
-
-  color: #252932;
-
-  font-size: 21px;
+  color: #172033;
+  font-size: 20px;
+  font-weight: 700;
 }
 
 .jippy-outlet-edit-v2-timing-modal-header p {
   margin: 0;
-
-  color: #777d88;
-
+  color: #64748b;
   font-size: 13px;
 }
-
 
 .jippy-outlet-edit-v2-timing-close {
   border: none;
   background: transparent;
-
-  color: #555;
-
+  color: #64748b;
   font-size: 26px;
-
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .jippy-outlet-edit-v2-timing-close:hover {
-  color: #ff6b00;
+  color: #5b4ff4;
 }
-
 
 /* FORM */
 
 .jippy-outlet-edit-v2-timing-form {
   display: grid;
-
   grid-template-columns: 1fr 1fr;
-
   gap: 20px;
 }
-
 
 .jippy-outlet-edit-v2-timing-field {
   display: flex;
@@ -1264,42 +1350,34 @@
 }
 
 .jippy-outlet-edit-v2-timing-field > label:first-child {
-  color: #444;
-
+  color: #334155;
   font-size: 13px;
-  font-weight: 650;
+  font-weight: 600;
 }
 
 .jippy-outlet-edit-v2-timing-field > label:first-child span {
   color: #e53935;
 }
 
-
 .jippy-outlet-edit-v2-timing-field input,
 .jippy-outlet-edit-v2-timing-field select {
   width: 100%;
   height: 44px;
-
   box-sizing: border-box;
-
   padding: 0 12px;
-
   border: 1px solid #dfe2e8;
   border-radius: 8px;
-
   background: #ffffff;
-
   outline: none;
-
   font-size: 14px;
+  color: #1e293b;
+  transition: all 0.2s ease;
 }
 
 .jippy-outlet-edit-v2-timing-field input:focus,
 .jippy-outlet-edit-v2-timing-field select:focus {
-  border-color: #ff6b00;
-
-  box-shadow:
-    0 0 0 3px rgba(255, 107, 0, 0.08);
+  border-color: #746cff;
+  box-shadow: 0 0 0 3px rgba(99, 91, 255, 0.09);
 }
 
 .jippy-outlet-edit-v2-timing-field input:disabled {
@@ -1308,20 +1386,14 @@
   cursor: not-allowed;
 }
 
-
 /* MODAL TOGGLE */
 
 .jippy-outlet-edit-v2-modal-toggle {
   display: flex !important;
-
   flex-direction: row !important;
-
   align-items: center;
-
   gap: 10px;
-
   height: 44px;
-
   cursor: pointer;
 }
 
@@ -1331,104 +1403,81 @@
 
 .jippy-outlet-edit-v2-modal-toggle-slider {
   position: relative;
-
   width: 44px;
   height: 24px;
-
   flex-shrink: 0;
-
   background: #cfd3d8;
-
   border-radius: 20px;
-
   transition: 0.2s ease;
 }
 
 .jippy-outlet-edit-v2-modal-toggle-slider::after {
   content: "";
-
   position: absolute;
-
   width: 18px;
   height: 18px;
-
   top: 3px;
   left: 3px;
-
   background: #ffffff;
-
   border-radius: 50%;
-
   transition: 0.2s ease;
 }
 
-.jippy-outlet-edit-v2-modal-toggle input:checked
-+ .jippy-outlet-edit-v2-modal-toggle-slider {
-  background: #ff6b00;
+.jippy-outlet-edit-v2-modal-toggle input:checked + .jippy-outlet-edit-v2-modal-toggle-slider {
+  background: #4f46e5;
 }
 
-.jippy-outlet-edit-v2-modal-toggle input:checked
-+ .jippy-outlet-edit-v2-modal-toggle-slider::after {
+.jippy-outlet-edit-v2-modal-toggle input:checked + .jippy-outlet-edit-v2-modal-toggle-slider::after {
   transform: translateX(20px);
 }
 
 .jippy-outlet-edit-v2-modal-toggle-text {
-  color: #333;
-
+  color: #334155;
   font-size: 13px;
-  font-weight: 650;
+  font-weight: 600;
 }
-
 
 /* MODAL ACTIONS */
 
 .jippy-outlet-edit-v2-timing-actions {
   display: flex;
   justify-content: flex-end;
-
   gap: 12px;
-
-  margin-top: 30px;
+  margin-top: 28px;
   padding-top: 20px;
-
-  border-top: 1px solid #eeeeee;
+  border-top: 1px solid #edf0f5;
 }
 
 .jippy-outlet-edit-v2-timing-cancel,
 .jippy-outlet-edit-v2-timing-submit {
   min-width: 120px;
   height: 43px;
-
-  padding: 0 18px;
-
-  border-radius: 8px;
-
+  padding: 0 20px;
+  border-radius: 9px;
   font-size: 13px;
   font-weight: 650;
-
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .jippy-outlet-edit-v2-timing-cancel {
   border: 1px solid #dfe2e7;
-
   background: #ffffff;
-
-  color: #555;
+  color: #475569;
 }
 
 .jippy-outlet-edit-v2-timing-cancel:hover {
-  background: #f6f7f8;
+  background: #f8fafc;
+  color: #1e293b;
 }
 
 .jippy-outlet-edit-v2-timing-submit {
   border: none;
-
-  background: #ff6b00;
-
+  background: linear-gradient(135deg, #2563eb, #4f46e5);
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.22);
   color: #ffffff;
 }
 
 .jippy-outlet-edit-v2-timing-submit:hover {
-  background: #e95e00;
+  box-shadow: 0 6px 16px rgba(79, 70, 229, 0.32);
 }

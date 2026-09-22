@@ -163,76 +163,188 @@
 }
 
 /* ============================================================
-   SUMMARY CARDS
+   SUMMARY CARDS (Categories Design System)
    ============================================================ */
 
 .jippy-outlet-profile-summary-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 22px;
-  margin-bottom: 18px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 22px;
 }
 
 .jippy-outlet-profile-summary-card {
-  position: relative;
-  min-height: 72px;
+  min-height: 106px;
+  padding: 17px 18px;
   box-sizing: border-box;
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  border-radius: 9px;
-  padding: 13px 16px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 14px;
+  border-radius: 14px;
+  border: 1px solid #e7eaf1;
+  background: #ffffff;
+  box-shadow: 0 5px 18px rgba(15, 23, 42, 0.045);
+  position: relative;
   overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
-.jippy-summary-blue {
-  background: #e1f1ff;
+.jippy-outlet-profile-summary-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.075);
+  border-color: #dbe0eb;
 }
 
-.jippy-summary-green {
-  background: #def5ed;
+.jippy-summary-clickable {
+  cursor: pointer;
+  user-select: none;
 }
 
-.jippy-summary-pink {
-  background: #fff0f2;
+.jippy-summary-clickable:active {
+  transform: translateY(0);
 }
 
-.jippy-summary-yellow {
-  background: #fff5eb;
+.jippy-outlet-profile-summary-card::after,
+.cat-stat-card::after {
+  content: "";
+  position: absolute;
+  right: -28px;
+  bottom: -48px;
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  opacity: 0.08;
+  pointer-events: none;
 }
 
-.jippy-summary-content {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+/* Glow colors (Exact Categories Palette) */
+.cat-stat-purple::after,
+.jippy-summary-purple::after {
+  background: #635bff;
 }
 
-.jippy-outlet-profile-summary-card strong {
-  font-size: 20px;
-  line-height: 1.2;
-  color: #202124;
-  font-weight: 600;
+.cat-stat-blue::after,
+.jippy-summary-blue::after {
+  background: #2563eb;
 }
 
-.jippy-outlet-profile-summary-card span {
-  color: #555;
-  font-size: 15px;
-  line-height: 1.2;
+.cat-stat-green::after,
+.jippy-summary-green::after {
+  background: #10b981;
 }
 
+.cat-stat-amber::after,
+.jippy-summary-amber::after,
+.jippy-summary-yellow::after {
+  background: #f59e0b;
+}
+
+.cat-stat-red::after,
+.jippy-summary-red::after,
+.jippy-summary-pink::after {
+  background: #ef4444;
+}
+
+/* Icon Badge */
+.cat-stat-icon,
 .jippy-summary-icon {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
-  opacity: 0.65;
+  border-radius: 12px;
+  font-size: 19px;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
 }
 
+.cat-stat-icon svg,
 .jippy-summary-icon svg {
-  width: 30px;
-  height: 30px;
+  width: 20px;
+  height: 20px;
+}
+
+.cat-stat-card:hover .cat-stat-icon,
+.jippy-outlet-profile-summary-card:hover .jippy-summary-icon {
+  transform: scale(1.05);
+}
+
+/* Icon Colors (Exact Categories Palette) */
+.cat-stat-purple .cat-stat-icon,
+.cat-stat-purple .jippy-summary-icon,
+.jippy-summary-purple .jippy-summary-icon {
+  color: #5b4ff4;
+  background: #f0eeff;
+}
+
+.cat-stat-blue .cat-stat-icon,
+.cat-stat-blue .jippy-summary-icon,
+.jippy-summary-blue .jippy-summary-icon {
+  color: #2563eb;
+  background: #eaf2ff;
+}
+
+.cat-stat-green .cat-stat-icon,
+.cat-stat-green .jippy-summary-icon,
+.jippy-summary-green .jippy-summary-icon {
+  color: #059669;
+  background: #e8faf4;
+}
+
+.cat-stat-amber .cat-stat-icon,
+.cat-stat-amber .jippy-summary-icon,
+.jippy-summary-amber .jippy-summary-icon,
+.jippy-summary-yellow .jippy-summary-icon {
+  color: #d97706;
+  background: #fef3c7;
+}
+
+.cat-stat-red .cat-stat-icon,
+.cat-stat-red .jippy-summary-icon,
+.jippy-summary-red .jippy-summary-icon,
+.jippy-summary-pink .jippy-summary-icon {
+  color: #dc2626;
+  background: #fee2e2;
+}
+
+/* Content */
+.cat-stat-content,
+.jippy-summary-content {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.cat-stat-content span,
+.jippy-summary-content span {
+  color: #7b8495;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.45px;
+  display: block;
+}
+
+.cat-stat-content strong,
+.jippy-summary-content strong {
+  margin-top: 3px;
+  color: #182235;
+  font-size: 22px;
+  line-height: 1.2;
+  font-weight: 800;
+  display: block;
+}
+
+.cat-stat-content small,
+.jippy-summary-content small {
+  margin-top: 3px;
+  color: #9aa2b1;
+  font-size: 9px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ============================================================
@@ -1339,4 +1451,78 @@
   .jippy-outlet-profile-detail-item {
     padding: 12px 8px;
   }
+}
+
+/* ============================================================
+   OUTLET ORDERS TABLE
+   ============================================================ */
+
+.jippy-outlet-orders-table-wrapper {
+  overflow-x: auto;
+  margin-top: 14px;
+  border-radius: 8px;
+  border: 1px solid #edf2f7;
+}
+
+.jippy-outlet-orders-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.jippy-outlet-orders-table th {
+  background: #f8fafc;
+  color: #475569;
+  font-weight: 600;
+  text-align: left;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.jippy-outlet-orders-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #1e293b;
+}
+
+.jippy-outlet-orders-table tr:hover {
+  background: #f8fafc;
+}
+
+.jippy-order-id-cell {
+  font-weight: 600;
+  color: #ff6b00;
+}
+
+.jippy-order-status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.jippy-order-status-badge.status-order_placed {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.jippy-order-status-badge.status-order_confirmed {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.jippy-order-status-badge.status-order_shipped {
+  background: #ede9fe;
+  color: #6d28d9;
+}
+
+.jippy-order-status-badge.status-order_completed {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.jippy-order-status-badge.status-order_rejected {
+  background: #fee2e2;
+  color: #b91c1c;
 }

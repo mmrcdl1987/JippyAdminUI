@@ -1,223 +1,170 @@
+/* =========================================================
+   JIPPY MART - DRIVER DETAILS STYLES
+   Ultra Premium • Executive Glassmorphic Design System
+   Scoped under .driver-details-page & .jippy-driver-details-page
+   ========================================================= */
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap");
+
+.driver-details-page,
 .jippy-driver-details-page {
   width: 100%;
-  padding: 20px;
+  min-height: 100vh;
   box-sizing: border-box;
-  background: #f8f9fa;
+  padding: 32px 40px;
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #0f172a;
+  background: #f8fafc;
 }
 
-/* HEADER */
+/* =========================================================
+   PAGE HEADER (Categories Style)
+   ========================================================= */
 
-.jippy-driver-details-header {
-  margin-bottom: 20px;
-}
-
-.jippy-driver-details-header h2 {
-  margin: 12px 0 5px;
-  font-size: 22px;
-  font-weight: 600;
-  color: #222;
-}
-
-.jippy-driver-details-header p {
-  margin: 0;
-  color: #777;
-  font-size: 13px;
-}
-
-/* BACK BUTTON */
-
-.jippy-driver-back-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-
-  border: none;
-  background: transparent;
-
-  color: #ff6b00;
-
-  font-size: 14px;
-  font-weight: 600;
-
-  cursor: pointer;
-
-  padding: 0;
-}
-
-.jippy-driver-back-btn:hover {
-  color: #e85f00;
-}
-
-/* CARD */
-
-.jippy-driver-details-card {
-  background: #ffffff;
-
-  border: 1px solid #e3e3e3;
-  border-radius: 6px;
-
-  padding: 20px;
-
-  margin-bottom: 18px;
-
-  box-sizing: border-box;
-}
-
-.jippy-driver-details-card > h3 {
-  margin: 0 0 18px;
-
-  color: #ff6b00;
-
-  font-size: 15px;
-  font-weight: 600;
-}
-
-/* TITLE */
-
-.jippy-driver-details-title {
+.page-header-container {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-
-  padding-bottom: 18px;
-  margin-bottom: 18px;
-
-  border-bottom: 1px solid #eeeeee;
+  justify-content: space-between;
+  margin-bottom: 24px;
 }
 
-.jippy-driver-details-title h3 {
-  margin: 0 0 5px;
-
-  font-size: 20px;
-  color: #222;
-}
-
-.jippy-driver-details-title span {
-  font-size: 13px;
-  color: #777;
-}
-
-/* GRID */
-
-.jippy-driver-details-grid {
-  display: grid;
-
-  grid-template-columns:
-    repeat(3, minmax(0, 1fr));
-
-  gap: 18px;
-}
-
-/* DETAIL */
-
-.jippy-driver-detail-item {
+.page-header-left {
   display: flex;
   flex-direction: column;
-
-  gap: 5px;
 }
 
-.jippy-driver-detail-item span {
+.breadcrumb-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  width: fit-content;
+  margin-bottom: 4px;
+}
+
+.breadcrumb-header h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.back-arrow-icon {
+  font-size: 20px;
+  color: #0f172a;
+  transition: transform 0.2s ease;
+}
+
+.breadcrumb-header:hover .back-arrow-icon {
+  transform: translateX(-3px);
+}
+
+.breadcrumb-trail {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0;
+}
+
+.breadcrumb-trail span {
+  color: #4f46e5;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.breadcrumb-trail span:hover {
+  text-decoration: underline;
+}
+
+.driver-id-badge {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #475569;
   font-size: 12px;
-  color: #888;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-family: monospace;
 }
 
-.jippy-driver-detail-item strong {
-  font-size: 14px;
-  color: #333;
-
-  word-break: break-word;
-}
-
-/* VERIFIED */
-
-.jippy-driver-verified {
-  color: #198754 !important;
-}
-
-.jippy-driver-not-verified {
-  color: #dc3545 !important;
-}
-
-/* APPROVED */
-
-.jippy-driver-approved-badge,
-.jippy-driver-pending-badge {
+.driver-status-pill,
+.jippy-status-badge {
   display: inline-flex;
-
   align-items: center;
   gap: 6px;
-
-  width: fit-content;
-
-  padding: 7px 12px;
-
-  border-radius: 5px;
-
-  font-size: 13px;
-  font-weight: 600;
+  padding: 4px 11px;
+  border-radius: 9999px;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
 }
 
-.jippy-driver-approved-badge {
-  color: #198754;
-  background: #eaf7ef;
+.driver-status-pill.active,
+.jippy-status-badge.active {
+  background: #dcfce7;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
 }
 
-.jippy-driver-pending-badge {
-  color: #dc3545;
-  background: #fff0f0;
+.driver-status-pill.inactive,
+.jippy-status-badge.inactive {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
 }
 
-/* PROFILE */
+.driver-status-pill.approved {
+  background: #ecfdf5;
+  color: #059669;
+  border: 1px solid #a7f3d0;
+}
 
-.jippy-driver-details-profile {
+.driver-status-pill.pending {
+  background: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+.driver-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* Actions */
+.driver-details-header-actions {
   display: flex;
   align-items: center;
-  justify-content: center;
-
-  min-height: 180px;
-
-  border: 1px dashed #dddddd;
-  border-radius: 6px;
-
-  background: #fafafa;
+  gap: 12px;
 }
 
-.jippy-driver-details-profile img {
-  max-width: 220px;
-  max-height: 220px;
-
-  object-fit: contain;
-
-  border-radius: 6px;
-}
-
-.jippy-driver-details-no-image {
-  color: #999;
-  font-size: 14px;
-}
-
-/* LOADING */
-
-.jippy-driver-details-loading {
-  width: 100%;
-  min-height: 300px;
-
-  display: flex;
+.btn-driver-refresh {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-
-  gap: 10px;
-
-  color: #777;
-  font-size: 14px;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #64748b;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.2s ease;
 }
 
-.jippy-driver-loader {
-  animation: jippy-driver-spin 1s linear infinite;
+.btn-driver-refresh:hover {
+  color: #0f172a;
+  background: #f8fafc;
+  border-color: #cbd5e1;
 }
 
-@keyframes jippy-driver-spin {
+.btn-driver-refresh.spinning svg {
+  animation: spinDriverRefresh 0.8s linear infinite;
+}
+
+@keyframes spinDriverRefresh {
   from {
     transform: rotate(0deg);
   }
@@ -227,27 +174,594 @@
   }
 }
 
-/* RESPONSIVE */
+/* =========================================================
+   SEGMENTED NAVIGATION TABS
+   ========================================================= */
 
-@media (max-width: 900px) {
-  .jippy-driver-details-grid {
-    grid-template-columns:
-      repeat(2, minmax(0, 1fr));
+.driver-nav-tabs,
+.jippy-driver-tabs {
+  display: flex;
+  gap: 8px;
+  background: #ffffff;
+  padding: 6px;
+  border-radius: 14px;
+  border: 1px solid #e7ebf2;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  width: fit-content;
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.driver-nav-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-size: 13.5px;
+  font-weight: 600;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.driver-nav-tab:hover {
+  color: #0f172a;
+  background: #f8fafc;
+}
+
+.driver-nav-tab.active {
+  background: #0f172a;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+}
+
+.driver-nav-tab .tab-icon {
+  font-size: 15px;
+}
+
+/* =========================================================
+   DRIVER HERO PROFILE CARD
+   ========================================================= */
+
+.driver-hero-card {
+  background: #ffffff;
+  border: 1px solid #e7ebf2;
+  border-radius: 18px;
+  padding: 24px 28px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 12px rgba(15, 23, 42, 0.03);
+}
+
+.driver-hero-content {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  flex-wrap: wrap;
+}
+
+.driver-avatar-container {
+  width: 76px;
+  height: 76px;
+  border-radius: 20px;
+  flex-shrink: 0;
+  overflow: hidden;
+  box-shadow: 0 8px 20px rgba(249, 115, 22, 0.2);
+}
+
+.driver-avatar-initials {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+  text-transform: uppercase;
+}
+
+.driver-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.driver-hero-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-width: 250px;
+}
+
+.driver-hero-name-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.driver-hero-name {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.4px;
+}
+
+.driver-hero-meta-chips {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.driver-meta-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.driver-meta-chip:hover {
+  border-color: #cbd5e1;
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.driver-meta-chip.area-chip {
+  cursor: default;
+  background: #f0fdf4;
+  border-color: #dcfce7;
+  color: #166534;
+}
+
+.driver-meta-chip .chip-icon {
+  font-size: 14px;
+  color: #f97316;
+}
+
+.driver-meta-chip.area-chip .chip-icon {
+  color: #10b981;
+}
+
+.driver-meta-chip .chip-copy-icon {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-left: 2px;
+}
+
+.driver-meta-chip .chip-copy-icon.copied {
+  color: #10b981;
+}
+
+/* =========================================================
+   EXECUTIVE INFORMATION CARDS
+   ========================================================= */
+
+.driver-details-card,
+.jippy-driver-details-card {
+  background: #ffffff;
+  border: 1px solid #e7ebf2;
+  border-radius: 18px;
+  box-shadow: 0 2px 12px rgba(15, 23, 42, 0.03);
+  margin-bottom: 24px;
+  overflow: hidden;
+}
+
+.driver-card-header {
+  padding: 18px 24px;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.driver-card-header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.driver-card-icon-box {
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.driver-card-icon-box.orange {
+  background: #fff7ed;
+  color: #ea580c;
+  border: 1px solid #ffedd5;
+}
+
+.driver-card-icon-box.purple {
+  background: #f5f3ff;
+  color: #7c3aed;
+  border: 1px solid #ede9fe;
+}
+
+.driver-card-icon-box.blue {
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #dbeafe;
+}
+
+.driver-card-icon-box.emerald {
+  background: #ecfdf5;
+  color: #059669;
+  border: 1px solid #d1fae5;
+}
+
+.driver-card-icon-box.amber {
+  background: #fffbeb;
+  color: #d97706;
+  border: 1px solid #fef3c7;
+}
+
+.driver-card-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.2px;
+}
+
+.driver-card-subtitle {
+  margin: 3px 0 0;
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.driver-card-body {
+  padding: 22px 24px;
+}
+
+/* =========================================================
+   INFORMATION GRID & DETAIL TILES
+   ========================================================= */
+
+.driver-info-grid,
+.jippy-driver-details-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.driver-info-tile,
+.jippy-driver-detail-item {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.driver-info-tile:hover,
+.jippy-driver-detail-item:hover {
+  border-color: #cbd5e1;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.driver-info-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #64748b;
+}
+
+.driver-info-label svg {
+  color: #f97316;
+  font-size: 13px;
+}
+
+.driver-info-val-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.driver-info-value {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #0f172a;
+  word-break: break-word;
+}
+
+.driver-tile-copy-btn {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  font-size: 13px;
+}
+
+.driver-tile-copy-btn:hover {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+
+.driver-tile-copy-btn .copied-check {
+  color: #10b981;
+}
+
+/* =========================================================
+   VERIFICATION CHIPS
+   ========================================================= */
+
+.driver-verif-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 8px;
+  width: fit-content;
+}
+
+.driver-verif-chip.verified {
+  background: #dcfce7;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}
+
+.driver-verif-chip.unverified {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+.driver-verif-chip.pending {
+  background: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+.driver-verif-chip.large {
+  padding: 10px 18px;
+  font-size: 14px;
+  border-radius: 10px;
+}
+
+/* Backward compatibility */
+.jippy-driver-verified {
+  color: #15803d !important;
+  font-weight: 700;
+}
+
+.jippy-driver-not-verified {
+  color: #b91c1c !important;
+  font-weight: 700;
+}
+
+/* =========================================================
+   PROFILE PICTURE WRAPPER
+   ========================================================= */
+
+.driver-profile-photo-wrapper,
+.jippy-driver-details-profile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 14px;
+  max-width: 320px;
+  margin: 0 auto;
+}
+
+.driver-profile-photo-img,
+.jippy-driver-details-profile img {
+  max-width: 100%;
+  max-height: 260px;
+  object-fit: contain;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+.jippy-driver-details-no-image {
+  color: #94a3b8;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* =========================================================
+   EMPTY STATE & LOADING
+   ========================================================= */
+
+.driver-empty-state-card {
+  background: #ffffff;
+  border: 1px solid #e7ebf2;
+  border-radius: 18px;
+  padding: 60px 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 12px rgba(15, 23, 42, 0.03);
+}
+
+.driver-empty-state-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  background: #f1f5f9;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  margin-bottom: 16px;
+  border: 1px solid #e2e8f0;
+}
+
+.driver-empty-state-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 6px 0;
+}
+
+.driver-empty-state-msg {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+  max-width: 420px;
+}
+
+.driver-loading-card,
+.jippy-driver-details-loading {
+  width: 100%;
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.jippy-driver-loader {
+  font-size: 28px;
+  color: #f97316;
+  animation: jippyDriverSpin 0.9s linear infinite;
+}
+
+@keyframes jippyDriverSpin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
   }
 }
 
-@media (max-width: 600px) {
+/* =========================================================
+   MODERN DATA TABLE (EARNINGS)
+   ========================================================= */
+
+.driver-table-wrapper {
+  overflow-x: auto;
+  border-radius: 0 0 18px 18px;
+}
+
+.driver-modern-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 13.5px;
+  text-align: left;
+}
+
+.driver-modern-table th {
+  background: #f8fafc;
+  color: #475569;
+  font-weight: 700;
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 12px 18px;
+  border-bottom: 1px solid #e2e8f0;
+  white-space: nowrap;
+}
+
+.driver-modern-table td {
+  padding: 14px 18px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #1e293b;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.driver-modern-table tr:last-child td {
+  border-bottom: none;
+}
+
+.driver-modern-table tr:hover td {
+  background: #f8fafc;
+}
+
+/* =========================================================
+   RESPONSIVE LAYOUT
+   ========================================================= */
+
+@media (max-width: 1024px) {
+
+  .driver-info-grid,
+  .jippy-driver-details-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+
+  .driver-details-page,
   .jippy-driver-details-page {
-    padding: 12px;
+    padding: 16px 16px 40px;
   }
 
+  .driver-details-header,
+  .jippy-driver-details-header {
+    padding: 16px 18px;
+  }
+
+  .driver-hero-card {
+    padding: 20px 20px;
+  }
+
+  .driver-card-header {
+    padding: 16px 18px;
+  }
+
+  .driver-card-body {
+    padding: 18px 18px;
+  }
+
+  .driver-info-grid,
   .jippy-driver-details-grid {
     grid-template-columns: 1fr;
-  }
-
-  .jippy-driver-details-title {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 12px;
   }
 }

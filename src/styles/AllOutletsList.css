@@ -1,40 +1,100 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+
 /* =========================================================
    JIPPYMART - ALL OUTLETS LIST
-   Theme: #ff6b00
+   Categories Design System + Outlets Colors
    ========================================================= */
 
 .jippy-all-outlets-page {
+    width: 100%;
     min-height: 100vh;
-    padding: 32px 40px 70px;
     box-sizing: border-box;
-    background: #f5f7fb;
-    color: #222;
+    padding: 28px 30px 60px;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: #172033;
+    background:
+        radial-gradient(circle at 88% 0%, rgba(99, 102, 241, 0.07), transparent 28%),
+        radial-gradient(circle at 10% 90%, rgba(16, 185, 129, 0.045), transparent 25%),
+        #f6f8fc;
 }
 
 
 /* =========================================================
-   PAGE HEADER
+   PAGE HEADER (Categories Style)
    ========================================================= */
 
 .jippy-all-outlets-page-header {
+    width: 100%;
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
+    gap: 24px;
     margin-bottom: 22px;
+    padding: 22px 24px;
+    box-sizing: border-box;
+    border-radius: 16px;
+    border: 1px solid #e8eaf3;
+    background:
+        linear-gradient(135deg,
+            #ffffff 0%,
+            #fafaff 55%,
+            #f4f3ff 100%);
+    box-shadow:
+        0 8px 25px rgba(28, 36, 64, 0.055),
+        0 2px 6px rgba(28, 36, 64, 0.025);
+    position: relative;
+    overflow: hidden;
+}
+
+.jippy-all-outlets-page-header::after {
+    content: "";
+    position: absolute;
+    width: 170px;
+    height: 170px;
+    right: -70px;
+    top: -95px;
+    border-radius: 50%;
+    background: rgba(99, 102, 241, 0.08);
+    pointer-events: none;
+}
+
+.jippy-all-outlets-heading-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    position: relative;
+    z-index: 2;
+}
+
+.jippy-all-outlets-heading-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 13px;
+    color: #ffffff;
+    font-size: 22px;
+    background: linear-gradient(135deg, #635bff, #5145cd);
+    box-shadow: 0 7px 18px rgba(91, 78, 240, 0.24);
 }
 
 .jippy-all-outlets-page-header h1 {
     margin: 0;
-    font-size: 30px;
-    line-height: 1.2;
-    font-weight: 700;
-    color: #222;
+    color: #172033;
+    font-size: 22px;
+    line-height: 1.25;
+    font-weight: 800;
+    letter-spacing: -0.45px;
 }
 
 .jippy-all-outlets-page-header p {
-    margin: 7px 0 0;
-    color: #777;
-    font-size: 14px;
+    margin: 5px 0 0;
+    color: #7a8497;
+    font-size: 12px;
+    line-height: 1.5;
+    font-weight: 500;
 }
 
 
@@ -54,8 +114,9 @@
 
 .jippy-all-outlets-title h2 {
     margin: 0;
-    font-size: 23px;
-    font-weight: 700;
+    font-size: 20px;
+    font-weight: 800;
+    color: #172033;
 }
 
 .jippy-all-outlets-count {
@@ -64,11 +125,12 @@
     justify-content: center;
     min-width: 28px;
     height: 28px;
-    padding: 0 9px;
+    padding: 0 10px;
     box-sizing: border-box;
     border-radius: 20px;
-    background: #fff0e7;
-    color: #ff6b00;
+    background: #eef2ff;
+    color: #4f46e5;
+    border: 1px solid #e0e7ff;
     font-size: 13px;
     font-weight: 700;
 }
@@ -92,24 +154,24 @@
 .jippy-all-outlets-select__control {
     min-height: 40px !important;
     height: 40px;
-    border: none !important;
-    border-radius: 20px !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 10px !important;
     background: #ffffff !important;
-    box-shadow: none !important;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03) !important;
     cursor: pointer !important;
 }
 
 .jippy-all-outlets-select__control:hover {
-    border: none !important;
+    border-color: #cbd5e1 !important;
 }
 
 .jippy-all-outlets-select__placeholder {
-    color: #333 !important;
+    color: #64748b !important;
     font-size: 13px !important;
 }
 
 .jippy-all-outlets-select__single-value {
-    color: #333 !important;
+    color: #1e293b !important;
     font-size: 13px !important;
 }
 
@@ -119,66 +181,271 @@
 }
 
 .jippy-all-outlets-select__option--is-focused {
-    background: #fff3eb !important;
-    color: #222 !important;
+    background: #f0eeff !important;
+    color: #5145cd !important;
 }
 
 .jippy-all-outlets-select__option--is-selected {
-    background: #ff6b00 !important;
+    background: #4f46e5 !important;
     color: #fff !important;
 }
 
 
 /* =========================================================
-   SUMMARY CARDS
+   SUMMARY CARDS (Categories Design System + Outlets Colors)
    ========================================================= */
 
-.jippy-all-outlets-summary-grid {
+.jippy-all-outlets-summary-grid,
+.cat-stats-grid {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 14px;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 16px;
     margin-bottom: 24px;
 }
 
-.jippy-all-outlets-summary-card {
-    min-height: 105px;
-    padding: 20px;
+.jippy-all-outlets-summary-card,
+.cat-stat-card {
+    min-height: 106px;
+    padding: 17px 18px;
     box-sizing: border-box;
-    border-radius: 12px;
     display: flex;
-    flex-direction: column;
-    justify-content: center;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    align-items: center;
+    gap: 14px;
+    border-radius: 14px;
+    border: 1px solid #e7eaf1;
+    background: #ffffff;
+    box-shadow: 0 5px 18px rgba(15, 23, 42, 0.045);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
-.jippy-all-outlets-summary-card strong {
-    display: block;
-    margin-bottom: 6px;
-    font-size: 28px;
-    line-height: 1;
-    font-weight: 700;
-    color: #111;
+.jippy-all-outlets-summary-card:hover,
+.cat-stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.075);
+    border-color: #dbe0eb;
 }
 
-.jippy-all-outlets-summary-card span {
-    font-size: 14px;
-    color: #222;
+.jippy-all-outlets-clickable-card {
+    cursor: pointer;
+    user-select: none;
 }
 
-.jippy-all-outlets-total-card {
+.jippy-all-outlets-clickable-card:active {
+    transform: translateY(0);
+}
+
+.jippy-all-outlets-summary-card::after,
+.cat-stat-card::after {
+    content: "";
+    position: absolute;
+    right: -28px;
+    bottom: -48px;
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    opacity: 0.08;
+    pointer-events: none;
+}
+
+/* OUTLETS SPECIFIC COLORS + CATEGORIES PALETTE */
+
+/* 1. TOTAL OUTLETS (Blue: #dbeeff / #2563eb) */
+.jippy-all-outlets-total-card,
+.cat-stat-blue {
+    background: linear-gradient(135deg, #ffffff 65%, #f0f7ff 100%);
+    border-color: #dbeeff;
+}
+
+.jippy-all-outlets-total-card::after,
+.cat-stat-blue::after {
+    background: #2563eb;
+}
+
+.jippy-all-outlets-total-card .jippy-all-outlets-stat-icon,
+.cat-stat-blue .cat-stat-icon {
+    color: #2563eb;
     background: #dbeeff;
 }
 
+/* 2. ACTIVE OUTLETS (Yellow/Gold: #fff0cc / #d97706) */
 .jippy-all-outlets-active-card {
+    background: linear-gradient(135deg, #ffffff 65%, #fffdf0 100%);
+    border-color: #ffe8a3;
+}
+
+.jippy-all-outlets-active-card::after {
+    background: #d97706;
+}
+
+.jippy-all-outlets-active-card .jippy-all-outlets-stat-icon {
+    color: #b45309;
     background: #fff0cc;
 }
 
+/* 3. INACTIVE OUTLETS (Green: #dff6df / #15803d) */
 .jippy-all-outlets-inactive-card {
+    background: linear-gradient(135deg, #ffffff 65%, #f2fbf4 100%);
+    border-color: #c8f0cb;
+}
+
+.jippy-all-outlets-inactive-card::after {
+    background: #16a34a;
+}
+
+.jippy-all-outlets-inactive-card .jippy-all-outlets-stat-icon {
+    color: #15803d;
     background: #dff6df;
 }
 
+/* 4. TOTAL MENU ITEMS (Pink: #ffe0e8 / #db2777) */
 .jippy-all-outlets-menu-card {
+    background: linear-gradient(135deg, #ffffff 65%, #fff5f8 100%);
+    border-color: #ffd1dc;
+}
+
+.jippy-all-outlets-menu-card::after {
+    background: #db2777;
+}
+
+.jippy-all-outlets-menu-card .jippy-all-outlets-stat-icon {
+    color: #be185d;
     background: #ffe0e8;
+}
+
+/* 5. TOTAL ORDERS (Purple: #ede9fe / #5b4ff4) */
+.jippy-all-outlets-orders-card,
+.cat-stat-purple {
+    background: linear-gradient(135deg, #ffffff 65%, #f6f3ff 100%);
+    border-color: #e0d7fe;
+}
+
+.jippy-all-outlets-orders-card::after,
+.cat-stat-purple::after {
+    background: #635bff;
+}
+
+.jippy-all-outlets-orders-card .jippy-all-outlets-stat-icon,
+.cat-stat-purple .cat-stat-icon {
+    color: #5b4ff4;
+    background: #ede9fe;
+}
+
+/* Also support Categories pure classes */
+.cat-stat-green {
+    background: linear-gradient(135deg, #ffffff 65%, #f0fdf4 100%);
+    border-color: #d1fae5;
+}
+
+.cat-stat-green::after {
+    background: #10b981;
+}
+
+.cat-stat-green .cat-stat-icon {
+    color: #059669;
+    background: #e8faf4;
+}
+
+.cat-stat-amber {
+    background: linear-gradient(135deg, #ffffff 65%, #fffdf0 100%);
+    border-color: #fef3c7;
+}
+
+.cat-stat-amber::after {
+    background: #f59e0b;
+}
+
+.cat-stat-amber .cat-stat-icon {
+    color: #d97706;
+    background: #fef3c7;
+}
+
+.cat-stat-red {
+    background: linear-gradient(135deg, #ffffff 65%, #fef2f2 100%);
+    border-color: #fee2e2;
+}
+
+.cat-stat-red::after {
+    background: #ef4444;
+}
+
+.cat-stat-red .cat-stat-icon {
+    color: #dc2626;
+    background: #fee2e2;
+}
+
+/* Icon Badge */
+.cat-stat-icon,
+.jippy-all-outlets-stat-icon {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    font-size: 19px;
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+}
+
+.cat-stat-card:hover .cat-stat-icon,
+.jippy-all-outlets-summary-card:hover .jippy-all-outlets-stat-icon {
+    transform: scale(1.05);
+}
+
+/* Stat Content */
+.cat-stat-content,
+.jippy-all-outlets-stat-content {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.cat-stat-content span,
+.jippy-all-outlets-stat-content span {
+    color: #7b8495;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.45px;
+    display: block;
+}
+
+.cat-stat-content strong,
+.jippy-all-outlets-stat-content strong {
+    margin-top: 3px;
+    color: #182235;
+    font-size: 22px;
+    line-height: 1.2;
+    font-weight: 800;
+    display: block;
+}
+
+.cat-stat-content small,
+.jippy-all-outlets-stat-content small {
+    margin-top: 3px;
+    color: #9aa2b1;
+    font-size: 9px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.jippy-all-outlets-link-count,
+.jippy-all-outlets-orders-link {
+    color: #5b4ff4;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+
+.jippy-all-outlets-link-count:hover,
+.jippy-all-outlets-orders-link:hover {
+    color: #3730a3;
+    text-decoration: underline;
 }
 
 
@@ -192,28 +459,31 @@
     gap: 30px;
     align-items: center;
     margin-bottom: 24px;
-    padding: 26px 30px;
+    padding: 24px 28px;
     box-sizing: border-box;
     background: #ffffff;
-    border-radius: 14px;
-    box-shadow: 0 3px 14px rgba(0, 0, 0, 0.07);
+    border: 1px solid #e6e9f0;
+    border-radius: 16px;
+    box-shadow: 0 7px 25px rgba(15, 23, 42, 0.045);
 }
 
 .jippy-all-outlets-bulk-info h2,
 .jippy-all-outlets-global-card h2,
 .jippy-all-outlets-table-header h2 {
     margin: 0;
-    color: #111;
-    font-size: 22px;
-    font-weight: 700;
+    color: #172033;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.2px;
 }
 
 .jippy-all-outlets-bulk-info p,
 .jippy-all-outlets-global-card p,
 .jippy-all-outlets-table-header p {
-    margin: 8px 0 18px;
-    color: #777;
-    font-size: 13px;
+    margin: 6px 0 16px;
+    color: #7a8497;
+    font-size: 12px;
+    font-weight: 500;
 }
 
 .jippy-all-outlets-template-btn {
@@ -222,17 +492,19 @@
     gap: 7px;
     height: 40px;
     padding: 0 18px;
-    border: 1px solid #ff6b00;
-    border-radius: 22px;
+    border: 1px solid #cfd0ff;
+    border-radius: 10px;
     background: #ffffff;
-    color: #ff6b00;
+    color: #5145cd;
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
+    transition: all 0.2s ease;
 }
 
 .jippy-all-outlets-template-btn:hover {
-    background: #fff4ed;
+    background: #f7f6ff;
+    border-color: #5145cd;
 }
 
 .jippy-all-outlets-upload-area {
@@ -252,8 +524,8 @@
     height: 42px;
     padding: 7px 10px;
     box-sizing: border-box;
-    border: 1px solid #ddd;
-    border-radius: 6px;
+    border: 1px solid #dfe3eb;
+    border-radius: 9px;
     background: #fff;
     font-size: 12px;
 }
@@ -273,16 +545,20 @@
     margin-top: 20px;
     padding: 0 20px;
     border: none;
-    border-radius: 8px;
-    background: #ff6b00;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #2563eb, #4f46e5);
     color: #fff;
     font-size: 13px;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
+    box-shadow: 0 7px 15px rgba(79, 70, 229, 0.22);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
 }
 
 .jippy-all-outlets-bulk-btn:hover {
-    background: #e85f00;
+    transform: translateY(-1px);
+    filter: brightness(1.04);
+    box-shadow: 0 10px 20px rgba(79, 70, 229, 0.28);
 }
 
 
@@ -299,8 +575,9 @@
     padding: 22px 25px;
     box-sizing: border-box;
     background: #ffffff;
-    border-radius: 14px;
-    box-shadow: 0 3px 14px rgba(0, 0, 0, 0.07);
+    border: 1px solid #e6e9f0;
+    border-radius: 16px;
+    box-shadow: 0 7px 25px rgba(15, 23, 42, 0.045);
 }
 
 .jippy-all-outlets-global-card p {
@@ -351,16 +628,20 @@
     height: 40px;
     padding: 0 18px;
     border: none;
-    border-radius: 8px;
-    background: #ff6b00;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #2563eb, #4f46e5);
     color: #fff;
     font-size: 13px;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
+    box-shadow: 0 7px 15px rgba(79, 70, 229, 0.22);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
 }
 
 .jippy-all-outlets-apply-btn:hover {
-    background: #e85f00;
+    transform: translateY(-1px);
+    filter: brightness(1.04);
+    box-shadow: 0 10px 20px rgba(79, 70, 229, 0.28);
 }
 
 
@@ -372,9 +653,10 @@
     width: 100%;
     box-sizing: border-box;
     background: #ffffff;
-    border-radius: 14px;
+    border: 1px solid #e6e9f0;
+    border-radius: 16px;
     overflow: visible;
-    box-shadow: 0 3px 14px rgba(0, 0, 0, 0.07);
+    box-shadow: 0 7px 25px rgba(15, 23, 42, 0.045);
 }
 
 .jippy-all-outlets-table-header {
@@ -398,8 +680,8 @@
     justify-content: space-between;
     align-items: center;
     padding: 12px 20px;
-    border-top: 1px solid #eeeeee;
-    border-bottom: 1px solid #eeeeee;
+    border-top: 1px solid #edf0f5;
+    border-bottom: 1px solid #edf0f5;
 }
 
 .jippy-all-outlets-entries {
@@ -414,7 +696,7 @@
     width: 55px;
     height: 32px;
     padding: 0 7px;
-    border: 1px solid #ddd;
+    border: 1px solid #dfe3eb;
     border-radius: 6px;
     background: #fff;
     outline: none;
@@ -437,14 +719,16 @@
     height: 36px;
     padding: 0 38px 0 12px;
     box-sizing: border-box;
-    border: 1px solid #ddd;
-    border-radius: 6px;
+    border: 1px solid #dfe3eb;
+    border-radius: 8px;
     outline: none;
     font-size: 12px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .jippy-all-outlets-search input:focus {
-    border-color: #ff6b00;
+    border-color: #746cff;
+    box-shadow: 0 0 0 3px rgba(99, 91, 255, 0.09);
 }
 
 .jippy-all-outlets-search svg {
@@ -466,17 +750,19 @@
     gap: 7px;
     height: 36px;
     padding: 0 14px;
-    border: none;
-    border-radius: 20px;
-    background: #fff4ed;
-    color: #ff6b00;
+    border: 1px solid #e0e7ff;
+    border-radius: 8px;
+    background: #f0eeff;
+    color: #5b4ff4;
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
+    transition: all 0.2s ease;
 }
 
 .jippy-all-outlets-export-btn:hover {
-    background: #ffe8d9;
+    background: #e5e3ff;
+    border-color: #cfd0ff;
 }
 
 .jippy-all-outlets-export-menu {
@@ -486,7 +772,7 @@
     z-index: 2000;
     width: 150px;
     padding: 6px;
-    border: 1px solid #eeeeee;
+    border: 1px solid #edf0f5;
     border-radius: 8px;
     background: #fff;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
@@ -506,8 +792,8 @@
 }
 
 .jippy-all-outlets-export-menu button:hover {
-    background: #fff3eb;
-    color: #ff6b00;
+    background: #f0eeff;
+    color: #5145cd;
 }
 
 
@@ -528,23 +814,24 @@
 }
 
 .jippy-all-outlets-table th {
-    height: 45px;
-    padding: 0 12px;
+    height: 44px;
+    padding: 0 14px;
     box-sizing: border-box;
-    background: #ff6b00;
+    background: linear-gradient(135deg, #5a42ed, #6948f5);
     color: #ffffff;
     border: none;
     font-size: 12px;
     font-weight: 700;
     text-align: left;
     white-space: nowrap;
+    letter-spacing: 0.2px;
 }
 
 .jippy-all-outlets-table td {
     height: 52px;
     padding: 9px 12px;
     box-sizing: border-box;
-    border-bottom: 1px solid #eeeeee;
+    border-bottom: 1px solid #edf0f5;
     color: #333;
     font-size: 15px;
     vertical-align: middle;
@@ -554,7 +841,7 @@
 }
 
 .jippy-all-outlets-table tbody tr:hover {
-    background: #fffaf7;
+    background: #fbfbfe;
 }
 
 .jippy-all-outlets-table th:nth-child(1),
@@ -669,6 +956,12 @@
    RESPONSIVE
    ========================================================= */
 
+@media (max-width: 1300px) {
+    .jippy-all-outlets-summary-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
 @media (max-width: 1100px) {
 
     .jippy-all-outlets-page {
@@ -777,28 +1070,22 @@
 
 .jippy-all-outlets-create-btn {
     height: 40px;
-
     padding: 0 18px;
-
     border: none;
-
-    border-radius: 8px;
-
-    background: #ff6b00;
-
+    border-radius: 10px;
+    background: linear-gradient(135deg, #2563eb, #4f46e5);
     color: #ffffff;
-
     font-size: 13px;
-
-    font-weight: 600;
-
+    font-weight: 700;
     cursor: pointer;
-
-    transition: 0.2s ease;
+    box-shadow: 0 7px 15px rgba(79, 70, 229, 0.22);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
 }
 
 .jippy-all-outlets-create-btn:hover {
-    background: #e85f00;
+    transform: translateY(-1px);
+    filter: brightness(1.04);
+    box-shadow: 0 10px 20px rgba(79, 70, 229, 0.28);
 }
 
 
@@ -815,7 +1102,7 @@
 }
 
 .jippy-all-outlets-name-button:hover {
-  color: #ff6422;
+  color: #4f46e5;
   text-decoration: underline;
 }
 
@@ -869,18 +1156,18 @@
 /* Edit */
 
 .jippy-all-outlets-edit-btn {
-  border: 1px solid #ff6b35;
-  color: #ff6b35;
+  border: 1px solid #cfd0ff;
+  color: #5b4ff4;
 }
 
 .jippy-all-outlets-edit-btn:hover {
-  background: #ff6b35;
+  background: #5b4ff4;
   color: #ffffff;
-
+  border-color: #5b4ff4;
   transform: translateY(-1px);
 
   box-shadow:
-    0 4px 10px rgba(255, 107, 53, 0.22);
+    0 4px 10px rgba(91, 78, 240, 0.22);
 }
 
 /* Delete */
@@ -1006,13 +1293,14 @@
 
 /* Edit */
 .jippy-all-outlets-edit-btn {
-  border: 1px solid #ff6b35;
-  color: #ff6b35;
+  border: 1px solid #cfd0ff;
+  color: #5b4ff4;
 }
 
 .jippy-all-outlets-edit-btn:hover {
-  background: #ff6b35;
+  background: #5b4ff4;
   color: #fff;
+  border-color: #5b4ff4;
 }
 
 /* Delete */
@@ -1044,7 +1332,7 @@
   justify-content: space-between;
   gap: 20px;
   padding: 18px 20px;
-  border-top: 1px solid #eeeeee;
+  border-top: 1px solid #edf0f5;
   background: #ffffff;
 }
 
@@ -1063,7 +1351,7 @@
   min-width: 36px;
   height: 36px;
   padding: 0 12px;
-  border: 1px solid #dddddd;
+  border: 1px solid #dfe3eb;
   border-radius: 6px;
   background: #ffffff;
   color: #444;
@@ -1074,13 +1362,13 @@
 }
 
 .jippy-all-outlets-page-btn:hover:not(:disabled) {
-  border-color: #ff6422;
-  color: #ff6422;
+  border-color: #5b4ff4;
+  color: #5b4ff4;
 }
 
 .jippy-all-outlets-page-btn-active {
-  background: #ff6422;
-  border-color: #ff6422;
+  background: #4f46e5;
+  border-color: #4f46e5;
   color: #ffffff;
 }
 
@@ -1123,7 +1411,7 @@
   height: 40px;
   padding: 0 18px;
 
-  border: 1px solid #d5d5d5;
+  border: 1px solid #dfe3eb;
   border-radius: 20px;
 
   background: #ffffff;
@@ -1138,8 +1426,8 @@
 }
 
 .jippy-all-outlets-columns-btn:hover {
-  border-color: #ff6422;
-  color: #ff6422;
+  border-color: #5b4ff4;
+  color: #5b4ff4;
 }
 
 /* DROPDOWN */
@@ -1300,8 +1588,8 @@
 }
 
 .jippy-all-outlets-columns-close:hover {
-  background: #f2f2f2;
-  color: #ff6422;
+  background: #f0eeff;
+  color: #5b4ff4;
 }
 
 
@@ -1398,10 +1686,10 @@
   margin: 0 !important;
 
   background: #fff !important;
-  border: 2px solid #ff6b00 !important;
+  border: 2px solid #5b4ff4 !important;
   border-radius: 7px !important;
 
-  color: #ff6b00 !important;
+  color: #5b4ff4 !important;
 
   font-size: 18px !important;
   font-weight: 700 !important;
@@ -1417,10 +1705,10 @@
 }
 
 .jippy-all-outlets-expand-btn:hover {
-  background: #ff6b00 !important;
+  background: #5b4ff4 !important;
   color: #fff !important;
   transform: scale(1.05) !important;
-  box-shadow: 0 3px 8px rgba(255, 107, 0, 0.25) !important;
+  box-shadow: 0 3px 8px rgba(91, 78, 240, 0.25) !important;
 }
 
 .jippy-all-outlets-expand-btn:active {
@@ -1677,8 +1965,8 @@
     1fr
     1.5fr;
 
-  background: #fffaf7;
-  border: 1px solid #ffd8c2;
+  background: #fbfbfe;
+  border: 1px solid #e8eaf3;
   border-radius: 10px;
 
   padding: 14px 10px;
@@ -1693,7 +1981,7 @@
   justify-content: center;
   gap: 8px;
 
-  border-right: 1px dashed #ffd8c2;
+  border-right: 1px dashed #e2e6ef;
 }
 
 .jippy-outlet-detail-item:last-child {
@@ -1947,7 +2235,7 @@
 }
 
 .jippy-unavailability-input-wrapper input:focus {
-  border-color: #ff6b00;
+  border-color: #5b4ff4;
 }
 
 .jippy-unavailability-input-wrapper svg {
@@ -1983,7 +2271,7 @@
 }
 
 .jippy-unavailability-field textarea:focus {
-  border-color: #ff6b00;
+  border-color: #5b4ff4;
 }
 
 .jippy-unavailability-modal-actions {
@@ -2014,13 +2302,15 @@
 }
 
 .jippy-unavailability-confirm-btn {
-  border: 1px solid #ff6b00;
-  background: #ff6b00;
+  border: none;
+  background: linear-gradient(135deg, #2563eb, #4f46e5);
   color: #fff;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.24);
+  transition: all 0.2s ease;
 }
 
 .jippy-unavailability-confirm-btn:hover {
-  background: #e85f00;
+  filter: brightness(1.05);
 }
 
 .jippy-unavailability-confirm-btn:disabled {
@@ -2044,7 +2334,7 @@
    ========================================================= */
 
 .jippy-all-outlets-expanded-row {
-  background: #fffaf6 !important;
+  background: #fbfbfe !important;
 }
 
 .jippy-all-outlets-expanded-row > td {
@@ -2062,11 +2352,11 @@
   padding: 16px 20px;
   background: linear-gradient(
     90deg,
-    #fff8f2,
-    #fffdfb
+    #fafaff,
+    #ffffff
   );
-  border-top: 1px solid #ffe0cc;
-  border-bottom: 1px solid #ffe0cc;
+  border-top: 1px solid #e8eaf3;
+  border-bottom: 1px solid #e8eaf3;
 }
 
 .jippy-all-outlets-address-grid {
@@ -2081,7 +2371,7 @@
 .jippy-outlet-detail-item {
   min-width: 0;
   padding: 8px 20px;
-  border-right: 1px dashed #ffd4bd;
+  border-right: 1px dashed #e0e7ff;
   box-sizing: border-box;
 }
 
@@ -2094,7 +2384,7 @@
   align-items: center;
   gap: 7px;
   margin-bottom: 10px;
-  color: #ff6422;
+  color: #5b4ff4;
   font-size: 12px;
   font-weight: 600;
 }
@@ -2118,7 +2408,7 @@
 }
 
 .jippy-outlet-name-link:hover {
-  color: #ff6b00;
+  color: #5b4ff4;
   text-decoration: underline;
 }
 
@@ -2159,8 +2449,8 @@
 }
 
 .jippy-turn-on-icon {
-  background: #fff3e8;
-  color: #ff6b00;
+  background: #f0eeff;
+  color: #5b4ff4;
 }
 
 .jippy-turn-on-success-icon {
@@ -2210,12 +2500,14 @@
 }
 
 .jippy-turn-on-confirm {
-  background: #ff6b00;
+  background: linear-gradient(135deg, #2563eb, #4f46e5);
   color: #ffffff;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.24);
+  transition: all 0.2s ease;
 }
 
 .jippy-turn-on-confirm:hover {
-  background: #e85f00;
+  filter: brightness(1.05);
 }
 
 .jippy-turn-on-cancel:disabled,
@@ -2256,7 +2548,7 @@
 
   box-shadow: 0 20px 70px rgba(0, 0, 0, 0.22);
 
-  border-top: 4px solid #ff6b00;
+  border-top: 4px solid #5b4ff4;
 
   animation: jippyOutletTogglePopupIn 0.2s ease;
 }
@@ -2291,13 +2583,13 @@
 }
 
 .jippy-outlet-toggle-popup-icon {
-  background: #fff1e6;
-  color: #ff6b00;
+  background: #f0eeff;
+  color: #5b4ff4;
 }
 
 .jippy-outlet-toggle-success-icon {
-  background: #fff1e6;
-  color: #ff6b00;
+  background: #f0eeff;
+  color: #5b4ff4;
 }
 
 .jippy-outlet-toggle-popup h2 {
@@ -2354,13 +2646,14 @@
 }
 
 .jippy-outlet-toggle-confirm-button {
-  background: #ff6b00;
+  background: linear-gradient(135deg, #2563eb, #4f46e5);
   color: #ffffff;
-  width: 90px;  
+  width: 90px;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.24);
 }
 
 .jippy-outlet-toggle-confirm-button:hover {
-  background: #e85f00;
+  filter: brightness(1.05);
 }
 
 .jippy-outlet-toggle-cancel-button:disabled,

@@ -1,6 +1,15 @@
 import "../styles/CreateDriver.css";
 
 import { useState } from "react";
+import {
+  FiArrowLeft,
+  FiUser,
+  FiShield,
+  FiUserCheck,
+  FiFileText,
+  FiMapPin,
+  FiLock,
+} from "react-icons/fi";
 
 function CreateDriver({ setActivePage }) {
 
@@ -905,55 +914,52 @@ function CreateDriver({ setActivePage }) {
           HEADER
       ===================================================== */}
 
-      <div className="jippy-create-driver-header">
-
-        <button
-          type="button"
-          className="jippy-create-driver-back-btn"
-          onClick={() =>
-            setActivePage("allDrivers")
-          }
+      {/* =====================================================
+          PAGE HEADER (Categories Style)
+      ===================================================== */}
+      <div className="page-header-container">
+        <div
+          className="breadcrumb-header"
+          onClick={() => setActivePage("allDrivers")}
         >
-          ← Back
-        </button>
+          <FiArrowLeft className="back-arrow-icon" />
+          <h2>Create Driver</h2>
+        </div>
 
-
-        <h2>
+        <p className="breadcrumb-trail">
+          <span onClick={() => setActivePage("allDrivers")}>
+            Drivers
+          </span>
+          {" > "}
           Create Driver
-        </h2>
-
-
-        <p>
-          Add a new driver with personal, KYC and address details.
         </p>
-
       </div>
 
-
       {/* =====================================================
-          FORM
+          MAIN CARD (Categories Style)
       ===================================================== */}
-
-      <form
-        className="jippy-create-driver-form"
-        onSubmit={handleSubmit}
-        noValidate
-      >
-
-
-        {/* ===================================================
-            PERSONAL DETAILS
-        =================================================== */}
-
-        <section className="jippy-create-driver-section">
-
-          <h3>
-            Personal Details
-          </h3>
-
+      <div className="category-card create-driver-card">
+        <form
+          className="jippy-create-driver-form"
+          onSubmit={handleSubmit}
+          noValidate
+        >
+          {/* ===================================================
+              PERSONAL DETAILS
+          =================================================== */}
+          <div className="card-section-title">
+            <div className="cat-section-header-left">
+              <div className="cat-section-icon-box orange">
+                <FiUser />
+              </div>
+              <div>
+                <h3>Personal Details</h3>
+                <p>Driver identity, contact and demographic data</p>
+              </div>
+            </div>
+          </div>
 
           <div className="jippy-create-driver-grid">
-
             {renderInput(
               "firstName",
               "First Name",
@@ -961,7 +967,6 @@ function CreateDriver({ setActivePage }) {
               "Enter first name",
               50
             )}
-
 
             {renderInput(
               "lastName",
@@ -971,7 +976,6 @@ function CreateDriver({ setActivePage }) {
               50
             )}
 
-
             {renderInput(
               "phoneNumber",
               "Phone Number",
@@ -980,32 +984,30 @@ function CreateDriver({ setActivePage }) {
               10
             )}
 
-
             {renderInput(
               "email",
               "Email",
               "email",
               "example@gmail.com"
             )}
-
           </div>
 
-        </section>
-
-
-        {/* ===================================================
-            NOMINEE DETAILS
-        =================================================== */}
-
-        <section className="jippy-create-driver-section">
-
-          <h3>
-            Nominee Details
-          </h3>
-
+          {/* ===================================================
+              NOMINEE DETAILS
+          =================================================== */}
+          <div className="card-section-title">
+            <div className="cat-section-header-left">
+              <div className="cat-section-icon-box purple">
+                <FiShield />
+              </div>
+              <div>
+                <h3>Nominee Details</h3>
+                <p>Emergency contact and relationship details</p>
+              </div>
+            </div>
+          </div>
 
           <div className="jippy-create-driver-grid">
-
             {renderInput(
               "nomineeName",
               "Nominee Name",
@@ -1014,7 +1016,6 @@ function CreateDriver({ setActivePage }) {
               50
             )}
 
-
             {renderInput(
               "nomineePhoneNumber",
               "Nominee Phone Number",
@@ -1022,43 +1023,36 @@ function CreateDriver({ setActivePage }) {
               "Enter nominee phone number",
               10
             )}
-
           </div>
 
+          <div className="driver-verified-checkbox-row">
+            <label className="jippy-create-driver-checkbox">
+              <input
+                type="checkbox"
+                name="isNomineeVerified"
+                checked={formData.isNomineeVerified}
+                onChange={handleChange}
+              />
+              <span>Nominee Verified</span>
+            </label>
+          </div>
 
-          <label className="jippy-create-driver-checkbox">
-
-            <input
-              type="checkbox"
-              name="isNomineeVerified"
-              checked={
-                formData.isNomineeVerified
-              }
-              onChange={handleChange}
-            />
-
-            <span>
-              Nominee Verified
-            </span>
-
-          </label>
-
-        </section>
-
-
-        {/* ===================================================
-            FAMILY MEMBER DETAILS
-        =================================================== */}
-
-        <section className="jippy-create-driver-section">
-
-          <h3>
-            Family Member Details
-          </h3>
-
+          {/* ===================================================
+              FAMILY MEMBER DETAILS
+          =================================================== */}
+          <div className="card-section-title">
+            <div className="cat-section-header-left">
+              <div className="cat-section-icon-box purple">
+                <FiUserCheck />
+              </div>
+              <div>
+                <h3>Family Member Details</h3>
+                <p>Family member for additional verification</p>
+              </div>
+            </div>
+          </div>
 
           <div className="jippy-create-driver-grid">
-
             {renderInput(
               "familyMemberName",
               "Family Member Name",
@@ -1067,7 +1061,6 @@ function CreateDriver({ setActivePage }) {
               50
             )}
 
-
             {renderInput(
               "familyMemberPhoneNumber",
               "Family Member Phone Number",
@@ -1075,43 +1068,36 @@ function CreateDriver({ setActivePage }) {
               "Enter family member phone number",
               10
             )}
-
           </div>
 
+          <div className="driver-verified-checkbox-row">
+            <label className="jippy-create-driver-checkbox">
+              <input
+                type="checkbox"
+                name="isFamilyMemberVerified"
+                checked={formData.isFamilyMemberVerified}
+                onChange={handleChange}
+              />
+              <span>Family Member Verified</span>
+            </label>
+          </div>
 
-          <label className="jippy-create-driver-checkbox">
-
-            <input
-              type="checkbox"
-              name="isFamilyMemberVerified"
-              checked={
-                formData.isFamilyMemberVerified
-              }
-              onChange={handleChange}
-            />
-
-            <span>
-              Family Member Verified
-            </span>
-
-          </label>
-
-        </section>
-
-
-        {/* ===================================================
-            KYC DETAILS
-        =================================================== */}
-
-        <section className="jippy-create-driver-section">
-
-          <h3>
-            KYC Details
-          </h3>
-
+          {/* ===================================================
+              KYC DETAILS
+          =================================================== */}
+          <div className="card-section-title">
+            <div className="cat-section-header-left">
+              <div className="cat-section-icon-box blue">
+                <FiFileText />
+              </div>
+              <div>
+                <h3>KYC Documents</h3>
+                <p>Aadhaar, driving license and vehicle registration numbers</p>
+              </div>
+            </div>
+          </div>
 
           <div className="jippy-create-driver-grid">
-
             {renderInput(
               "aadharNumber",
               "Aadhaar Number",
@@ -1120,7 +1106,6 @@ function CreateDriver({ setActivePage }) {
               12
             )}
 
-
             {renderInput(
               "drivingLicenseNumber",
               "Driving License Number",
@@ -1128,32 +1113,30 @@ function CreateDriver({ setActivePage }) {
               "Example: TS0920200012345"
             )}
 
-
             {renderInput(
               "rcCopy",
               "RC Number",
               "text",
               "Example: TS09EF5678"
             )}
-
           </div>
 
-        </section>
-
-
-        {/* ===================================================
-            ADDRESS DETAILS
-        =================================================== */}
-
-        <section className="jippy-create-driver-section">
-
-          <h3>
-            Address Details
-          </h3>
-
+          {/* ===================================================
+              ADDRESS DETAILS
+          =================================================== */}
+          <div className="card-section-title">
+            <div className="cat-section-header-left">
+              <div className="cat-section-icon-box emerald">
+                <FiMapPin />
+              </div>
+              <div>
+                <h3>Address Details</h3>
+                <p>Residential location, state, city and assigned coverage area</p>
+              </div>
+            </div>
+          </div>
 
           <div className="jippy-create-driver-grid">
-
             {renderInput(
               "buildingNumber",
               "Building Number",
@@ -1161,7 +1144,6 @@ function CreateDriver({ setActivePage }) {
               "Example: 10-2-15",
               50
             )}
-
 
             {renderInput(
               "road",
@@ -1171,7 +1153,6 @@ function CreateDriver({ setActivePage }) {
               100
             )}
 
-
             {renderInput(
               "landmark",
               "Landmark",
@@ -1180,14 +1161,12 @@ function CreateDriver({ setActivePage }) {
               150
             )}
 
-
             {renderInput(
               "stateId",
               "State ID",
               "number",
               "Enter state ID"
             )}
-
 
             {renderInput(
               "cityId",
@@ -1196,110 +1175,72 @@ function CreateDriver({ setActivePage }) {
               "Enter city ID"
             )}
 
-
             {renderInput(
               "areaId",
               "Area ID",
               "number",
               "Enter area ID"
             )}
-
           </div>
 
-        </section>
-
-
-        {/* ===================================================
-            ACCOUNT DETAILS
-        =================================================== */}
-
-        <section className="jippy-create-driver-section">
-
-          <h3>
-            Account Details
-          </h3>
-
+          {/* ===================================================
+              ACCOUNT DETAILS
+          =================================================== */}
+          <div className="card-section-title">
+            <div className="cat-section-header-left">
+              <div className="cat-section-icon-box amber">
+                <FiLock />
+              </div>
+              <div>
+                <h3>Account Credentials</h3>
+                <p>Password and secure login setup for the driver mobile app</p>
+              </div>
+            </div>
+          </div>
 
           <div className="jippy-create-driver-grid">
-
             {renderInput(
               "password",
               "Password",
               "password",
               "Enter driver password"
             )}
-
           </div>
-
 
           <div className="jippy-create-driver-password-hint">
-
             Password must contain:
-
             <ul>
-
-              <li>
-                8–20 characters
-              </li>
-
-              <li>
-                At least one uppercase letter
-              </li>
-
-              <li>
-                At least one lowercase letter
-              </li>
-
-              <li>
-                At least one number
-              </li>
-
-              <li>
-                At least one special character
-              </li>
-
+              <li>8–20 characters</li>
+              <li>At least one uppercase letter</li>
+              <li>At least one lowercase letter</li>
+              <li>At least one number</li>
+              <li>At least one special character</li>
             </ul>
-
           </div>
 
-        </section>
+          {/* ===================================================
+              BUTTONS
+          =================================================== */}
+          <div className="cat-form-actions jippy-create-driver-actions">
+            <button
+              type="button"
+              className="cat-btn-cancel jippy-create-driver-cancel-btn"
+              disabled={loading}
+              onClick={() => setActivePage("allDrivers")}
+            >
+              Cancel
+            </button>
 
-
-        {/* ===================================================
-            BUTTONS
-        =================================================== */}
-
-        <div className="jippy-create-driver-actions">
-
-          <button
-            type="button"
-            className="jippy-create-driver-cancel-btn"
-            disabled={loading}
-            onClick={() =>
-              setActivePage("allDrivers")
-            }
-          >
-            Cancel
-          </button>
-
-
-          <button
-            type="submit"
-            className="jippy-create-driver-submit-btn"
-            disabled={loading}
-          >
-
-            {loading
-              ? "Creating Driver..."
-              : "Create Driver"}
-
-          </button>
-
-        </div>
-
-
-      </form>
-
+            <button
+              type="submit"
+              className="cat-btn-submit jippy-create-driver-submit-btn"
+              disabled={loading}
+            >
+              {loading ? "Creating Driver..." : "+ Create Driver"}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
 
   );
