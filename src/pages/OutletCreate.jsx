@@ -1091,12 +1091,10 @@ const handleCuisineChange = (selected) => {
         form.updatedBy,
     };
 
-
-    console.log(
-      "CREATE OUTLET PAYLOAD:",
-      payload
-    );
-
+console.log(
+  "CREATE OUTLET PAYLOAD:",
+  JSON.stringify(payload, null, 2)
+);
 
     try {
 

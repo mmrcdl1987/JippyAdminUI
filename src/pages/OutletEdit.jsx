@@ -5,6 +5,8 @@ import {
   getOutletDetails,
   getOutletById,
   updateOutletDetailsByMerchant,
+   getAllOutlets,
+  
 } from "../services/outletListService";
 
 import {
@@ -550,7 +552,21 @@ gstNumber: "",
 
       const data = unwrapResponse(response);
 
+      const allOutlets = await getAllOutlets();
+
+const currentOutlet = allOutlets.find(
+  (outlet) =>
+    Number(outlet.outletId) === Number(outletId)
+);
+
+const merchantId = currentOutlet?.merchantId;
+
+console.log("CURRENT OUTLET FROM ALL OUTLETS:", currentOutlet);
+console.log("MERCHANT ID FROM ALL OUTLETS:", merchantId);
+
       console.log("GET OUTLET DETAILS:", data);
+      console.log("MERCHANT ID:", data?.merchantId);
+console.log("FULL OUTLET DATA:", JSON.stringify(data, null, 2));
 
       if (!data) {
         throw new Error("No outlet details received.");
@@ -563,7 +579,7 @@ gstNumber: "",
 
       setFormData({
         outletName: data.outletName || "",
-        merchantId: data.merchantId || "",
+        merchantId: merchantId || "",
 
         outletEmail: data.outletEmail || "",
         outletPhone: data.outletPhone || "",
