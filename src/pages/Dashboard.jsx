@@ -23,6 +23,8 @@ function Dashboard() {
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
 
+  const [selectedOrderId, setSelectedOrderId] = useState(null);
+
   const navigate = useNavigate();
 
 const setActivePage = (page) => {
@@ -131,6 +133,8 @@ const setActivePage = (page) => {
                       selectedCategory={selectedCategory}
                       setSelectedCategory={setSelectedCategory}
                       setActivePage={setActivePage}
+                      selectedOrderId={selectedOrderId}
+  setSelectedOrderId={setSelectedOrderId}
                     />
                   ) : (
                     <div

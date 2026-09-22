@@ -599,3 +599,44 @@ export const restoreCategoryUnavailable = async (categoryId) => {
     throw error;
   }
 };
+
+
+
+// ============================================================
+// TOGGLE OUTLET
+// ON → OFF / OFF → ON
+// ============================================================
+
+export const toggleOutlet = async (outletId, isToggle) => {
+  try {
+    const payload = {
+      outletId: Number(outletId),
+      isToggle: Boolean(isToggle),
+    };
+
+    console.log(
+      "OUTLET TOGGLE PAYLOAD:",
+      JSON.stringify(payload, null, 2)
+    );
+
+    const response = await api.put(
+      "/api/fm/outlets/toggleForOutlet",
+      payload
+    );
+
+    console.log(
+      "OUTLET TOGGLE RESPONSE:",
+      response.data
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error(
+      "OUTLET TOGGLE ERROR:",
+      error.response?.status,
+      error.response?.data || error.message
+    );
+
+    throw error;
+  }
+};

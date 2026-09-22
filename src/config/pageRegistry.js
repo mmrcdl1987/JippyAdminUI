@@ -6,7 +6,7 @@ import EditPromotionSettings from "../pages/EditPromotionSettings";
 
 import RolesPermissions from "../pages/RolesPermissions";
 import AdminUsers from "../pages/AdminUsers";
-
+import MerchantSettlement from "../pages/MerchantSettlement";
 import UsersCustomers from "../pages/UsersCustomers";
 import CreateUser from "../pages/CreateUser";
 
@@ -70,6 +70,10 @@ import PendingApprovals from "../pages/PendingApprovals";
 import ApprovalSettings from "../pages/ApprovalSettings";
 import ApprovalTransactions from "../pages/ApprovalTransactions";
 import CreatePromotionSettings from "../pages/CreatePromotionSettings";
+
+import Orders from "../pages/Orders";
+
+import OrderDetails from "../pages/OrderDetails";
 
 
 export const pageRegistry = {
@@ -275,6 +279,19 @@ export const pageRegistry = {
 
 
   // =========================
+// ORDERS
+// =========================
+
+orders: {
+  component: Orders,
+  permission: "ORDER_READ",
+},
+orderDetails: {
+  component: OrderDetails,
+  permission: "ORDER_READ",
+},
+
+  // =========================
   // CATEGORIES
   // =========================
 
@@ -454,5 +471,8 @@ editPromotionSettings: {
     component: DriverSettings,
     permission: "SETTINGS_READ",
   },
-
+merchantSettlement: {
+  component: MerchantSettlement,
+  permission: "SETTINGS_READ",
+},
 };

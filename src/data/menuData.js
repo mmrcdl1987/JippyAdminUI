@@ -180,6 +180,27 @@ export const menuData = [
     ],
   },
 
+
+
+
+
+  // =========================================================
+// ORDER MANAGEMENT
+// =========================================================
+
+{
+  title: "ORDER MANAGEMENT",
+  permission: "ORDER_READ",
+  items: [
+    {
+      name: "Orders",
+      pageKey: "orders",
+      permission: "ORDER_READ",
+    },
+  ],
+},
+
+
   {
     title: "MENU & FOOD MANAGEMENT",
     permission: "RESTAURANT_READ",
@@ -308,24 +329,25 @@ export const menuData = [
   },
 
   {
-    title: "REPORT & ANALYTICS",
-    permission: "PAYMENT_READ",
-    items: [
-      {
-        name: "Settlement Reports",
-        children: [
-          {
-            name: "Merchant Settlement",
-            permission: "PAYMENT_READ",
-          },
-          {
-            name: "Driver Settlement",
-            permission: "PAYMENT_READ",
-          },
-        ],
-      },
-    ],
-  },
+  title: "REPORT & ANALYTICS",
+  permission: "PAYMENT_READ",
+  items: [
+    {
+      name: "Settlement Reports",
+      children: [
+        {
+          name: "Merchant Settlement",
+          pageKey: "merchantSettlement",
+          permission: "PAYMENT_READ",
+        },
+        {
+          name: "Driver Settlement",
+          permission: "PAYMENT_READ",
+        },
+      ],
+    },
+  ],
+},
 
   {
     title: "NOTIFICATION MANAGEMENT",

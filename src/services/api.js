@@ -98,7 +98,19 @@ export const uploadBannerImages = async (outletSubscriptionPlanId, updatedBy, fo
     throw error;
   }
 };
+// =============================================
+// Meal Type Timings API
+// =============================================
+export const getMealTypeTimings = async () => {
+  try {
+    const response = await FM_API.get("/api/fm/meal-reminder");
 
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching meal type timings:", error);
+    throw error;
+  }
+};
 // =============================================
 // Password Reset API Export
 // =============================================
