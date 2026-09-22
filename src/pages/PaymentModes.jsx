@@ -11,6 +11,7 @@ import {
 } from "react-icons/fi";
 import Swal from "sweetalert2";
 import "../styles/PaymentModes.css";
+import { showSuccessToast } from "../utils/notifications";
 
 import {
   getAllPaymentModes,
@@ -145,13 +146,7 @@ export default function PaymentModes() {
         paymentMode: paymentModeInput.trim(),
         isActive: "Y",
       });
-      Swal.fire({
-        icon: "success",
-        title: "Created Successfully",
-        text: `Payment mode "${paymentModeInput.trim()}" has been created.`,
-        timer: 2000,
-        showConfirmButton: false,
-      });
+      showSuccessToast(`Payment mode "${paymentModeInput.trim()}" created successfully.`);
       setShowCreateModal(false);
       setPaymentModeInput("");
       fetchModes();
@@ -215,13 +210,7 @@ export default function PaymentModes() {
         isActive: isEditActive ? "Y" : "N",
       });
 
-      Swal.fire({
-        icon: "success",
-        title: "Updated Successfully",
-        text: "Payment mode updated successfully.",
-        timer: 2000,
-        showConfirmButton: false,
-      });
+      showSuccessToast("Payment mode updated successfully.");
       setShowEditModal(false);
       setSelectedMode(null);
       setPaymentModeInput("");

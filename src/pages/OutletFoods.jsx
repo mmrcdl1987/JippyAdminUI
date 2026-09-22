@@ -885,19 +885,10 @@ const handleConfirmFoodRestore = async () => {
   ) => {
     const variants =
       Array.isArray(
-        food?.variants
       )
         ? food.variants
         : [];
 
-
-    if (variants.length === 0) {
-      return (
-        <span className="jippy-food-no-variants">
-          No variants
-        </span>
-      );
-    }
 
     return (
       <div className="jippy-food-variant-summary">
